@@ -1,8 +1,42 @@
-/*
+.properties-plus-plus-menu-item-note {
+	font-size: 0.8;
+	color: var(--text-muted);
+}
 
-This CSS file will be included with your plugin, and
-available in the app when your plugin is enabled.
+.properties-plus-plus-text-error {
+	color: var(--text-error);
+}
 
-If your plugin does not need CSS, delete this file.
+.properties-plus-plus-flex-center {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
 
-*/
+.properties-plus-plus-w-fit {
+	width: fit-content;
+}
+
+.properties-plus-plus-slider-label-start,
+.properties-plus-plus-slider-label-end {
+	color: var(--text-muted);
+	--padding: var(--size-2-2);
+}
+
+.properties-plus-plus-slider-label-start {
+	padding-inline-end: var(--padding);
+}
+.properties-plus-plus-slider-label-end {
+	padding-inline-start: var(--padding);
+}
+
+.metadata-input-longtext:has(input.slider) {
+	overflow-y: visible;
+}
+
+.properties-plus-plus-number-plus-plus {
+	display: flex;
+	align-items: center;
+	justify-content: start;
+	gap: var(--size-2-2);
+}
