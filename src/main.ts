@@ -13,6 +13,7 @@ import {
 	PluginSettingTab,
 	Setting,
 	TextComponent,
+	View,
 } from "obsidian";
 import {
 	metdataSectionId,
@@ -27,19 +28,23 @@ import {
 	addMassUpdate,
 } from "./lib/utils/augmentMedataMenu";
 import { registerCustomWidgets } from "./typeWidgets";
+import {
+	defaultPropertySettings,
+	PropertySettings,
+} from "./lib/utils/augmentMedataMenu/addSettings";
 
 // Remember to rename these classes and interfaces!
 
-interface PropertiesPlusPlusSettings {
-	mySetting: string;
-}
+type PropertiesPlusPlusSettings = {
+	propertySettings: Record<string, PropertySettings>;
+};
 
 const DEFAULT_SETTINGS: PropertiesPlusPlusSettings = {
-	mySetting: "default",
+	propertySettings: {},
 };
 
 export default class PropertiesPlusPlus extends Plugin {
-	settings: PropertiesPlusPlusSettings;
+	settings: PropertiesPlusPlusSettings = { ...DEFAULT_SETTINGS };
 
 	menu: Menu | null = null;
 
@@ -57,21 +62,35 @@ export default class PropertiesPlusPlus extends Plugin {
 
 		const { metadataCache: mdc, fileCache: fc } = metadataCache;
 		const fcKeys = Object.keys(fc);
-		const files = Object.keys(mdc)
-			.map((hash) => {
-				const fm = mdc[hash].frontmatter;
-				if (!fm?.hasOwnProperty(key)) return null;
-				return {
-					hash,
-					value: fm[key],
-				};
-			})
-			.filter((o) => o !== null)
-			.map((obj) => {
-				const path = fcKeys.find((k) => fc[k].hash === obj.hash)!;
-				return { ...obj, path };
-			})
-			.filter(({ path }) => !!path);
+		const files: { hash: string; value: unknown; path: string }[] =
+			Object.keys(mdc)
+				.map((hash) => {
+					const fm = mdc[hash].frontmatter ?? {};
+					if (!fm?.hasOwnProperty(key)) {
+						// obsidian doesn't allow properties with the same name different case
+						// so try to find a key without regard to letter case
+						const foundKey = Object.keys(fm).find(
+							(k) => k.toLowerCase() === key.toLowerCase()
+						);
+						if (!foundKey) return null;
+						return {
+							hash,
+							value: fm[foundKey],
+						};
+					}
+					return {
+						hash,
+						value: fm[key],
+					};
+				})
+				.filter((o) => o !== null)
+				.map((obj) => {
+					const path = fcKeys.find((k) => fc[k].hash === obj.hash)!;
+					return { ...obj, path };
+				})
+				.filter(({ path }) => !!path);
+
+		console.log("files: ", files);
 
 		const sec = "Properties++";
 		menu.addItem((item) =>
@@ -95,8 +114,10 @@ export default class PropertiesPlusPlus extends Plugin {
 		this.removePatch = around(Menu.prototype, {
 			showAtMouseEvent(old) {
 				return dedupe(monkeyAroundKey, old, function (e) {
+					// @ts-ignore Doesn't look like there's a way to get this typed correctly
+					const that = this as Menu;
 					const exit = () => {
-						return old.call(this, e);
+						return old.call(that, e);
 					};
 					const { target } = e;
 					const isHTML = target instanceof HTMLElement;
@@ -115,7 +136,7 @@ export default class PropertiesPlusPlus extends Plugin {
 						  );
 
 					if (!trueTarget) return exit();
-					setMenu(this, trueTarget); // or do whatever here...
+					setMenu(that, trueTarget);
 
 					return exit();
 				});
@@ -129,15 +150,25 @@ export default class PropertiesPlusPlus extends Plugin {
 	}
 
 	async loadSettings() {
-		this.settings = Object.assign(
-			{},
-			DEFAULT_SETTINGS,
-			await this.loadData()
-		);
+		// this.settings = Object.assign(
+		// 	{},
+		// 	DEFAULT_SETTINGS,
+		// 	await this.loadData()
+		// );
+		const loaded = await this.loadData();
+		this.settings = { ...DEFAULT_SETTINGS, ...loaded };
 	}
 
-	async saveSettings() {
+	async saveSettings(): Promise<void> {
 		await this.saveData(this.settings);
+	}
+
+	async updateSettings(
+		cb: (prev: PropertiesPlusPlusSettings) => PropertiesPlusPlusSettings
+	): Promise<void> {
+		const newSettings = cb(this.settings);
+		this.settings = { ...newSettings };
+		await this.saveSettings();
 	}
 
 	removeCustomWidgets(): void {
@@ -145,6 +176,21 @@ export default class PropertiesPlusPlus extends Plugin {
 		Object.keys(mtm.registeredTypeWidgets).forEach((key) => {
 			if (!key.startsWith(typeWidgetPrefix)) return;
 			delete mtm.registeredTypeWidgets[key];
+		});
+	}
+
+	refreshPropertyEditor(property: string): void {
+		this.app.workspace.iterateAllLeaves((leaf) => {
+			if (!leaf.view.hasOwnProperty("metadataEditor")) return;
+			const view = leaf.view as View & {
+				metadataEditor: {
+					onMetadataTypeChange: (property: string) => void;
+				};
+			};
+
+			// This is to force dropdowns to re-render with updated options
+			// the easiest way I found was to emulate a type change
+			view.metadataEditor.onMetadataTypeChange(property);
 		});
 	}
 }

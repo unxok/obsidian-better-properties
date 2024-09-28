@@ -15,7 +15,7 @@ export const addUsedBy = ({ plugin, menu, files }: MetadataAddItemProps) => {
 				frag.createSpan({ text: path });
 				frag.createEl("br");
 				frag.createSpan({
-					text: value,
+					text: value?.toString(),
 					cls: "properties-plus-plus-menu-item-note",
 				});
 				sub.setTitle(frag).onClick(async () => {

@@ -1,18 +1,24 @@
 import { SliderComponent, ToggleComponent } from "obsidian";
-import { typeWidgetPrefix } from "src/lib/constants";
+import { typeKeySuffixes, typeWidgetPrefix } from "src/lib/constants";
+import { defaultPropertySettings } from "src/lib/utils/augmentMedataMenu/addSettings";
 import PropertiesPlusPlus from "src/main";
 
-const key = typeWidgetPrefix + "slider";
+const shortTypeKey = typeKeySuffixes.slider;
+const fullTypeKey = typeWidgetPrefix + shortTypeKey;
 const name = "Slider";
 
 export const registerSlider = (plugin: PropertiesPlusPlus) => {
-	plugin.app.metadataTypeManager.registeredTypeWidgets[key] = {
+	plugin.app.metadataTypeManager.registeredTypeWidgets[fullTypeKey] = {
 		icon: "git-commit",
 		default: () => 0,
 		name: () => name,
 		validate: (v) => !Number.isNaN(Number(v)),
-		type: key,
+		type: fullTypeKey,
 		render: (el, data, ctx) => {
+			const { min, max, step, showLabels } = plugin.settings
+				.propertySettings[data.key.toLowerCase()]?.[shortTypeKey] ?? {
+				...defaultPropertySettings[shortTypeKey],
+			};
 			const container = el
 				.createDiv({
 					cls: "metadata-input-longtext",
@@ -21,10 +27,11 @@ export const registerSlider = (plugin: PropertiesPlusPlus) => {
 					cls: "properties-plus-plus-flex-center properties-plus-plus-w-fit",
 				});
 			const { value } = data;
-			container.createSpan({
-				text: "0",
-				cls: "properties-plus-plus-slider-label-start",
-			});
+			showLabels &&
+				container.createSpan({
+					text: min.toString(),
+					cls: "properties-plus-plus-slider-label-start",
+				});
 			new SliderComponent(container)
 				.setValue(Number(value))
 				.onChange((n) => {
@@ -32,13 +39,14 @@ export const registerSlider = (plugin: PropertiesPlusPlus) => {
 				})
 				.setInstant(false)
 				.setDynamicTooltip()
-				// .setLimits(-100, 100, 1)
+				.setLimits(min, max, step)
 				.showTooltip();
 
-			container.createSpan({
-				text: "100",
-				cls: "properties-plus-plus-slider-label-end",
-			});
+			showLabels &&
+				container.createSpan({
+					text: max.toString(),
+					cls: "properties-plus-plus-slider-label-end",
+				});
 		},
 	};
 };

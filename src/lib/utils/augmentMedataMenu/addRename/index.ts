@@ -61,19 +61,27 @@ export const addRename = ({
 						.setCta()
 						.onClick(async () => {
 							const value = nameCmp.getValue().trim();
-							await Promise.all(
-								files.map(async ({ path }) => {
-									const file = vault.getFileByPath(path);
-									if (!file) return;
-									await fileManager.processFrontMatter(
-										file,
-										(fm) => {
-											fm[value] = fm[key];
-											delete fm[key];
-										}
-									);
-								})
-							);
+
+							// @ts-ignore
+							await app.fileManager.renameProperty(key, value); // doesn't account for different letter case :(
+							/*
+								TODO `fileManager.renameProperty` is case sensitive, so I should do my own implementation
+								- Need to retain property type in new value
+								- Need to find true case-insensitive key 
+							*/
+							// await Promise.all(
+							// 	files.map(async ({ path }) => {
+							// 		const file = vault.getFileByPath(path);
+							// 		if (!file) return;
+							// 		await fileManager.processFrontMatter(
+							// 			file,
+							// 			(fm) => {
+							// 				fm[value] = fm[key];
+							// 				delete fm[key];
+							// 			}
+							// 		);
+							// 	})
+							// );
 							modal.close();
 						})
 				);

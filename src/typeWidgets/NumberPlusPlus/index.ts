@@ -7,62 +7,81 @@ import {
 	SliderComponent,
 	ToggleComponent,
 } from "obsidian";
-import { typeWidgetPrefix } from "src/lib/constants";
+import { PropertyEntryData, PropertyRenderContext } from "obsidian-typings";
+import { typeKeySuffixes, typeWidgetPrefix } from "src/lib/constants";
+import { defaultPropertySettings } from "src/lib/utils/augmentMedataMenu/addSettings";
 import PropertiesPlusPlus from "src/main";
 
-const key = typeWidgetPrefix + "number-plus-plus";
+const shortTypeKey = typeKeySuffixes["number-plus-plus"];
+const fullTypeKey = typeWidgetPrefix + shortTypeKey;
 const name = "Number++";
 
 export const registerNumberPlusPlus = (plugin: PropertiesPlusPlus) => {
-	plugin.app.metadataTypeManager.registeredTypeWidgets[key] = {
+	const render = (
+		el: HTMLElement,
+		data: PropertyEntryData<unknown>,
+		ctx: PropertyRenderContext
+	) => {
+		const { min, max, step, validate } = plugin.settings.propertySettings[
+			data.key.toLowerCase()
+		]?.[shortTypeKey] ?? {
+			...defaultPropertySettings[shortTypeKey],
+		};
+		const doValidation = (num: number) => {
+			if (!validate) return num;
+			if (num < min) return min;
+			if (num > max) return max;
+			return num;
+		};
+		const doUpdate = (n: number) => {
+			const num = Number.isNaN(n) ? 0 : n;
+			const valid = doValidation(num);
+			ctx.onChange(valid);
+			inp.value = valid.toString();
+		};
+		const container = el.createDiv({
+			cls: "properties-plus-plus-number-plus-plus",
+		});
+		const { value } = data;
+		const inp = container.createEl("input", {
+			attr: {
+				type: "number",
+				value: Number(value),
+				inputmode: "decimal",
+				placeholder: "No value",
+				min,
+				max,
+				// step, // inaccurate for inputs that aren't ranges
+			},
+			cls: "metadata-input metadata-input-number properties-plus-plus-w-fit",
+		});
+		inp.addEventListener("blur", () => {
+			doUpdate(inp.valueAsNumber);
+		});
+		const minus = container.createSpan({ cls: "clickable-icon" });
+		setIcon(minus, "minus");
+		minus.addEventListener("click", () => {
+			doUpdate(inp.valueAsNumber - step);
+		});
+		const plus = container.createSpan({ cls: "clickable-icon" });
+		setIcon(plus, "plus");
+		plus.addEventListener("click", () => {
+			doUpdate(inp.valueAsNumber + step);
+		});
+		const exp = container.createSpan({ cls: "clickable-icon" });
+		setIcon(exp, "variable");
+		exp.addEventListener("click", () => {
+			new ExpressionModal(plugin.app, inp.valueAsNumber, doUpdate).open();
+		});
+	};
+
+	plugin.app.metadataTypeManager.registeredTypeWidgets[fullTypeKey] = {
 		icon: "calculator",
 		default: () => 0,
 		name: () => name,
 		validate: (v) => !Number.isNaN(Number(v)),
-		type: key,
-		render: (el, data, ctx) => {
-			const container = el
-				// .createDiv({
-				// 	cls: "metadata-input metadata-input-number",
-				// })
-				.createDiv({ cls: "properties-plus-plus-number-plus-plus" });
-			const { value } = data;
-			const inp = container.createEl("input", {
-				attr: {
-					type: "number",
-					value: Number(value),
-					inputmode: "decimal",
-					placeholder: "No value",
-				},
-				cls: "metadata-input metadata-input-number properties-plus-plus-w-fit",
-			});
-			inp.addEventListener("blur", (e) => {
-				const num = Number(inp.value);
-				ctx.onChange(num);
-			});
-			const minus = container.createSpan({ cls: "clickable-icon" });
-			setIcon(minus, "minus");
-			minus.addEventListener("click", () => {
-				const num = Number(inp.value) - 1;
-				inp.setAttribute("value", num.toString());
-				ctx.onChange(num);
-			});
-			const plus = container.createSpan({ cls: "clickable-icon" });
-			setIcon(plus, "plus");
-			plus.addEventListener("click", () => {
-				const num = Number(inp.value) + 1;
-				inp.setAttribute("value", num.toString());
-				ctx.onChange(num);
-			});
-			const exp = container.createSpan({ cls: "clickable-icon" });
-			setIcon(exp, "variable");
-			exp.addEventListener("click", () => {
-				new ExpressionModal(plugin.app, Number(inp.value), (n) => {
-					inp.setAttribute("value", n.toString());
-					ctx.onChange(n);
-				}).open();
-			});
-		},
+		type: fullTypeKey,
+		render,
 	};
 };
 

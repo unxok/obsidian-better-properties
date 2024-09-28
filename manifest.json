@@ -1,11 +1,11 @@
 {
-	"id": "sample-plugin",
-	"name": "Sample Plugin",
+	"id": "properties-plus-plus",
+	"name": "Properties++",
 	"version": "1.0.0",
 	"minAppVersion": "0.15.0",
-	"description": "Demonstrates some of the capabilities of the Obsidian API.",
-	"author": "Obsidian",
-	"authorUrl": "https://obsidian.md",
-	"fundingUrl": "https://obsidian.md/pricing",
+	"description": "Upgrades Obsidian properties with new types, features, and more!",
+	"author": "Unxok",
+	"authorUrl": "https://github.com/unxok",
+	"fundingUrl": "https://buymeacoffee.com/unxok",
 	"isDesktopOnly": false
 }

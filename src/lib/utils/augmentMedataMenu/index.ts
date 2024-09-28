@@ -12,7 +12,7 @@ export type MetadataAddItemProps = {
 	files: {
 		path: string;
 		hash: string;
-		value: any;
+		value: unknown;
 	}[];
 	key: string;
 };

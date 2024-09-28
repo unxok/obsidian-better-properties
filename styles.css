@@ -40,3 +40,22 @@
 	justify-content: start;
 	gap: var(--size-2-2);
 }
+
+.properties-plus-plus-setting-nested-heading,
+.setting-item:first-child.properties-plus-plus-setting-nested-heading {
+	padding: var(--size-4-3);
+	border-radius: var(--radius-s);
+
+	&:hover {
+		background-color: var(--interactive-hover);
+		cursor: pointer;
+	}
+}
+
+.properties-plus-plus-setting-nested-content {
+	padding-left: var(--size-4-3);
+}
+
+.properties-plus-plus-setting-nested-content div.setting-item-heading {
+	margin-top: 0;
+}
