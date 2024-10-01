@@ -32,15 +32,6 @@ const render = (
 				const val = editor.editor?.getValue() ?? "";
 				ctx.onChange(val);
 			},
-			onEnter: (editor, _, shift) => {
-				if (!shift) {
-					// editor.editorEl.blur();
-					return false;
-				}
-				console.log("we out here");
-				editor.editor?.newlineAndIndentOnly();
-				return true;
-			},
 		},
 		ctx.sourcePath
 	);

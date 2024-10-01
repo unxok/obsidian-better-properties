@@ -82,9 +82,7 @@ const onClick = ({ plugin: { app }, files, key }: MetadataAddItemProps) => {
 				const existing = fm[key] ?? "";
 				if (existing !== oldValue) return;
 				if (!includeAbsent && !fm.hasOwnProperty(key))
-					return console.log("nope");
-
-				fm[key] = newValue;
+					fm[key] = newValue;
 			});
 		});
 		await Promise.all(promises);

@@ -10,6 +10,7 @@ import PropertiesPlusPlus from "@/main";
 import { createSliderSettings } from "./Slider";
 import { createNumberPlusPlusSettings } from "./NumberPlusPlus";
 import { createDropdownSettings } from "./Dropdown";
+import { createButtonSettings } from "./Button";
 
 export const addSettings = ({ menu, plugin, key }: MetadataAddItemProps) => {
 	menu.addItem((item) =>
@@ -44,6 +45,15 @@ export type PropertySettings = {
 		dynamicInlineJs: string;
 		dynamicFileJs: string;
 	};
+	button: {
+		displayText: string;
+		icon: string;
+		callbackType: "inlineJs" | "fileJs" | "Command";
+		style: "default" | "accent" | "warning" | "destructive" | "ghost";
+		bgColor: string;
+		textColor: string;
+		cssClass: string;
+	};
 };
 
 // can't think of a way to have this typed properly but at least this avoids hard coding the keys somewhat
@@ -68,6 +78,15 @@ export const defaultPropertySettings: PropertySettings = {
 		],
 		dynamicInlineJs: "",
 		dynamicFileJs: "",
+	},
+	[typeKeySuffixes["button"]]: {
+		displayText: "click me",
+		callbackType: "inlineJs",
+		icon: "",
+		style: "default",
+		bgColor: "",
+		textColor: "",
+		cssClass: "",
 	},
 };
 
@@ -127,6 +146,13 @@ class SettingsModal extends Modal {
 					contentEl,
 					this.form["dropdown"],
 					(key, value) => this.updateForm("dropdown", key, value),
+					this.plugin
+				);
+			case "button":
+				return createButtonSettings(
+					contentEl,
+					this.form["button"],
+					(key, value) => this.updateForm("button", key, value),
 					this.plugin
 				);
 			default:

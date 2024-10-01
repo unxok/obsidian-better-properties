@@ -27,7 +27,6 @@ export const createSection = (
 		cls: "properties-plus-plus-setting-nested-content",
 		attr: { style: defaultDisplay },
 	});
-	console.log(label + " content: ", content.style.display);
 	heading.settingEl.addEventListener("click", () => {
 		if (content.style.display === "none") {
 			icon.style.rotate = "90deg";

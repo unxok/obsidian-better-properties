@@ -11,4 +11,5 @@ export const typeKeySuffixes = {
 	dropdown: "dropdown",
 	color: "color",
 	markdown: "markdown",
+	button: "button",
 } as const;

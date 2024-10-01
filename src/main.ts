@@ -68,8 +68,6 @@ export default class PropertiesPlusPlus extends Plugin {
 				})
 				.filter(({ path }) => !!path);
 
-		console.log("files: ", files);
-
 		const sec = "Properties++";
 		menu.addItem((item) =>
 			item.setSection(sec).setDisabled(true).setTitle(sec)
