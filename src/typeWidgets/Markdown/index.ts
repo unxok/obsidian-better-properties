@@ -4,9 +4,9 @@ import {
 	PropertyRenderContext,
 	PropertyWidget,
 } from "obsidian-typings";
-import { EmbeddableMarkdownEditor } from "src/classes/EmbeddableMarkdownEditor";
-import { typeKeySuffixes, typeWidgetPrefix } from "src/lib/constants";
-import PropertiesPlusPlus from "src/main";
+import { EmbeddableMarkdownEditor } from "@/classes/EmbeddableMarkdownEditor";
+import { typeKeySuffixes, typeWidgetPrefix } from "@/libs/constants";
+import PropertiesPlusPlus from "@/main";
 
 const shortTypeKey = typeKeySuffixes.markdown;
 const fullTypeKey = typeWidgetPrefix + shortTypeKey;

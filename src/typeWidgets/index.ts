@@ -1,4 +1,4 @@
-import PropertiesPlusPlus from "src/main";
+import PropertiesPlusPlus from "@/main";
 import { registerSlider } from "./Slider";
 import { registerToggle } from "./Toggle";
 import { registerNumberPlusPlus } from "./NumberPlusPlus";

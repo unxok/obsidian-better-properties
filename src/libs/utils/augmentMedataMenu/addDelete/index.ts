@@ -1,5 +1,5 @@
 import { Modal, Setting } from "obsidian";
-import { metdataSectionId } from "src/lib/constants";
+import { metdataSectionId } from "@/libs/constants";
 import { MetadataAddItemProps } from "..";
 
 export const addDelete = ({

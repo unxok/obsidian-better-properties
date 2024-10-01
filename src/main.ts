@@ -20,19 +20,19 @@ import {
 	metdataSectionId,
 	monkeyAroundKey,
 	typeWidgetPrefix,
-} from "./lib/constants";
+} from "./libs/constants";
 import {
 	addUsedBy,
 	addRename,
 	addDelete,
 	addSettings,
 	addMassUpdate,
-} from "./lib/utils/augmentMedataMenu";
+} from "./libs/utils/augmentMedataMenu";
 import { registerCustomWidgets } from "./typeWidgets";
 import {
 	defaultPropertySettings,
 	PropertySettings,
-} from "./lib/utils/augmentMedataMenu/addSettings";
+} from "./libs/utils/augmentMedataMenu/addSettings";
 
 // Remember to rename these classes and interfaces!
 

@@ -1,5 +1,5 @@
 import { Setting } from "obsidian";
-import { createSection } from "src/lib/utils/setting";
+import { createSection } from "@/libs/utils/setting";
 import { PropertySettings } from "..";
 
 export const createNumberPlusPlusSettings = (

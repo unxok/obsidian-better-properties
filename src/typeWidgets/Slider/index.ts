@@ -1,7 +1,7 @@
-import { SliderComponent, ToggleComponent } from "obsidian";
-import { typeKeySuffixes, typeWidgetPrefix } from "src/lib/constants";
-import { defaultPropertySettings } from "src/lib/utils/augmentMedataMenu/addSettings";
-import PropertiesPlusPlus from "src/main";
+import { SliderComponent } from "obsidian";
+import { typeKeySuffixes, typeWidgetPrefix } from "@/libs/constants";
+import { defaultPropertySettings } from "@/libs/utils/augmentMedataMenu/addSettings";
+import PropertiesPlusPlus from "@/main";
 
 const shortTypeKey = typeKeySuffixes.slider;
 const fullTypeKey = typeWidgetPrefix + shortTypeKey;

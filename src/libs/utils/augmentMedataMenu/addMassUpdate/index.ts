@@ -1,4 +1,4 @@
-import { metdataSectionId } from "src/lib/constants";
+import { metdataSectionId } from "@/libs/constants";
 import { MetadataAddItemProps } from "..";
 import { Modal, TextComponent, Setting, ToggleComponent } from "obsidian";
 

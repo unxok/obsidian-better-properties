@@ -1,4 +1,4 @@
-import { metdataSectionId } from "src/lib/constants";
+import { metdataSectionId } from "@/libs/constants";
 import { MetadataAddItemProps } from "..";
 
 export const addUsedBy = ({ plugin, menu, files }: MetadataAddItemProps) => {

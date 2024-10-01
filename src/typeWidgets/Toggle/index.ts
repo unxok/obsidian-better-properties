@@ -1,6 +1,6 @@
 import { ToggleComponent } from "obsidian";
-import { typeKeySuffixes, typeWidgetPrefix } from "src/lib/constants";
-import PropertiesPlusPlus from "src/main";
+import { typeKeySuffixes, typeWidgetPrefix } from "@/libs/constants";
+import PropertiesPlusPlus from "@/main";
 
 const shortTypeKey = typeKeySuffixes.toggle;
 const fullTypeKey = typeWidgetPrefix + shortTypeKey;

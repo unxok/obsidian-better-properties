@@ -7,10 +7,10 @@ import {
 	Setting,
 	TFile,
 } from "obsidian";
-import { createSection } from "src/lib/utils/setting";
+import { createSection } from "@/libs/utils/setting";
 import { PropertySettings } from "..";
-import { arrayMove } from "src/lib/utils/pure";
-import PropertiesPlusPlus from "src/main";
+import { arrayMove } from "@/libs/utils/pure";
+import PropertiesPlusPlus from "@/main";
 
 export const createDropdownSettings = (
 	el: HTMLElement,

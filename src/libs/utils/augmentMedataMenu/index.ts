@@ -1,5 +1,5 @@
 import { Menu } from "obsidian";
-import PropertiesPlusPlus from "src/main";
+import PropertiesPlusPlus from "@/main";
 import { addDelete } from "./addDelete";
 import { addRename } from "./addRename";
 import { addUsedBy } from "./addUsedBy";

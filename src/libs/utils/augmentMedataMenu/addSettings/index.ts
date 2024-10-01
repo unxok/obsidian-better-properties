@@ -2,11 +2,11 @@ import {
 	metdataSectionId,
 	typeKeySuffixes,
 	typeWidgetPrefix,
-} from "src/lib/constants";
+} from "@/libs/constants";
 import { MetadataAddItemProps } from "..";
 import { App, Modal, setIcon, Setting } from "obsidian";
 import { createSection } from "../../setting";
-import PropertiesPlusPlus from "src/main";
+import PropertiesPlusPlus from "@/main";
 import { createSliderSettings } from "./Slider";
 import { createNumberPlusPlusSettings } from "./NumberPlusPlus";
 import { createDropdownSettings } from "./Dropdown";
