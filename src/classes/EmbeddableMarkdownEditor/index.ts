@@ -91,7 +91,7 @@ const defaultProperties: MarkdownEditorProps = {
 	filteredExtensions: [],
 
 	onEditorClick: () => {},
-	onEnter: (editor, mod, shift) => {
+	onEnter: (editor, mod, _) => {
 		// if (mod) editor.options.onSubmit(editor);
 		editor.options.onSubmit(editor);
 		return mod;
@@ -104,7 +104,7 @@ const defaultProperties: MarkdownEditorProps = {
 	onBlur: (editor) => {
 		editor.options.onBlur(editor);
 	},
-	onFocus: (editor) => {},
+	onFocus: () => {},
 	onPaste: () => {},
 	onChange: () => {},
 };
@@ -152,7 +152,7 @@ export class EmbeddableMarkdownEditor
 		//     2) Execute the command callback
 		//     3) Return the result of the callback (callback returns false if callback could not execute)
 		//     		(In this case, if cursor is not on a link token, the callback will return false, and onEnter will be applied)
-		this.scope.register(["Mod"], "Enter", (e, ctx) => {
+		this.scope.register(["Mod"], "Enter", () => {
 			return true;
 		});
 
@@ -208,7 +208,7 @@ export class EmbeddableMarkdownEditor
 
 		// Whenever the editor is focused, set the activeEditor to the mocked view (this.owner)
 		// This allows for the editorCommands to actually work
-		this.editor!.cm.contentDOM.addEventListener("focusin", (e) => {
+		this.editor!.cm.contentDOM.addEventListener("focusin", () => {
 			this.app.keymap.pushScope(this.scope);
 			this.app.workspace.activeEditor = this.owner;
 			if (this.options.onFocus === defaultProperties.onFocus) return;
@@ -262,17 +262,17 @@ export class EmbeddableMarkdownEditor
 				keymap.of([
 					{
 						key: "Enter",
-						run: (cm) => this.options.onEnter(this, false, false),
-						shift: (cm) => this.options.onEnter(this, false, true),
+						run: () => this.options.onEnter(this, false, false),
+						shift: () => this.options.onEnter(this, false, true),
 					},
 					{
 						key: "Mod-Enter",
-						run: (cm) => this.options.onEnter(this, true, false),
-						shift: (cm) => this.options.onEnter(this, true, true),
+						run: () => this.options.onEnter(this, true, false),
+						shift: () => this.options.onEnter(this, true, true),
 					},
 					{
 						key: "Escape",
-						run: (cm) => {
+						run: () => {
 							this.options.onEscape(this);
 							return true;
 						},
@@ -296,7 +296,7 @@ export class EmbeddableMarkdownEditor
 	/**
 	 * Force no padding on the bottom of the editor
 	 */
-	updateBottomPadding(height: number) {
+	updateBottomPadding(_: number) {
 		return 0;
 	}
 

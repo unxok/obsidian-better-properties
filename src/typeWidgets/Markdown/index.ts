@@ -1,9 +1,4 @@
-import { ColorComponent, ToggleComponent } from "obsidian";
-import {
-	PropertyEntryData,
-	PropertyRenderContext,
-	PropertyWidget,
-} from "obsidian-typings";
+import { PropertyEntryData, PropertyRenderContext } from "obsidian-typings";
 import { EmbeddableMarkdownEditor } from "@/classes/EmbeddableMarkdownEditor";
 import { typeKeySuffixes, typeWidgetPrefix } from "@/libs/constants";
 import PropertiesPlusPlus from "@/main";

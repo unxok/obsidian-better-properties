@@ -1,11 +1,4 @@
-import {
-	AbstractInputSuggest,
-	App,
-	DropdownComponent,
-	SearchComponent,
-	TFile,
-	Vault,
-} from "obsidian";
+import { DropdownComponent } from "obsidian";
 import { PropertyEntryData, PropertyRenderContext } from "obsidian-typings";
 import { typeKeySuffixes, typeWidgetPrefix } from "@/libs/constants";
 import { defaultPropertySettings } from "@/libs/utils/augmentMedataMenu/addSettings";

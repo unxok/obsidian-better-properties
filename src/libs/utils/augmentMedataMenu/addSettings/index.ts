@@ -4,7 +4,7 @@ import {
 	typeWidgetPrefix,
 } from "@/libs/constants";
 import { MetadataAddItemProps } from "..";
-import { App, Modal, setIcon, Setting } from "obsidian";
+import { Modal, Setting } from "obsidian";
 import { createSection } from "../../setting";
 import PropertiesPlusPlus from "@/main";
 import { createSliderSettings } from "./Slider";

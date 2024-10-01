@@ -1,26 +1,6 @@
 import { around, dedupe } from "monkey-around";
-import {
-	App,
-	debounce,
-	Editor,
-	MarkdownEditView,
-	MarkdownPreviewView,
-	MarkdownView,
-	Menu,
-	Modal,
-	Notice,
-	Plugin,
-	PluginSettingTab,
-	setIcon,
-	Setting,
-	TextComponent,
-	View,
-} from "obsidian";
-import {
-	metdataSectionId,
-	monkeyAroundKey,
-	typeWidgetPrefix,
-} from "./libs/constants";
+import { Menu, Plugin, View } from "obsidian";
+import { monkeyAroundKey, typeWidgetPrefix } from "./libs/constants";
 import {
 	addUsedBy,
 	addRename,
@@ -29,10 +9,7 @@ import {
 	addMassUpdate,
 } from "./libs/utils/augmentMedataMenu";
 import { registerCustomWidgets } from "./typeWidgets";
-import {
-	defaultPropertySettings,
-	PropertySettings,
-} from "./libs/utils/augmentMedataMenu/addSettings";
+import { PropertySettings } from "./libs/utils/augmentMedataMenu/addSettings";
 
 // Remember to rename these classes and interfaces!
 
