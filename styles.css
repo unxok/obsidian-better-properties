@@ -59,3 +59,40 @@
 .properties-plus-plus-setting-nested-content div.setting-item-heading {
 	margin-top: 0;
 }
+
+div.properties-plus-plus-metadata-property-markdown-div {
+	width: 100%;
+
+	& .markdown-source-view.mod-cm6.is-readable-line-width .cm-content {
+		width: unset !important;
+	}
+
+	& div.cm-gutters {
+		display: none !important;
+	}
+	& div.cm-scroller {
+		overflow: visible;
+	}
+
+	& .cm-line:not(.HyperMD-codeblock),
+	& .cm-content {
+		max-width: none !important;
+		/* width: fit-content !important; */
+		width: 100% !important;
+		line-height: inherit !important;
+		display: inline-block;
+		padding-inline: 1.5px; /* makes cursor/caret indicator visible at start of line */
+	}
+	& div[role="textbox"] {
+		/* width: fit-content; */
+		/* width: 100% !important; */
+		text-wrap: wrap;
+		white-space: pre-line;
+		display: inline-flex;
+		flex-direction: column;
+	}
+	& * {
+		text-align: inherit;
+		/* width: 100% !important; */
+	}
+}

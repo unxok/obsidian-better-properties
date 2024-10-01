@@ -11,6 +11,7 @@ import {
 	Notice,
 	Plugin,
 	PluginSettingTab,
+	setIcon,
 	Setting,
 	TextComponent,
 	View,

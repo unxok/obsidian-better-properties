@@ -40,6 +40,9 @@ export type PropertySettings = {
 	};
 	dropdown: {
 		options: { value: string; label: string }[];
+
+		dynamicInlineJs: string;
+		dynamicFileJs: string;
 	};
 };
 
@@ -63,6 +66,8 @@ export const defaultPropertySettings: PropertySettings = {
 			{ label: "Oranges", value: "oranges" },
 			{ label: "Bananas", value: "bananas" },
 		],
+		dynamicInlineJs: "",
+		dynamicFileJs: "",
 	},
 };
 
@@ -121,7 +126,8 @@ class SettingsModal extends Modal {
 				return createDropdownSettings(
 					contentEl,
 					this.form["dropdown"],
-					(key, value) => this.updateForm("dropdown", key, value)
+					(key, value) => this.updateForm("dropdown", key, value),
+					this.plugin
 				);
 			default:
 				new Setting(contentEl)

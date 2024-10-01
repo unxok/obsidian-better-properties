@@ -9,4 +9,6 @@ export const typeKeySuffixes = {
 	"number-plus-plus": "number-plus-plus",
 	toggle: "toggle",
 	dropdown: "dropdown",
+	color: "color",
+	markdown: "markdown",
 } as const;

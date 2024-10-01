@@ -1,7 +1,16 @@
-import { ButtonComponent, setIcon, Setting } from "obsidian";
+import {
+	AbstractInputSuggest,
+	App,
+	ButtonComponent,
+	SearchComponent,
+	setIcon,
+	Setting,
+	TFile,
+} from "obsidian";
 import { createSection } from "src/lib/utils/setting";
 import { PropertySettings } from "..";
 import { arrayMove } from "src/lib/utils/pure";
+import PropertiesPlusPlus from "src/main";
 
 export const createDropdownSettings = (
 	el: HTMLElement,
@@ -9,7 +18,8 @@ export const createDropdownSettings = (
 	updateForm: <T extends keyof PropertySettings["dropdown"]>(
 		key: T,
 		value: PropertySettings["dropdown"][T]
-	) => void
+	) => void,
+	plugin: PropertiesPlusPlus
 	// defaultOpen: boolean
 ) => {
 	const { content } = createSection(el, "Dropdown", true);
@@ -64,6 +74,32 @@ export const createDropdownSettings = (
 				updateForm("options", newOpts);
 			})
 	);
+
+	new Setting(content)
+		.setHeading()
+		.setName("Dynamic options")
+		.setDesc(
+			"Use JavaScript to dynamically generate options for this dropdown in addition to the ones listed above. You can either type your code here and/or specify a .js file. Your code should, at the top level, return an array of objects with a key for label and value which are both strings ({value: string; label: string}[])."
+		);
+
+	new Setting(content).setName("Inline JavaScript").addTextArea((cmp) =>
+		cmp
+			.setPlaceholder(
+				'return [{value: "a", label: "Apples"}, {value: "b", label: "Bananas"}]'
+			)
+			.setValue(form.dynamicInlineJs)
+			.onChange((v) => updateForm("dynamicInlineJs", v))
+			.then((cmp) => {
+				cmp.inputEl.setAttribute("rows", "4");
+			})
+	);
+
+	new Setting(content).setName("Load from *.js file").addSearch((cmp) => {
+		cmp.setPlaceholder("path/to/file.js")
+			.setValue(form.dynamicFileJs)
+			.onChange((v) => updateForm("dynamicFileJs", v));
+		new JsSuggest(plugin.app, cmp);
+	});
 };
 
 const createOption = (
@@ -79,56 +115,6 @@ const createOption = (
 	index: number
 ) => {
 	const setting = new Setting(container);
-
-	// const btnContainer = setting.controlEl.createDiv({
-	// 	attr: {
-	// 		style: "display: inline-flex; flex-direction: column; justify-content: center; align-items: center;",
-	// 	},
-	// });
-	// const upBtn = btnContainer.createDiv({
-	// 	cls: "clickable-icon extra-setting-button",
-	// });
-	// setIcon(upBtn, "chevron-up");
-	// upBtn.addEventListener("click", () => {
-	// 	if (index === 0) return;
-	// 	updateOptions((prev) => {
-	// 		const newArr = arrayMove(prev, index, index - 1);
-	// 		return newArr;
-	// 	});
-	// 	renderOptions();
-	// });
-	// const downBtn = btnContainer.createDiv({
-	// 	cls: "clickable-icon extra-setting-button",
-	// });
-	// setIcon(downBtn, "chevron-down");
-	// downBtn.addEventListener("click", () => {
-	// 	updateOptions((prev) => {
-	// 		if (prev.length === index + 1) return prev;
-	// 		const newArr = arrayMove(prev, index, index + 1);
-	// 		return newArr;
-	// 	});
-	// 	renderOptions();
-	// });
-	// .addExtraButton((cmp) =>
-	// 	cmp.setIcon("chevron-up").onClick(() => {
-	// 		if (index === 0) return;
-	// 		updateOptions((prev) => {
-	// 			const newArr = arrayMove(prev, index, index - 1);
-	// 			return newArr;
-	// 		});
-	// 		renderOptions();
-	// 	})
-	// )
-	// .addExtraButton((cmp) =>
-	// 	cmp.setIcon("chevron-down").onClick(() => {
-	// 		updateOptions((prev) => {
-	// 			if (prev.length === index + 1) return prev;
-	// 			const newArr = arrayMove(prev, index, index + 1);
-	// 			return newArr;
-	// 		});
-	// 		renderOptions();
-	// 	})
-	// )
 
 	setting
 		.addText((cmp) =>
@@ -186,3 +172,34 @@ const createOption = (
 			})
 		);
 };
+
+class JsSuggest extends AbstractInputSuggest<TFile> {
+	searchCmp: SearchComponent;
+	constructor(app: App, searchCmp: SearchComponent) {
+		super(app, searchCmp.inputEl);
+		this.searchCmp = searchCmp;
+	}
+
+	protected getSuggestions(query: string): TFile[] | Promise<TFile[]> {
+		const allFiles = this.app.vault.getFiles();
+		const jsFiles = allFiles
+			.filter((f) => f.extension.toLowerCase() === "js")
+			.toSorted((a, b) => b.path.localeCompare(a.path));
+		if (!query) return jsFiles;
+		const filtered = jsFiles.filter((f) => f.path.includes(query));
+		return filtered;
+	}
+
+	renderSuggestion(file: TFile, el: HTMLElement): void {
+		el.classList.add("mod-complex");
+		const contentEl = el.createDiv({ cls: "suggestion-content" });
+		contentEl.createDiv({ cls: "suggestion-title", text: file.name });
+		contentEl.createDiv({ cls: "suggestion-note", text: file.path });
+	}
+
+	selectSuggestion(file: TFile, _: MouseEvent | KeyboardEvent): void {
+		this.searchCmp.setValue(file.path);
+		this.searchCmp.onChanged();
+		this.close();
+	}
+}
