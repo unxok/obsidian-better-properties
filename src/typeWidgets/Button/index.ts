@@ -65,7 +65,7 @@ export const ButtonWidget: CustomTypeWidget = {
 					await func({ el, data, ctx });
 				} catch (e) {
 					new Notice(
-						"Properties++: Button callback failed. Check dev console for more details."
+						"Better Properties: Button callback failed. Check dev console for more details."
 					);
 					console.error(e);
 				}
@@ -80,7 +80,7 @@ export const ButtonWidget: CustomTypeWidget = {
 				const file = plugin.app.vault.getFileByPath(value);
 				if (!file) {
 					new Notice(
-						"Properties++: Button could find file from file path"
+						"Better Properties: Button could find file from file path"
 					);
 					return;
 				}

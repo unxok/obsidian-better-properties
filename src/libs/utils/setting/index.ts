@@ -8,7 +8,7 @@ export const createSection = (
 	const heading = new Setting(el)
 		.setHeading()
 		.setName(label)
-		.setClass("properties-plus-plus-setting-nested-heading");
+		.setClass("better-properties-setting-nested-heading");
 
 	const icon = createSpan({
 		text: ">",
@@ -24,7 +24,7 @@ export const createSection = (
 	const defaultDisplay = defaultOpen ? "display: block;" : "display: none;";
 
 	const content = el.createDiv({
-		cls: "properties-plus-plus-setting-nested-content",
+		cls: "better-properties-setting-nested-content",
 		attr: { style: defaultDisplay },
 	});
 	heading.settingEl.addEventListener("click", () => {

@@ -1,8 +1,8 @@
-export const metdataSectionId = "Properties++";
+export const metdataSectionId = "Better Properties";
 export const monkeyAroundKey =
-	"https://github.com/unxok/obsidian-properties-plus-plus";
+	"https://github.com/unxok/obsidian-better-properties";
 
-export const typeWidgetPrefix = "properties-plus-plus:";
+export const typeWidgetPrefix = "better-properties:";
 
 export const typeKeySuffixes = {
 	slider: "slider",

@@ -1,4 +1,4 @@
-import PropertiesPlusPlus from "@/main";
+import BetterProperties from "@/main";
 import { PropertySettings } from "..";
 import { createSection } from "@/libs/utils/setting";
 import { ColorComponent, Setting } from "obsidian";
@@ -11,7 +11,7 @@ export const createButtonSettings = (
 		key: T,
 		value: PropertySettings["button"][T]
 	) => void,
-	plugin: PropertiesPlusPlus
+	plugin: BetterProperties
 	// defaultOpen: boolean
 ) => {
 	const {

@@ -19,7 +19,7 @@ const onClick = ({ plugin: { app }, files, key }: MetadataAddItemProps) => {
 	});
 	modal.contentEl.createEl("p", {
 		text: "Warning: This update is permanent and may affect many notes at once!",
-		cls: "properties-plus-plus-text-error",
+		cls: "better-properties-text-error",
 	});
 	let includeAbsentCmp: ToggleComponent;
 	let searchCmp: TextComponent;

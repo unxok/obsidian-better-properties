@@ -1,5 +1,13 @@
 import { around, dedupe } from "monkey-around";
-import { Menu, Plugin, View } from "obsidian";
+import {
+	App,
+	MarkdownView,
+	Menu,
+	Plugin,
+	TFile,
+	View,
+	WorkspaceLeaf,
+} from "obsidian";
 import { monkeyAroundKey, typeWidgetPrefix } from "./libs/constants";
 import {
 	addUsedBy,
@@ -10,23 +18,37 @@ import {
 } from "./libs/utils/augmentMedataMenu";
 import { registerCustomWidgets } from "./typeWidgets";
 import { PropertySettings } from "./libs/utils/augmentMedataMenu/addSettings";
+import { MetadataEditor, WidgetEditorView } from "obsidian-typings";
 
 // Remember to rename these classes and interfaces!
 
-type PropertiesPlusPlusSettings = {
+type BetterPropertiesSettings = {
 	propertySettings: Record<string, PropertySettings>;
 };
 
-const DEFAULT_SETTINGS: PropertiesPlusPlusSettings = {
+const DEFAULT_SETTINGS: BetterPropertiesSettings = {
 	propertySettings: {},
 };
 
-export default class PropertiesPlusPlus extends Plugin {
-	settings: PropertiesPlusPlusSettings = { ...DEFAULT_SETTINGS };
+export default class BetterProperties extends Plugin {
+	settings: BetterPropertiesSettings = { ...DEFAULT_SETTINGS };
 
 	menu: Menu | null = null;
 
 	removePatch: null | (() => void) = null;
+
+	async onload() {
+		await this.loadSettings();
+		this.patchMenu();
+		registerCustomWidgets(this);
+
+		getMetdataEditorPrototype(this.app);
+	}
+
+	onunload() {
+		this.removePatch && this.removePatch();
+		this.removeCustomWidgets();
+	}
 
 	setMenu = (menu: Menu, targetEl: HTMLElement) => {
 		if (menu === this.menu) return;
@@ -68,7 +90,7 @@ export default class PropertiesPlusPlus extends Plugin {
 				})
 				.filter(({ path }) => !!path);
 
-		const sec = "Properties++";
+		const sec = "Better Properties";
 		menu.addItem((item) =>
 			item.setSection(sec).setDisabled(true).setTitle(sec)
 		);
@@ -81,12 +103,8 @@ export default class PropertiesPlusPlus extends Plugin {
 		addDelete(commonProps);
 	};
 
-	async onload() {
-		const { setMenu } = this;
-		await this.loadSettings();
-
-		registerCustomWidgets(this);
-
+	patchMenu(): void {
+		const setMenu = this.setMenu;
 		this.removePatch = around(Menu.prototype, {
 			showAtMouseEvent(old) {
 				return dedupe(monkeyAroundKey, old, function (e) {
@@ -120,17 +138,7 @@ export default class PropertiesPlusPlus extends Plugin {
 		});
 	}
 
-	onunload() {
-		this.removePatch && this.removePatch();
-		this.removeCustomWidgets();
-	}
-
 	async loadSettings() {
-		// this.settings = Object.assign(
-		// 	{},
-		// 	DEFAULT_SETTINGS,
-		// 	await this.loadData()
-		// );
 		const loaded = await this.loadData();
 		this.settings = { ...DEFAULT_SETTINGS, ...loaded };
 	}
@@ -140,7 +148,7 @@ export default class PropertiesPlusPlus extends Plugin {
 	}
 
 	async updateSettings(
-		cb: (prev: PropertiesPlusPlusSettings) => PropertiesPlusPlusSettings
+		cb: (prev: BetterPropertiesSettings) => BetterPropertiesSettings
 	): Promise<void> {
 		const newSettings = cb(this.settings);
 		this.settings = { ...newSettings };
@@ -170,3 +178,43 @@ export default class PropertiesPlusPlus extends Plugin {
 		});
 	}
 }
+
+const getMetdataEditorPrototype = (app: App) => {
+	// app.workspace.onLayoutReady(() => {
+	// 	const leaf = app.workspace.getLeaf("tab");
+	// 	// const view = app.viewRegistry.viewByType["markdown"]({
+	// 	// 	containerEl: createDiv(),
+	// 	// 	app: app,
+	// 	// } as unknown as WorkspaceLeaf);
+	// 	const view = app.viewRegistry.viewByType["markdown"](leaf);
+	// 	const properties = app.viewRegistry.viewByType["file-properties"](leaf);
+	// 	const proto = Object.getPrototypeOf(
+	// 		// @ts-ignore
+	// 		view.metadataEditor
+	// 	) as MetadataEditor;
+	// 	proto._children = [];
+	// 	proto.owner = {
+	// 		getFile: () => {},
+	// 	} as MarkdownView;
+	// 	proto.propertyListEl = createDiv();
+	// 	proto.containerEl = createDiv();
+	// 	proto.app = app;
+	// 	proto.save = () => {
+	// 		console.log("save called");
+	// 	};
+	// 	proto.properties = [{ key: "fizz", type: "text", value: "bar" }];
+	// 	proto.rendered = [];
+	// 	// proto.insertProperties({ foo: "bar" });
+	// 	proto.load();
+	// 	proto.synchronize({ foo: "bar" });
+	// 	const metadataEditorRow = Object.getPrototypeOf(proto.rendered[0]) as typeof proto.rendered[0];
+	// 	const old = metadataEditorRow.showPropertyMenu
+	// 	metadataEditorRow.showPropertyMenu = (e) => {
+	// 		console.log('hi');
+	// 	}
+	// 	console.log("properties: ", properties);
+	// 	console.log("view: ", view);
+	// 	console.log("proto: ", proto);
+	// 	leaf.detach();
+	// });
+};

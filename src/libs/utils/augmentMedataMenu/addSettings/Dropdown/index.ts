@@ -10,7 +10,7 @@ import {
 import { createSection } from "@/libs/utils/setting";
 import { PropertySettings } from "..";
 import { arrayMove } from "@/libs/utils/pure";
-import PropertiesPlusPlus from "@/main";
+import BetterProperties from "@/main";
 
 export const createDropdownSettings = (
 	el: HTMLElement,
@@ -19,7 +19,7 @@ export const createDropdownSettings = (
 		key: T,
 		value: PropertySettings["dropdown"][T]
 	) => void,
-	plugin: PropertiesPlusPlus
+	plugin: BetterProperties
 	// defaultOpen: boolean
 ) => {
 	const { content } = createSection(el, "Dropdown", true);

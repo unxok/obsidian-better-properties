@@ -1,4 +1,4 @@
-import PropertiesPlusPlus from "@/main";
+import BetterProperties from "@/main";
 import { ToggleWidget } from "./Toggle";
 import { DropdownWidget } from "./Dropdown";
 import { typeWidgetPrefix } from "@/libs/constants";
@@ -17,7 +17,7 @@ export type CustomTypeWidget = {
 	name: () => string;
 	validate: (v: unknown) => boolean;
 	render: (
-		plugin: PropertiesPlusPlus,
+		plugin: BetterProperties,
 		el: HTMLElement,
 		data: PropertyEntryData<unknown>,
 		ctx: PropertyRenderContext
@@ -40,7 +40,7 @@ const widgets: CustomTypeWidget[] = [
 	NumberPlusPlusWidget,
 ];
 
-export const registerCustomWidgets = (plugin: PropertiesPlusPlus) => {
+export const registerCustomWidgets = (plugin: BetterProperties) => {
 	widgets.forEach((w) => {
 		const render: DefaultRender = (...args) => w.render(plugin, ...args);
 		const type = typeWidgetPrefix + w.type;
@@ -50,4 +50,6 @@ export const registerCustomWidgets = (plugin: PropertiesPlusPlus) => {
 			render,
 		};
 	});
+
+	plugin.app.metadataTypeManager.trigger("changed");
 };

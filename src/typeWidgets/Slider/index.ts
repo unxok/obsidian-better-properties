@@ -19,13 +19,13 @@ export const SliderWidget: CustomTypeWidget = {
 				cls: "metadata-input-longtext",
 			})
 			.createDiv({
-				cls: "properties-plus-plus-flex-center properties-plus-plus-w-fit",
+				cls: "better-properties-flex-center better-properties-w-fit",
 			});
 		const { value } = data;
 		showLabels &&
 			container.createSpan({
 				text: min.toString(),
-				cls: "properties-plus-plus-slider-label-start",
+				cls: "better-properties-slider-label-start",
 			});
 		new SliderComponent(container)
 			.setValue(Number(value))
@@ -40,7 +40,7 @@ export const SliderWidget: CustomTypeWidget = {
 		showLabels &&
 			container.createSpan({
 				text: max.toString(),
-				cls: "properties-plus-plus-slider-label-end",
+				cls: "better-properties-slider-label-end",
 			});
 	},
 };

@@ -1,6 +1,6 @@
 import { DropdownComponent } from "obsidian";
 import { defaultPropertySettings } from "@/libs/utils/augmentMedataMenu/addSettings";
-import PropertiesPlusPlus from "@/main";
+import BetterProperties from "@/main";
 import { CustomTypeWidget } from "..";
 
 export const DropdownWidget: CustomTypeWidget = {
@@ -65,7 +65,7 @@ const getDynamicOptionsInline = (
 		);
 	} catch (e) {
 		const msg =
-			"Properties++: Failed to load dynamic options. Check dev console for more details.";
+			"Better Properties: Failed to load dynamic options. Check dev console for more details.";
 		new Notice(msg);
 		console.error(e);
 		return obj;
@@ -75,12 +75,14 @@ const getDynamicOptionsInline = (
 const getDynamicOptionsFile = async (
 	filePath: string,
 	obj: Record<string, string>,
-	plugin: PropertiesPlusPlus
+	plugin: BetterProperties
 ) => {
 	if (!filePath || !filePath?.toLowerCase()?.endsWith(".js")) return obj;
 	const file = plugin.app.vault.getFileByPath(filePath);
 	if (!file) {
-		new Notice("Properties++: Could not locate JS file from " + filePath);
+		new Notice(
+			"Better Properties: Could not locate JS file from " + filePath
+		);
 		return obj;
 	}
 	const inlineJs = await plugin.app.vault.cachedRead(file);

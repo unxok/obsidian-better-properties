@@ -9,7 +9,7 @@ export const MarkdownWidget: CustomTypeWidget = {
 	validate: (v) => typeof v?.toString() === "string",
 	render: (plugin, el, data, ctx) => {
 		const container = el.createDiv({
-			cls: "metadata-input-longtext properties-plus-plus-metadata-property-markdown-div",
+			cls: "metadata-input-longtext better-properties-metadata-property-markdown-div",
 		});
 		const { value } = data;
 		const str = value?.toString() ?? "";

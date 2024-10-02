@@ -1,4 +1,13 @@
-import { App, ButtonComponent, Modal, setIcon, Setting } from "obsidian";
+import {
+	App,
+	ButtonComponent,
+	EditableFileView,
+	FileView,
+	Modal,
+	setIcon,
+	Setting,
+	WorkspaceLeaf,
+} from "obsidian";
 import { defaultPropertySettings } from "@/libs/utils/augmentMedataMenu/addSettings";
 import { CustomTypeWidget } from "..";
 
@@ -27,7 +36,7 @@ export const NumberPlusPlusWidget: CustomTypeWidget = {
 			inp.value = valid.toString();
 		};
 		const container = el.createDiv({
-			cls: "properties-plus-plus-number-plus-plus",
+			cls: "better-properties-number-plus-plus",
 		});
 		const { value } = data;
 		const inp = container.createEl("input", {
@@ -40,7 +49,7 @@ export const NumberPlusPlusWidget: CustomTypeWidget = {
 				max,
 				// step, // inaccurate for inputs that aren't ranges
 			},
-			cls: "metadata-input metadata-input-number properties-plus-plus-w-fit",
+			cls: "metadata-input metadata-input-number better-properties-w-fit",
 		});
 		inp.addEventListener("blur", () => {
 			doUpdate(inp.valueAsNumber);
@@ -112,13 +121,11 @@ class ExpressionModal extends Modal {
 					this.calculated = num;
 					updateBtn.setDisabled(false);
 					resultEl.textContent = num.toString();
-					resultEl.classList.remove(
-						"properties-plus-plus-text-error"
-					);
+					resultEl.classList.remove("better-properties-text-error");
 				} catch (e) {
 					updateBtn.setDisabled(true);
 					resultEl.textContent = "error";
-					resultEl.classList.add("properties-plus-plus-text-error");
+					resultEl.classList.add("better-properties-text-error");
 				}
 			})
 		);

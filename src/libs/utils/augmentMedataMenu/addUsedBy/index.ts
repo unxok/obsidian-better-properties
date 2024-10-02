@@ -16,7 +16,7 @@ export const addUsedBy = ({ plugin, menu, files }: MetadataAddItemProps) => {
 				frag.createEl("br");
 				frag.createSpan({
 					text: value?.toString(),
-					cls: "properties-plus-plus-menu-item-note",
+					cls: "better-properties-menu-item-note",
 				});
 				sub.setTitle(frag).onClick(async () => {
 					await plugin.app.workspace.openLinkText("", path);

@@ -25,7 +25,7 @@ export const addDelete = ({
 				});
 				modal.contentEl.createEl("p", {
 					text: "Warning: This update is permanent and may affect many notes at once!",
-					cls: "properties-plus-plus-text-error",
+					cls: "better-properties-text-error",
 				});
 
 				new Setting(modal.contentEl).addButton((cmp) =>

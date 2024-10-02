@@ -13,7 +13,7 @@ export const ToggleWidget: CustomTypeWidget = {
 				cls: "metadata-input-longtext",
 			})
 			.createDiv({
-				cls: "properties-plus-plus-flex-center properties-plus-plus-w-fit",
+				cls: "better-properties-flex-center better-properties-w-fit",
 			});
 		const { value } = data;
 		new ToggleComponent(container).setValue(!!value).onChange((b) => {

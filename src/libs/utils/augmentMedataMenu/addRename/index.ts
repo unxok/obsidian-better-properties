@@ -24,7 +24,7 @@ export const addRename = ({
 				});
 				modal.contentEl.createEl("p", {
 					text: "Warning: This update is permanent and may affect many notes at once!",
-					cls: "properties-plus-plus-text-error",
+					cls: "better-properties-text-error",
 				});
 				let nameCmp: TextComponent;
 				const setting = new Setting(modal.contentEl)
@@ -33,7 +33,7 @@ export const addRename = ({
 
 				const errorEl = setting.descEl.createEl("p", {
 					text: "Property name already in use!",
-					cls: "properties-plus-plus-text-error",
+					cls: "better-properties-text-error",
 					attr: { style: "display: none;" },
 				});
 

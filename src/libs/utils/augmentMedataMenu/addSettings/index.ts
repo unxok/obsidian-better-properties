@@ -6,7 +6,7 @@ import {
 import { MetadataAddItemProps } from "..";
 import { Modal, Setting } from "obsidian";
 import { createSection } from "../../setting";
-import PropertiesPlusPlus from "@/main";
+import BetterProperties from "@/main";
 import { createSliderSettings } from "./Slider";
 import { createNumberPlusPlusSettings } from "./NumberPlusPlus";
 import { createDropdownSettings } from "./Dropdown";
@@ -106,10 +106,10 @@ export const defaultPropertySettings: PropertySettings = {
 };
 
 class SettingsModal extends Modal {
-	plugin: PropertiesPlusPlus;
+	plugin: BetterProperties;
 	form: PropertySettings;
 	property: string;
-	constructor(plugin: PropertiesPlusPlus, property: string) {
+	constructor(plugin: BetterProperties, property: string) {
 		super(plugin.app);
 		this.plugin = plugin;
 		this.property = property;
@@ -190,7 +190,7 @@ class SettingsModal extends Modal {
 				new Setting(contentEl)
 					.setName("Non customizable type")
 					.setDesc(
-						"The current type is not customizable by Properties++"
+						"The current type is not customizable by Better Properties"
 					);
 		}
 	}
