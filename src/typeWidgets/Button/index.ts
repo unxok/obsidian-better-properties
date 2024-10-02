@@ -1,19 +1,14 @@
-import { ButtonComponent, DropdownComponent } from "obsidian";
-import { PropertyEntryData, PropertyRenderContext } from "obsidian-typings";
-import { typeKeySuffixes, typeWidgetPrefix } from "@/libs/constants";
+import { ButtonComponent } from "obsidian";
 import { defaultPropertySettings } from "@/libs/utils/augmentMedataMenu/addSettings";
-import PropertiesPlusPlus from "@/main";
+import { CustomTypeWidget } from "..";
 
-const shortTypeKey = typeKeySuffixes["button"];
-const fullTypeKey = typeWidgetPrefix + shortTypeKey;
-const name = "Button";
-
-export const registerButton = (plugin: PropertiesPlusPlus) => {
-	const render = (
-		el: HTMLElement,
-		data: PropertyEntryData<unknown>,
-		ctx: PropertyRenderContext
-	) => {
+export const ButtonWidget: CustomTypeWidget = {
+	type: "button",
+	icon: "plus-square",
+	default: () => "new Notice('Hello there')",
+	name: () => "Button",
+	validate: (v) => typeof v?.toString() === "string",
+	render: (plugin, el, data, ctx) => {
 		const {
 			displayText,
 			icon,
@@ -23,9 +18,9 @@ export const registerButton = (plugin: PropertiesPlusPlus) => {
 			callbackType,
 			cssClass,
 		} = plugin.settings.propertySettings[data.key.toLowerCase()]?.[
-			shortTypeKey
+			"button"
 		] ?? {
-			...defaultPropertySettings[shortTypeKey],
+			...defaultPropertySettings["button"],
 		};
 
 		const container = el.createDiv({
@@ -93,14 +88,5 @@ export const registerButton = (plugin: PropertiesPlusPlus) => {
 				await tryEval(read);
 			}
 		});
-	};
-
-	plugin.app.metadataTypeManager.registeredTypeWidgets[fullTypeKey] = {
-		icon: "plus-square",
-		default: () => "new Notice('Hello there')",
-		name: () => name,
-		validate: (v) => typeof v?.toString() === "string",
-		type: fullTypeKey,
-		render,
-	};
+	},
 };

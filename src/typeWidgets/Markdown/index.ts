@@ -1,53 +1,30 @@
-import { PropertyEntryData, PropertyRenderContext } from "obsidian-typings";
 import { EmbeddableMarkdownEditor } from "@/classes/EmbeddableMarkdownEditor";
-import { typeKeySuffixes, typeWidgetPrefix } from "@/libs/constants";
-import PropertiesPlusPlus from "@/main";
+import { CustomTypeWidget } from "..";
 
-const shortTypeKey = typeKeySuffixes.markdown;
-const fullTypeKey = typeWidgetPrefix + shortTypeKey;
-const name = () => "Markdown";
-const icon = "m-square";
-const defaultValue = () => "";
-const validate = (v: unknown) => typeof v?.toString() === "string";
-const render = (
-	plugin: PropertiesPlusPlus,
-	el: HTMLElement,
-	data: PropertyEntryData<unknown>,
-	ctx: PropertyRenderContext
-) => {
-	const container = el.createDiv({
-		cls: "metadata-input-longtext properties-plus-plus-metadata-property-markdown-div",
-	});
-	// const container = parentContainer.createDiv({
-	// 	cls: "properties-plus-plus-flex-center properties-plus-plus-w-fit",
-	// });
-	const { value } = data;
-	const str = value?.toString() ?? "";
-	const emde = new EmbeddableMarkdownEditor(
-		plugin.app,
-		container,
-		{
-			value: str,
-			onBlur: (editor) => {
-				const val = editor.editor?.getValue() ?? "";
-				ctx.onChange(val);
+export const MarkdownWidget: CustomTypeWidget = {
+	type: "markdown",
+	icon: "m-square",
+	default: () => "",
+	name: () => "Markdown",
+	validate: (v) => typeof v?.toString() === "string",
+	render: (plugin, el, data, ctx) => {
+		const container = el.createDiv({
+			cls: "metadata-input-longtext properties-plus-plus-metadata-property-markdown-div",
+		});
+		const { value } = data;
+		const str = value?.toString() ?? "";
+		const emde = new EmbeddableMarkdownEditor(
+			plugin.app,
+			container,
+			{
+				value: str,
+				onBlur: (editor) => {
+					const val = editor.editor?.getValue() ?? "";
+					ctx.onChange(val);
+				},
 			},
-		},
-		ctx.sourcePath
-	);
-
-	// container.addEventListener("click", () => emde.focus());
-
-	ctx.metadataEditor.register(() => emde.destroy());
-};
-
-export const registerMarkdown = (plugin: PropertiesPlusPlus) => {
-	plugin.app.metadataTypeManager.registeredTypeWidgets[fullTypeKey] = {
-		default: defaultValue,
-		type: fullTypeKey,
-		name,
-		icon,
-		validate,
-		render: (...params) => render(plugin, ...params),
-	};
+			ctx.sourcePath
+		);
+		ctx.metadataEditor.register(() => emde.destroy());
+	},
 };

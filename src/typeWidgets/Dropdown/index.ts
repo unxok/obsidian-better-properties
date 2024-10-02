@@ -1,22 +1,18 @@
 import { DropdownComponent } from "obsidian";
-import { PropertyEntryData, PropertyRenderContext } from "obsidian-typings";
-import { typeKeySuffixes, typeWidgetPrefix } from "@/libs/constants";
 import { defaultPropertySettings } from "@/libs/utils/augmentMedataMenu/addSettings";
 import PropertiesPlusPlus from "@/main";
+import { CustomTypeWidget } from "..";
 
-const shortTypeKey = typeKeySuffixes["dropdown"];
-const fullTypeKey = typeWidgetPrefix + shortTypeKey;
-const name = "Dropdown";
-
-export const registerDropdown = (plugin: PropertiesPlusPlus) => {
-	const render = (
-		el: HTMLElement,
-		data: PropertyEntryData<unknown>,
-		ctx: PropertyRenderContext
-	) => {
+export const DropdownWidget: CustomTypeWidget = {
+	type: "dropdown",
+	icon: "chevron-down-circle",
+	default: () => "",
+	name: () => "Dropdown",
+	validate: (v) => typeof v?.toString() === "string",
+	render: (plugin, el, data, ctx) => {
 		const { options, dynamicFileJs, dynamicInlineJs } = plugin.settings
-			.propertySettings[data.key.toLowerCase()]?.[shortTypeKey] ?? {
-			...defaultPropertySettings[shortTypeKey],
+			.propertySettings[data.key.toLowerCase()]?.["dropdown"] ?? {
+			...defaultPropertySettings["dropdown"],
 		};
 
 		const container = el.createDiv({
@@ -47,16 +43,7 @@ export const registerDropdown = (plugin: PropertiesPlusPlus) => {
 
 			dropdown.addOptions(optionsObj);
 		})();
-	};
-
-	plugin.app.metadataTypeManager.registeredTypeWidgets[fullTypeKey] = {
-		icon: "chevron-down-circle",
-		default: () => "",
-		name: () => name,
-		validate: (v) => typeof v === "string",
-		type: fullTypeKey,
-		render,
-	};
+	},
 };
 
 const getDynamicOptionsInline = (

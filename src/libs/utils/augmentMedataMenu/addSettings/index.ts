@@ -11,6 +11,7 @@ import { createSliderSettings } from "./Slider";
 import { createNumberPlusPlusSettings } from "./NumberPlusPlus";
 import { createDropdownSettings } from "./Dropdown";
 import { createButtonSettings } from "./Button";
+import { IconSuggest } from "@/classes/IconSuggest";
 
 export const addSettings = ({ menu, plugin, key }: MetadataAddItemProps) => {
 	menu.addItem((item) =>
@@ -26,7 +27,12 @@ export const addSettings = ({ menu, plugin, key }: MetadataAddItemProps) => {
 
 // type PropertySettingsItem<T extends keyof typeof typeKeySuffixes> = Record<T, Record<string, any>>;
 
+export type TypeKeys = PropertySettings;
+
 export type PropertySettings = {
+	general: {
+		customIcon: string;
+	};
 	slider: {
 		min: number;
 		max: number;
@@ -54,10 +60,16 @@ export type PropertySettings = {
 		textColor: string;
 		cssClass: string;
 	};
+	toggle: {};
+	color: {};
+	markdown: {};
 };
 
 // can't think of a way to have this typed properly but at least this avoids hard coding the keys somewhat
 export const defaultPropertySettings: PropertySettings = {
+	general: {
+		customIcon: "",
+	},
 	[typeKeySuffixes["slider"]]: {
 		min: 0,
 		max: 100,
@@ -88,6 +100,9 @@ export const defaultPropertySettings: PropertySettings = {
 		textColor: "",
 		cssClass: "",
 	},
+	toggle: {},
+	color: {},
+	markdown: {},
 };
 
 class SettingsModal extends Modal {
@@ -98,11 +113,24 @@ class SettingsModal extends Modal {
 		super(plugin.app);
 		this.plugin = plugin;
 		this.property = property;
-		this.form = plugin.settings.propertySettings[
+		const defaultForm = { ...defaultPropertySettings } as PropertySettings;
+		const form = plugin.settings.propertySettings[
 			property.toLowerCase()
 		] ?? {
-			...defaultPropertySettings,
+			defaultForm,
 		};
+		Object.keys(defaultForm).forEach((k) => {
+			const key = k as keyof PropertySettings;
+			const defaultValue = defaultForm[key];
+			if (!form[key]) {
+				// @ts-ignore TODO IDK why typescript doesn't like this
+				form[key] = { ...defaultValue };
+				return;
+			}
+			// @ts-ignore TODO IDK why typescript doesn't like this
+			form[key] = { ...defaultValue, ...form[key] };
+		});
+		this.form = form;
 	}
 
 	updateForm<
@@ -121,7 +149,10 @@ class SettingsModal extends Modal {
 		contentEl.empty();
 		this.setTitle('Settings for "' + property + '"');
 
-		this.createGeneral(contentEl);
+		this.createGeneral(contentEl, this.form.general, (key, value) => {
+			this.updateForm("general", key, value);
+			console.log("general updated: ", this.form);
+		});
 
 		switch (
 			typeKey.slice(
@@ -174,11 +205,26 @@ class SettingsModal extends Modal {
 		plugin.refreshPropertyEditor(key);
 	}
 
-	createGeneral(el: HTMLElement): void {
+	createGeneral(
+		el: HTMLElement,
+		form: typeof this.form.general,
+		updateForm: <T extends keyof typeof this.form.general>(
+			key: T,
+			value: (typeof this.form.general)[T]
+		) => void
+	): void {
 		const { content } = createSection(el, "General", false);
+
 		new Setting(content)
-			.setName("Nothing")
-			.setDesc("Nothing to see here...(yet)")
-			.addText((cmp) => cmp.setPlaceholder("uwu"));
+			.setName("Custom icon")
+			.setDesc(
+				"Set a custom icon to override the default type icon for this property. Leave blank to use the default type icon."
+			)
+			.addSearch((cmp) =>
+				cmp
+					.setValue(form.customIcon)
+					.onChange((v) => updateForm("customIcon", v))
+					.then((cmp) => new IconSuggest(this.app, cmp))
+			);
 	}
 }

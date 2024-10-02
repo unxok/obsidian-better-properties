@@ -2,6 +2,7 @@ import PropertiesPlusPlus from "@/main";
 import { PropertySettings } from "..";
 import { createSection } from "@/libs/utils/setting";
 import { ColorComponent, Setting } from "obsidian";
+import { IconSuggest } from "@/classes/IconSuggest";
 
 export const createButtonSettings = (
 	el: HTMLElement,
@@ -40,7 +41,10 @@ export const createButtonSettings = (
 			"Set an icon for the button. This will remove the display text from showing."
 		)
 		.addText((cmp) =>
-			cmp.setValue(icon).onChange((v) => updateForm("icon", v))
+			cmp
+				.setValue(icon)
+				.onChange((v) => updateForm("icon", v))
+				.then((cmp) => new IconSuggest(plugin.app, cmp))
 		);
 	new Setting(content)
 		.setName("Callback type")

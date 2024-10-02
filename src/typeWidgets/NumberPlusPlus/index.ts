@@ -1,31 +1,18 @@
-import {
-	App,
-	ButtonComponent,
-	Modal,
-	setIcon,
-	Setting,
-	SliderComponent,
-	ToggleComponent,
-} from "obsidian";
-import { PropertyEntryData, PropertyRenderContext } from "obsidian-typings";
-import { typeKeySuffixes, typeWidgetPrefix } from "@/libs/constants";
+import { App, ButtonComponent, Modal, setIcon, Setting } from "obsidian";
 import { defaultPropertySettings } from "@/libs/utils/augmentMedataMenu/addSettings";
-import PropertiesPlusPlus from "@/main";
+import { CustomTypeWidget } from "..";
 
-const shortTypeKey = typeKeySuffixes["number-plus-plus"];
-const fullTypeKey = typeWidgetPrefix + shortTypeKey;
-const name = "Number++";
-
-export const registerNumberPlusPlus = (plugin: PropertiesPlusPlus) => {
-	const render = (
-		el: HTMLElement,
-		data: PropertyEntryData<unknown>,
-		ctx: PropertyRenderContext
-	) => {
+export const NumberPlusPlusWidget: CustomTypeWidget = {
+	type: "number-plus-plus",
+	icon: "calculator",
+	default: () => 0,
+	name: () => "Number++",
+	validate: (v) => !Number.isNaN(Number(v)),
+	render: (plugin, el, data, ctx) => {
 		const { min, max, step, validate } = plugin.settings.propertySettings[
 			data.key.toLowerCase()
-		]?.[shortTypeKey] ?? {
-			...defaultPropertySettings[shortTypeKey],
+		]?.["number-plus-plus"] ?? {
+			...defaultPropertySettings["number-plus-plus"],
 		};
 		const doValidation = (num: number) => {
 			if (!validate) return num;
@@ -73,16 +60,7 @@ export const registerNumberPlusPlus = (plugin: PropertiesPlusPlus) => {
 		exp.addEventListener("click", () => {
 			new ExpressionModal(plugin.app, inp.valueAsNumber, doUpdate).open();
 		});
-	};
-
-	plugin.app.metadataTypeManager.registeredTypeWidgets[fullTypeKey] = {
-		icon: "calculator",
-		default: () => 0,
-		name: () => name,
-		validate: (v) => !Number.isNaN(Number(v)),
-		type: fullTypeKey,
-		render,
-	};
+	},
 };
 
 class ExpressionModal extends Modal {
