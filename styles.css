@@ -96,3 +96,13 @@ div.better-properties-metadata-property-markdown-div {
 		/* width: 100% !important; */
 	}
 }
+
+.metadata-property:has([data-better-properties-hidden="true"]) {
+	display: var(--better-properties-hidden) !important;
+}
+
+.better-properties-property-settings-button-container {
+	display: flex;
+	flex-direction: row;
+	gap: 0.5rem;
+}

@@ -1,13 +1,5 @@
 import { around, dedupe } from "monkey-around";
-import {
-	App,
-	MarkdownView,
-	Menu,
-	Plugin,
-	TFile,
-	View,
-	WorkspaceLeaf,
-} from "obsidian";
+import { Menu, Plugin, setIcon, View, WorkspaceLeaf } from "obsidian";
 import { monkeyAroundKey, typeWidgetPrefix } from "./libs/constants";
 import {
 	addUsedBy,
@@ -18,9 +10,7 @@ import {
 } from "./libs/utils/augmentMedataMenu";
 import { registerCustomWidgets } from "./typeWidgets";
 import { PropertySettings } from "./libs/utils/augmentMedataMenu/addSettings";
-import { MetadataEditor, WidgetEditorView } from "obsidian-typings";
-
-// Remember to rename these classes and interfaces!
+import { MetadataEditor } from "obsidian-typings";
 
 type BetterPropertiesSettings = {
 	propertySettings: Record<string, PropertySettings>;
@@ -39,10 +29,10 @@ export default class BetterProperties extends Plugin {
 
 	async onload() {
 		await this.loadSettings();
-		this.patchMenu();
 		registerCustomWidgets(this);
 
-		getMetdataEditorPrototype(this.app);
+		patchMenu(this);
+		patchMetdataEditor(this);
 	}
 
 	onunload() {
@@ -103,40 +93,40 @@ export default class BetterProperties extends Plugin {
 		addDelete(commonProps);
 	};
 
-	patchMenu(): void {
-		const setMenu = this.setMenu;
-		this.removePatch = around(Menu.prototype, {
-			showAtMouseEvent(old) {
-				return dedupe(monkeyAroundKey, old, function (e) {
-					// @ts-ignore Doesn't look like there's a way to get this typed correctly
-					const that = this as Menu;
-					const exit = () => {
-						return old.call(that, e);
-					};
-					const { target } = e;
-					const isHTML = target instanceof HTMLElement;
-					const isSVG = target instanceof SVGElement;
-					if (!isHTML && !isSVG) return exit();
+	// patchMenu(): void {
+	// 	const setMenu = this.setMenu;
+	// 	this.removePatch = around(Menu.prototype, {
+	// 		showAtMouseEvent(old) {
+	// 			return dedupe(monkeyAroundKey, old, function (e) {
+	// 				// @ts-ignore Doesn't look like there's a way to get this typed correctly
+	// 				const that = this as Menu;
+	// 				const exit = () => {
+	// 					return old.call(that, e);
+	// 				};
+	// 				const { target } = e;
+	// 				const isHTML = target instanceof HTMLElement;
+	// 				const isSVG = target instanceof SVGElement;
+	// 				if (!isHTML && !isSVG) return exit();
 
-					const isExact =
-						target instanceof HTMLElement &&
-						target.tagName.toLowerCase() === "span" &&
-						target.classList.contains("metadata-property-icon");
+	// 				const isExact =
+	// 					target instanceof HTMLElement &&
+	// 					target.tagName.toLowerCase() === "span" &&
+	// 					target.classList.contains("metadata-property-icon");
 
-					const trueTarget = isExact
-						? target
-						: target.closest<HTMLElement>(
-								"span.metadata-property-icon"
-						  );
+	// 				const trueTarget = isExact
+	// 					? target
+	// 					: target.closest<HTMLElement>(
+	// 							"span.metadata-property-icon"
+	// 					  );
 
-					if (!trueTarget) return exit();
-					setMenu(that, trueTarget);
+	// 				if (!trueTarget) return exit();
+	// 				setMenu(that, trueTarget);
 
-					return exit();
-				});
-			},
-		});
-	}
+	// 				return exit();
+	// 			});
+	// 		},
+	// 	});
+	// }
 
 	async loadSettings() {
 		const loaded = await this.loadData();
@@ -179,42 +169,164 @@ export default class BetterProperties extends Plugin {
 	}
 }
 
-const getMetdataEditorPrototype = (app: App) => {
-	// app.workspace.onLayoutReady(() => {
-	// 	const leaf = app.workspace.getLeaf("tab");
-	// 	// const view = app.viewRegistry.viewByType["markdown"]({
-	// 	// 	containerEl: createDiv(),
-	// 	// 	app: app,
-	// 	// } as unknown as WorkspaceLeaf);
-	// 	const view = app.viewRegistry.viewByType["markdown"](leaf);
-	// 	const properties = app.viewRegistry.viewByType["file-properties"](leaf);
-	// 	const proto = Object.getPrototypeOf(
-	// 		// @ts-ignore
-	// 		view.metadataEditor
-	// 	) as MetadataEditor;
-	// 	proto._children = [];
-	// 	proto.owner = {
-	// 		getFile: () => {},
-	// 	} as MarkdownView;
-	// 	proto.propertyListEl = createDiv();
-	// 	proto.containerEl = createDiv();
-	// 	proto.app = app;
-	// 	proto.save = () => {
-	// 		console.log("save called");
-	// 	};
-	// 	proto.properties = [{ key: "fizz", type: "text", value: "bar" }];
-	// 	proto.rendered = [];
-	// 	// proto.insertProperties({ foo: "bar" });
-	// 	proto.load();
-	// 	proto.synchronize({ foo: "bar" });
-	// 	const metadataEditorRow = Object.getPrototypeOf(proto.rendered[0]) as typeof proto.rendered[0];
-	// 	const old = metadataEditorRow.showPropertyMenu
-	// 	metadataEditorRow.showPropertyMenu = (e) => {
-	// 		console.log('hi');
-	// 	}
-	// 	console.log("properties: ", properties);
-	// 	console.log("view: ", view);
-	// 	console.log("proto: ", proto);
-	// 	leaf.detach();
-	// });
+type PatchedMetadataEditor = MetadataEditor & {
+	toggleHiddenButton: HTMLDivElement;
+	showHiddenProperties: boolean;
+	toggleHiddenProperties(): void;
 };
+
+const patchMenu = (plugin: BetterProperties) => {
+	const removePatch = around(Menu.prototype, {
+		showAtMouseEvent(old) {
+			return dedupe(monkeyAroundKey, old, function (e) {
+				// @ts-ignore Doesn't look like there's a way to get this typed correctly
+				const that = this as Menu;
+				const exit = () => {
+					return old.call(that, e);
+				};
+				const { target } = e;
+				const isHTML = target instanceof HTMLElement;
+				const isSVG = target instanceof SVGElement;
+				if (!isHTML && !isSVG) return exit();
+
+				const isExact =
+					target instanceof HTMLElement &&
+					target.tagName.toLowerCase() === "span" &&
+					target.classList.contains("metadata-property-icon");
+
+				const trueTarget = isExact
+					? target
+					: target.closest<HTMLElement>(
+							"span.metadata-property-icon"
+					  );
+
+				if (!trueTarget) return exit();
+				plugin.setMenu(that, trueTarget);
+
+				return exit();
+			});
+		},
+	});
+
+	plugin.register(removePatch);
+};
+
+const patchMetdataEditor = (plugin: BetterProperties) => {
+	const view = plugin.app.viewRegistry.viewByType["markdown"]({
+		containerEl: createDiv(),
+		app: plugin.app,
+	} as unknown as WorkspaceLeaf);
+	const MetadataEditorPrototype = Object.getPrototypeOf(
+		// @ts-ignore
+		view.metadataEditor
+	) as PatchedMetadataEditor;
+
+	MetadataEditorPrototype.toggleHiddenProperties = function () {
+		console.log("got this: ", this);
+		const shouldHide = this.showHiddenProperties;
+		if (shouldHide) {
+			this.containerEl.style.setProperty(
+				"--better-properties-hidden",
+				"none"
+			);
+		} else {
+			this.containerEl.style.setProperty(
+				"--better-properties-hidden",
+				"flex"
+			);
+		}
+		this.showHiddenProperties = !shouldHide;
+	};
+
+	const removePatch = around(MetadataEditorPrototype, {
+		load(old) {
+			return dedupe(monkeyAroundKey, old, function () {
+				// @ts-ignore
+				const that = this as PatchedMetadataEditor;
+				old.call(that);
+
+				that.containerEl.style.setProperty(
+					"--better-properties-hidden",
+					"none"
+				);
+				that.showHiddenProperties = false;
+
+				const toggleHiddenButton = createDiv({
+					cls: "metadata-add-button text-icon-button",
+					attr: { tabIndex: 0 },
+				});
+				const iconEl = toggleHiddenButton.createSpan({
+					cls: "text-button-icon",
+				});
+				setIcon(iconEl, "eye");
+				const labelEl = toggleHiddenButton.createSpan({
+					cls: "text-button-label",
+					text: "Show hidden",
+				});
+				toggleHiddenButton.addEventListener("click", () => {
+					that.toggleHiddenProperties.call(that);
+					const newIcon = that.showHiddenProperties
+						? "eye-off"
+						: "eye";
+					labelEl.textContent = that.showHiddenProperties
+						? "Collapse hidden"
+						: "Show hidden";
+					setIcon(iconEl, newIcon);
+				});
+				that.toggleHiddenButton = toggleHiddenButton;
+				that.addPropertyButtonEl.insertAdjacentElement(
+					"afterend",
+					toggleHiddenButton
+				);
+
+				// setTimeout(() => {
+				// 	that.showHiddenProperties = false;
+				// 	that.toggleHiddenProperties.call(that);
+				// }, 0);
+			});
+		},
+	});
+
+	plugin.register(removePatch);
+};
+
+// const getMetdataEditorPrototype = (app: App) => {
+// 	app.workspace.onLayoutReady(() => {
+// 		const leaf = app.workspace.getLeaf("tab");
+// 		// const view = app.viewRegistry.viewByType["markdown"]({
+// 		// 	containerEl: createDiv(),
+// 		// 	app: app,
+// 		// } as unknown as WorkspaceLeaf);
+// 		const view = app.viewRegistry.viewByType["markdown"](leaf);
+// 		const properties = app.viewRegistry.viewByType["file-properties"](leaf);
+// 		const proto = Object.getPrototypeOf(
+// 			// @ts-ignore
+// 			view.metadataEditor
+// 		) as MetadataEditor;
+// 		proto._children = [];
+// 		proto.owner = {
+// 			getFile: () => {},
+// 		} as MarkdownView;
+// 		proto.addPropertyButtonEl
+// 		proto.propertyListEl = createDiv();
+// 		proto.containerEl = createDiv();
+// 		proto.app = app;
+// 		proto.save = () => {
+// 			console.log("save called");
+// 		};
+// 		proto.properties = [{ key: "fizz", type: "text", value: "bar" }];
+// 		proto.rendered = [];
+// 		// proto.insertProperties({ foo: "bar" });
+// 		proto.load();
+// 		proto.synchronize({ foo: "bar" });
+// 		const metadataEditorRow = Object.getPrototypeOf(proto.rendered[0]) as typeof proto.rendered[0];
+// 		const old = metadataEditorRow.showPropertyMenu
+// 		metadataEditorRow.showPropertyMenu = (e) => {
+// 			console.log('hi');
+// 		}
+// 		console.log("properties: ", properties);
+// 		console.log("view: ", view);
+// 		console.log("proto: ", proto);
+// 		leaf.detach();
+// 	});
+// };

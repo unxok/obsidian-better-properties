@@ -4,7 +4,13 @@ import {
 	typeWidgetPrefix,
 } from "@/libs/constants";
 import { MetadataAddItemProps } from "..";
-import { Modal, Setting } from "obsidian";
+import {
+	ColorComponent,
+	Modal,
+	Setting,
+	TextComponent,
+	ValueComponent,
+} from "obsidian";
 import { createSection } from "../../setting";
 import BetterProperties from "@/main";
 import { createSliderSettings } from "./Slider";
@@ -31,7 +37,13 @@ export type TypeKeys = PropertySettings;
 
 export type PropertySettings = {
 	general: {
+		hidden: boolean;
+		cssClass: string;
 		customIcon: string;
+		iconColor: string;
+		iconHoverColor: string;
+		labelColor: string;
+		textColor: string;
 	};
 	slider: {
 		min: number;
@@ -68,21 +80,27 @@ export type PropertySettings = {
 // can't think of a way to have this typed properly but at least this avoids hard coding the keys somewhat
 export const defaultPropertySettings: PropertySettings = {
 	general: {
+		hidden: false,
+		cssClass: "",
 		customIcon: "",
+		iconColor: "",
+		iconHoverColor: "",
+		labelColor: "",
+		textColor: "",
 	},
-	[typeKeySuffixes["slider"]]: {
+	slider: {
 		min: 0,
 		max: 100,
 		step: 1,
 		showLabels: true,
 	},
-	[typeKeySuffixes["number-plus-plus"]]: {
+	"number-plus-plus": {
 		min: 0,
 		max: 100000,
 		step: 1,
 		validate: true,
 	},
-	[typeKeySuffixes["dropdown"]]: {
+	dropdown: {
 		options: [
 			{ label: "Apples", value: "apples" },
 			{ label: "Oranges", value: "oranges" },
@@ -91,7 +109,7 @@ export const defaultPropertySettings: PropertySettings = {
 		dynamicInlineJs: "",
 		dynamicFileJs: "",
 	},
-	[typeKeySuffixes["button"]]: {
+	button: {
 		displayText: "click me",
 		callbackType: "inlineJs",
 		icon: "",
@@ -113,11 +131,11 @@ class SettingsModal extends Modal {
 		super(plugin.app);
 		this.plugin = plugin;
 		this.property = property;
-		const defaultForm = { ...defaultPropertySettings } as PropertySettings;
+		const defaultForm = { ...defaultPropertySettings };
 		const form = plugin.settings.propertySettings[
 			property.toLowerCase()
 		] ?? {
-			defaultForm,
+			...defaultForm,
 		};
 		Object.keys(defaultForm).forEach((k) => {
 			const key = k as keyof PropertySettings;
@@ -130,6 +148,7 @@ class SettingsModal extends Modal {
 			// @ts-ignore TODO IDK why typescript doesn't like this
 			form[key] = { ...defaultValue, ...form[key] };
 		});
+		console.log("form after parse: ", form);
 		this.form = form;
 	}
 
@@ -149,9 +168,59 @@ class SettingsModal extends Modal {
 		contentEl.empty();
 		this.setTitle('Settings for "' + property + '"');
 
+		const btnContainer = contentEl.createEl("p", {
+			cls: "better-properties-property-settings-button-container",
+		});
+
+		btnContainer
+			.createEl("button", {
+				text: "export",
+				cls: "",
+			})
+			.addEventListener("click", () => new Notice("TODO"));
+
+		btnContainer
+			.createEl("button", {
+				text: "import",
+				cls: "",
+			})
+			.addEventListener("click", () => new Notice("TODO"));
+
+		btnContainer
+			.createEl("button", {
+				text: "reset to default",
+				cls: "mod-destructive",
+			})
+			.addEventListener("click", () => {
+				const modal = new Modal(this.app);
+				modal.onOpen = () => {
+					modal.contentEl.empty();
+					modal.setTitle("Are you sure?");
+					modal.contentEl.createEl("p", {
+						text: "This will permanently reset all settings for this property back to the default. This cannot be undone!",
+					});
+					new Setting(modal.contentEl)
+						.addButton((cmp) =>
+							cmp
+								.setButtonText("nevermind...")
+								.onClick(() => modal.close())
+						)
+						.addButton((cmp) =>
+							cmp
+								.setButtonText("do it!")
+								.setWarning()
+								.onClick(() => {
+									this.form = { ...defaultPropertySettings };
+									modal.close();
+									this.close();
+								})
+						);
+				};
+				modal.open();
+			});
+
 		this.createGeneral(contentEl, this.form.general, (key, value) => {
 			this.updateForm("general", key, value);
-			console.log("general updated: ", this.form);
 		});
 
 		switch (
@@ -198,9 +267,10 @@ class SettingsModal extends Modal {
 	async onClose(): Promise<void> {
 		const { plugin, property, form } = this;
 		const key = property.toLowerCase();
+		console.log("about to save form: ", form);
 		await plugin.updateSettings((prev) => ({
 			...prev,
-			propertySettings: { [key]: form },
+			propertySettings: { ...prev.propertySettings, [key]: form },
 		}));
 		plugin.refreshPropertyEditor(key);
 	}
@@ -213,12 +283,34 @@ class SettingsModal extends Modal {
 			value: (typeof this.form.general)[T]
 		) => void
 	): void {
-		const { content } = createSection(el, "General", false);
+		const { content } = createSection(el, "General", true);
+
+		// new Setting(content)
+		// 	.setName("CSS classes")
+		// 	.setDesc(
+		// 		"Add additional CSS classes to the container div (div.metadata-property). To add multiple names, separate each by a space."
+		// 	)
+		// 	.addText((cmp) =>
+		// 		cmp
+		// 			.setValue(form.cssClass)
+		// 			.onChange((v) => updateForm("cssClass", v))
+		// 	);
+
+		new Setting(content)
+			.setName("Hidden")
+			.setDesc(
+				"Turn on to have this property be hidden from the properties editor by default."
+			)
+			.addToggle((cmp) =>
+				cmp
+					.setValue(form.hidden)
+					.onChange((b) => updateForm("hidden", b))
+			);
 
 		new Setting(content)
 			.setName("Custom icon")
 			.setDesc(
-				"Set a custom icon to override the default type icon for this property. Leave blank to use the default type icon."
+				"Set a custom icon to override the default type icon for this property."
 			)
 			.addSearch((cmp) =>
 				cmp
@@ -226,5 +318,96 @@ class SettingsModal extends Modal {
 					.onChange((v) => updateForm("customIcon", v))
 					.then((cmp) => new IconSuggest(this.app, cmp))
 			);
+
+		new Setting(content)
+			.setName("Icon color")
+			.setDesc(
+				"Set a custom color for the type icon. Choose a color from the picker or enter any valid CSS color."
+			)
+			.then((cmp) =>
+				new TextColorComponent(cmp.controlEl)
+					.setValue(form.iconColor)
+					.onChange((v) => updateForm("iconColor", v))
+			);
+
+		new Setting(content)
+			.setName("Icon hover color")
+			.setDesc(
+				"Set a custom color for the type icon when hovered. Choose a color from the picker or enter any valid CSS color."
+			)
+			.then((cmp) =>
+				new TextColorComponent(cmp.controlEl)
+					.setValue(form.iconHoverColor)
+					.onChange((v) => updateForm("iconHoverColor", v))
+			);
+
+		new Setting(content)
+			.setName("Property label color")
+			.setDesc(
+				"Set a custom color for the property name label. Choose a color from the picker or enter any valid CSS color."
+			)
+			.then((cmp) =>
+				new TextColorComponent(cmp.controlEl)
+					.setValue(form.labelColor)
+					.onChange((v) => updateForm("labelColor", v))
+			);
+
+		new Setting(content)
+			.setName("Value text color")
+			.setDesc(
+				"Set a custom color to override the default normal text color in the property value. Choose a color from the picker or enter any valid CSS color."
+			)
+			.then((cmp) =>
+				new TextColorComponent(cmp.controlEl)
+					.setValue(form.textColor)
+					.onChange((v) => updateForm("textColor", v))
+			);
+	}
+}
+
+class TextColorComponent extends ValueComponent<string> {
+	value: string = "";
+	container: HTMLElement;
+	textCmp: TextComponent;
+	colorCmp: ColorComponent;
+	constructor(container: HTMLElement) {
+		super();
+		this.container = container;
+
+		const text = new TextComponent(container).onChange((v) => {
+			this.setValue(v);
+			this.onChanged();
+		});
+		const color = new ColorComponent(container).onChange((v) => {
+			this.setValue(v);
+			this.onChanged();
+		});
+		this.textCmp = text;
+		this.colorCmp = color;
+	}
+
+	setValue(value: string): this {
+		// this.textCmp.setValue(value);
+		this.textCmp.inputEl.value = value;
+		// this.colorCmp.setValue(value);
+		this.colorCmp.colorPickerEl.value = value;
+		this.value = value;
+		return this;
+	}
+
+	getValue(): string {
+		return this.value;
+	}
+
+	private onChangeCallback(value: string): void {}
+
+	onChange(cb: (value: string) => unknown): this {
+		this.onChangeCallback = cb;
+		return this;
+	}
+
+	onChanged(): this {
+		this.onChangeCallback(this.value);
+		return this;
 	}
 }
