@@ -2,17 +2,14 @@ import BetterProperties from "@/main";
 import { ToggleWidget } from "./Toggle";
 import { DropdownWidget } from "./Dropdown";
 import { typeWidgetPrefix } from "@/libs/constants";
-import {
-	defaultPropertySettings,
-	TypeKeys,
-} from "@/libs/utils/augmentMedataMenu/addSettings";
 import { PropertyEntryData, PropertyRenderContext } from "obsidian-typings";
 import { ButtonWidget } from "./Button";
 import { SliderWidget } from "./Slider";
 import { ColorWidget } from "./Color";
 import { MarkdownWidget } from "./Markdown";
-import { NumberPlusPlusWidget } from "./NumberPlusPlus";
+import { NumberPlusWidget } from "./NumberPlus";
 import { Component, setIcon } from "obsidian";
+import { TypeKeys, defaultPropertySettings } from "@/libs/PropertySettings";
 
 export type CustomTypeWidget = {
 	type: keyof TypeKeys;
@@ -28,12 +25,6 @@ export type CustomTypeWidget = {
 	) => void;
 };
 
-type DefaultRender = (
-	el: HTMLElement,
-	data: PropertyEntryData<unknown>,
-	ctx: PropertyRenderContext
-) => void;
-
 const widgets: CustomTypeWidget[] = [
 	ToggleWidget,
 	DropdownWidget,
@@ -41,7 +32,7 @@ const widgets: CustomTypeWidget[] = [
 	SliderWidget,
 	ColorWidget,
 	MarkdownWidget,
-	NumberPlusPlusWidget,
+	NumberPlusWidget,
 ];
 
 export const registerCustomWidgets = (plugin: BetterProperties) => {

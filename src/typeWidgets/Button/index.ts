@@ -1,6 +1,14 @@
-import { ButtonComponent } from "obsidian";
-import { defaultPropertySettings } from "@/libs/utils/augmentMedataMenu/addSettings";
+import { ButtonComponent, DropdownComponent, Setting } from "obsidian";
 import { CustomTypeWidget } from "..";
+import { getButtonStyledClass } from "@/libs/utils/pure";
+import { IconSuggest } from "@/classes/IconSuggest";
+import { TextColorComponent } from "@/classes/TextColorComponent";
+import { createSection } from "@/libs/utils/setting";
+import BetterProperties from "@/main";
+import {
+	defaultPropertySettings,
+	PropertySettings,
+} from "@/libs/PropertySettings";
 
 export const ButtonWidget: CustomTypeWidget = {
 	type: "button",
@@ -31,11 +39,14 @@ export const ButtonWidget: CustomTypeWidget = {
 
 		btn.buttonEl.setAttribute("style", "margin-top: 0px;");
 
-		if (style === "accent") btn.setCta();
-		if (style === "warning") btn.setWarning();
-		if (style === "destructive")
-			btn.buttonEl.classList.add("mod-destructive");
-		if (style === "ghost") btn.buttonEl.classList.add("clickable-icon");
+		btn.buttonEl.classList.add(getButtonStyledClass(style));
+
+		// if (style === "accent") btn.setCta();
+		// if (style === "warning") btn.setWarning();
+		// if (style === "destructive")
+		// 	btn.buttonEl.classList.add("mod-destructive");
+		// if (style === "muted") btn.buttonEl.classList.add("mod-muted");
+		// if (style === "ghost") btn.buttonEl.classList.add("clickable-icon");
 		if (bgColor) {
 			btn.buttonEl.style.backgroundColor = bgColor;
 		}
@@ -89,4 +100,126 @@ export const ButtonWidget: CustomTypeWidget = {
 			}
 		});
 	},
+};
+
+export const createButtonSettings = (
+	el: HTMLElement,
+	form: PropertySettings["button"],
+	updateForm: <T extends keyof PropertySettings["button"]>(
+		key: T,
+		value: PropertySettings["button"][T]
+	) => void,
+	plugin: BetterProperties
+	// defaultOpen: boolean
+) => {
+	const {
+		displayText,
+		icon,
+		style,
+		bgColor,
+		textColor,
+		cssClass,
+		callbackType,
+	} = form;
+
+	const { content } = createSection(el, "Button", true);
+
+	new Setting(content)
+		.setName("Display text")
+		.setDesc("The text that will show within the button.")
+		.addText((cmp) =>
+			cmp
+				.setValue(displayText)
+				.onChange((v) => updateForm("displayText", v))
+		);
+
+	new Setting(content)
+		.setName("Icon")
+		.setDesc(
+			"Set an icon for the button. This will remove the display text from showing."
+		)
+		.addText((cmp) =>
+			cmp
+				.setValue(icon)
+				.onChange((v) => updateForm("icon", v))
+				.then((cmp) => new IconSuggest(plugin.app, cmp))
+		);
+	new Setting(content)
+		.setName("Callback type")
+		.setDesc(
+			"Select the option that the button will use to determine how to run it's value."
+		)
+		.addDropdown((cmp) =>
+			cmp
+				.addOptions({
+					Command: "Command",
+					inlineJs: "Inline JavaScript",
+					fileJs: "JavaScript File",
+				} as Record<typeof callbackType, string>)
+				.setValue(callbackType)
+		);
+	let styleDropdown: DropdownComponent;
+	let stylePreviewBtn: ButtonComponent;
+	new Setting(content)
+		.setName("Button style")
+		.setDesc("Basic styling for the button.")
+		.addDropdown((cmp) =>
+			cmp
+				.addOptions({
+					default: "Default",
+					accent: "Accent",
+					warning: "Warning",
+					destructive: "Destructive",
+					ghost: "Ghost",
+					muted: "Muted",
+				} as Record<typeof style, string>)
+				.setValue(style)
+				.then((cmp) => (styleDropdown = cmp))
+		)
+		.addButton((cmp) =>
+			cmp
+				.setButtonText("preview")
+				.setClass(getButtonStyledClass(style))
+				.then((cmp) => (stylePreviewBtn = cmp))
+		);
+
+	styleDropdown!.onChange((v) => {
+		stylePreviewBtn.buttonEl.className = getButtonStyledClass(
+			v as typeof style
+		);
+		updateForm("style", v as typeof style);
+	});
+
+	new Setting(content)
+		.setName("Background color")
+		.setDesc(
+			"Specify a background color that will override one set by any CSS classes."
+		)
+		.then((cmp) =>
+			new TextColorComponent(cmp.controlEl)
+				.setValue(bgColor)
+				.onChange((v) => updateForm("bgColor", v))
+		);
+
+	new Setting(content)
+		.setName("Text color")
+		.setDesc(
+			"Specify a text color that will override one set by any CSS classes. This is unset by default."
+		)
+		.then((cmp) =>
+			new TextColorComponent(cmp.controlEl)
+				.setValue(textColor)
+				.onChange((v) => updateForm("textColor", v))
+		);
+	new Setting(content)
+		.setName("CSS Classes")
+		.setDesc(
+			"Enter a space-separated list of CSS class names to add to the button element."
+		)
+		.addText((cmp) =>
+			cmp
+				.setPlaceholder("cls-1 cls-2")
+				.setValue(cssClass)
+				.onChange((v) => updateForm("cssClass", v))
+		);
 };

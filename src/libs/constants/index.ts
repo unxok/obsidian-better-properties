@@ -6,7 +6,7 @@ export const typeWidgetPrefix = "better-properties:";
 
 export const typeKeySuffixes = {
 	slider: "slider",
-	"number-plus-plus": "number-plus-plus",
+	numberPlus: "numberPlus",
 	toggle: "toggle",
 	dropdown: "dropdown",
 	color: "color",

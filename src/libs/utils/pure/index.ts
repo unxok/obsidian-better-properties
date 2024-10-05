@@ -1,3 +1,5 @@
+import { PropertySettings } from "@/libs/PropertySettings";
+
 /**
  * Move an item in an array from one index to another
  * @remark You are responsible for ensuring the indexes are valid
@@ -14,4 +16,15 @@ export const arrayMove = <T>(arr: T[], from: number, to: number) => {
 	copy.splice(from, 1);
 	copy.splice(to, 0, item);
 	return copy;
+};
+
+export const getButtonStyledClass = (
+	style: PropertySettings["button"]["style"]
+) => {
+	if (style === "accent") return "mod-cta";
+	if (style === "destructive") return "mod-destructive";
+	if (style === "ghost") return "clickable-icon";
+	if (style === "muted") return "mod-muted";
+	if (style === "warning") return "mod-warning";
+	return "";
 };

@@ -1,5 +1,24 @@
 import { around, dedupe } from "monkey-around";
-import { Menu, Plugin, setIcon, View, WorkspaceLeaf } from "obsidian";
+import {
+	AbstractInputSuggest,
+	App,
+	Editor,
+	editorLivePreviewField,
+	EditorPosition,
+	EditorSuggest,
+	EditorSuggestContext,
+	EditorSuggestTriggerInfo,
+	Menu,
+	MenuPositionDef,
+	Plugin,
+	Scope,
+	SearchComponent,
+	setIcon,
+	TextComponent,
+	TFile,
+	View,
+	WorkspaceLeaf,
+} from "obsidian";
 import { monkeyAroundKey, typeWidgetPrefix } from "./libs/constants";
 import {
 	addUsedBy,
@@ -9,8 +28,16 @@ import {
 	addMassUpdate,
 } from "./libs/utils/augmentMedataMenu";
 import { registerCustomWidgets } from "./typeWidgets";
-import { PropertySettings } from "./libs/utils/augmentMedataMenu/addSettings";
-import { MetadataEditor } from "obsidian-typings";
+import {
+	CodeMirrorEditor,
+	FileSuggestManager,
+	MetadataEditor,
+} from "obsidian-typings";
+import {
+	defaultPropertySettings,
+	PropertySettings,
+} from "./libs/PropertySettings";
+import { addChangeIcon } from "./libs/utils/augmentMedataMenu/addChangeIcon";
 
 type BetterPropertiesSettings = {
 	propertySettings: Record<string, PropertySettings>;
@@ -33,6 +60,17 @@ export default class BetterProperties extends Plugin {
 
 		patchMenu(this);
 		patchMetdataEditor(this);
+
+		this.registerMarkdownCodeBlockProcessor(
+			"better-properties",
+			(source, el, ctx) => {
+				el.empty();
+				new TextComponent(el)
+					.setValue("hello there")
+					.onChange((v) => console.log("changed: v"))
+					.then((cmp) => new FileSuggest(this.app, cmp));
+			}
+		);
 	}
 
 	onunload() {
@@ -81,11 +119,12 @@ export default class BetterProperties extends Plugin {
 				.filter(({ path }) => !!path);
 
 		const sec = "Better Properties";
-		menu.addItem((item) =>
-			item.setSection(sec).setDisabled(true).setTitle(sec)
-		);
+		// menu.addItem((item) =>
+		// 	item.setSection(sec).setDisabled(true).setTitle(sec)
+		// );
 
 		const commonProps = { plugin: this, menu, files, key };
+		addChangeIcon(commonProps);
 		addUsedBy(commonProps);
 		addRename(commonProps);
 		addMassUpdate(commonProps);
@@ -145,6 +184,33 @@ export default class BetterProperties extends Plugin {
 		await this.saveSettings();
 	}
 
+	getPropertySetting(propertyName: string): PropertySettings {
+		const lower = propertyName.toLowerCase();
+		const existing =
+			this.settings.propertySettings[lower] ?? defaultPropertySettings;
+		return { ...existing };
+	}
+
+	async updatePropertySetting(
+		propertyName: string,
+		cb: (prev: PropertySettings) => PropertySettings
+	): Promise<void> {
+		const lower = propertyName.toLowerCase();
+		const existing = this.settings.propertySettings[lower] ?? {
+			...defaultPropertySettings,
+		};
+		const newSettings = cb(existing);
+		return await this.updateSettings((prev) => ({
+			...prev,
+			propertySettings: {
+				...prev.propertySettings,
+				[lower]: {
+					...newSettings,
+				},
+			},
+		}));
+	}
+
 	removeCustomWidgets(): void {
 		const mtm = this.app.metadataTypeManager;
 		Object.keys(mtm.registeredTypeWidgets).forEach((key) => {
@@ -154,17 +220,18 @@ export default class BetterProperties extends Plugin {
 	}
 
 	refreshPropertyEditor(property: string): void {
+		const lower = property.toLowerCase();
 		this.app.workspace.iterateAllLeaves((leaf) => {
 			if (!leaf.view.hasOwnProperty("metadataEditor")) return;
 			const view = leaf.view as View & {
 				metadataEditor: {
-					onMetadataTypeChange: (property: string) => void;
+					onMetadataTypeChange: (lower: string) => void;
 				};
 			};
 
 			// This is to force dropdowns to re-render with updated options
 			// the easiest way I found was to emulate a type change
-			view.metadataEditor.onMetadataTypeChange(property);
+			view.metadataEditor.onMetadataTypeChange(lower);
 		});
 	}
 }
@@ -222,7 +289,6 @@ const patchMetdataEditor = (plugin: BetterProperties) => {
 	) as PatchedMetadataEditor;
 
 	MetadataEditorPrototype.toggleHiddenProperties = function () {
-		console.log("got this: ", this);
 		const shouldHide = this.showHiddenProperties;
 		if (shouldHide) {
 			this.containerEl.style.setProperty(
@@ -278,17 +344,170 @@ const patchMetdataEditor = (plugin: BetterProperties) => {
 					"afterend",
 					toggleHiddenButton
 				);
-
-				// setTimeout(() => {
-				// 	that.showHiddenProperties = false;
-				// 	that.toggleHiddenProperties.call(that);
-				// }, 0);
 			});
 		},
 	});
 
 	plugin.register(removePatch);
 };
+
+type BaseWikilinkSuggestion = {
+	/**
+	 * Usually the path to the file, header, or section
+	 * @remark If link is to non-existent file, this will be the link text
+	 * @remark Typically, only non-markdown files will include the file extension here
+	 */
+	path: string | null;
+	/**
+	 * Each item in the array contains indexes of characters for sections in the `path` that match the search value
+	 */
+	matches: [matchStart: number, matchEnd: number][] | null;
+	/**
+	 * How accurate of a search this result is
+	 * @remark Typically this is a float with 4 digits after the decimal
+	 */
+	score: number;
+};
+
+type FileWikilinkSuggestion = BaseWikilinkSuggestion & {
+	type: "file";
+	/**
+	 * The corresponding file for this suggestion
+	 */
+	file: TFile;
+	/**
+	 * I assume this indicates if this file is part of the configured "Excluded files" setting
+	 */
+	downranked: boolean;
+};
+
+type LinkTextWikilinkSuggestion = BaseWikilinkSuggestion & {
+	type: "linktext";
+};
+
+type HeadingWikilinkSuggestion = BaseWikilinkSuggestion & {
+	type: "heading";
+	/**
+	 * The corresponding file for this suggestion
+	 */
+	file: TFile;
+	/**
+	 * The text of this heading
+	 * @remark Does not include the "#" symbols that are part of MD syntax
+	 */
+	heading: string;
+	/**
+	 * The 1 based index of the type of heading this is.
+	 * @example <h2 /> → 2
+	 */
+	level: number;
+	/**
+	 * The ending section of the link to this header. Starts at and includes the "#" to the end of the heading text
+	 */
+	subpath: string;
+};
+
+type Position = { line: number; column: number; offset: number };
+
+type BlockWikilinkSuggestion = BaseWikilinkSuggestion & {
+	type: "block";
+	display: string;
+	content: string;
+	idMatch: string | null;
+	node: {
+		children: {
+			position: Position;
+			type: string;
+			value: string;
+		}[];
+		depth: number;
+		position: {
+			start: Position;
+			end: Position;
+			index: unknown[];
+		};
+	};
+	data: Record<string, any>;
+};
+
+type WikilinkSuggestion =
+	| FileWikilinkSuggestion
+	| LinkTextWikilinkSuggestion
+	| HeadingWikilinkSuggestion
+	| BlockWikilinkSuggestion;
+
+const resolveWikilinkSuggestPrototype = (app: App) => {
+	const { editorSuggest } = app.workspace;
+	const wikilinkSuggest = editorSuggest.suggests[0];
+	// const proto = Object.getPrototypeOf(wikilinkSuggest);
+	// return proto as FileSuggest;
+	return wikilinkSuggest as FileEditorSuggest;
+};
+
+export interface FileEditorSuggest extends EditorSuggest<WikilinkSuggestion> {
+	app: App;
+	context: {
+		editor: Editor;
+		end: { line: number; ch: number };
+		file: TFile;
+		query: string;
+		start: { line: number; ch: number };
+	};
+	instructionsEl: HTMLElement;
+	isOpen: boolean;
+	limit: number;
+	score: Scope;
+	suggestEl: HTMLElement;
+	/**
+	 * Manages fetching of suggestions from metadatacache
+	 */
+	suggestManager: FileSuggestManager;
+	constructor(app: App): FileEditorSuggest;
+}
+
+class FileSuggest extends AbstractInputSuggest<WikilinkSuggestion> {
+	component: TextComponent | SearchComponent;
+	suggestManager: FileSuggestManager;
+	instructionsEl: HTMLElement;
+	setInstructions: FileEditorSuggest["setInstructions"];
+	constructor(app: App, component: TextComponent | SearchComponent) {
+		super(app, component.inputEl);
+		this.component = component;
+
+		const proto = resolveWikilinkSuggestPrototype(app);
+		this.onTrigger = proto.onTrigger;
+		this.getSuggestions = (query) =>
+			proto.getSuggestions({ query } as EditorSuggestContext);
+		this.renderSuggestion = proto.renderSuggestion;
+		// this.selectSuggestion = proto.selectSuggestion;
+		this.suggestManager = proto.suggestManager;
+		this.instructionsEl = proto.instructionsEl;
+		this.setInstructions = proto.setInstructions;
+	}
+
+	onTrigger(
+		cursor: EditorPosition,
+		editor: Editor,
+		file: TFile | null
+	): EditorSuggestTriggerInfo | null {
+		return null;
+	}
+
+	protected getSuggestions(
+		query: string
+	): WikilinkSuggestion[] | Promise<WikilinkSuggestion[]> {
+		return [];
+	}
+
+	renderSuggestion(value: WikilinkSuggestion, el: HTMLElement): void {}
+	selectSuggestion(
+		value: WikilinkSuggestion,
+		evt: MouseEvent | KeyboardEvent
+	): void {
+		this.component.setValue(value.path ?? "");
+		this.component.onChanged();
+	}
+}
 
 // const getMetdataEditorPrototype = (app: App) => {
 // 	app.workspace.onLayoutReady(() => {

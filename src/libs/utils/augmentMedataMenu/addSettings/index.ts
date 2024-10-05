@@ -4,20 +4,19 @@ import {
 	typeWidgetPrefix,
 } from "@/libs/constants";
 import { MetadataAddItemProps } from "..";
-import {
-	ColorComponent,
-	Modal,
-	Setting,
-	TextComponent,
-	ValueComponent,
-} from "obsidian";
+import { Modal, Setting } from "obsidian";
 import { createSection } from "../../setting";
 import BetterProperties from "@/main";
-import { createSliderSettings } from "./Slider";
-import { createNumberPlusPlusSettings } from "./NumberPlusPlus";
-import { createDropdownSettings } from "./Dropdown";
-import { createButtonSettings } from "./Button";
 import { IconSuggest } from "@/classes/IconSuggest";
+import { TextColorComponent } from "@/classes/TextColorComponent";
+import { createButtonSettings } from "@/typeWidgets/Button";
+import { createDropdownSettings } from "@/typeWidgets/Dropdown";
+import { createNumberPlusSettings } from "@/typeWidgets/NumberPlus";
+import { createSliderSettings } from "@/typeWidgets/Slider";
+import {
+	defaultPropertySettings,
+	PropertySettings,
+} from "@/libs/PropertySettings";
 
 export const addSettings = ({ menu, plugin, key }: MetadataAddItemProps) => {
 	menu.addItem((item) =>
@@ -32,96 +31,6 @@ export const addSettings = ({ menu, plugin, key }: MetadataAddItemProps) => {
 };
 
 // type PropertySettingsItem<T extends keyof typeof typeKeySuffixes> = Record<T, Record<string, any>>;
-
-export type TypeKeys = PropertySettings;
-
-export type PropertySettings = {
-	general: {
-		hidden: boolean;
-		cssClass: string;
-		customIcon: string;
-		iconColor: string;
-		iconHoverColor: string;
-		labelColor: string;
-		textColor: string;
-	};
-	slider: {
-		min: number;
-		max: number;
-		step: number;
-		showLabels: boolean;
-	};
-	"number-plus-plus": {
-		min: number;
-		max: number;
-		step: number;
-		validate: boolean;
-	};
-	dropdown: {
-		options: { value: string; label: string }[];
-
-		dynamicInlineJs: string;
-		dynamicFileJs: string;
-	};
-	button: {
-		displayText: string;
-		icon: string;
-		callbackType: "inlineJs" | "fileJs" | "Command";
-		style: "default" | "accent" | "warning" | "destructive" | "ghost";
-		bgColor: string;
-		textColor: string;
-		cssClass: string;
-	};
-	toggle: {};
-	color: {};
-	markdown: {};
-};
-
-// can't think of a way to have this typed properly but at least this avoids hard coding the keys somewhat
-export const defaultPropertySettings: PropertySettings = {
-	general: {
-		hidden: false,
-		cssClass: "",
-		customIcon: "",
-		iconColor: "",
-		iconHoverColor: "",
-		labelColor: "",
-		textColor: "",
-	},
-	slider: {
-		min: 0,
-		max: 100,
-		step: 1,
-		showLabels: true,
-	},
-	"number-plus-plus": {
-		min: 0,
-		max: 100000,
-		step: 1,
-		validate: true,
-	},
-	dropdown: {
-		options: [
-			{ label: "Apples", value: "apples" },
-			{ label: "Oranges", value: "oranges" },
-			{ label: "Bananas", value: "bananas" },
-		],
-		dynamicInlineJs: "",
-		dynamicFileJs: "",
-	},
-	button: {
-		displayText: "click me",
-		callbackType: "inlineJs",
-		icon: "",
-		style: "default",
-		bgColor: "",
-		textColor: "",
-		cssClass: "",
-	},
-	toggle: {},
-	color: {},
-	markdown: {},
-};
 
 class SettingsModal extends Modal {
 	plugin: BetterProperties;
@@ -234,12 +143,11 @@ class SettingsModal extends Modal {
 					this.form.slider,
 					(key, value) => this.updateForm("slider", key, value)
 				);
-			case "number-plus-plus":
-				return createNumberPlusPlusSettings(
+			case "numberPlus":
+				return createNumberPlusSettings(
 					contentEl,
-					this.form["number-plus-plus"],
-					(key, value) =>
-						this.updateForm("number-plus-plus", key, value)
+					this.form.numberPlus,
+					(key, value) => this.updateForm("numberPlus", key, value)
 				);
 			case "dropdown":
 				return createDropdownSettings(
@@ -362,52 +270,5 @@ class SettingsModal extends Modal {
 					.setValue(form.textColor)
 					.onChange((v) => updateForm("textColor", v))
 			);
-	}
-}
-
-class TextColorComponent extends ValueComponent<string> {
-	value: string = "";
-	container: HTMLElement;
-	textCmp: TextComponent;
-	colorCmp: ColorComponent;
-	constructor(container: HTMLElement) {
-		super();
-		this.container = container;
-
-		const text = new TextComponent(container).onChange((v) => {
-			this.setValue(v);
-			this.onChanged();
-		});
-		const color = new ColorComponent(container).onChange((v) => {
-			this.setValue(v);
-			this.onChanged();
-		});
-		this.textCmp = text;
-		this.colorCmp = color;
-	}
-
-	setValue(value: string): this {
-		// this.textCmp.setValue(value);
-		this.textCmp.inputEl.value = value;
-		// this.colorCmp.setValue(value);
-		this.colorCmp.colorPickerEl.value = value;
-		this.value = value;
-		return this;
-	}
-
-	getValue(): string {
-		return this.value;
-	}
-
-	private onChangeCallback(value: string): void {}
-
-	onChange(cb: (value: string) => unknown): this {
-		this.onChangeCallback = cb;
-		return this;
-	}
-
-	onChanged(): this {
-		this.onChangeCallback(this.value);
-		return this;
 	}
 }
