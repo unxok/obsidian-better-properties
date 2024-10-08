@@ -31,10 +31,9 @@ export const DropdownWidget: CustomTypeWidget = {
 			cls: "metadata-input-longtext",
 		});
 
-		const dropdown = new DropdownComponent(container)
-			// .addOptions(optionsObj)
-			// .setValue(data.value?.toString() ?? "")
-			.onChange((v) => ctx.onChange(v));
+		const dropdown = new DropdownComponent(container).onChange((v) =>
+			ctx.onChange(v)
+		);
 
 		(async () => {
 			const staticOptionsObj = options.reduce((acc, { label, value }) => {
