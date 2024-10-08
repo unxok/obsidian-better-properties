@@ -2,16 +2,9 @@ import { Modal, SearchComponent, Setting } from "obsidian";
 import { metdataSectionId } from "@/libs/constants";
 import { MetadataAddItemProps } from "..";
 import { IconSuggest } from "@/classes/IconSuggest";
-import { defaultPropertySettings } from "@/libs/PropertySettings";
 
-export const addChangeIcon = ({
-	plugin,
-	menu,
-	files,
-	key,
-}: MetadataAddItemProps) => {
+export const addChangeIcon = ({ plugin, menu, key }: MetadataAddItemProps) => {
 	const { app } = plugin;
-	const { metadataTypeManager } = app;
 	const trueKey = key.toLowerCase();
 	menu.addItem((item) =>
 		item

@@ -33,7 +33,7 @@ export const DropdownWidget: CustomTypeWidget = {
 
 		const dropdown = new DropdownComponent(container)
 			// .addOptions(optionsObj)
-			.setValue(data.value?.toString() ?? "")
+			// .setValue(data.value?.toString() ?? "")
 			.onChange((v) => ctx.onChange(v));
 
 		(async () => {
@@ -53,7 +53,9 @@ export const DropdownWidget: CustomTypeWidget = {
 				plugin
 			);
 
-			dropdown.addOptions(optionsObj);
+			dropdown
+				.addOptions(optionsObj)
+				.setValue(data.value?.toString() ?? "");
 		})();
 	},
 };

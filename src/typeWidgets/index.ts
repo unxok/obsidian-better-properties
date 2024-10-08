@@ -89,8 +89,12 @@ const getWidgetRender = (
 			labelColor,
 		} = { ...defaultPropertySettings.general, ...general };
 
-		const parent = el.parentElement!;
+		const exit = () => customRender(plugin, el, data, ctx);
+
+		const parent = el.parentElement;
+		if (!parent) return exit();
 		const iconEl = parent.find("span.metadata-property-icon");
+		if (!iconEl) return exit();
 		el.setAttribute("data-better-properties-hidden", hidden.toString());
 		if (customIcon) {
 			setIcon(iconEl, customIcon);
@@ -108,6 +112,6 @@ const getWidgetRender = (
 			parent.style.setProperty("--text-normal", textColor);
 		}
 
-		customRender(plugin, el, data, ctx);
+		exit();
 	};
 };
