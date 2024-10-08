@@ -39,14 +39,10 @@ export const ButtonWidget: CustomTypeWidget = {
 
 		btn.buttonEl.setAttribute("style", "margin-top: 0px;");
 
-		btn.buttonEl.classList.add(getButtonStyledClass(style));
-
-		// if (style === "accent") btn.setCta();
-		// if (style === "warning") btn.setWarning();
-		// if (style === "destructive")
-		// 	btn.buttonEl.classList.add("mod-destructive");
-		// if (style === "muted") btn.buttonEl.classList.add("mod-muted");
-		// if (style === "ghost") btn.buttonEl.classList.add("clickable-icon");
+		const className = getButtonStyledClass(style);
+		if (className) {
+			btn.buttonEl.classList.add(className);
+		}
 		if (bgColor) {
 			btn.buttonEl.style.backgroundColor = bgColor;
 		}
@@ -179,7 +175,11 @@ export const createButtonSettings = (
 		.addButton((cmp) =>
 			cmp
 				.setButtonText("preview")
-				.setClass(getButtonStyledClass(style))
+				.then((cmp) => {
+					const cn = getButtonStyledClass(style);
+					if (!cn) return;
+					cmp.setClass(cn);
+				})
 				.then((cmp) => (stylePreviewBtn = cmp))
 		);
 

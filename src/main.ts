@@ -194,12 +194,6 @@ export default class BetterProperties extends Plugin {
 	}
 }
 
-type PatchedMetadataEditor = MetadataEditor & {
-	toggleHiddenButton: HTMLDivElement;
-	showHiddenProperties: boolean;
-	toggleHiddenProperties(): void;
-};
-
 const patchMenu = (plugin: BetterProperties) => {
 	const removePatch = around(Menu.prototype, {
 		showAtMouseEvent(old) {
@@ -234,6 +228,12 @@ const patchMenu = (plugin: BetterProperties) => {
 	});
 
 	plugin.register(removePatch);
+};
+
+export type PatchedMetadataEditor = MetadataEditor & {
+	toggleHiddenButton: HTMLDivElement;
+	showHiddenProperties: boolean;
+	toggleHiddenProperties(): void;
 };
 
 const patchMetdataEditor = (plugin: BetterProperties) => {

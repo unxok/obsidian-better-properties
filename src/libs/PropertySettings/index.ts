@@ -47,6 +47,10 @@ export type PropertySettings = {
 	color: {};
 	markdown: {};
 	email: {};
+	stars: {
+		customIcon: string;
+		max: number;
+	};
 };
 
 // can't think of a way to have this typed properly but at least this avoids hard coding the keys somewhat
@@ -94,4 +98,8 @@ export const defaultPropertySettings: PropertySettings = {
 	color: {},
 	markdown: {},
 	email: {},
+	stars: {
+		customIcon: "star",
+		max: 5,
+	},
 };

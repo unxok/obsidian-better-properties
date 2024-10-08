@@ -1,12 +1,13 @@
 {
 	"name": "obsidian-better-properties",
-	"version": "1.0.0",
+	"version": "0.0.1",
 	"description": "Upgrades Obsidian properties with new types, features, and more!",
 	"main": "main.js",
 	"scripts": {
 		"dev": "vite build --watch --mode=development",
 		"build": "vite build",
-		"version": "node version-bump.mjs && git add manifest.json versions.json"
+		"version": "node version-bump.mjs && git add manifest.json versions.json",
+		"release": "git tag -a %npm_config_tag% -m '%npm_config_tag%' && git push origin %npm_config_tag%"
 	},
 	"keywords": [],
 	"author": "",

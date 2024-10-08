@@ -10,6 +10,7 @@ import { MarkdownWidget } from "./Markdown";
 import { NumberPlusWidget } from "./NumberPlus";
 import { Component, setIcon } from "obsidian";
 import { TypeKeys, defaultPropertySettings } from "@/libs/PropertySettings";
+import { StarsWidget } from "./Stars";
 
 export type CustomTypeWidget = {
 	type: keyof TypeKeys;
@@ -33,6 +34,7 @@ const widgets: CustomTypeWidget[] = [
 	ColorWidget,
 	MarkdownWidget,
 	NumberPlusWidget,
+	StarsWidget,
 ];
 
 export const registerCustomWidgets = (plugin: BetterProperties) => {
@@ -93,6 +95,7 @@ const getWidgetRender = (
 
 		const parent = el.parentElement;
 		if (!parent) return exit();
+
 		const iconEl = parent.find("span.metadata-property-icon");
 		if (!iconEl) return exit();
 		el.setAttribute("data-better-properties-hidden", hidden.toString());

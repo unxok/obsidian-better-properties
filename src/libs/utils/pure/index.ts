@@ -28,3 +28,16 @@ export const getButtonStyledClass = (
 	if (style === "warning") return "mod-warning";
 	return "";
 };
+
+export const clampNumber = (
+	num: number,
+	min: number,
+	max: number,
+	nonInclusive?: boolean
+) => {
+	const underMin = nonInclusive ? num < min : num <= min;
+	if (underMin) return min;
+	const overMax = nonInclusive ? num > max : num >= max;
+	if (overMax) return max;
+	return num;
+};

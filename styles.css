@@ -17,6 +17,10 @@
 	width: fit-content;
 }
 
+.better-properties-inline-flex {
+	display: inline-flex;
+}
+
 .better-properties-slider-label-start,
 .better-properties-slider-label-end {
 	color: var(--text-muted);
@@ -105,4 +109,8 @@ div.better-properties-metadata-property-markdown-div {
 	display: flex;
 	flex-direction: row;
 	gap: 0.5rem;
+}
+
+.better-properties-svg-fill svg {
+	fill: currentColor;
 }

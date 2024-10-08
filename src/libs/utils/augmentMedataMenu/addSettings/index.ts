@@ -17,6 +17,7 @@ import {
 	defaultPropertySettings,
 	PropertySettings,
 } from "@/libs/PropertySettings";
+import { createStarsSettings } from "@/typeWidgets/Stars";
 
 export const addSettings = ({ menu, plugin, key }: MetadataAddItemProps) => {
 	menu.addItem((item) =>
@@ -57,7 +58,6 @@ class SettingsModal extends Modal {
 			// @ts-ignore TODO IDK why typescript doesn't like this
 			form[key] = { ...defaultValue, ...form[key] };
 		});
-		console.log("form after parse: ", form);
 		this.form = form;
 	}
 
@@ -133,9 +133,7 @@ class SettingsModal extends Modal {
 		});
 
 		switch (
-			typeKey.slice(
-				typeWidgetPrefix.length
-			) as keyof typeof typeKeySuffixes
+			typeKey.slice(typeWidgetPrefix.length) as keyof PropertySettings
 		) {
 			case "slider":
 				return createSliderSettings(
@@ -163,6 +161,13 @@ class SettingsModal extends Modal {
 					(key, value) => this.updateForm("button", key, value),
 					this.plugin
 				);
+			case "stars":
+				return createStarsSettings(
+					contentEl,
+					this.form["stars"],
+					(key, value) => this.updateForm("stars", key, value),
+					this.plugin
+				);
 			default:
 				new Setting(contentEl)
 					.setName("Non customizable type")
@@ -175,7 +180,6 @@ class SettingsModal extends Modal {
 	async onClose(): Promise<void> {
 		const { plugin, property, form } = this;
 		const key = property.toLowerCase();
-		console.log("about to save form: ", form);
 		await plugin.updateSettings((prev) => ({
 			...prev,
 			propertySettings: { ...prev.propertySettings, [key]: form },
