@@ -18,6 +18,6 @@
 		"paths": {
 			"@/*": ["./src/*"]
 		},
-		"types": ["obsidian-typings"]
+		"types": ["obsidian-typings", "./src/libs/types"]
 	}
 }

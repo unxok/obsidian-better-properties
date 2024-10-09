@@ -35,21 +35,24 @@ export default class BetterProperties extends Plugin {
 
 		patchMenu(this);
 		patchMetdataEditor(this);
+
+		this.listenPropertyMenu();
 	}
 
 	onunload() {
 		this.removeCustomWidgets();
 	}
 
-	setMenu = (menu: Menu, targetEl: HTMLElement) => {
+	setMenu(menu: Menu, property: string /*targetEl: HTMLElement*/): void {
 		if (menu === this.menu) return;
 		const { app } = this;
 		const { metadataCache } = app;
 		this.menu = menu;
-		const container = targetEl.closest(
-			"div.metadata-property[data-property-key]"
-		)!;
-		const key = container.getAttribute("data-property-key") ?? "";
+		// const container = targetEl.closest(
+		// 	"div.metadata-property[data-property-key]"
+		// )!;
+		// const key = container.getAttribute("data-property-key") ?? "";
+		const key = property;
 
 		const { metadataCache: mdc, fileCache: fc } = metadataCache;
 		const fcKeys = Object.keys(fc);
@@ -88,7 +91,15 @@ export default class BetterProperties extends Plugin {
 		addMassUpdate(commonProps);
 		addSettings(commonProps);
 		addDelete(commonProps);
-	};
+	}
+
+	listenPropertyMenu(): void {
+		this.registerEvent(
+			this.app.workspace.on("file-property-menu", (menu, property) => {
+				this.setMenu(menu, property);
+			})
+		);
+	}
 
 	// patchMenu(): void {
 	// 	const setMenu = this.setMenu;
@@ -220,7 +231,18 @@ const patchMenu = (plugin: BetterProperties) => {
 					  );
 
 				if (!trueTarget) return exit();
-				plugin.setMenu(that, trueTarget);
+
+				const container = trueTarget.closest(
+					"div.metadata-property[data-property-key]"
+				)!;
+				const property =
+					container.getAttribute("data-property-key") ?? "";
+				// plugin.setMenu(that, trueTarget);
+				plugin.app.workspace.trigger(
+					"file-property-menu",
+					that,
+					property
+				);
 
 				return exit();
 			});

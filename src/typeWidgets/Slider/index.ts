@@ -38,8 +38,7 @@ export const SliderWidget: CustomTypeWidget = {
 			})
 			.setInstant(false)
 			.setDynamicTooltip()
-			.setLimits(min, max, step)
-			.showTooltip();
+			.setLimits(min, max, step);
 
 		showLabels &&
 			container.createSpan({

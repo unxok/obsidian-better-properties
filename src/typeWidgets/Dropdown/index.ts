@@ -41,7 +41,7 @@ export const DropdownWidget: CustomTypeWidget = {
 				return acc;
 			}, {} as Record<string, string>);
 
-			const optionsObjWithInline = getDynamicOptionsInline(
+			const optionsObjWithInline = await getDynamicOptionsInline(
 				dynamicInlineJs,
 				staticOptionsObj
 			);
@@ -59,15 +59,16 @@ export const DropdownWidget: CustomTypeWidget = {
 	},
 };
 
-const getDynamicOptionsInline = (
+const getDynamicOptionsInline = async (
 	inlineJs: string,
 	obj: Record<string, string>
 ) => {
 	if (!inlineJs) return obj;
 	try {
-		const dynamicArr: { label: string; value: string }[] = eval(
-			`(() => {${inlineJs}})()`
-		);
+		const func = eval(`async () => {${inlineJs}}`) as () => Promise<
+			{ label: string; value: string }[]
+		>;
+		const dynamicArr = await func();
 		if (!Array.isArray(dynamicArr)) throw new Error();
 		return dynamicArr.reduce(
 			(acc, { label, value }) => {
