@@ -2,10 +2,8 @@ import { around, dedupe } from "monkey-around";
 import {
 	CachedMetadata,
 	Menu,
-	MetadataCache,
 	Plugin,
 	setIcon,
-	Setting,
 	TFile,
 	View,
 	WorkspaceLeaf,
@@ -19,12 +17,7 @@ import {
 	addMassUpdate,
 } from "./libs/utils/augmentMedataMenu";
 import { registerCustomWidgets } from "./typeWidgets";
-import {
-	FileCacheEntry,
-	MetadataCacheFileCacheRecord,
-	MetadataCacheMetadataCacheRecord,
-	MetadataEditor,
-} from "obsidian-typings";
+import { MetadataEditor } from "obsidian-typings";
 import {
 	defaultPropertySettings,
 	PropertySettings,
@@ -34,6 +27,9 @@ import { ConfirmationModal } from "./classes/ConfirmationModal";
 import { BetterPropertiesSettingTab } from "./classes/BetterPropertiesSettingTab";
 
 type BetterPropertiesSettings = {
+	/* General */
+	showResetPropertySettingWarning: boolean;
+	/* Syncronization */
 	propertySettings: Record<string, PropertySettings>;
 	templatePropertyName: string;
 	templateIdName: string;
@@ -42,6 +38,9 @@ type BetterPropertiesSettings = {
 
 const DEFAULT_SETTINGS: BetterPropertiesSettings = {
 	propertySettings: {},
+	/* General */
+	showResetPropertySettingWarning: true,
+	/* Syncronization */
 	templatePropertyName: "property-template",
 	templateIdName: "property-template-id",
 	showSyncTemplateWarning: true,
@@ -61,10 +60,19 @@ export default class BetterProperties extends Plugin {
 		patchMetdataEditor(this);
 
 		this.listenPropertyMenu();
+
+		this.rebuildLeaves();
 	}
 
 	onunload() {
 		this.removeCustomWidgets();
+	}
+
+	rebuildLeaves(): void {
+		this.app.workspace.iterateAllLeaves((leaf) => {
+			// @ts-expect-error Private API not documented in obsidian-typings
+			leaf.rebuildView && leaf.rebuildView();
+		});
 	}
 
 	setMenu(menu: Menu, property: string /*targetEl: HTMLElement*/): void {
@@ -124,41 +132,6 @@ export default class BetterProperties extends Plugin {
 			})
 		);
 	}
-
-	// patchMenu(): void {
-	// 	const setMenu = this.setMenu;
-	// 	this.removePatch = around(Menu.prototype, {
-	// 		showAtMouseEvent(old) {
-	// 			return dedupe(monkeyAroundKey, old, function (e) {
-	// 				// @ts-ignore Doesn't look like there's a way to get this typed correctly
-	// 				const that = this as Menu;
-	// 				const exit = () => {
-	// 					return old.call(that, e);
-	// 				};
-	// 				const { target } = e;
-	// 				const isHTML = target instanceof HTMLElement;
-	// 				const isSVG = target instanceof SVGElement;
-	// 				if (!isHTML && !isSVG) return exit();
-
-	// 				const isExact =
-	// 					target instanceof HTMLElement &&
-	// 					target.tagName.toLowerCase() === "span" &&
-	// 					target.classList.contains("metadata-property-icon");
-
-	// 				const trueTarget = isExact
-	// 					? target
-	// 					: target.closest<HTMLElement>(
-	// 							"span.metadata-property-icon"
-	// 					  );
-
-	// 				if (!trueTarget) return exit();
-	// 				setMenu(that, trueTarget);
-
-	// 				return exit();
-	// 			});
-	// 		},
-	// 	});
-	// }
 
 	async loadSettings() {
 		const loaded = await this.loadData();

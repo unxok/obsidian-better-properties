@@ -41,3 +41,7 @@ export const clampNumber = (
 	if (overMax) return max;
 	return num;
 };
+
+// Vite complains if you straight use eval
+// but I need to use it sometimes to allow users to use JS for certain things
+export const dangerousEval = eval;

@@ -1,6 +1,6 @@
 import { ButtonComponent, DropdownComponent, Setting } from "obsidian";
 import { CustomTypeWidget } from "..";
-import { getButtonStyledClass } from "@/libs/utils/pure";
+import { dangerousEval, getButtonStyledClass } from "@/libs/utils/pure";
 import { IconSuggest } from "@/classes/IconSuggest";
 import { TextColorComponent } from "@/classes/TextColorComponent";
 import { createSection } from "@/libs/utils/setting";
@@ -68,7 +68,7 @@ export const ButtonWidget: CustomTypeWidget = {
 
 			const tryEval = async (str: string) => {
 				try {
-					const func = eval(`async (args) => {${str}}`);
+					const func = dangerousEval(`async (args) => {${str}}`);
 					await func({ el, data, ctx });
 				} catch (e) {
 					new Notice(

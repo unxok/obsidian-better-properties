@@ -5,6 +5,7 @@ import {
 } from "@/libs/PropertySettings";
 import { CustomTypeWidget } from "..";
 import { createSection } from "@/libs/utils/setting";
+import { dangerousEval } from "@/libs/utils/pure";
 
 export const NumberPlusWidget: CustomTypeWidget = {
 	type: "numberPlus",
@@ -110,7 +111,7 @@ class ExpressionModal extends Modal {
 		setting.addText((cmp) =>
 			cmp.setPlaceholder("(x + 2) - x**4 / Math.PI").onChange((v) => {
 				try {
-					const n = eval(`((x) => ${v})(${defaultNumber})`);
+					const n = dangerousEval(`((x) => ${v})(${defaultNumber})`);
 					const num = Number(n);
 					if (Number.isNaN(n)) throw new Error();
 					this.calculated = num;

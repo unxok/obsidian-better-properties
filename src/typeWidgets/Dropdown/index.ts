@@ -2,7 +2,9 @@ import {
 	AbstractInputSuggest,
 	App,
 	DropdownComponent,
+	Keymap,
 	SearchComponent,
+	setIcon,
 	Setting,
 	TFile,
 } from "obsidian";
@@ -12,7 +14,7 @@ import {
 } from "@/libs/PropertySettings";
 import BetterProperties from "@/main";
 import { CustomTypeWidget } from "..";
-import { arrayMove } from "@/libs/utils/pure";
+import { arrayMove, dangerousEval } from "@/libs/utils/pure";
 import { createSection } from "@/libs/utils/setting";
 
 export const DropdownWidget: CustomTypeWidget = {
@@ -27,13 +29,54 @@ export const DropdownWidget: CustomTypeWidget = {
 			...defaultPropertySettings["dropdown"],
 		};
 
-		const container = el.createDiv({
-			cls: "metadata-input-longtext",
+		// const container = el.createDiv({
+		// 	cls: "metadata-input-longtext better-properties-dropdown-container",
+		// });
+		const container = el;
+
+		const dropdown = new DropdownComponent(container);
+
+		const linkButton = container.createSpan({
+			cls: "clickable-icon",
+			attr: { "aria-label": "Open note" },
 		});
 
-		const dropdown = new DropdownComponent(container).onChange((v) =>
-			ctx.onChange(v)
-		);
+		const updateLinkButton = (dropdownValue: string) => {
+			if (
+				dropdownValue.startsWith("[[") &&
+				dropdownValue.endsWith("]]")
+			) {
+				const linkText = dropdownValue.slice(2, -2);
+				const withoutPipe = (() => {
+					let pipe = -1;
+					while ((pipe = linkText.indexOf("|", pipe + 1)) >= 0) {
+						if (pipe > 0 && linkText[pipe - 1] == "\\") continue;
+						return linkText.substring(0, pipe);
+					}
+					return linkText.replace(/\\\|/g, "|");
+				})();
+				linkButton.style.setProperty("display", "flex");
+				linkButton.onclick = async (e) => {
+					const paneType = Keymap.isModEvent(e);
+					await plugin.app.workspace.openLinkText(
+						withoutPipe,
+						"",
+						paneType
+					);
+				};
+				return;
+			}
+			linkButton.style.setProperty("display", "none");
+			linkButton.onclick = () => {};
+		};
+
+		setIcon(linkButton, "link");
+		updateLinkButton(data.value?.toString() ?? "");
+
+		dropdown.onChange((v) => {
+			ctx.onChange(v);
+			updateLinkButton(v);
+		});
 
 		(async () => {
 			const staticOptionsObj = options.reduce((acc, { label, value }) => {
@@ -65,9 +108,9 @@ const getDynamicOptionsInline = async (
 ) => {
 	if (!inlineJs) return obj;
 	try {
-		const func = eval(`async () => {${inlineJs}}`) as () => Promise<
-			{ label: string; value: string }[]
-		>;
+		const func = dangerousEval(
+			`async () => {${inlineJs}}`
+		) as () => Promise<{ label: string; value: string }[]>;
 		const dynamicArr = await func();
 		if (!Array.isArray(dynamicArr)) throw new Error();
 		return dynamicArr.reduce(
@@ -78,9 +121,6 @@ const getDynamicOptionsInline = async (
 			{ ...obj }
 		);
 	} catch (e) {
-		const msg =
-			"Better Properties: Failed to load dynamic options. Check dev console for more details.";
-		// new Notice(msg);
 		console.error(e);
 		return obj;
 	}

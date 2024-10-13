@@ -4,7 +4,7 @@ import {
 	typeWidgetPrefix,
 } from "@/libs/constants";
 import { MetadataAddItemProps } from "..";
-import { Modal, Setting } from "obsidian";
+import { App, Modal, Setting } from "obsidian";
 import { createSection } from "../../setting";
 import BetterProperties from "@/main";
 import { IconSuggest } from "@/classes/IconSuggest";
@@ -18,6 +18,7 @@ import {
 	PropertySettings,
 } from "@/libs/PropertySettings";
 import { createStarsSettings } from "@/typeWidgets/Stars";
+import { ConfirmationModal } from "@/classes/ConfirmationModal";
 
 export const addSettings = ({ menu, plugin, key }: MetadataAddItemProps) => {
 	menu.addItem((item) =>
@@ -86,14 +87,24 @@ class SettingsModal extends Modal {
 				text: "export",
 				cls: "",
 			})
-			.addEventListener("click", () => new Notice("TODO"));
+			.addEventListener("click", async () => {
+				const str = JSON.stringify(this.form);
+				await window.navigator.clipboard.writeText(str);
+				new Notice("Settings copied to clipboard.");
+			});
 
 		btnContainer
 			.createEl("button", {
 				text: "import",
 				cls: "",
 			})
-			.addEventListener("click", () => new Notice("TODO"));
+			.addEventListener("click", () => {
+				const updateForm = (newForm: PropertySettings) => {
+					this.form = { ...newForm };
+					this.close();
+				};
+				new ImportModal(this.plugin.app, updateForm).open();
+			});
 
 		btnContainer
 			.createEl("button", {
@@ -101,20 +112,37 @@ class SettingsModal extends Modal {
 				cls: "mod-destructive",
 			})
 			.addEventListener("click", () => {
-				const modal = new Modal(this.app);
+				if (!this.plugin.settings.showResetPropertySettingWarning) {
+					this.form = { ...defaultPropertySettings };
+					this.close();
+					return;
+				}
+				const modal = new ConfirmationModal(this.app);
 				modal.onOpen = () => {
 					modal.contentEl.empty();
 					modal.setTitle("Are you sure?");
 					modal.contentEl.createEl("p", {
 						text: "This will permanently reset all settings for this property back to the default. This cannot be undone!",
 					});
-					new Setting(modal.contentEl)
-						.addButton((cmp) =>
+					modal.createButtonContainer();
+					modal.createCheckBox({
+						text: "Don't ask again",
+						defaultChecked:
+							!this.plugin.settings
+								.showResetPropertySettingWarning,
+						onChange: async (b) =>
+							await this.plugin.updateSettings((prev) => ({
+								...prev,
+								showResetPropertySettingWarning: !b,
+							})),
+					});
+					modal
+						.createFooterButton((cmp) =>
 							cmp
 								.setButtonText("nevermind...")
 								.onClick(() => modal.close())
 						)
-						.addButton((cmp) =>
+						.createFooterButton((cmp) =>
 							cmp
 								.setButtonText("do it!")
 								.setWarning()
@@ -124,6 +152,22 @@ class SettingsModal extends Modal {
 									this.close();
 								})
 						);
+					// new Setting(modal.contentEl)
+					// 	.addButton((cmp) =>
+					// 		cmp
+					// 			.setButtonText("nevermind...")
+					// 			.onClick(() => modal.close())
+					// 	)
+					// 	.addButton((cmp) =>
+					// 		cmp
+					// 			.setButtonText("do it!")
+					// 			.setWarning()
+					// 			.onClick(() => {
+					// 				this.form = { ...defaultPropertySettings };
+					// 				modal.close();
+					// 				this.close();
+					// 			})
+					// 	);
 				};
 				modal.open();
 			});
@@ -274,5 +318,63 @@ class SettingsModal extends Modal {
 					.setValue(form.textColor)
 					.onChange((v) => updateForm("textColor", v))
 			);
+	}
+}
+
+class ImportModal extends ConfirmationModal {
+	updateForm: (newForm: PropertySettings) => void;
+	constructor(app: App, updateForm: (newForm: PropertySettings) => void) {
+		super(app);
+		this.updateForm = updateForm;
+	}
+
+	onOpen(): void {
+		const { contentEl } = this;
+		contentEl.empty();
+		this.setTitle("Import settings");
+		contentEl.createEl("p", { text: "" });
+		contentEl.createEl("p", {
+			text: "All settings for all types are imported, so you may need to update this property's type still.",
+		});
+		contentEl.createEl("p", {
+			text: "This will immediately update the property's settings and cannot be undone!",
+			attr: { style: "color: var(--text-error)" },
+		});
+		let text = "";
+		new Setting(contentEl)
+			.setName("Settings JSON")
+			.setDesc(
+				"Paste JSON for the new settings you would like to update this property to have."
+			)
+			.addText((cmp) =>
+				cmp
+					.setPlaceholder('{"general": {...}, ...}')
+					.onChange((v) => (text = v))
+			);
+
+		this.createButtonContainer();
+		this.createFooterButton((cmp) =>
+			cmp.setButtonText("cancel").onClick(() => this.close())
+		).createFooterButton((cmp) =>
+			cmp
+				.setCta()
+				.setButtonText("import")
+				.onClick(() => {
+					let json: Record<string, any> | null = null;
+					try {
+						const parsed = JSON.parse(text);
+						if (typeof parsed === "object") {
+							// TODO validation
+							json = parsed;
+						}
+					} catch (_) {}
+					if (json === null) {
+						new Notice("Invalid JSON!");
+						return;
+					}
+					this.close();
+					this.updateForm(json as PropertySettings);
+				})
+		);
 	}
 }

@@ -114,3 +114,7 @@ div.better-properties-metadata-property-markdown-div {
 .better-properties-svg-fill svg {
 	fill: currentColor;
 }
+
+.metadata-input-longtext.better-properties-dropdown-container {
+	display: inline-flex;
+}
