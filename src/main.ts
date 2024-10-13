@@ -1,5 +1,15 @@
 import { around, dedupe } from "monkey-around";
-import { Menu, Plugin, setIcon, View, WorkspaceLeaf } from "obsidian";
+import {
+	CachedMetadata,
+	Menu,
+	MetadataCache,
+	Plugin,
+	setIcon,
+	Setting,
+	TFile,
+	View,
+	WorkspaceLeaf,
+} from "obsidian";
 import { monkeyAroundKey, typeWidgetPrefix } from "./libs/constants";
 import {
 	addUsedBy,
@@ -9,19 +19,32 @@ import {
 	addMassUpdate,
 } from "./libs/utils/augmentMedataMenu";
 import { registerCustomWidgets } from "./typeWidgets";
-import { MetadataEditor } from "obsidian-typings";
+import {
+	FileCacheEntry,
+	MetadataCacheFileCacheRecord,
+	MetadataCacheMetadataCacheRecord,
+	MetadataEditor,
+} from "obsidian-typings";
 import {
 	defaultPropertySettings,
 	PropertySettings,
 } from "./libs/PropertySettings";
 import { addChangeIcon } from "./libs/utils/augmentMedataMenu/addChangeIcon";
+import { ConfirmationModal } from "./classes/ConfirmationModal";
+import { BetterPropertiesSettingTab } from "./classes/BetterPropertiesSettingTab";
 
 type BetterPropertiesSettings = {
 	propertySettings: Record<string, PropertySettings>;
+	templatePropertyName: string;
+	templateIdName: string;
+	showSyncTemplateWarning: boolean;
 };
 
 const DEFAULT_SETTINGS: BetterPropertiesSettings = {
 	propertySettings: {},
+	templatePropertyName: "property-template",
+	templateIdName: "property-template-id",
+	showSyncTemplateWarning: true,
 };
 
 export default class BetterProperties extends Plugin {
@@ -31,6 +54,7 @@ export default class BetterProperties extends Plugin {
 
 	async onload() {
 		await this.loadSettings();
+		this.addSettingTab(new BetterPropertiesSettingTab(this));
 		registerCustomWidgets(this);
 
 		patchMenu(this);
@@ -253,7 +277,8 @@ const patchMenu = (plugin: BetterProperties) => {
 };
 
 export type PatchedMetadataEditor = MetadataEditor & {
-	toggleHiddenButton: HTMLDivElement;
+	// toggleHiddenButton: HTMLDivElement;
+	moreOptionsButton: HTMLDivElement;
 	showHiddenProperties: boolean;
 	toggleHiddenProperties(): void;
 };
@@ -297,32 +322,73 @@ const patchMetdataEditor = (plugin: BetterProperties) => {
 				);
 				that.showHiddenProperties = false;
 
-				const toggleHiddenButton = createDiv({
+				const moreOptionsButton = createDiv({
 					cls: "metadata-add-button text-icon-button",
 					attr: { tabIndex: 0 },
 				});
-				const iconEl = toggleHiddenButton.createSpan({
+				const iconEl = moreOptionsButton.createSpan({
 					cls: "text-button-icon",
 				});
-				setIcon(iconEl, "eye");
-				const labelEl = toggleHiddenButton.createSpan({
+				moreOptionsButton.createSpan({
+					text: "More",
 					cls: "text-button-label",
-					text: "Show hidden",
 				});
-				toggleHiddenButton.addEventListener("click", () => {
-					that.toggleHiddenProperties.call(that);
-					const newIcon = that.showHiddenProperties
-						? "eye-off"
-						: "eye";
-					labelEl.textContent = that.showHiddenProperties
-						? "Collapse hidden"
-						: "Show hidden";
-					setIcon(iconEl, newIcon);
+				setIcon(iconEl, "more-horizontal");
+
+				const onClickDoSync = async () => {
+					const file = that.app.workspace.activeEditor?.file;
+					if (!file) {
+						new Notice(
+							"Better Properties: No file found for metadata editor."
+						);
+						return;
+					}
+					const metaCache = that.app.metadataCache.getFileCache(file);
+					if (!metaCache) {
+						new Notice(
+							"Better Properties: No template ID found in current file."
+						);
+						return;
+					}
+					const parsedId = getTemplateID(metaCache, plugin);
+					if (!parsedId) return;
+					if (!plugin.settings.showSyncTemplateWarning) {
+						await doSync(metaCache, plugin, parsedId);
+						return;
+					}
+					new SyncPropertiesModal(
+						plugin,
+						that,
+						metaCache,
+						parsedId
+					).open();
+				};
+
+				moreOptionsButton.addEventListener("click", (e) => {
+					new Menu()
+						.addItem((item) =>
+							item
+								.setSection("show-hidden")
+								.setTitle("Show hidden")
+								.setIcon("eye-off")
+								.setChecked(that.showHiddenProperties)
+								.onClick(() =>
+									that.toggleHiddenProperties.call(that)
+								)
+						)
+						.addItem((item) =>
+							item
+								.setSection("sync-properties")
+								.setTitle("Sync properties")
+								.setIcon("arrow-right-left")
+								.onClick(onClickDoSync)
+						)
+						.showAtMouseEvent(e);
 				});
-				that.toggleHiddenButton = toggleHiddenButton;
+				that.moreOptionsButton = moreOptionsButton;
 				that.addPropertyButtonEl.insertAdjacentElement(
 					"afterend",
-					toggleHiddenButton
+					moreOptionsButton
 				);
 			});
 		},
@@ -330,6 +396,174 @@ const patchMetdataEditor = (plugin: BetterProperties) => {
 
 	plugin.register(removePatch);
 };
+
+const getTemplateID = (metaCache: CachedMetadata, plugin: BetterProperties) => {
+	const {
+		settings: { templateIdName },
+	} = plugin;
+
+	console.log("got template id name: ", templateIdName);
+
+	const findLower = () => {
+		const found = Object.keys(metaCache).find((key) => {
+			key.toLowerCase() === templateIdName;
+		});
+		if (!found) return null;
+		return metaCache[found as keyof typeof metaCache];
+	};
+
+	const id = metaCache?.frontmatter?.[templateIdName] ?? findLower();
+	if (!id) {
+		new Notice("Better Properties: No template ID found in current file.");
+		return;
+	}
+	if (Array.isArray(id)) {
+		new Notice(
+			"Better Properties: Template ID is a list when it should be a single value."
+		);
+		return;
+	}
+	const parsedId: string = id.toString();
+	return parsedId;
+};
+
+const doSync = async (
+	// file: TFile,
+	metaCache: CachedMetadata,
+	plugin: BetterProperties,
+	templateId: string
+) => {
+	const {
+		settings: { templateIdName, templatePropertyName },
+		app,
+	} = plugin;
+
+	// const fileFC = app.metadataCache.getFileCache(file);
+	// if (!fileFC) {
+	// 	new Notice("Better Properties: No template ID found in current file.");
+	// 	return;
+	// }
+
+	// const parsedId = getTemplateID(fileFC, plugin)
+	const parsedId = templateId;
+
+	const templateEntries = Object.entries(metaCache.frontmatter ?? {});
+
+	const hashes = Object.entries(app.metadataCache.metadataCache)
+		.map(([hash, metadata]) => {
+			if (!metadata.frontmatter) return null;
+			const exactMatch = metadata.frontmatter[templatePropertyName];
+			if (
+				exactMatch === parsedId ||
+				(Array.isArray(exactMatch) && exactMatch.includes(parsedId))
+			)
+				return hash;
+			// try to find case insensitively
+			const isMatch = Object.entries(metadata.frontmatter).some(
+				([prop, value]) => {
+					const a =
+						prop.toLowerCase() ===
+						templatePropertyName.toLowerCase();
+					const b1 = value === parsedId;
+					const b2 = Array.isArray(value) && value.includes(parsedId);
+					const b = b1 || b2;
+					return a && b;
+				}
+			);
+			return isMatch ? hash : null;
+		})
+		.filter((h) => h !== null);
+
+	const fileHashMap = new Map<string, TFile>();
+
+	Object.entries(app.metadataCache.fileCache).forEach(([path, { hash }]) => {
+		const f = app.vault.getFileByPath(path);
+		if (!f) return;
+		fileHashMap.set(hash, f);
+	});
+
+	let count = 0;
+	await Promise.all(
+		hashes.map(async (hash) => {
+			const f = fileHashMap.get(hash);
+			if (!f) return;
+			count++;
+			await app.fileManager.processFrontMatter(f, (fm) => {
+				templateEntries.forEach(([prop, val]) => {
+					// don't add the template id property
+					if (prop === templateIdName) return;
+					// if already has property, skip
+					if (
+						fm.hasOwnProperty(prop) ||
+						fm.hasOwnProperty(prop.toLowerCase())
+					)
+						return;
+					fm[prop] = val;
+					// TODO add flag to delete or keep props not in template
+				});
+			});
+		})
+	);
+	new Notice("Synchronized properties with " + count + " notes.");
+};
+
+class SyncPropertiesModal extends ConfirmationModal {
+	plugin: BetterProperties;
+	metadataEditor: MetadataEditor;
+	// file: TFile;
+	metaCache: CachedMetadata;
+	templateId: string;
+	constructor(
+		plugin: BetterProperties,
+		metadataeditor: MetadataEditor,
+		// file: TFile,
+		metaCache: CachedMetadata,
+		templateId: string
+	) {
+		super(plugin.app);
+		this.plugin = plugin;
+		this.metadataEditor = metadataeditor;
+		// this.file = file;
+		this.metaCache = metaCache;
+		this.templateId = templateId;
+	}
+
+	onOpen(): void {
+		const { contentEl, metaCache, plugin, templateId } = this;
+
+		contentEl.empty();
+
+		this.setTitle("Synchronize properties");
+
+		contentEl.createEl("p", {
+			text: "Synchronize this notes properties to others notes that match this note's property template id.",
+		});
+		contentEl.createEl("p", {
+			text: "This will only add properties from the template, so additional properties in the target notes will be unaffected.",
+		});
+		this.createButtonContainer();
+		this.createCheckBox({
+			text: "Don't ask again",
+			defaultChecked: !plugin.settings.showSyncTemplateWarning,
+			onChange: async (b) =>
+				plugin.updateSettings((prev) => ({
+					...prev,
+					showSyncTemplateWarning: !b,
+				})),
+		});
+		this.createFooterButton((cmp) =>
+			cmp.setButtonText("cancel").onClick(() => this.close())
+		).createFooterButton((cmp) =>
+			cmp
+				.setButtonText("synchronize")
+				.setCta()
+				.onClick(async () => {
+					await doSync(metaCache, this.plugin, templateId);
+					this.close();
+				})
+		);
+	}
+}
 
 // Might be useful later but not needed right now
 // const getMetdataEditorPrototype = (app: App) => {

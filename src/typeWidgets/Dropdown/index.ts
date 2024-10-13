@@ -80,7 +80,7 @@ const getDynamicOptionsInline = async (
 	} catch (e) {
 		const msg =
 			"Better Properties: Failed to load dynamic options. Check dev console for more details.";
-		new Notice(msg);
+		// new Notice(msg);
 		console.error(e);
 		return obj;
 	}
