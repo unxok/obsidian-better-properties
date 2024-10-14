@@ -6,12 +6,13 @@ import {
 import { CustomTypeWidget } from "..";
 import { createSection } from "@/libs/utils/setting";
 import { dangerousEval } from "@/libs/utils/pure";
+import { text } from "@/libs/i18Next";
 
 export const NumberPlusWidget: CustomTypeWidget = {
 	type: "numberPlus",
 	icon: "calculator",
 	default: () => 0,
-	name: () => "Number+",
+	name: () => text("typeWidgets.numberPlus.name"),
 	validate: (v) => !Number.isNaN(Number(v)),
 	render: (plugin, el, data, ctx) => {
 		const { min, max, step, validate } = plugin.settings.propertySettings[
@@ -40,7 +41,7 @@ export const NumberPlusWidget: CustomTypeWidget = {
 				type: "number",
 				value: Number(value),
 				inputmode: "decimal",
-				placeholder: "No value",
+				placeholder: text("noValue"),
 				min,
 				max,
 				// step, // inaccurate for inputs that aren't ranges
@@ -79,20 +80,30 @@ class ExpressionModal extends Modal {
 	}
 
 	onOpen(): void {
-		this.setTitle("Expression update");
+		this.setTitle(text("typeWidgets.numberPlus.expressionModal.title"));
 		const { contentEl, defaultNumber } = this;
 		let updateBtn: ButtonComponent;
 		contentEl.empty();
 		// contentEl.createEl('p', {text: ''});
 		const setting = new Setting(contentEl)
-			.setName("Expression")
+			.setName(
+				text(
+					"typeWidgets.numberPlus.expressionModal.expressionSetting.title"
+				)
+			)
 			.setDesc(
-				'Enter a valid JavaScript expression. Use "x" for the current value.'
+				text(
+					"typeWidgets.numberPlus.expressionModal.expressionSetting.desc"
+				)
 			);
 
 		const calculteEl = setting.descEl.createDiv();
 		calculteEl.createEl("br");
-		calculteEl.createSpan({ text: "Calculated: " });
+		calculteEl.createSpan({
+			text: text(
+				"typeWidgets.numberPlus.expressionModal.calculatedPrefix"
+			),
+		});
 		const resultEl = calculteEl.createSpan({
 			text: defaultNumber.toString(),
 		});
@@ -100,7 +111,7 @@ class ExpressionModal extends Modal {
 		new Setting(contentEl).addButton((cmp) =>
 			cmp
 				.setCta()
-				.setButtonText("update")
+				.setButtonText(text("buttonText.update"))
 				.onClick(() => {
 					this.close();
 					this.update(this.calculated);
@@ -137,13 +148,15 @@ export const createNumberPlusSettings = (
 	) => void
 	// defaultOpen: boolean
 ) => {
-	const { content } = createSection(el, "Number++", true);
+	const { content } = createSection(
+		el,
+		text("typeWidgets.numberPlus.name"),
+		true
+	);
 
 	new Setting(content)
-		.setName("Validate within bounds")
-		.setDesc(
-			"If on, the number will be validated against the set min and max values prior to saving."
-		)
+		.setName(text("typeWidgets.numberPlus.settings.validateSetting.title"))
+		.setDesc(text("typeWidgets.numberPlus.settings.validateSetting.desc"))
 		.addToggle((cmp) =>
 			cmp
 				.setValue(form.validate)
@@ -151,10 +164,8 @@ export const createNumberPlusSettings = (
 		);
 
 	new Setting(content)
-		.setName("Min")
-		.setDesc(
-			"If the validate toggle is on, this is the minimum number allowed for the input."
-		)
+		.setName(text("typeWidgets.numberPlus.settings.minSetting.title"))
+		.setDesc(text("typeWidgets.numberPlus.settings.minSetting.desc"))
 		.addText((cmp) =>
 			cmp.setValue(form.min.toString()).onChange((v) => {
 				const n = Number(v);
@@ -164,10 +175,8 @@ export const createNumberPlusSettings = (
 		);
 
 	new Setting(content)
-		.setName("Max")
-		.setDesc(
-			"Will affect the width of the input. If the validate toggle is on, this is the minimum number allowed for the input."
-		)
+		.setName(text("typeWidgets.numberPlus.settings.maxSetting.title"))
+		.setDesc(text("typeWidgets.numberPlus.settings.maxSetting.desc"))
 		.addText((cmp) =>
 			cmp.setValue(form.max.toString()).onChange((v) => {
 				const n = Number(v);
@@ -177,10 +186,8 @@ export const createNumberPlusSettings = (
 		);
 
 	new Setting(content)
-		.setName("Step")
-		.setDesc(
-			"The amount to input will be changed if the plus or minus buttons are clicked."
-		)
+		.setName(text("typeWidgets.numberPlus.settings.stepSetting.title"))
+		.setDesc(text("typeWidgets.numberPlus.settings.stepSetting.desc"))
 		.addText((cmp) =>
 			cmp.setValue(form.step.toString()).onChange((v) => {
 				const n = Number(v);

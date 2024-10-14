@@ -1,24 +1,27 @@
 import { metdataSectionId } from "@/libs/constants";
 import { MetadataAddItemProps } from "..";
 import { Modal, TextComponent, Setting, ToggleComponent } from "obsidian";
+import { text } from "@/libs/i18Next";
 
 export const addMassUpdate = (props: MetadataAddItemProps) => {
 	props.menu.addItem((item) => {
 		item.setSection(metdataSectionId)
 			.setIcon("pencil-ruler")
-			.setTitle("Mass update")
+			.setTitle(text("augmentedPropertyMenu.massUpdate.menuItemTitle"))
 			.onClick(() => onClick(props));
 	});
 };
 
 const onClick = ({ plugin: { app }, files, key }: MetadataAddItemProps) => {
 	const { vault, fileManager } = app;
-	const modal = new Modal(app).setTitle('Mass update property "' + key + '"');
+	const modal = new Modal(app).setTitle(
+		text("augmentedPropertyMenu.massUpdate.modal.title", { key })
+	);
 	modal.contentEl.createEl("p", {
-		text: "Update this property's value for many notes at once.",
+		text: text("augmentedPropertyMenu.massUpdate.modal.desc"),
 	});
 	modal.contentEl.createEl("p", {
-		text: "Warning: This update is permanent and may affect many notes at once!",
+		text: text("augmentedPropertyMenu.massUpdate.modal.warning"),
 		cls: "better-properties-text-error",
 	});
 	let includeAbsentCmp: ToggleComponent;
@@ -26,18 +29,30 @@ const onClick = ({ plugin: { app }, files, key }: MetadataAddItemProps) => {
 	let valueCmp: TextComponent;
 
 	new Setting(modal.contentEl)
-		.setName("Include absent properties")
+		.setName(
+			text(
+				"augmentedPropertyMenu.massUpdate.modal.includeAbsentSetting.title"
+			)
+		)
 		.setDesc(
-			"If this is off and if the search value is empty/blank, Only notes that have the property present in their frontmatter will be updated."
+			text(
+				"augmentedPropertyMenu.massUpdate.modal.includeAbsentSetting.desc"
+			)
 		)
 		.addToggle((cmp) =>
 			cmp.setValue(false).then((cmp) => (includeAbsentCmp = cmp))
 		);
 
 	new Setting(modal.contentEl)
-		.setName("Search value")
+		.setName(
+			text(
+				"augmentedPropertyMenu.massUpdate.modal.searchValueSetting.title"
+			)
+		)
 		.setDesc(
-			"Only notes where the property's current value is this will be updated."
+			text(
+				"augmentedPropertyMenu.massUpdate.modal.searchValueSetting.desc"
+			)
 		)
 		.addText((cmp) =>
 			cmp
@@ -47,8 +62,12 @@ const onClick = ({ plugin: { app }, files, key }: MetadataAddItemProps) => {
 		);
 
 	new Setting(modal.contentEl)
-		.setName("New value")
-		.setDesc("The new value to update to.")
+		.setName(
+			text("augmentedPropertyMenu.massUpdate.modal.newValueSetting.title")
+		)
+		.setDesc(
+			text("augmentedPropertyMenu.massUpdate.modal.newValueSetting.desc")
+		)
 		.addText((cmp) =>
 			cmp
 				.setValue("")
@@ -58,7 +77,7 @@ const onClick = ({ plugin: { app }, files, key }: MetadataAddItemProps) => {
 
 	new Setting(modal.contentEl).addButton((cmp) =>
 		cmp
-			.setButtonText("update")
+			.setButtonText(text("buttonText.update"))
 			.setCta()
 			.onClick(async () => await doUpdate())
 	);

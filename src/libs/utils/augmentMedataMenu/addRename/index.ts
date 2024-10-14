@@ -1,6 +1,7 @@
 import { Modal, TextComponent, Setting } from "obsidian";
 import { metdataSectionId } from "@/libs/constants";
 import { MetadataAddItemProps } from "..";
+import { text } from "@/libs/i18Next";
 
 export const addRename = ({
 	plugin,
@@ -17,22 +18,39 @@ export const addRename = ({
 			.setTitle("Rename")
 			.onClick(() => {
 				const modal = new Modal(app).setTitle(
-					'Rename property "' + key + '"'
+					text(
+						"augmentedPropertyMenu.rename.confirmationModal.title",
+						{ key }
+					)
 				);
 				modal.contentEl.createEl("p", {
-					text: "Rename this property for all notes that contain it.",
+					text: text(
+						"augmentedPropertyMenu.rename.confirmationModal.desc"
+					),
 				});
 				modal.contentEl.createEl("p", {
-					text: "Warning: This update is permanent and may affect many notes at once!",
+					text: text(
+						"augmentedPropertyMenu.rename.confirmationModal.warning"
+					),
 					cls: "better-properties-text-error",
 				});
 				let nameCmp: TextComponent;
 				const setting = new Setting(modal.contentEl)
-					.setName("New property name")
-					.setDesc("The new name to rename the property to.");
+					.setName(
+						text(
+							"augmentedPropertyMenu.rename.confirmationModal.propertyNameSetting.title"
+						)
+					)
+					.setDesc(
+						text(
+							"augmentedPropertyMenu.rename.confirmationModal.propertyNameSetting.desc"
+						)
+					);
 
 				const errorEl = setting.descEl.createEl("p", {
-					text: "Property name already in use!",
+					text: text(
+						"augmentedPropertyMenu.rename.confirmationModal.propertyNameSetting.error"
+					),
 					cls: "better-properties-text-error",
 					attr: { style: "display: none;" },
 				});
@@ -57,7 +75,7 @@ export const addRename = ({
 
 				new Setting(modal.contentEl).addButton((cmp) =>
 					cmp
-						.setButtonText("rename")
+						.setButtonText(text("buttonText.rename"))
 						.setCta()
 						.onClick(async () => {
 							const value = nameCmp.getValue().trim();

@@ -5,12 +5,13 @@ import {
 } from "@/libs/PropertySettings";
 import { CustomTypeWidget } from "..";
 import { createSection } from "@/libs/utils/setting";
+import { text } from "@/libs/i18Next";
 
 export const SliderWidget: CustomTypeWidget = {
 	type: "slider",
 	icon: "git-commit",
 	default: () => 0,
-	name: () => "Slider",
+	name: () => text("typeWidgets.slider.name"),
 	validate: (v) => !Number.isNaN(Number(v)),
 	render: (plugin, el, data, ctx) => {
 		const { min, max, step, showLabels } = plugin.settings.propertySettings[
@@ -60,8 +61,8 @@ export const createSliderSettings = (
 	const { content } = createSection(el, "Slider", true);
 
 	new Setting(content)
-		.setName("Min")
-		.setDesc("The minimum value the slider can reach.")
+		.setName(text("typeWidgets.slider.settings.minSetting.title"))
+		.setDesc(text("typeWidgets.slider.settings.minSetting.desc"))
 		.addText((cmp) =>
 			cmp.setValue(form.min.toString()).onChange((v) => {
 				const n = Number(v);
@@ -71,8 +72,8 @@ export const createSliderSettings = (
 		);
 
 	new Setting(content)
-		.setName("Max")
-		.setDesc("The maximum value the slider can reach.")
+		.setName(text("typeWidgets.slider.settings.maxSetting.title"))
+		.setDesc(text("typeWidgets.slider.settings.maxSetting.desc"))
 		.addText((cmp) =>
 			cmp.setValue(form.max.toString()).onChange((v) => {
 				const n = Number(v);
@@ -82,8 +83,8 @@ export const createSliderSettings = (
 		);
 
 	new Setting(content)
-		.setName("Step")
-		.setDesc("The smallest amount that the slider can be changed.")
+		.setName(text("typeWidgets.slider.settings.stepSetting.title"))
+		.setDesc(text("typeWidgets.slider.settings.stepSetting.desc"))
 		.addText((cmp) =>
 			cmp.setValue(form.step.toString()).onChange((v) => {
 				const n = Number(v);
@@ -93,8 +94,8 @@ export const createSliderSettings = (
 		);
 
 	new Setting(content)
-		.setName("Show labels")
-		.setDesc("If on, labels for the min & max will be shown.")
+		.setName(text("typeWidgets.slider.settings.showLabelsSetting.title"))
+		.setDesc(text("typeWidgets.slider.settings.showLabelsSetting.desc"))
 		.addToggle((cmp) =>
 			cmp
 				.setValue(form.showLabels)

@@ -1,11 +1,12 @@
 import { ColorComponent } from "obsidian";
 import { CustomTypeWidget } from "..";
+import { text } from "@/libs/i18Next";
 
 export const ColorWidget: CustomTypeWidget = {
 	type: "color",
 	icon: "paintbrush",
 	default: () => "#000000",
-	name: () => "Color",
+	name: () => text("typeWidgets.color.name"),
 	validate: (v: unknown) => typeof v === "string",
 	render: (_, el, data, ctx) => {
 		const container = el

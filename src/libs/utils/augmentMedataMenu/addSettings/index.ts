@@ -19,6 +19,7 @@ import {
 } from "@/libs/PropertySettings";
 import { createStarsSettings } from "@/typeWidgets/Stars";
 import { ConfirmationModal } from "@/classes/ConfirmationModal";
+import { text } from "@/libs/i18Next";
 
 export const addSettings = ({ menu, plugin, key }: MetadataAddItemProps) => {
 	menu.addItem((item) =>
@@ -76,7 +77,9 @@ class SettingsModal extends Modal {
 				?.type ?? "";
 
 		contentEl.empty();
-		this.setTitle('Settings for "' + property + '"');
+		this.setTitle(
+			text("augmentedPropertyMenu.settings.modal.title", { property })
+		);
 
 		const btnContainer = contentEl.createEl("p", {
 			cls: "better-properties-property-settings-button-container",
@@ -84,18 +87,18 @@ class SettingsModal extends Modal {
 
 		btnContainer
 			.createEl("button", {
-				text: "export",
+				text: text("buttonText.export"),
 				cls: "",
 			})
 			.addEventListener("click", async () => {
 				const str = JSON.stringify(this.form);
 				await window.navigator.clipboard.writeText(str);
-				new Notice("Settings copied to clipboard.");
+				new Notice(text("notices.invalidJSON"));
 			});
 
 		btnContainer
 			.createEl("button", {
-				text: "import",
+				text: text("buttonText.import"),
 				cls: "",
 			})
 			.addEventListener("click", () => {
@@ -108,7 +111,7 @@ class SettingsModal extends Modal {
 
 		btnContainer
 			.createEl("button", {
-				text: "reset to default",
+				text: text("buttonText.resetToDefault"),
 				cls: "mod-destructive",
 			})
 			.addEventListener("click", () => {
@@ -120,13 +123,19 @@ class SettingsModal extends Modal {
 				const modal = new ConfirmationModal(this.app);
 				modal.onOpen = () => {
 					modal.contentEl.empty();
-					modal.setTitle("Are you sure?");
+					modal.setTitle(
+						text(
+							"augmentedPropertyMenu.settings.modal.resetModal.title"
+						)
+					);
 					modal.contentEl.createEl("p", {
-						text: "This will permanently reset all settings for this property back to the default. This cannot be undone!",
+						text: text(
+							"augmentedPropertyMenu.settings.modal.resetModal.desc"
+						),
 					});
 					modal.createButtonContainer();
 					modal.createCheckBox({
-						text: "Don't ask again",
+						text: text("dontAskAgain"),
 						defaultChecked:
 							!this.plugin.settings
 								.showResetPropertySettingWarning,
@@ -139,12 +148,12 @@ class SettingsModal extends Modal {
 					modal
 						.createFooterButton((cmp) =>
 							cmp
-								.setButtonText("nevermind...")
+								.setButtonText(text("buttonText.cancel"))
 								.onClick(() => modal.close())
 						)
 						.createFooterButton((cmp) =>
 							cmp
-								.setButtonText("do it!")
+								.setButtonText(text("buttonText.reset"))
 								.setWarning()
 								.onClick(() => {
 									this.form = { ...defaultPropertySettings };
@@ -214,9 +223,15 @@ class SettingsModal extends Modal {
 				);
 			default:
 				new Setting(contentEl)
-					.setName("Non customizable type")
+					.setName(
+						text(
+							"augmentedPropertyMenu.settings.modal.nonCustomizableType.title"
+						)
+					)
 					.setDesc(
-						"The current type is not customizable by Better Properties"
+						text(
+							"augmentedPropertyMenu.settings.modal.nonCustomizableType.desc"
+						)
 					);
 		}
 	}
@@ -239,7 +254,11 @@ class SettingsModal extends Modal {
 			value: (typeof this.form.general)[T]
 		) => void
 	): void {
-		const { content } = createSection(el, "General", true);
+		const { content } = createSection(
+			el,
+			text("augmentedPropertyMenu.settings.modal.general.heading"),
+			true
+		);
 
 		// new Setting(content)
 		// 	.setName("CSS classes")
@@ -253,9 +272,13 @@ class SettingsModal extends Modal {
 		// 	);
 
 		new Setting(content)
-			.setName("Hidden")
+			.setName(
+				text(
+					"augmentedPropertyMenu.settings.modal.general.hidden.title"
+				)
+			)
 			.setDesc(
-				"Turn on to have this property be hidden from the properties editor by default."
+				text("augmentedPropertyMenu.settings.modal.general.hidden.desc")
 			)
 			.addToggle((cmp) =>
 				cmp
@@ -264,9 +287,15 @@ class SettingsModal extends Modal {
 			);
 
 		new Setting(content)
-			.setName("Custom icon")
+			.setName(
+				text(
+					"augmentedPropertyMenu.settings.modal.general.customIcon.desc"
+				)
+			)
 			.setDesc(
-				"Set a custom icon to override the default type icon for this property."
+				text(
+					"augmentedPropertyMenu.settings.modal.general.customIcon.desc"
+				)
 			)
 			.addSearch((cmp) =>
 				cmp
@@ -276,9 +305,15 @@ class SettingsModal extends Modal {
 			);
 
 		new Setting(content)
-			.setName("Icon color")
+			.setName(
+				text(
+					"augmentedPropertyMenu.settings.modal.general.iconColor.title"
+				)
+			)
 			.setDesc(
-				"Set a custom color for the type icon. Choose a color from the picker or enter any valid CSS color."
+				text(
+					"augmentedPropertyMenu.settings.modal.general.iconColor.desc"
+				)
 			)
 			.then((cmp) =>
 				new TextColorComponent(cmp.controlEl)
@@ -287,9 +322,15 @@ class SettingsModal extends Modal {
 			);
 
 		new Setting(content)
-			.setName("Icon hover color")
+			.setName(
+				text(
+					"augmentedPropertyMenu.settings.modal.general.iconHoverColor.title"
+				)
+			)
 			.setDesc(
-				"Set a custom color for the type icon when hovered. Choose a color from the picker or enter any valid CSS color."
+				text(
+					"augmentedPropertyMenu.settings.modal.general.iconHoverColor.desc"
+				)
 			)
 			.then((cmp) =>
 				new TextColorComponent(cmp.controlEl)
@@ -298,9 +339,15 @@ class SettingsModal extends Modal {
 			);
 
 		new Setting(content)
-			.setName("Property label color")
+			.setName(
+				text(
+					"augmentedPropertyMenu.settings.modal.general.labelColor.title"
+				)
+			)
 			.setDesc(
-				"Set a custom color for the property name label. Choose a color from the picker or enter any valid CSS color."
+				text(
+					"augmentedPropertyMenu.settings.modal.general.labelColor.desc"
+				)
 			)
 			.then((cmp) =>
 				new TextColorComponent(cmp.controlEl)
@@ -309,9 +356,15 @@ class SettingsModal extends Modal {
 			);
 
 		new Setting(content)
-			.setName("Value text color")
+			.setName(
+				text(
+					"augmentedPropertyMenu.settings.modal.general.valueTextColor.title"
+				)
+			)
 			.setDesc(
-				"Set a custom color to override the default normal text color in the property value. Choose a color from the picker or enter any valid CSS color."
+				text(
+					"augmentedPropertyMenu.settings.modal.general.valueTextColor.desc"
+				)
 			)
 			.then((cmp) =>
 				new TextColorComponent(cmp.controlEl)
@@ -331,30 +384,43 @@ class ImportModal extends ConfirmationModal {
 	onOpen(): void {
 		const { contentEl } = this;
 		contentEl.empty();
-		this.setTitle("Import settings");
-		contentEl.createEl("p", { text: "" });
+		this.setTitle(
+			text("augmentedPropertyMenu.settings.modal.importModal.title")
+		);
 		contentEl.createEl("p", {
-			text: "All settings for all types are imported, so you may need to update this property's type still.",
+			text: text("augmentedPropertyMenu.settings.modal.importModal.desc"),
 		});
 		contentEl.createEl("p", {
-			text: "This will immediately update the property's settings and cannot be undone!",
+			text: text("augmentedPropertyMenu.settings.modal.importModal.note"),
 			attr: { style: "color: var(--text-error)" },
 		});
-		let text = "";
+		let jsonText = "";
 		new Setting(contentEl)
-			.setName("Settings JSON")
+			.setName(
+				text(
+					"augmentedPropertyMenu.settings.modal.importModal.setting.title"
+				)
+			)
 			.setDesc(
-				"Paste JSON for the new settings you would like to update this property to have."
+				text(
+					"augmentedPropertyMenu.settings.modal.importModal.setting.desc"
+				)
 			)
 			.addText((cmp) =>
 				cmp
-					.setPlaceholder('{"general": {...}, ...}')
-					.onChange((v) => (text = v))
+					.setPlaceholder(
+						text(
+							"augmentedPropertyMenu.settings.modal.importModal.setting.placeholder"
+						)
+					)
+					.onChange((v) => (jsonText = v))
 			);
 
 		this.createButtonContainer();
 		this.createFooterButton((cmp) =>
-			cmp.setButtonText("cancel").onClick(() => this.close())
+			cmp
+				.setButtonText(text("buttonText.cancel"))
+				.onClick(() => this.close())
 		).createFooterButton((cmp) =>
 			cmp
 				.setCta()
@@ -362,14 +428,14 @@ class ImportModal extends ConfirmationModal {
 				.onClick(() => {
 					let json: Record<string, any> | null = null;
 					try {
-						const parsed = JSON.parse(text);
+						const parsed = JSON.parse(jsonText);
 						if (typeof parsed === "object") {
 							// TODO validation
 							json = parsed;
 						}
 					} catch (_) {}
 					if (json === null) {
-						new Notice("Invalid JSON!");
+						new Notice(text("notices.invalidJSON"));
 						return;
 					}
 					this.close();

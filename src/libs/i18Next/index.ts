@@ -1,5 +1,4 @@
 import { en } from "./en";
-import { TranslationResource } from "./resource";
 
 const namespace = "better-properties-plugin";
 
@@ -8,7 +7,5 @@ i18next.addResourceBundle("en", namespace, en);
 
 /********************/
 
-export const getFixedT = () => {
-	const tFunc = i18next.getFixedT(null, namespace);
-	return (textKey: keyof TranslationResource) => tFunc(textKey.toString());
-};
+// export const getFixedT = () => i18next.getFixedT(null, namespace);
+export const text = i18next.getFixedT(null, namespace);

@@ -1,11 +1,18 @@
 import { metdataSectionId } from "@/libs/constants";
 import { MetadataAddItemProps } from "..";
+import { Keymap } from "obsidian";
+import { text } from "@/libs/i18Next";
 
 export const addUsedBy = ({ plugin, menu, files }: MetadataAddItemProps) => {
+	const noteCount = files.length;
 	menu.addItem((item) => {
 		item.setSection(metdataSectionId)
 			.setIcon("info")
-			.setTitle("Used by " + files.length + " notes");
+			.setTitle(
+				text("augmentedPropertyMenu.usedBy.menuItemTitle", {
+					noteCount,
+				})
+			);
 		if (!files?.length) return;
 		const subMenu = item.setSubmenu().setNoIcon();
 
@@ -18,8 +25,12 @@ export const addUsedBy = ({ plugin, menu, files }: MetadataAddItemProps) => {
 					text: value?.toString(),
 					cls: "better-properties-menu-item-note",
 				});
-				sub.setTitle(frag).onClick(async () => {
-					await plugin.app.workspace.openLinkText("", path);
+				sub.setTitle(frag).onClick(async (e) => {
+					await plugin.app.workspace.openLinkText(
+						"",
+						path,
+						Keymap.isModEvent(e)
+					);
 				});
 			});
 		});

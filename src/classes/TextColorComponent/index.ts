@@ -1,3 +1,4 @@
+// TRANSLATIONS done
 import { ValueComponent, TextComponent, ColorComponent } from "obsidian";
 
 export class TextColorComponent extends ValueComponent<string> {

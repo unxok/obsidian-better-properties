@@ -1,11 +1,12 @@
 import { EmbeddableMarkdownEditor } from "@/classes/EmbeddableMarkdownEditor";
 import { CustomTypeWidget } from "..";
+import { text } from "@/libs/i18Next";
 
 export const MarkdownWidget: CustomTypeWidget = {
 	type: "markdown",
 	icon: "m-square",
 	default: () => "",
-	name: () => "Markdown",
+	name: () => text("typeWidgets.markdown.name"),
 	validate: (v) => typeof v?.toString() === "string",
 	render: (plugin, el, data, ctx) => {
 		const container = el.createDiv({

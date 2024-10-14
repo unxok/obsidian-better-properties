@@ -9,12 +9,13 @@ import {
 	defaultPropertySettings,
 	PropertySettings,
 } from "@/libs/PropertySettings";
+import { text } from "@/libs/i18Next";
 
 export const ButtonWidget: CustomTypeWidget = {
 	type: "button",
 	icon: "plus-square",
 	default: () => "new Notice('Hello there')",
-	name: () => "Button",
+	name: () => text("typeWidgets.button.name"),
 	validate: (v) => typeof v?.toString() === "string",
 	render: (plugin, el, data, ctx) => {
 		const {

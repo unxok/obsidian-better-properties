@@ -4,14 +4,242 @@
 /****************************************************************/
 
 export type TranslationResource = {
-	/* BetterPropertiesSettingTab */
-	confirmResetSettingTitle: string;
-	confirmResetSettingDesc: string;
-	synchronizationSettingTitle: string;
-	templatePropertyNameSettingTitle: string;
-	templatePropertyNameSettingDesc: string;
-	templatePropertyIdSettingTitle: string;
-	templatePropertyIdSettingDesc: string;
-	confirmTemplateSynchronizeTitle: string;
-	confirmTemplateSynchronizeDesc: string;
+	dontAskAgain: string;
+	noValue: string;
+	notices: {
+		noFileMetadataEditor: string;
+		noTemplateId: string;
+		templateIdIsArray: string;
+		syncronizeComplete: string;
+		settingsCopied: string;
+		invalidJSON: string;
+		couldntLocateJsFile: string;
+	};
+	buttonText: {
+		update: string;
+		cancel: string;
+		confirm: string;
+		delete: string;
+		rename: string;
+		export: string;
+		import: string;
+		reset: string;
+		resetToDefault: string;
+	};
+	BetterPropertiesSettingTab: {
+		settings: {
+			confirmReset: {
+				title: string;
+				desc: string;
+			};
+			synchronization: {
+				header: string;
+				templatePropertyName: {
+					title: string;
+					desc: string;
+				};
+				templatePropertyId: {
+					title: string;
+					desc: string;
+				};
+				confirmSynchronize: {
+					title: string;
+					desc: string;
+				};
+			};
+		};
+	};
+	augmentedPropertyMenu: {
+		delete: {
+			menuItemTitle: string;
+			confirmationModal: {
+				title: string;
+				desc: string;
+				warning: string;
+			};
+		};
+		rename: {
+			menuItemTitle: string;
+			confirmationModal: {
+				title: string;
+				desc: string;
+				warning: string;
+				propertyNameSetting: {
+					title: string;
+					desc: string;
+					error: string;
+				};
+			};
+		};
+		usedBy: {
+			menuItemTitle: string;
+		};
+		settings: {
+			menuItemTitle: string;
+			modal: {
+				title: string;
+				resetModal: {
+					title: string;
+					desc: string;
+				};
+				importModal: {
+					title: string;
+					desc: string;
+					note: string;
+					setting: {
+						title: string;
+						desc: string;
+						placeholder: string;
+					};
+				};
+				general: {
+					heading: string;
+					hidden: {
+						title: string;
+						desc: string;
+					};
+					customIcon: {
+						title: string;
+						desc: string;
+					};
+					iconColor: {
+						title: string;
+						desc: string;
+					};
+					iconHoverColor: {
+						title: string;
+						desc: string;
+					};
+					labelColor: {
+						title: string;
+						desc: string;
+					};
+					valueTextColor: {
+						title: string;
+						desc: string;
+					};
+				};
+				nonCustomizableType: {
+					title: string;
+					desc: string;
+				};
+			};
+		};
+		massUpdate: {
+			menuItemTitle: string;
+			modal: {
+				title: string;
+				desc: string;
+				warning: string;
+				includeAbsentSetting: {
+					title: string;
+					desc: string;
+				};
+				searchValueSetting: {
+					title: string;
+					desc: string;
+				};
+				newValueSetting: {
+					title: string;
+					desc: string;
+				};
+			};
+		};
+	};
+	typeWidgets: {
+		button: {
+			name: string;
+		};
+		color: {
+			name: string;
+		};
+		dropdown: {
+			name: string;
+			openNoteTooltip: string;
+			settings: {
+				options: {
+					title: string;
+					desc: string;
+				};
+				dynamicOptions: {
+					title: string;
+					desc: string;
+					inlineJs: {
+						title: string;
+						placeholder: string;
+					};
+					fileJs: {
+						title: string;
+						placeholder: string;
+					};
+				};
+			};
+			createOption: {
+				value: {
+					placeholder: string;
+					tooltip: string;
+				};
+				label: {
+					placeholder: string;
+					tooltip: string;
+				};
+				moveUpTooltip: string;
+				moveDownTooltip: string;
+				removeTooltip: string;
+			};
+		};
+		markdown: {
+			name: string;
+		};
+		numberPlus: {
+			name: string;
+			expressionModal: {
+				title: string;
+				calculatedPrefix: string;
+				expressionSetting: {
+					title: string;
+					desc: string;
+				};
+			};
+			settings: {
+				validateSetting: {
+					title: string;
+					desc: string;
+				};
+				minSetting: {
+					title: string;
+					desc: string;
+				};
+				maxSetting: {
+					title: string;
+					desc: string;
+				};
+				stepSetting: {
+					title: string;
+					desc: string;
+				};
+			};
+		};
+		slider: {
+			name: string;
+			settings: {
+				minSetting: {
+					title: string;
+					desc: string;
+				};
+				maxSetting: {
+					title: string;
+					desc: string;
+				};
+				stepSetting: {
+					title: string;
+					desc: string;
+				};
+				showLabelsSetting: {
+					title: string;
+					desc: string;
+				};
+			};
+		};
+	};
 };

@@ -1,5 +1,5 @@
 // TRANSLATIONS done
-import { getFixedT } from "@/libs/i18Next";
+import { text } from "@/libs/i18Next";
 import BetterProperties from "@/main";
 import { PluginSettingTab, Setting } from "obsidian";
 
@@ -11,7 +11,6 @@ export class BetterPropertiesSettingTab extends PluginSettingTab {
 	}
 
 	display(): void {
-		const text = getFixedT();
 		const { containerEl, plugin } = this;
 
 		const {
@@ -24,8 +23,12 @@ export class BetterPropertiesSettingTab extends PluginSettingTab {
 		containerEl.empty();
 
 		new Setting(containerEl)
-			.setName(text("confirmResetSettingTitle"))
-			.setDesc(text("confirmResetSettingDesc"))
+			.setName(
+				text("BetterPropertiesSettingTab.settings.confirmReset.title")
+			)
+			.setDesc(
+				text("BetterPropertiesSettingTab.settings.confirmReset.desc")
+			)
 			.addToggle((cmp) =>
 				cmp.setValue(showResetPropertySettingWarning).onChange(
 					async (b) =>
@@ -38,11 +41,23 @@ export class BetterPropertiesSettingTab extends PluginSettingTab {
 
 		new Setting(containerEl)
 			.setHeading()
-			.setName(text("synchronizationSettingTitle"));
+			.setName(
+				text(
+					"BetterPropertiesSettingTab.settings.synchronization.header"
+				)
+			);
 
 		new Setting(containerEl)
-			.setName(text("templatePropertyNameSettingTitle"))
-			.setDesc(text("templatePropertyNameSettingDesc"))
+			.setName(
+				text(
+					"BetterPropertiesSettingTab.settings.synchronization.templatePropertyName.title"
+				)
+			)
+			.setDesc(
+				text(
+					"BetterPropertiesSettingTab.settings.synchronization.templatePropertyName.desc"
+				)
+			)
 			.addText((cmp) =>
 				cmp.setValue(templatePropertyName).onChange(
 					async (v) =>
@@ -54,8 +69,16 @@ export class BetterPropertiesSettingTab extends PluginSettingTab {
 			);
 
 		new Setting(containerEl)
-			.setName(text("templatePropertyIdSettingTitle"))
-			.setDesc(text("templatePropertyIdSettingDesc"))
+			.setName(
+				text(
+					"BetterPropertiesSettingTab.settings.synchronization.templatePropertyId.title"
+				)
+			)
+			.setDesc(
+				text(
+					"BetterPropertiesSettingTab.settings.synchronization.templatePropertyId.desc"
+				)
+			)
 			.addText((cmp) =>
 				cmp.setValue(templateIdName).onChange(
 					async (v) =>
@@ -67,8 +90,16 @@ export class BetterPropertiesSettingTab extends PluginSettingTab {
 			);
 
 		new Setting(containerEl)
-			.setName(text("confirmTemplateSynchronizeTitle"))
-			.setDesc(text("confirmTemplateSynchronizeDesc"))
+			.setName(
+				text(
+					"BetterPropertiesSettingTab.settings.synchronization.confirmSynchronize.title"
+				)
+			)
+			.setDesc(
+				text(
+					"BetterPropertiesSettingTab.settings.synchronization.confirmSynchronize.desc"
+				)
+			)
 			.addToggle((cmp) =>
 				cmp.setValue(showSyncTemplateWarning).onChange(
 					async (b) =>

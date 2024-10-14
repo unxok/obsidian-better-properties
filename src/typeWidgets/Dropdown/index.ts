@@ -16,12 +16,13 @@ import BetterProperties from "@/main";
 import { CustomTypeWidget } from "..";
 import { arrayMove, dangerousEval } from "@/libs/utils/pure";
 import { createSection } from "@/libs/utils/setting";
+import { text } from "@/libs/i18Next";
 
 export const DropdownWidget: CustomTypeWidget = {
 	type: "dropdown",
 	icon: "chevron-down-circle",
 	default: () => "",
-	name: () => "Dropdown",
+	name: () => text("typeWidgets.dropdown.name"),
 	validate: (v) => typeof v?.toString() === "string",
 	render: (plugin, el, data, ctx) => {
 		const { options, dynamicFileJs, dynamicInlineJs } = plugin.settings
@@ -38,7 +39,9 @@ export const DropdownWidget: CustomTypeWidget = {
 
 		const linkButton = container.createSpan({
 			cls: "clickable-icon",
-			attr: { "aria-label": "Open note" },
+			attr: {
+				"aria-label": text("typeWidgets.dropdown.openNoteTooltip"),
+			},
 		});
 
 		const updateLinkButton = (dropdownValue: string) => {
@@ -134,9 +137,7 @@ const getDynamicOptionsFile = async (
 	if (!filePath || !filePath?.toLowerCase()?.endsWith(".js")) return obj;
 	const file = plugin.app.vault.getFileByPath(filePath);
 	if (!file) {
-		new Notice(
-			"Better Properties: Could not locate JS file from " + filePath
-		);
+		new Notice(text("notices.couldntLocateJsFile", { filePath }));
 		return obj;
 	}
 	const inlineJs = await plugin.app.vault.cachedRead(file);
@@ -153,7 +154,11 @@ export const createDropdownSettings = (
 	plugin: BetterProperties
 	// defaultOpen: boolean
 ) => {
-	const { content } = createSection(el, "Dropdown", true);
+	const { content } = createSection(
+		el,
+		text("typeWidgets.dropdown.name"),
+		true
+	);
 
 	const updateOptions = (
 		cb: (prev: (typeof form)["options"]) => (typeof form)["options"]
@@ -164,10 +169,8 @@ export const createDropdownSettings = (
 
 	new Setting(content)
 		.setHeading()
-		.setName("Options")
-		.setDesc(
-			"Manage the available options for this dropdown. Value on the left will be what's saved to your note, and the Label on the right is what will be shown in the dropdown."
-		);
+		.setName(text("typeWidgets.dropdown.settings.options.title"))
+		.setDesc(text("typeWidgets.dropdown.settings.options.desc"));
 
 	const optionContainer = content.createDiv();
 
@@ -208,29 +211,41 @@ export const createDropdownSettings = (
 
 	new Setting(content)
 		.setHeading()
-		.setName("Dynamic options")
-		.setDesc(
-			"Use JavaScript to dynamically generate options for this dropdown in addition to the ones listed above. You can either type your code here and/or specify a .js file. Your code should, at the top level, return an array of objects with a key for label and value which are both strings ({value: string; label: string}[])."
+		.setName(text("typeWidgets.dropdown.settings.dynamicOptions.title"))
+		.setDesc(text("typeWidgets.dropdown.settings.dynamicOptions.desc"));
+
+	new Setting(content)
+		.setName(
+			text("typeWidgets.dropdown.settings.dynamicOptions.inlineJs.title")
+		)
+		.addTextArea((cmp) =>
+			cmp
+				.setPlaceholder(
+					text(
+						"typeWidgets.dropdown.settings.dynamicOptions.inlineJs.placeholder"
+					)
+				)
+				.setValue(form.dynamicInlineJs)
+				.onChange((v) => updateForm("dynamicInlineJs", v))
+				.then((cmp) => {
+					cmp.inputEl.setAttribute("rows", "4");
+				})
 		);
 
-	new Setting(content).setName("Inline JavaScript").addTextArea((cmp) =>
-		cmp
-			.setPlaceholder(
-				'return [{value: "a", label: "Apples"}, {value: "b", label: "Bananas"}]'
+	new Setting(content)
+		.setName(
+			text("typeWidgets.dropdown.settings.dynamicOptions.fileJs.title")
+		)
+		.addSearch((cmp) => {
+			cmp.setPlaceholder(
+				text(
+					"typeWidgets.dropdown.settings.dynamicOptions.fileJs.placeholder"
+				)
 			)
-			.setValue(form.dynamicInlineJs)
-			.onChange((v) => updateForm("dynamicInlineJs", v))
-			.then((cmp) => {
-				cmp.inputEl.setAttribute("rows", "4");
-			})
-	);
-
-	new Setting(content).setName("Load from *.js file").addSearch((cmp) => {
-		cmp.setPlaceholder("path/to/file.js")
-			.setValue(form.dynamicFileJs)
-			.onChange((v) => updateForm("dynamicFileJs", v));
-		new JsSuggest(plugin.app, cmp);
-	});
+				.setValue(form.dynamicFileJs)
+				.onChange((v) => updateForm("dynamicFileJs", v));
+			new JsSuggest(plugin.app, cmp);
+		});
 };
 
 const createOption = (
@@ -250,7 +265,9 @@ const createOption = (
 	setting
 		.addText((cmp) =>
 			cmp
-				.setPlaceholder("Value")
+				.setPlaceholder(
+					text("typeWidgets.dropdown.createOption.value.placeholder")
+				)
 				.setValue(value)
 				.onChange((v) => {
 					updateOptions((prev) => {
@@ -258,11 +275,18 @@ const createOption = (
 						return prev;
 					});
 				})
-				.then((c) => c.inputEl.setAttribute("aria-label", "Value"))
+				.then((c) =>
+					c.inputEl.setAttribute(
+						"aria-label",
+						text("typeWidgets.dropdown.createOption.value.tooltip")
+					)
+				)
 		)
 		.addText((cmp) =>
 			cmp
-				.setPlaceholder("Label")
+				.setPlaceholder(
+					text("typeWidgets.dropdown.createOption.label.placeholder")
+				)
 				.setValue(label)
 				.onChange((v) => {
 					updateOptions((prev) => {
@@ -270,37 +294,57 @@ const createOption = (
 						return prev;
 					});
 				})
-				.then((c) => c.inputEl.setAttribute("aria-label", "Label"))
+				.then((c) =>
+					c.inputEl.setAttribute(
+						"aria-label",
+						text("typeWidgets.dropdown.createOption.label.tooltip")
+					)
+				)
 		)
 		.addExtraButton((cmp) =>
-			cmp.setIcon("chevron-up").onClick(() => {
-				if (index === 0) return;
-				updateOptions((prev) => {
-					const newArr = arrayMove(prev, index, index - 1);
-					return newArr;
-				});
-				renderOptions();
-			})
+			cmp
+				.setIcon("chevron-up")
+				.onClick(() => {
+					if (index === 0) return;
+					updateOptions((prev) => {
+						const newArr = arrayMove(prev, index, index - 1);
+						return newArr;
+					});
+					renderOptions();
+				})
+				.setTooltip(
+					text("typeWidgets.dropdown.createOption.moveUpTooltip")
+				)
 		)
 		.addExtraButton((cmp) =>
-			cmp.setIcon("chevron-down").onClick(() => {
-				updateOptions((prev) => {
-					if (prev.length === index + 1) return prev;
-					const newArr = arrayMove(prev, index, index + 1);
-					return newArr;
-				});
-				renderOptions();
-			})
+			cmp
+				.setIcon("chevron-down")
+				.onClick(() => {
+					updateOptions((prev) => {
+						if (prev.length === index + 1) return prev;
+						const newArr = arrayMove(prev, index, index + 1);
+						return newArr;
+					});
+					renderOptions();
+				})
+				.setTooltip(
+					text("typeWidgets.dropdown.createOption.moveDownTooltip")
+				)
 		)
 		.addExtraButton((cmp) =>
-			cmp.setIcon("x").onClick(() => {
-				setting.settingEl.remove();
-				updateOptions((prev) => {
-					const arr = prev.filter((_, i) => i !== index);
-					return arr;
-				});
-				renderOptions();
-			})
+			cmp
+				.setIcon("x")
+				.onClick(() => {
+					setting.settingEl.remove();
+					updateOptions((prev) => {
+						const arr = prev.filter((_, i) => i !== index);
+						return arr;
+					});
+					renderOptions();
+				})
+				.setTooltip(
+					text("typeWidgets.dropdown.createOption.removeTooltip")
+				)
 		);
 };
 

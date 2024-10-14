@@ -25,6 +25,7 @@ import {
 import { addChangeIcon } from "./libs/utils/augmentMedataMenu/addChangeIcon";
 import { ConfirmationModal } from "./classes/ConfirmationModal";
 import { BetterPropertiesSettingTab } from "./classes/BetterPropertiesSettingTab";
+import { text } from "./libs/i18Next";
 
 type BetterPropertiesSettings = {
 	/* General */
@@ -311,16 +312,12 @@ const patchMetdataEditor = (plugin: BetterProperties) => {
 				const onClickDoSync = async () => {
 					const file = that.app.workspace.activeEditor?.file;
 					if (!file) {
-						new Notice(
-							"Better Properties: No file found for metadata editor."
-						);
+						new Notice(text("notices.noFileMetadataEditor"));
 						return;
 					}
 					const metaCache = that.app.metadataCache.getFileCache(file);
 					if (!metaCache) {
-						new Notice(
-							"Better Properties: No template ID found in current file."
-						);
+						new Notice(text("notices.noTemplateId"));
 						return;
 					}
 					const parsedId = getTemplateID(metaCache, plugin);
@@ -375,8 +372,6 @@ const getTemplateID = (metaCache: CachedMetadata, plugin: BetterProperties) => {
 		settings: { templateIdName },
 	} = plugin;
 
-	console.log("got template id name: ", templateIdName);
-
 	const findLower = () => {
 		const found = Object.keys(metaCache).find((key) => {
 			key.toLowerCase() === templateIdName;
@@ -387,13 +382,11 @@ const getTemplateID = (metaCache: CachedMetadata, plugin: BetterProperties) => {
 
 	const id = metaCache?.frontmatter?.[templateIdName] ?? findLower();
 	if (!id) {
-		new Notice("Better Properties: No template ID found in current file.");
+		new Notice(text("notices.noTemplateId"));
 		return;
 	}
 	if (Array.isArray(id)) {
-		new Notice(
-			"Better Properties: Template ID is a list when it should be a single value."
-		);
+		new Notice(text("notices.templateIdIsArray"));
 		return;
 	}
 	const parsedId: string = id.toString();
@@ -411,13 +404,6 @@ const doSync = async (
 		app,
 	} = plugin;
 
-	// const fileFC = app.metadataCache.getFileCache(file);
-	// if (!fileFC) {
-	// 	new Notice("Better Properties: No template ID found in current file.");
-	// 	return;
-	// }
-
-	// const parsedId = getTemplateID(fileFC, plugin)
 	const parsedId = templateId;
 
 	const templateEntries = Object.entries(metaCache.frontmatter ?? {});
@@ -477,6 +463,7 @@ const doSync = async (
 			});
 		})
 	);
+
 	new Notice("Synchronized properties with " + count + " notes.");
 };
 
