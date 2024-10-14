@@ -1,3 +1,5 @@
+// TRANSLATIONS done
+import { getFixedT } from "@/libs/i18Next";
 import BetterProperties from "@/main";
 import { PluginSettingTab, Setting } from "obsidian";
 
@@ -9,6 +11,7 @@ export class BetterPropertiesSettingTab extends PluginSettingTab {
 	}
 
 	display(): void {
+		const text = getFixedT();
 		const { containerEl, plugin } = this;
 
 		const {
@@ -21,29 +24,25 @@ export class BetterPropertiesSettingTab extends PluginSettingTab {
 		containerEl.empty();
 
 		new Setting(containerEl)
-			.setName("Confirm reset property settings")
-			.setDesc(
-				"Whether you want to be prompted to confirm resetting a property's settings back to default."
-			)
+			.setName(text("confirmResetSettingTitle"))
+			.setDesc(text("confirmResetSettingDesc"))
 			.addToggle((cmp) =>
-				cmp
-					.setValue(showResetPropertySettingWarning)
-					.onChange(
-						async (b) =>
-							await plugin.updateSettings((prev) => ({
-								...prev,
-								showResetPropertySettingWarning: b,
-							}))
-					)
+				cmp.setValue(showResetPropertySettingWarning).onChange(
+					async (b) =>
+						await plugin.updateSettings((prev) => ({
+							...prev,
+							showResetPropertySettingWarning: b,
+						}))
+				)
 			);
 
-		new Setting(containerEl).setHeading().setName("Synchronization");
+		new Setting(containerEl)
+			.setHeading()
+			.setName(text("synchronizationSettingTitle"));
 
 		new Setting(containerEl)
-			.setName("Template property name")
-			.setDesc(
-				"The property name that notes will use to indicate what their template is."
-			)
+			.setName(text("templatePropertyNameSettingTitle"))
+			.setDesc(text("templatePropertyNameSettingDesc"))
 			.addText((cmp) =>
 				cmp.setValue(templatePropertyName).onChange(
 					async (v) =>
@@ -55,10 +54,8 @@ export class BetterPropertiesSettingTab extends PluginSettingTab {
 			);
 
 		new Setting(containerEl)
-			.setName("Template property ID name")
-			.setDesc(
-				"The property name that template notes will use to define their template identifier."
-			)
+			.setName(text("templatePropertyIdSettingTitle"))
+			.setDesc(text("templatePropertyIdSettingDesc"))
 			.addText((cmp) =>
 				cmp.setValue(templateIdName).onChange(
 					async (v) =>
@@ -70,10 +67,8 @@ export class BetterPropertiesSettingTab extends PluginSettingTab {
 			);
 
 		new Setting(containerEl)
-			.setName("Confirm template synchronize")
-			.setDesc(
-				"Whether you want to get prompted to confirm property synchronization."
-			)
+			.setName(text("confirmTemplateSynchronizeTitle"))
+			.setDesc(text("confirmTemplateSynchronizeDesc"))
 			.addToggle((cmp) =>
 				cmp.setValue(showSyncTemplateWarning).onChange(
 					async (b) =>

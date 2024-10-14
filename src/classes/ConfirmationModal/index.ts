@@ -1,3 +1,4 @@
+// TRANSLATIONS done
 import { App, ButtonComponent, Modal } from "obsidian";
 
 export class ConfirmationModal extends Modal {

@@ -1,8 +1,8 @@
+// TRANSLATIONS done
 import {
 	AbstractInputSuggest,
 	App,
 	getIconIds,
-	PopoverSuggest,
 	SearchComponent,
 	setIcon,
 	TextComponent,
@@ -58,16 +58,16 @@ export class IconSuggest extends InputSuggest<string> {
 
 	protected onRenderSuggestion(
 		value: string,
-		contentEl: HTMLDivElement,
-		titleEl: HTMLDivElement,
-		noteEl?: HTMLDivElement,
+		_contentEl: HTMLDivElement,
+		_titleEl: HTMLDivElement,
+		_noteEl?: HTMLDivElement,
 		auxEl?: HTMLDivElement
 	): void {
 		if (!auxEl) return;
 		setIcon(auxEl, value);
 	}
 
-	selectSuggestion(value: string, evt: MouseEvent | KeyboardEvent): void {
+	selectSuggestion(value: string, _evt: MouseEvent | KeyboardEvent): void {
 		this.component.setValue(value);
 		this.component.onChanged();
 		this.close();

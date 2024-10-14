@@ -34,7 +34,7 @@ export class TextColorComponent extends ValueComponent<string> {
 		return this.value;
 	}
 
-	private onChangeCallback(value: string): void {}
+	private onChangeCallback(_value: string): void {}
 
 	onChange(cb: (value: string) => unknown): this {
 		this.onChangeCallback = cb;

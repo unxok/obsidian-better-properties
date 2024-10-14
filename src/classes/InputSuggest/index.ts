@@ -1,3 +1,4 @@
+// TRANSLATIONS done
 import {
 	AbstractInputSuggest,
 	App,

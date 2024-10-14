@@ -1,3 +1,4 @@
+// TRANSLATIONS done
 /**
  * All credits go to mgmeyers for figuring out how to grab the proper editor prototype
  * 	 and making it easily deployable
