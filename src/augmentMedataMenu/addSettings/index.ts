@@ -94,7 +94,7 @@ class SettingsModal extends Modal {
 			.addEventListener("click", async () => {
 				const str = JSON.stringify(this.form);
 				await window.navigator.clipboard.writeText(str);
-				new Notice(text("notices.invalidJSON"));
+				new Notice(text("notices.copiedExportedJSON"));
 			});
 
 		btnContainer

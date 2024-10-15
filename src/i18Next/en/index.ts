@@ -14,18 +14,24 @@ export const en: TranslationResource = {
 		settingsCopied: "Settings copied to clipboard.",
 		invalidJSON: "Failed to parse JSON!",
 		couldntLocateJsFile:
-			"Better Properties: Could not locate JS file from {{filePath}}",
+			'Better Properties: Could not locate JS file from "{{filePath}}".',
+		copiedExportedJSON: "Copied property settings JSON.",
 	},
 	buttonText: {
-		update: "update",
-		cancel: "cancel",
-		confirm: "confirm",
-		delete: "delete",
-		rename: "rename",
-		export: "export",
-		import: "import",
-		reset: "reset",
-		resetToDefault: "reset to default",
+		update: "Update",
+		cancel: "Cancel",
+		confirm: "Confirm",
+		delete: "Delete",
+		rename: "Rename",
+		export: "Export",
+		import: "Import",
+		reset: "Reset",
+		resetToDefault: "Reset to default",
+		more: "More",
+	},
+	metadataMoreOptionsMenu: {
+		showHidden: "Show hidden",
+		syncProps: "Sync properties",
 	},
 	BetterPropertiesSettingTab: {
 		settings: {
@@ -88,7 +94,7 @@ export const en: TranslationResource = {
 				importModal: {
 					title: "Import settings",
 					desc: "All settings for all types are imported, so you may need to update this property's type still.",
-					note: "This will immediately update the property's settings and cannot be undone!",
+					note: "Warning: Any invalid values will be replaced with their default value. As well, this will immediately update the property's settings and cannot be undone!",
 					setting: {
 						title: "Settings JSON",
 						desc: "Paste JSON for the new settings you would like to update this property to have.",

@@ -1,4 +1,4 @@
-import { Menu, Plugin, View } from "obsidian";
+import { Menu, Plugin, ProgressBarComponent, View } from "obsidian";
 import { typeWidgetPrefix } from "./libs/constants";
 import {
 	addUsedBy,
@@ -19,7 +19,7 @@ import { z } from "zod";
 import { catchAndInfer } from "./libs/utils/zod";
 import { findKeyInsensitive } from "./libs/utils/pure";
 import { patchMetdataEditor } from "./monkey-patches/MetadataEditor";
-import { patchMenu } from "./monkey-patches/MetadataEditor/Menu";
+import { patchMenu } from "./monkey-patches/Menu";
 
 type BetterPropertiesSettingsOld = {
 	/* General */
@@ -64,6 +64,7 @@ export default class BetterProperties extends Plugin {
 	menu: Menu | null = null;
 
 	async onload() {
+		this.progressTesting();
 		await this.loadSettings();
 		this.addSettingTab(new BetterPropertiesSettingTab(this));
 		registerCustomWidgets(this);
@@ -71,6 +72,27 @@ export default class BetterProperties extends Plugin {
 		patchMetdataEditor(this);
 		this.listenPropertyMenu();
 		this.rebuildLeaves();
+	}
+
+	progressTesting() {
+		this.registerMarkdownCodeBlockProcessor(
+			"progress",
+			(source, el, ctx) => {
+				el.empty();
+				const cmp = new ProgressBarComponent(el).setValue(75);
+				// @ts-ignore
+				const progressEl = cmp.progressBar as HTMLProgressElement;
+				progressEl.addEventListener("click", (e) => {
+					const { left, width } = el.getBoundingClientRect();
+					const relative = Math.floor(e.clientX - left);
+					const percentage = Math.floor((relative / width) * 100);
+					console.log("right: ", width);
+					console.log("perc: ", percentage);
+					cmp.setValue(percentage);
+				});
+				console.log(cmp);
+			}
+		);
 	}
 
 	onunload() {

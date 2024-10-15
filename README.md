@@ -52,6 +52,10 @@ Adds additional property types and configuration options to Obsidian's core **Pr
 -   [x] Markdown
 -   [x] Stars
 -   [x] Button
+-   [ ] JS
+    -   Essentially a "custom" type. Executes arbitrary JS that receives the normal arguments provided to type widget render functions, allowing users to make a practically custom type widget
+-   [ ] Progress
+    -   May or may not do this. Most people probably would want JS to update this dynamically which is better suited for the JS type
 -   [ ] ...more??
 
 ### Property icon menu
@@ -68,9 +72,16 @@ Additional options shown when clickong in the icon next to the property key
 
 ### Misc
 
--   [ ] translation (i18Next) support
--   [ ] sync with template
-    -   Idea is to be able to sync notes that share a property/value pair of some kind with a designated template. This would add (and optionally remove?) properties from notes to be aligned with said template note.
+-   [x] zod for validation
+-   translation (i18Next) support
+    -   [x] Replace all hardcoded strings
+    -   [ ] Make guide for contributing translations and what are currently added/reviewed
+-   sync with template
+    -   [x] Customizable template-id property name
+    -   [x] Customiable template proeprty name
+    -   [x] Sync properties option in more options button menu
+    -   [x] Option to show warning
+    -   [ ] Option to delete extra properties
 -   [ ] set groups for property names
     -   tried this by patching the `metdataEditor` prototype, but I could only move the rendered property after it was rendered, which causes an ugly flash of it being moved, plus some weird duplication I couldn't figure out.
 -   [ ] nested properties

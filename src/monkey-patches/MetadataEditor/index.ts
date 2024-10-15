@@ -7,7 +7,7 @@ import { monkeyAroundKey } from "@/libs/constants";
 import { text } from "@/i18Next";
 import BetterProperties from "@/main";
 import { around, dedupe } from "monkey-around";
-import { WorkspaceLeaf, setIcon, Menu } from "obsidian";
+import { WorkspaceLeaf, setIcon, Menu, ProgressBarComponent } from "obsidian";
 import { MetadataEditor } from "obsidian-typings";
 
 export type PatchedMetadataEditor = MetadataEditor & {
@@ -73,7 +73,7 @@ const patchLoad = (
 					cls: "text-button-icon",
 				});
 				moreOptionsButton.createSpan({
-					text: "More",
+					text: text("buttonText.more"),
 					cls: "text-button-label",
 				});
 				setIcon(iconEl, "more-horizontal");
@@ -108,7 +108,9 @@ const patchLoad = (
 						.addItem((item) =>
 							item
 								.setSection("show-hidden")
-								.setTitle("Show hidden")
+								.setTitle(
+									text("metadataMoreOptionsMenu.showHidden")
+								)
 								.setIcon("eye-off")
 								.setChecked(that.showHiddenProperties)
 								.onClick(() =>
@@ -118,7 +120,9 @@ const patchLoad = (
 						.addItem((item) =>
 							item
 								.setSection("sync-properties")
-								.setTitle("Sync properties")
+								.setTitle(
+									text("metadataMoreOptionsMenu.syncProps")
+								)
 								.setIcon("arrow-right-left")
 								.onClick(onClickDoSync)
 						)

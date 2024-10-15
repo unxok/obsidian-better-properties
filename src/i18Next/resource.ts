@@ -14,6 +14,7 @@ export type TranslationResource = {
 		settingsCopied: string;
 		invalidJSON: string;
 		couldntLocateJsFile: string;
+		copiedExportedJSON: string;
 	};
 	buttonText: {
 		update: string;
@@ -25,6 +26,7 @@ export type TranslationResource = {
 		import: string;
 		reset: string;
 		resetToDefault: string;
+		more: string;
 	};
 	BetterPropertiesSettingTab: {
 		settings: {
@@ -48,6 +50,10 @@ export type TranslationResource = {
 				};
 			};
 		};
+	};
+	metadataMoreOptionsMenu: {
+		showHidden: string;
+		syncProps: string;
 	};
 	augmentedPropertyMenu: {
 		delete: {
