@@ -1,6 +1,6 @@
 import { ToggleComponent } from "obsidian";
 import { CustomTypeWidget } from "..";
-import { text } from "@/libs/i18Next";
+import { text } from "@/i18Next";
 
 export const ToggleWidget: CustomTypeWidget = {
 	type: "toggle",

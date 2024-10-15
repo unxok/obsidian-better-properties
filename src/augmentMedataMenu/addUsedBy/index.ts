@@ -1,18 +1,16 @@
 import { metdataSectionId } from "@/libs/constants";
 import { MetadataAddItemProps } from "..";
 import { Keymap } from "obsidian";
-import { text } from "@/libs/i18Next";
+import { text } from "@/i18Next";
 
 export const addUsedBy = ({ plugin, menu, files }: MetadataAddItemProps) => {
 	const noteCount = files.length;
 	menu.addItem((item) => {
-		item.setSection(metdataSectionId)
-			.setIcon("info")
-			.setTitle(
-				text("augmentedPropertyMenu.usedBy.menuItemTitle", {
-					noteCount,
-				})
-			);
+		item.setSection(metdataSectionId).setIcon("info").setTitle(
+			text("augmentedPropertyMenu.usedBy.menuItemTitle", {
+				noteCount,
+			})
+		);
 		if (!files?.length) return;
 		const subMenu = item.setSubmenu().setNoIcon();
 

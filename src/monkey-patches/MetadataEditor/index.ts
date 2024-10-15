@@ -4,7 +4,7 @@ import {
 	SyncPropertiesModal,
 } from "@/classes/SyncPropertiesModal";
 import { monkeyAroundKey } from "@/libs/constants";
-import { text } from "@/libs/i18Next";
+import { text } from "@/i18Next";
 import BetterProperties from "@/main";
 import { around, dedupe } from "monkey-around";
 import { WorkspaceLeaf, setIcon, Menu } from "obsidian";

@@ -1,5 +1,5 @@
 import { z, ZodObject } from "zod";
-import { catchAndInfer } from "../utils/zod";
+import { catchAndInfer } from "../libs/utils/zod";
 
 export type TypeKeys = PropertySettings;
 

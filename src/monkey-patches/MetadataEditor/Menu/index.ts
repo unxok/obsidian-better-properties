@@ -25,7 +25,6 @@ export const patchMenu = (plugin: BetterProperties) => {
 				)!;
 				const property =
 					container.getAttribute("data-property-key") ?? "";
-				// plugin.setMenu(that, trueTarget);
 				plugin.app.workspace.trigger(
 					"file-property-menu",
 					that,

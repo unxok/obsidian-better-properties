@@ -5,7 +5,6 @@ import {
 } from "@/libs/constants";
 import { MetadataAddItemProps } from "..";
 import { App, Modal, Setting } from "obsidian";
-import { createSection } from "../../setting";
 import BetterProperties from "@/main";
 import { IconSuggest } from "@/classes/IconSuggest";
 import { TextColorComponent } from "@/classes/TextColorComponent";
@@ -16,10 +15,12 @@ import { createSliderSettings } from "@/typeWidgets/Slider";
 import {
 	defaultPropertySettings,
 	PropertySettings,
-} from "@/libs/PropertySettings";
+	PropertySettingsSchema,
+} from "@/PropertySettings";
 import { createStarsSettings } from "@/typeWidgets/Stars";
 import { ConfirmationModal } from "@/classes/ConfirmationModal";
-import { text } from "@/libs/i18Next";
+import { text } from "@/i18Next";
+import { createSection } from "@/libs/utils/setting";
 
 export const addSettings = ({ menu, plugin, key }: MetadataAddItemProps) => {
 	menu.addItem((item) =>
@@ -426,20 +427,15 @@ class ImportModal extends ConfirmationModal {
 				.setCta()
 				.setButtonText("import")
 				.onClick(() => {
-					let json: Record<string, any> | null = null;
 					try {
-						const parsed = JSON.parse(jsonText);
-						if (typeof parsed === "object") {
-							// TODO validation
-							json = parsed;
-						}
-					} catch (_) {}
-					if (json === null) {
+						const json = JSON.parse(jsonText);
+						const parsed = PropertySettingsSchema.parse(json);
+						this.close();
+						this.updateForm(parsed);
+					} catch (e) {
 						new Notice(text("notices.invalidJSON"));
-						return;
+						console.error(e);
 					}
-					this.close();
-					this.updateForm(json as PropertySettings);
 				})
 		);
 	}

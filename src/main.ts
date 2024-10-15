@@ -6,20 +6,20 @@ import {
 	addDelete,
 	addSettings,
 	addMassUpdate,
-} from "./libs/utils/augmentMedataMenu";
+} from "./augmentMedataMenu";
 import { registerCustomWidgets } from "./typeWidgets";
 import {
 	defaultPropertySettings,
 	PropertySettings,
 	PropertySettingsSchema,
-} from "./libs/PropertySettings";
-import { addChangeIcon } from "./libs/utils/augmentMedataMenu/addChangeIcon";
+} from "./PropertySettings";
+import { addChangeIcon } from "./augmentMedataMenu/addChangeIcon";
 import { BetterPropertiesSettingTab } from "./classes/BetterPropertiesSettingTab";
 import { z } from "zod";
 import { catchAndInfer } from "./libs/utils/zod";
 import { findKeyInsensitive } from "./libs/utils/pure";
-import { patchMetdataEditor } from "./libs/utils/monkey-patches/MetadataEditor";
-import { patchMenu } from "./libs/utils/monkey-patches/MetadataEditor/Menu";
+import { patchMetdataEditor } from "./monkey-patches/MetadataEditor";
+import { patchMenu } from "./monkey-patches/MetadataEditor/Menu";
 
 type BetterPropertiesSettingsOld = {
 	/* General */

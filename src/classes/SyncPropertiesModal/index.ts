@@ -2,7 +2,7 @@ import BetterProperties from "@/main";
 import { CachedMetadata, TFile } from "obsidian";
 import { MetadataEditor } from "obsidian-typings";
 import { ConfirmationModal } from "../ConfirmationModal";
-import { text } from "@/libs/i18Next";
+import { text } from "@/i18Next";
 
 export const getTemplateID = (
 	metaCache: CachedMetadata,

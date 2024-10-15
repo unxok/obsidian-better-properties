@@ -1,12 +1,9 @@
 import { App, ButtonComponent, Modal, setIcon, Setting } from "obsidian";
-import {
-	defaultPropertySettings,
-	PropertySettings,
-} from "@/libs/PropertySettings";
+import { defaultPropertySettings, PropertySettings } from "@/PropertySettings";
 import { CustomTypeWidget } from "..";
 import { createSection } from "@/libs/utils/setting";
 import { dangerousEval } from "@/libs/utils/pure";
-import { text } from "@/libs/i18Next";
+import { text } from "@/i18Next";
 
 export const NumberPlusWidget: CustomTypeWidget = {
 	type: "numberPlus",

@@ -4,11 +4,8 @@ import { clampNumber } from "@/libs/utils/pure";
 import { IconSuggest } from "@/classes/IconSuggest";
 import { createSection } from "@/libs/utils/setting";
 import BetterProperties from "@/main";
-import {
-	defaultPropertySettings,
-	PropertySettings,
-} from "@/libs/PropertySettings";
-import { text } from "@/libs/i18Next";
+import { defaultPropertySettings, PropertySettings } from "@/PropertySettings";
+import { text } from "@/i18Next";
 
 export const StarsWidget: CustomTypeWidget = {
 	type: "stars",

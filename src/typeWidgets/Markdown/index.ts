@@ -1,6 +1,6 @@
 import { EmbeddableMarkdownEditor } from "@/classes/EmbeddableMarkdownEditor";
 import { CustomTypeWidget } from "..";
-import { text } from "@/libs/i18Next";
+import { text } from "@/i18Next";
 
 export const MarkdownWidget: CustomTypeWidget = {
 	type: "markdown",

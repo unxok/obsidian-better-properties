@@ -8,15 +8,12 @@ import {
 	Setting,
 	TFile,
 } from "obsidian";
-import {
-	defaultPropertySettings,
-	PropertySettings,
-} from "@/libs/PropertySettings";
+import { defaultPropertySettings, PropertySettings } from "@/PropertySettings";
 import BetterProperties from "@/main";
 import { CustomTypeWidget } from "..";
 import { arrayMove, dangerousEval } from "@/libs/utils/pure";
 import { createSection } from "@/libs/utils/setting";
-import { text } from "@/libs/i18Next";
+import { text } from "@/i18Next";
 
 export const DropdownWidget: CustomTypeWidget = {
 	type: "dropdown",

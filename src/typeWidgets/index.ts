@@ -9,7 +9,7 @@ import { ColorWidget } from "./Color";
 import { MarkdownWidget } from "./Markdown";
 import { NumberPlusWidget } from "./NumberPlus";
 import { Component, setIcon } from "obsidian";
-import { TypeKeys, defaultPropertySettings } from "@/libs/PropertySettings";
+import { TypeKeys, defaultPropertySettings } from "@/PropertySettings";
 import { StarsWidget } from "./Stars";
 
 export type CustomTypeWidget = {

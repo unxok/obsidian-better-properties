@@ -1,7 +1,7 @@
 import { metdataSectionId } from "@/libs/constants";
 import { MetadataAddItemProps } from "..";
 import { Modal, TextComponent, Setting, ToggleComponent } from "obsidian";
-import { text } from "@/libs/i18Next";
+import { text } from "@/i18Next";
 
 export const addMassUpdate = (props: MetadataAddItemProps) => {
 	props.menu.addItem((item) => {

@@ -12,7 +12,7 @@ export const en: TranslationResource = {
 			"Better Properties: Template ID is a list when it should be a single value.",
 		syncronizeComplete: "Synchronized properties with {{noteCount}} notes.",
 		settingsCopied: "Settings copied to clipboard.",
-		invalidJSON: "Invalid JSON!",
+		invalidJSON: "Failed to parse JSON!",
 		couldntLocateJsFile:
 			"Better Properties: Could not locate JS file from {{filePath}}",
 	},

@@ -1,6 +1,6 @@
 import { ColorComponent } from "obsidian";
 import { CustomTypeWidget } from "..";
-import { text } from "@/libs/i18Next";
+import { text } from "@/i18Next";
 
 export const ColorWidget: CustomTypeWidget = {
 	type: "color",

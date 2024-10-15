@@ -1,5 +1,5 @@
 // TRANSLATIONS done
-import { text } from "@/libs/i18Next";
+import { text } from "@/i18Next";
 import BetterProperties from "@/main";
 import { PluginSettingTab, Setting } from "obsidian";
 

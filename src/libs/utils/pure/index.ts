@@ -1,4 +1,4 @@
-import { PropertySettings } from "@/libs/PropertySettings";
+import { PropertySettings } from "@/PropertySettings";
 
 /**
  * Move an item in an array from one index to another
