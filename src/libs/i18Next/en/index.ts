@@ -185,7 +185,7 @@ export const en: TranslationResource = {
 					tooltip: "Value",
 				},
 				label: {
-					placeholder: "Label",
+					placeholder: "Label (optional)",
 					tooltip: "Label",
 				},
 				moveDownTooltip: "Move option down",

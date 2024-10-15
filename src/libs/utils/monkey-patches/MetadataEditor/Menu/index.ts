@@ -12,25 +12,15 @@ export const patchMenu = (plugin: BetterProperties) => {
 				const exit = () => {
 					return old.call(that, e);
 				};
-				const { target } = e;
-				const isHTML = target instanceof HTMLElement;
-				const isSVG = target instanceof SVGElement;
-				if (!isHTML && !isSVG) return exit();
+				const { currentTarget } = e;
+				const isMetadataPropertyIcon =
+					currentTarget instanceof HTMLElement &&
+					currentTarget.tagName.toLowerCase() === "span" &&
+					currentTarget.classList.contains("metadata-property-icon");
 
-				const isExact =
-					target instanceof HTMLElement &&
-					target.tagName.toLowerCase() === "span" &&
-					target.classList.contains("metadata-property-icon");
+				if (!isMetadataPropertyIcon) return exit();
 
-				const trueTarget = isExact
-					? target
-					: target.closest<HTMLElement>(
-							"span.metadata-property-icon"
-					  );
-
-				if (!trueTarget) return exit();
-
-				const container = trueTarget.closest(
+				const container = currentTarget.closest(
 					"div.metadata-property[data-property-key]"
 				)!;
 				const property =

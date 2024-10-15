@@ -83,7 +83,7 @@ export const DropdownWidget: CustomTypeWidget = {
 
 		(async () => {
 			const staticOptionsObj = options.reduce((acc, { label, value }) => {
-				acc[value] = label;
+				acc[value] = label || value;
 				return acc;
 			}, {} as Record<string, string>);
 
@@ -290,7 +290,8 @@ const createOption = (
 				.setValue(label)
 				.onChange((v) => {
 					updateOptions((prev) => {
-						prev[index].label = v;
+						const label = v ? v : prev[index].value;
+						prev[index].label = label;
 						return prev;
 					});
 				})
