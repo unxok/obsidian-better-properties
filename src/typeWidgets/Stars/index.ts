@@ -1,20 +1,20 @@
-import { ButtonComponent, DropdownComponent, setIcon, Setting } from "obsidian";
+import { setIcon, Setting } from "obsidian";
 import { CustomTypeWidget } from "..";
-import { clampNumber, getButtonStyledClass } from "@/libs/utils/pure";
+import { clampNumber } from "@/libs/utils/pure";
 import { IconSuggest } from "@/classes/IconSuggest";
-import { TextColorComponent } from "@/classes/TextColorComponent";
 import { createSection } from "@/libs/utils/setting";
 import BetterProperties from "@/main";
 import {
 	defaultPropertySettings,
 	PropertySettings,
 } from "@/libs/PropertySettings";
+import { text } from "@/libs/i18Next";
 
 export const StarsWidget: CustomTypeWidget = {
 	type: "stars",
 	icon: "star",
 	default: () => 0,
-	name: () => "Stars",
+	name: () => text("typeWidgets.stars.name"),
 	validate: (v) => !Number.isNaN(Number(v)),
 	render: (plugin, el, data, ctx) => {
 		const { customIcon, max } = plugin.settings.propertySettings[
@@ -31,40 +31,44 @@ export const StarsWidget: CustomTypeWidget = {
 		});
 
 		const min = 0;
-
 		const count = clampNumber(Number(data.value), min, max);
 		const starEls: HTMLElement[] = [];
 
-		for (let i = 1; i < max + 1; i++) {
+		const updateCount = (index: number) => {
+			const existingCount = clampNumber(
+				Number(container.getAttribute("data-count")),
+				min,
+				max
+			);
+			const newCount = existingCount !== index ? index : index - 1;
+			container.setAttribute("data-count", newCount.toString());
+			starEls.forEach((el, k) => {
+				if (k + 1 <= newCount) {
+					return el.classList.add("better-properties-svg-fill");
+				}
+				el.classList.remove("better-properties-svg-fill");
+			});
+			ctx.onChange(newCount);
+		};
+
+		const createStarElement = (index: number) => {
 			const span = container.createSpan({
 				cls: "clickable-icon better-properties-inline-flex",
 				attr: {
-					"aria-label": i.toString(),
+					"aria-label": index.toString(),
 				},
 			});
 			starEls.push(span);
 			setIcon(span, customIcon);
 
-			if (i <= count) {
+			if (index <= count) {
 				span.classList.add("better-properties-svg-fill");
 			}
+			span.addEventListener("click", () => updateCount(index));
+		};
 
-			span.addEventListener("click", () => {
-				const existingCount = clampNumber(
-					Number(container.getAttribute("data-count")),
-					min,
-					max
-				);
-				const newCount = existingCount !== i ? i : i - 1;
-				container.setAttribute("data-count", newCount.toString());
-				starEls.forEach((el, k) => {
-					if (k + 1 <= newCount) {
-						return el.classList.add("better-properties-svg-fill");
-					}
-					el.classList.remove("better-properties-svg-fill");
-				});
-				ctx.onChange(newCount);
-			});
+		for (let i = 1; i < max + 1; i++) {
+			createStarElement(i);
 		}
 	},
 };
@@ -84,8 +88,8 @@ export const createStarsSettings = (
 	const { content } = createSection(el, "Button", true);
 
 	new Setting(content)
-		.setName("Override star icon")
-		.setDesc("Set a custom icon to show in place of the default stars.")
+		.setName(text("typeWidgets.stars.settings.overrideIconSetting.title"))
+		.setDesc(text("typeWidgets.stars.settings.overrideIconSetting.desc"))
 		.addText((cmp) =>
 			cmp
 				.setValue(customIcon)
@@ -94,8 +98,8 @@ export const createStarsSettings = (
 		);
 
 	new Setting(content)
-		.setName("Count")
-		.setDesc("How many stars to display.")
+		.setName(text("typeWidgets.stars.settings.countSetting.title"))
+		.setDesc(text("typeWidgets.stars.settings.countSetting.desc"))
 		.addText((cmp) =>
 			cmp
 				.setValue(max.toString())

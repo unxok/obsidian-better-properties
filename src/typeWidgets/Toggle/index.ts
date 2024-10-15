@@ -1,13 +1,14 @@
 import { ToggleComponent } from "obsidian";
 import { CustomTypeWidget } from "..";
+import { text } from "@/libs/i18Next";
 
 export const ToggleWidget: CustomTypeWidget = {
 	type: "toggle",
 	icon: "toggle-right",
 	default: () => false,
-	name: () => "Toggle",
+	name: () => text("typeWidgets.toggle.name"),
 	validate: (v) => typeof v === "boolean",
-	render: (plugin, el, data, ctx) => {
+	render: (_plugin, el, data, ctx) => {
 		const container = el
 			.createDiv({
 				cls: "metadata-input-longtext",

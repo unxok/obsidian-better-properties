@@ -246,5 +246,21 @@ export const en: TranslationResource = {
 				},
 			},
 		},
+		stars: {
+			name: "Stars",
+			settings: {
+				overrideIconSetting: {
+					title: "Override star icon",
+					desc: "Set a custom icon to show in place of the default stars.",
+				},
+				countSetting: {
+					title: "Count",
+					desc: "How many stars to display.",
+				},
+			},
+		},
+		toggle: {
+			name: "Toggle",
+		},
 	},
 };

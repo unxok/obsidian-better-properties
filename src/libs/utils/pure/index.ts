@@ -45,3 +45,13 @@ export const clampNumber = (
 // Vite complains if you straight use eval
 // but I need to use it sometimes to allow users to use JS for certain things
 export const dangerousEval = eval;
+
+export const findKeyInsensitive = (
+	key: string,
+	obj: Record<string, unknown>
+) => {
+	const found = Object.keys(obj).find(
+		(k) => k.toLowerCase() === key.toLowerCase()
+	);
+	return found ?? null;
+};

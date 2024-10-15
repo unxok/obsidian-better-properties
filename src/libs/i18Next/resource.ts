@@ -241,5 +241,21 @@ export type TranslationResource = {
 				};
 			};
 		};
+		stars: {
+			name: string;
+			settings: {
+				overrideIconSetting: {
+					title: string;
+					desc: string;
+				};
+				countSetting: {
+					title: string;
+					desc: string;
+				};
+			};
+		};
+		toggle: {
+			name: string;
+		};
 	};
 };

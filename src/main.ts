@@ -1,14 +1,5 @@
-import { around, dedupe } from "monkey-around";
-import {
-	CachedMetadata,
-	Menu,
-	Plugin,
-	setIcon,
-	TFile,
-	View,
-	WorkspaceLeaf,
-} from "obsidian";
-import { monkeyAroundKey, typeWidgetPrefix } from "./libs/constants";
+import { Menu, Plugin, View } from "obsidian";
+import { typeWidgetPrefix } from "./libs/constants";
 import {
 	addUsedBy,
 	addRename,
@@ -17,17 +8,20 @@ import {
 	addMassUpdate,
 } from "./libs/utils/augmentMedataMenu";
 import { registerCustomWidgets } from "./typeWidgets";
-import { MetadataEditor } from "obsidian-typings";
 import {
 	defaultPropertySettings,
 	PropertySettings,
+	PropertySettingsSchema,
 } from "./libs/PropertySettings";
 import { addChangeIcon } from "./libs/utils/augmentMedataMenu/addChangeIcon";
-import { ConfirmationModal } from "./classes/ConfirmationModal";
 import { BetterPropertiesSettingTab } from "./classes/BetterPropertiesSettingTab";
-import { text } from "./libs/i18Next";
+import { z } from "zod";
+import { catchAndInfer } from "./libs/utils/zod";
+import { findKeyInsensitive } from "./libs/utils/pure";
+import { patchMetdataEditor } from "./libs/utils/monkey-patches/MetadataEditor";
+import { patchMenu } from "./libs/utils/monkey-patches/MetadataEditor/Menu";
 
-type BetterPropertiesSettings = {
+type BetterPropertiesSettingsOld = {
 	/* General */
 	showResetPropertySettingWarning: boolean;
 	/* Syncronization */
@@ -37,7 +31,7 @@ type BetterPropertiesSettings = {
 	showSyncTemplateWarning: boolean;
 };
 
-const DEFAULT_SETTINGS: BetterPropertiesSettings = {
+const DEFAULT_SETTINGS_OLD: BetterPropertiesSettings = {
 	propertySettings: {},
 	/* General */
 	showResetPropertySettingWarning: true,
@@ -47,8 +41,25 @@ const DEFAULT_SETTINGS: BetterPropertiesSettings = {
 	showSyncTemplateWarning: true,
 };
 
+const BetterPropertiesSettingsSchema = catchAndInfer(
+	z.object({
+		/* General */
+		showResetPropertySettingWarning: z.boolean().catch(true),
+
+		/* Synchronization */
+		propertySettings: z.record(PropertySettingsSchema).catch({}),
+		templatePropertyName: z.string().catch("property-template"),
+		templateIdName: z.string().catch("property-template-id"),
+		showSyncTemplateWarning: z.boolean().catch(true),
+	})
+);
+
+type BetterPropertiesSettings = z.infer<typeof BetterPropertiesSettingsSchema>;
+
 export default class BetterProperties extends Plugin {
-	settings: BetterPropertiesSettings = { ...DEFAULT_SETTINGS };
+	settings: BetterPropertiesSettings = BetterPropertiesSettingsSchema.parse(
+		{}
+	);
 
 	menu: Menu | null = null;
 
@@ -56,12 +67,9 @@ export default class BetterProperties extends Plugin {
 		await this.loadSettings();
 		this.addSettingTab(new BetterPropertiesSettingTab(this));
 		registerCustomWidgets(this);
-
 		patchMenu(this);
 		patchMetdataEditor(this);
-
 		this.listenPropertyMenu();
-
 		this.rebuildLeaves();
 	}
 
@@ -81,41 +89,24 @@ export default class BetterProperties extends Plugin {
 		const { app } = this;
 		const { metadataCache } = app;
 		this.menu = menu;
-		// const container = targetEl.closest(
-		// 	"div.metadata-property[data-property-key]"
-		// )!;
-		// const key = container.getAttribute("data-property-key") ?? "";
 		const key = property;
 
 		const { metadataCache: mdc, fileCache: fc } = metadataCache;
 		const fcKeys = Object.keys(fc);
-		const files: { hash: string; value: unknown; path: string }[] =
-			Object.keys(mdc)
-				.map((hash) => {
-					const fm = mdc[hash].frontmatter ?? {};
-					if (!fm?.hasOwnProperty(key)) {
-						// obsidian doesn't allow properties with the same name different case
-						// so try to find a key without regard to letter case
-						const foundKey = Object.keys(fm).find(
-							(k) => k.toLowerCase() === key.toLowerCase()
-						);
-						if (!foundKey) return null;
-						return {
-							hash,
-							value: fm[foundKey],
-						};
-					}
-					return {
-						hash,
-						value: fm[key],
-					};
-				})
-				.filter((o) => o !== null)
-				.map((obj) => {
-					const path = fcKeys.find((k) => fc[k].hash === obj.hash)!;
-					return { ...obj, path };
-				})
-				.filter(({ path }) => !!path);
+		const files = Object.keys(mdc)
+			.map((hash) => {
+				const fm = mdc[hash].frontmatter ?? {};
+				if (fm?.hasOwnProperty(key)) return { hash, value: fm[key] };
+				const found = findKeyInsensitive(key, fm);
+				if (!found) return null;
+				return { hash, value: fm[found] };
+			})
+			.filter((o) => o !== null)
+			.map((obj) => {
+				const path = fcKeys.find((k) => fc[k].hash === obj.hash)!;
+				return { ...obj, path };
+			})
+			.filter(({ path }) => !!path);
 
 		const commonProps = { plugin: this, menu, files, key };
 		addChangeIcon(commonProps);
@@ -134,13 +125,19 @@ export default class BetterProperties extends Plugin {
 		);
 	}
 
+	async onExternalSettingsChange() {
+		await this.loadSettings();
+	}
+
 	async loadSettings() {
 		const loaded = await this.loadData();
-		this.settings = { ...DEFAULT_SETTINGS, ...loaded };
+		const parsed = BetterPropertiesSettingsSchema.parse(loaded);
+		this.settings = parsed;
 	}
 
 	async saveSettings(): Promise<void> {
-		await this.saveData(this.settings);
+		const parsed = BetterPropertiesSettingsSchema.parse(this.settings);
+		await this.saveData(parsed);
 	}
 
 	async updateSettings(
@@ -153,9 +150,9 @@ export default class BetterProperties extends Plugin {
 
 	getPropertySetting(propertyName: string): PropertySettings {
 		const lower = propertyName.toLowerCase();
-		const existing =
+		const settings =
 			this.settings.propertySettings[lower] ?? defaultPropertySettings;
-		return { ...existing };
+		return settings;
 	}
 
 	async updatePropertySetting(
@@ -163,9 +160,7 @@ export default class BetterProperties extends Plugin {
 		cb: (prev: PropertySettings) => PropertySettings
 	): Promise<void> {
 		const lower = propertyName.toLowerCase();
-		const existing = this.settings.propertySettings[lower] ?? {
-			...defaultPropertySettings,
-		};
+		const existing = this.getPropertySetting(lower);
 		const newSettings = cb(existing);
 		return await this.updateSettings((prev) => ({
 			...prev,
@@ -202,367 +197,3 @@ export default class BetterProperties extends Plugin {
 		});
 	}
 }
-
-const patchMenu = (plugin: BetterProperties) => {
-	const removePatch = around(Menu.prototype, {
-		showAtMouseEvent(old) {
-			return dedupe(monkeyAroundKey, old, function (e) {
-				// @ts-ignore Doesn't look like there's a way to get this typed correctly
-				const that = this as Menu;
-				const exit = () => {
-					return old.call(that, e);
-				};
-				const { target } = e;
-				const isHTML = target instanceof HTMLElement;
-				const isSVG = target instanceof SVGElement;
-				if (!isHTML && !isSVG) return exit();
-
-				const isExact =
-					target instanceof HTMLElement &&
-					target.tagName.toLowerCase() === "span" &&
-					target.classList.contains("metadata-property-icon");
-
-				const trueTarget = isExact
-					? target
-					: target.closest<HTMLElement>(
-							"span.metadata-property-icon"
-					  );
-
-				if (!trueTarget) return exit();
-
-				const container = trueTarget.closest(
-					"div.metadata-property[data-property-key]"
-				)!;
-				const property =
-					container.getAttribute("data-property-key") ?? "";
-				// plugin.setMenu(that, trueTarget);
-				plugin.app.workspace.trigger(
-					"file-property-menu",
-					that,
-					property
-				);
-
-				return exit();
-			});
-		},
-	});
-
-	plugin.register(removePatch);
-};
-
-export type PatchedMetadataEditor = MetadataEditor & {
-	// toggleHiddenButton: HTMLDivElement;
-	moreOptionsButton: HTMLDivElement;
-	showHiddenProperties: boolean;
-	toggleHiddenProperties(): void;
-};
-
-const patchMetdataEditor = (plugin: BetterProperties) => {
-	const view = plugin.app.viewRegistry.viewByType["markdown"]({
-		containerEl: createDiv(),
-		app: plugin.app,
-	} as unknown as WorkspaceLeaf);
-	const MetadataEditorPrototype = Object.getPrototypeOf(
-		// @ts-ignore
-		view.metadataEditor
-	) as PatchedMetadataEditor;
-
-	MetadataEditorPrototype.toggleHiddenProperties = function () {
-		const shouldHide = this.showHiddenProperties;
-		if (shouldHide) {
-			this.containerEl.style.setProperty(
-				"--better-properties-hidden",
-				"none"
-			);
-		} else {
-			this.containerEl.style.setProperty(
-				"--better-properties-hidden",
-				"flex"
-			);
-		}
-		this.showHiddenProperties = !shouldHide;
-	};
-
-	const removePatch = around(MetadataEditorPrototype, {
-		load(old) {
-			return dedupe(monkeyAroundKey, old, function () {
-				// @ts-ignore
-				const that = this as PatchedMetadataEditor;
-				old.call(that);
-
-				that.containerEl.style.setProperty(
-					"--better-properties-hidden",
-					"none"
-				);
-				that.showHiddenProperties = false;
-
-				const moreOptionsButton = createDiv({
-					cls: "metadata-add-button text-icon-button",
-					attr: { tabIndex: 0 },
-				});
-				const iconEl = moreOptionsButton.createSpan({
-					cls: "text-button-icon",
-				});
-				moreOptionsButton.createSpan({
-					text: "More",
-					cls: "text-button-label",
-				});
-				setIcon(iconEl, "more-horizontal");
-
-				const onClickDoSync = async () => {
-					const file = that.app.workspace.activeEditor?.file;
-					if (!file) {
-						new Notice(text("notices.noFileMetadataEditor"));
-						return;
-					}
-					const metaCache = that.app.metadataCache.getFileCache(file);
-					if (!metaCache) {
-						new Notice(text("notices.noTemplateId"));
-						return;
-					}
-					const parsedId = getTemplateID(metaCache, plugin);
-					if (!parsedId) return;
-					if (!plugin.settings.showSyncTemplateWarning) {
-						await doSync(metaCache, plugin, parsedId);
-						return;
-					}
-					new SyncPropertiesModal(
-						plugin,
-						that,
-						metaCache,
-						parsedId
-					).open();
-				};
-
-				moreOptionsButton.addEventListener("click", (e) => {
-					new Menu()
-						.addItem((item) =>
-							item
-								.setSection("show-hidden")
-								.setTitle("Show hidden")
-								.setIcon("eye-off")
-								.setChecked(that.showHiddenProperties)
-								.onClick(() =>
-									that.toggleHiddenProperties.call(that)
-								)
-						)
-						.addItem((item) =>
-							item
-								.setSection("sync-properties")
-								.setTitle("Sync properties")
-								.setIcon("arrow-right-left")
-								.onClick(onClickDoSync)
-						)
-						.showAtMouseEvent(e);
-				});
-				that.moreOptionsButton = moreOptionsButton;
-				that.addPropertyButtonEl.insertAdjacentElement(
-					"afterend",
-					moreOptionsButton
-				);
-			});
-		},
-	});
-
-	plugin.register(removePatch);
-};
-
-const getTemplateID = (metaCache: CachedMetadata, plugin: BetterProperties) => {
-	const {
-		settings: { templateIdName },
-	} = plugin;
-
-	const findLower = () => {
-		const found = Object.keys(metaCache).find((key) => {
-			key.toLowerCase() === templateIdName;
-		});
-		if (!found) return null;
-		return metaCache[found as keyof typeof metaCache];
-	};
-
-	const id = metaCache?.frontmatter?.[templateIdName] ?? findLower();
-	if (!id) {
-		new Notice(text("notices.noTemplateId"));
-		return;
-	}
-	if (Array.isArray(id)) {
-		new Notice(text("notices.templateIdIsArray"));
-		return;
-	}
-	const parsedId: string = id.toString();
-	return parsedId;
-};
-
-const doSync = async (
-	// file: TFile,
-	metaCache: CachedMetadata,
-	plugin: BetterProperties,
-	templateId: string
-) => {
-	const {
-		settings: { templateIdName, templatePropertyName },
-		app,
-	} = plugin;
-
-	const parsedId = templateId;
-
-	const templateEntries = Object.entries(metaCache.frontmatter ?? {});
-
-	const hashes = Object.entries(app.metadataCache.metadataCache)
-		.map(([hash, metadata]) => {
-			if (!metadata.frontmatter) return null;
-			const exactMatch = metadata.frontmatter[templatePropertyName];
-			if (
-				exactMatch === parsedId ||
-				(Array.isArray(exactMatch) && exactMatch.includes(parsedId))
-			)
-				return hash;
-			// try to find case insensitively
-			const isMatch = Object.entries(metadata.frontmatter).some(
-				([prop, value]) => {
-					const a =
-						prop.toLowerCase() ===
-						templatePropertyName.toLowerCase();
-					const b1 = value === parsedId;
-					const b2 = Array.isArray(value) && value.includes(parsedId);
-					const b = b1 || b2;
-					return a && b;
-				}
-			);
-			return isMatch ? hash : null;
-		})
-		.filter((h) => h !== null);
-
-	const fileHashMap = new Map<string, TFile>();
-
-	Object.entries(app.metadataCache.fileCache).forEach(([path, { hash }]) => {
-		const f = app.vault.getFileByPath(path);
-		if (!f) return;
-		fileHashMap.set(hash, f);
-	});
-
-	let count = 0;
-	await Promise.all(
-		hashes.map(async (hash) => {
-			const f = fileHashMap.get(hash);
-			if (!f) return;
-			count++;
-			await app.fileManager.processFrontMatter(f, (fm) => {
-				templateEntries.forEach(([prop, val]) => {
-					// don't add the template id property
-					if (prop === templateIdName) return;
-					// if already has property, skip
-					if (
-						fm.hasOwnProperty(prop) ||
-						fm.hasOwnProperty(prop.toLowerCase())
-					)
-						return;
-					fm[prop] = val;
-					// TODO add flag to delete or keep props not in template
-				});
-			});
-		})
-	);
-
-	new Notice("Synchronized properties with " + count + " notes.");
-};
-
-class SyncPropertiesModal extends ConfirmationModal {
-	plugin: BetterProperties;
-	metadataEditor: MetadataEditor;
-	// file: TFile;
-	metaCache: CachedMetadata;
-	templateId: string;
-	constructor(
-		plugin: BetterProperties,
-		metadataeditor: MetadataEditor,
-		// file: TFile,
-		metaCache: CachedMetadata,
-		templateId: string
-	) {
-		super(plugin.app);
-		this.plugin = plugin;
-		this.metadataEditor = metadataeditor;
-		// this.file = file;
-		this.metaCache = metaCache;
-		this.templateId = templateId;
-	}
-
-	onOpen(): void {
-		const { contentEl, metaCache, plugin, templateId } = this;
-
-		contentEl.empty();
-
-		this.setTitle("Synchronize properties");
-
-		contentEl.createEl("p", {
-			text: "Synchronize this notes properties to others notes that match this note's property template id.",
-		});
-		contentEl.createEl("p", {
-			text: "This will only add properties from the template, so additional properties in the target notes will be unaffected.",
-		});
-		this.createButtonContainer();
-		this.createCheckBox({
-			text: "Don't ask again",
-			defaultChecked: !plugin.settings.showSyncTemplateWarning,
-			onChange: async (b) =>
-				plugin.updateSettings((prev) => ({
-					...prev,
-					showSyncTemplateWarning: !b,
-				})),
-		});
-		this.createFooterButton((cmp) =>
-			cmp.setButtonText("cancel").onClick(() => this.close())
-		).createFooterButton((cmp) =>
-			cmp
-				.setButtonText("synchronize")
-				.setCta()
-				.onClick(async () => {
-					await doSync(metaCache, this.plugin, templateId);
-					this.close();
-				})
-		);
-	}
-}
-
-// Might be useful later but not needed right now
-// const getMetdataEditorPrototype = (app: App) => {
-// 	app.workspace.onLayoutReady(() => {
-// 		const leaf = app.workspace.getLeaf("tab");
-// 		// const view = app.viewRegistry.viewByType["markdown"]({
-// 		// 	containerEl: createDiv(),
-// 		// 	app: app,
-// 		// } as unknown as WorkspaceLeaf);
-// 		const view = app.viewRegistry.viewByType["markdown"](leaf);
-// 		const properties = app.viewRegistry.viewByType["file-properties"](leaf);
-// 		const proto = Object.getPrototypeOf(
-// 			// @ts-ignore
-// 			view.metadataEditor
-// 		) as MetadataEditor;
-// 		proto._children = [];
-// 		proto.owner = {
-// 			getFile: () => {},
-// 		} as MarkdownView;
-// 		proto.addPropertyButtonEl
-// 		proto.propertyListEl = createDiv();
-// 		proto.containerEl = createDiv();
-// 		proto.app = app;
-// 		proto.save = () => {
-// 			console.log("save called");
-// 		};
-// 		proto.properties = [{ key: "fizz", type: "text", value: "bar" }];
-// 		proto.rendered = [];
-// 		// proto.insertProperties({ foo: "bar" });
-// 		proto.load();
-// 		proto.synchronize({ foo: "bar" });
-// 		const metadataEditorRow = Object.getPrototypeOf(proto.rendered[0]) as typeof proto.rendered[0];
-// 		const old = metadataEditorRow.showPropertyMenu
-// 		metadataEditorRow.showPropertyMenu = (e) => {
-// 			console.log('hi');
-// 		}
-// 		console.log("properties: ", properties);
-// 		console.log("view: ", view);
-// 		console.log("proto: ", proto);
-// 		leaf.detach();
-// 	});
-// };
