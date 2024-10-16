@@ -169,15 +169,14 @@ export const en: TranslationResource = {
 			settings: {
 				options: {
 					title: "Options",
-					desc: "Manage the available options for this dropdown. Value on the left will be what's saved to your note, and the Label on the right is what will be shown in the dropdown.",
+					desc: "Manage the available options for this dropdown. Entering duplicate values may cause unexpected behavior.",
 				},
 				dynamicOptions: {
 					title: "Dynamic options",
 					desc: "Use JavaScript to dynamically generate options for this dropdown in addition to the ones listed above. You can either type your code here and/or specify a .js file. Your code should, at the top level, return an array of objects with a key for label and value which are both strings ({value: string; label: string}[]).",
 					inlineJs: {
 						title: "Inline JavaScript",
-						placeholder:
-							'return [{value: "a", label: "Apples"}, {value: "b", label: "Bananas"}]',
+						placeholder: 'return [{value: "Apples"}, ...]',
 					},
 					fileJs: {
 						title: "Load from *.js file",
@@ -190,12 +189,26 @@ export const en: TranslationResource = {
 					placeholder: "Value",
 					tooltip: "Value",
 				},
-				label: {
-					placeholder: "Label (optional)",
-					tooltip: "Label",
+				configModal: {
+					title: "Configure option",
+					settings: {
+						labelSetting: {
+							title: "Label",
+							desc: "The label that is shown in the dropdown for this option.",
+						},
+						backgroundColorSetting: {
+							title: "Background color",
+							desc: "The background color of the dropdown when this option is selected. Enter any valid CSS color.",
+						},
+						textColorSetting: {
+							title: "Text color",
+							desc: "The text color of the dropdown when this option is selected. Enter any valid CSS color.",
+						},
+					},
 				},
 				moveDownTooltip: "Move option down",
 				moveUpTooltip: "Move option up",
+				configTooltip: "Configure",
 				removeTooltip: "Remove option",
 			},
 		},

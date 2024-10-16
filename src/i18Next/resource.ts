@@ -185,12 +185,26 @@ export type TranslationResource = {
 					placeholder: string;
 					tooltip: string;
 				};
-				label: {
-					placeholder: string;
-					tooltip: string;
+				configModal: {
+					title: string;
+					settings: {
+						labelSetting: {
+							title: string;
+							desc: string;
+						};
+						backgroundColorSetting: {
+							title: string;
+							desc: string;
+						};
+						textColorSetting: {
+							title: string;
+							desc: string;
+						};
+					};
 				};
 				moveUpTooltip: string;
 				moveDownTooltip: string;
+				configTooltip: string;
 				removeTooltip: string;
 			};
 		};

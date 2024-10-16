@@ -118,3 +118,8 @@ div.better-properties-metadata-property-markdown-div {
 .metadata-input-longtext.better-properties-dropdown-container {
 	display: inline-flex;
 }
+
+input.better-properties-dropdown-setting-input {
+	width: 100%;
+	max-width: none;
+}

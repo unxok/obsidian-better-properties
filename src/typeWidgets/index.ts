@@ -9,11 +9,11 @@ import { ColorWidget } from "./Color";
 import { MarkdownWidget } from "./Markdown";
 import { NumberPlusWidget } from "./NumberPlus";
 import { Component, setIcon } from "obsidian";
-import { TypeKeys, defaultPropertySettings } from "@/PropertySettings";
+import { defaultPropertySettings, PropertySettings } from "@/PropertySettings";
 import { StarsWidget } from "./Stars";
 
 export type CustomTypeWidget = {
-	type: keyof TypeKeys;
+	type: keyof PropertySettings;
 	icon: string;
 	default: () => unknown;
 	name: () => string;
@@ -40,7 +40,7 @@ const widgets: CustomTypeWidget[] = [
 export const registerCustomWidgets = (plugin: BetterProperties) => {
 	widgets.forEach((w) => {
 		const render = getWidgetRender(plugin, w.render);
-		const type = typeWidgetPrefix + w.type;
+		const type = typeWidgetPrefix + w.type.toString();
 		plugin.app.metadataTypeManager.registeredTypeWidgets[type] = {
 			...w,
 			type,

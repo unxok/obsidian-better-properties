@@ -1,19 +1,26 @@
 import {
 	AbstractInputSuggest,
 	App,
+	ColorComponent,
 	DropdownComponent,
 	Keymap,
+	Modal,
 	SearchComponent,
 	setIcon,
 	Setting,
 	TFile,
 } from "obsidian";
-import { defaultPropertySettings, PropertySettings } from "@/PropertySettings";
+import {
+	defaultPropertySettings,
+	PropertySettings,
+	PropertySettingsSchema,
+} from "@/PropertySettings";
 import BetterProperties from "@/main";
 import { CustomTypeWidget } from "..";
 import { arrayMove, dangerousEval } from "@/libs/utils/pure";
 import { createSection } from "@/libs/utils/setting";
 import { text } from "@/i18Next";
+import { TextColorComponent } from "@/classes/TextColorComponent";
 
 export const DropdownWidget: CustomTypeWidget = {
 	type: "dropdown",
@@ -73,14 +80,44 @@ export const DropdownWidget: CustomTypeWidget = {
 		setIcon(linkButton, "link");
 		updateLinkButton(data.value?.toString() ?? "");
 
+		const optionMap = new Map<string, (typeof options)[0]>();
+
+		const applyConfig = (v: string) => {
+			const data = optionMap.get(v);
+			if (!data) return;
+			const {
+				config: { backgroundColor, textColor },
+			} = data;
+			console.log("got data: ", data);
+			if (backgroundColor) {
+				dropdown.selectEl.style.setProperty(
+					"background-color",
+					backgroundColor
+				);
+			} else {
+				dropdown.selectEl.style.removeProperty("background-color");
+			}
+			if (textColor) {
+				dropdown.selectEl.style.setProperty("color", textColor);
+			} else {
+				dropdown.selectEl.style.removeProperty("color");
+			}
+		};
+
 		dropdown.onChange((v) => {
 			ctx.onChange(v);
 			updateLinkButton(v);
+			applyConfig(v);
 		});
 
 		(async () => {
-			const staticOptionsObj = options.reduce((acc, { label, value }) => {
+			const staticOptionsObj = options.reduce((acc, data) => {
+				const {
+					value,
+					config: { label },
+				} = data;
 				acc[value] = label || value;
+				optionMap.set(value, data);
 				return acc;
 			}, {} as Record<string, string>);
 
@@ -98,6 +135,8 @@ export const DropdownWidget: CustomTypeWidget = {
 			dropdown
 				.addOptions(optionsObj)
 				.setValue(data.value?.toString() ?? "");
+
+			applyConfig(data.value?.toString() ?? "");
 		})();
 	},
 };
@@ -110,12 +149,15 @@ const getDynamicOptionsInline = async (
 	try {
 		const func = dangerousEval(
 			`async () => {${inlineJs}}`
-		) as () => Promise<{ label: string; value: string }[]>;
+		) as () => Promise<PropertySettings["dropdown"]["options"]>;
 		const dynamicArr = await func();
+		const parsed = PropertySettingsSchema.removeCatch()
+			.shape.dropdown.removeCatch()
+			.shape.options.parse(dynamicArr);
 		if (!Array.isArray(dynamicArr)) throw new Error();
-		return dynamicArr.reduce(
-			(acc, { label, value }) => {
-				acc[value] = label;
+		return parsed.reduce(
+			(acc, { value, config: { label } }) => {
+				acc[value] = label || value;
 				return acc;
 			},
 			{ ...obj }
@@ -173,14 +215,14 @@ export const createDropdownSettings = (
 
 	const renderOptions = () => {
 		optionContainer.empty();
-		form.options.forEach(({ label, value }, index) =>
+		form.options.forEach((data, index) =>
 			createOption(
 				optionContainer,
 				updateOptions,
 				renderOptions,
-				label,
-				value,
-				index
+				data,
+				index,
+				plugin
 			)
 		);
 	};
@@ -193,14 +235,23 @@ export const createDropdownSettings = (
 			.setIcon("plus")
 			.onClick(() => {
 				const newOpts = [...form.options];
-				const newLen = newOpts.push({ label: "", value: "" });
+				const defaultData: PropertySettings["dropdown"]["options"][0] =
+					{
+						value: "",
+						config: {
+							label: "",
+							backgroundColor: "",
+							textColor: "",
+						},
+					};
+				const newLen = newOpts.push({ ...defaultData });
 				createOption(
 					optionContainer,
 					updateOptions,
 					renderOptions,
-					"",
-					"",
-					newLen - 1
+					{ ...defaultData },
+					newLen - 1,
+					plugin
 				);
 				updateForm("options", newOpts);
 			})
@@ -253,11 +304,15 @@ const createOption = (
 		) => PropertySettings["dropdown"]["options"]
 	) => void,
 	renderOptions: () => void,
-	label: string,
-	value: string,
-	index: number
+	data: PropertySettings["dropdown"]["options"][0],
+	index: number,
+	plugin: BetterProperties
 ) => {
+	const { value } = data;
 	const setting = new Setting(container);
+
+	// don't need this
+	setting.infoEl.remove();
 
 	setting
 		.addText((cmp) =>
@@ -272,32 +327,15 @@ const createOption = (
 						return prev;
 					});
 				})
-				.then((c) =>
+				.then((c) => {
 					c.inputEl.setAttribute(
 						"aria-label",
 						text("typeWidgets.dropdown.createOption.value.tooltip")
-					)
-				)
-		)
-		.addText((cmp) =>
-			cmp
-				.setPlaceholder(
-					text("typeWidgets.dropdown.createOption.label.placeholder")
-				)
-				.setValue(label)
-				.onChange((v) => {
-					updateOptions((prev) => {
-						const label = v ? v : prev[index].value;
-						prev[index].label = label;
-						return prev;
-					});
+					);
+					c.inputEl.classList.add(
+						"better-properties-dropdown-setting-input"
+					);
 				})
-				.then((c) =>
-					c.inputEl.setAttribute(
-						"aria-label",
-						text("typeWidgets.dropdown.createOption.label.tooltip")
-					)
-				)
 		)
 		.addExtraButton((cmp) =>
 			cmp
@@ -328,6 +366,26 @@ const createOption = (
 				.setTooltip(
 					text("typeWidgets.dropdown.createOption.moveDownTooltip")
 				)
+		)
+		.addExtraButton((cmp) =>
+			cmp
+				.setIcon("settings")
+				.onClick(() => {
+					const modal = new OptionConfigModal(
+						plugin.app,
+						data,
+						(cb: (prev: typeof data) => typeof data) =>
+							updateOptions((prev) => {
+								prev[index] = cb(prev[index]);
+								return [...prev];
+							})
+					);
+
+					modal.onClose = () => renderOptions();
+
+					modal.open();
+				})
+				.setTooltip("Configuration")
 		)
 		.addExtraButton((cmp) =>
 			cmp
@@ -374,5 +432,95 @@ class JsSuggest extends AbstractInputSuggest<TFile> {
 		this.searchCmp.setValue(file.path);
 		this.searchCmp.onChanged();
 		this.close();
+	}
+}
+
+class OptionConfigModal extends Modal {
+	option: PropertySettings["dropdown"]["options"][0];
+	updateOption: (
+		cb: (prev: OptionConfigModal["option"]) => OptionConfigModal["option"]
+	) => void;
+
+	constructor(
+		app: App,
+		option: OptionConfigModal["option"],
+		updateConfig: OptionConfigModal["updateOption"]
+	) {
+		super(app);
+		this.option = { ...option };
+		this.updateOption = updateConfig;
+	}
+
+	onOpen(): void {
+		const { contentEl, option } = this;
+		contentEl.empty();
+
+		this.setTitle(
+			text("typeWidgets.dropdown.createOption.configModal.title")
+		);
+
+		new Setting(contentEl)
+			.setName(
+				text(
+					"typeWidgets.dropdown.createOption.configModal.settings.labelSetting.title"
+				)
+			)
+			.setDesc(
+				text(
+					"typeWidgets.dropdown.createOption.configModal.settings.labelSetting.desc"
+				)
+			)
+			.addText((cmp) =>
+				cmp.setValue(option.config.label).onChange((v) => {
+					this.updateOption((prev) => ({
+						...prev,
+						config: { ...prev.config, label: v },
+					}));
+				})
+			);
+
+		new Setting(contentEl)
+			.setName(
+				text(
+					"typeWidgets.dropdown.createOption.configModal.settings.backgroundColorSetting.title"
+				)
+			)
+			.setDesc(
+				text(
+					"typeWidgets.dropdown.createOption.configModal.settings.backgroundColorSetting.desc"
+				)
+			)
+			.then((cmp) =>
+				new TextColorComponent(cmp.controlEl)
+					.setValue(option.config.backgroundColor)
+					.onChange((v) =>
+						this.updateOption((prev) => ({
+							...prev,
+							config: { ...prev.config, backgroundColor: v },
+						}))
+					)
+			);
+
+		new Setting(contentEl)
+			.setName(
+				text(
+					"typeWidgets.dropdown.createOption.configModal.settings.textColorSetting.title"
+				)
+			)
+			.setDesc(
+				text(
+					"typeWidgets.dropdown.createOption.configModal.settings.textColorSetting.desc"
+				)
+			)
+			.then((cmp) =>
+				new TextColorComponent(cmp.controlEl)
+					.setValue(option.config.textColor)
+					.onChange((v) =>
+						this.updateOption((prev) => ({
+							...prev,
+							config: { ...prev.config, textColor: v },
+						}))
+					)
+			);
 	}
 }

@@ -1,60 +1,60 @@
 import { z, ZodObject } from "zod";
 import { catchAndInfer } from "../libs/utils/zod";
 
-export type TypeKeys = PropertySettings;
+// export type TypeKeys = PropertySettings;
 
-export type PropertySettingsOld = {
-	general: {
-		hidden: boolean;
-		cssClass: string;
-		customIcon: string;
-		iconColor: string;
-		iconHoverColor: string;
-		labelColor: string;
-		textColor: string;
-	};
-	slider: {
-		min: number;
-		max: number;
-		step: number;
-		showLabels: boolean;
-	};
-	numberPlus: {
-		min: number;
-		max: number;
-		step: number;
-		validate: boolean;
-	};
-	dropdown: {
-		options: { value: string; label: string }[];
+// export type PropertySettingsOld = {
+// 	general: {
+// 		hidden: boolean;
+// 		cssClass: string;
+// 		customIcon: string;
+// 		iconColor: string;
+// 		iconHoverColor: string;
+// 		labelColor: string;
+// 		textColor: string;
+// 	};
+// 	slider: {
+// 		min: number;
+// 		max: number;
+// 		step: number;
+// 		showLabels: boolean;
+// 	};
+// 	numberPlus: {
+// 		min: number;
+// 		max: number;
+// 		step: number;
+// 		validate: boolean;
+// 	};
+// 	dropdown: {
+// 		options: { value: string; label: string }[];
 
-		dynamicInlineJs: string;
-		dynamicFileJs: string;
-	};
-	button: {
-		displayText: string;
-		icon: string;
-		callbackType: "inlineJs" | "fileJs" | "Command";
-		style:
-			| "default"
-			| "accent"
-			| "warning"
-			| "destructive"
-			| "muted"
-			| "ghost";
-		bgColor: string;
-		textColor: string;
-		cssClass: string;
-	};
-	toggle: {};
-	color: {};
-	markdown: {};
-	email: {};
-	stars: {
-		customIcon: string;
-		max: number;
-	};
-};
+// 		dynamicInlineJs: string;
+// 		dynamicFileJs: string;
+// 	};
+// 	button: {
+// 		displayText: string;
+// 		icon: string;
+// 		callbackType: "inlineJs" | "fileJs" | "Command";
+// 		style:
+// 			| "default"
+// 			| "accent"
+// 			| "warning"
+// 			| "destructive"
+// 			| "muted"
+// 			| "ghost";
+// 		bgColor: string;
+// 		textColor: string;
+// 		cssClass: string;
+// 	};
+// 	toggle: {};
+// 	color: {};
+// 	markdown: {};
+// 	email: {};
+// 	stars: {
+// 		customIcon: string;
+// 		max: number;
+// 	};
+// };
 
 // can't think of a way to have this typed properly but at least this avoids hard coding the keys somewhat
 // export const defaultPropertySettings: PropertySettings = {
@@ -145,10 +145,16 @@ export const PropertySettingsSchema = catchAndInfer(
 					.array(
 						z.object({
 							value: z.string().catch(""),
-							label: z.string().catch(""),
+							config: catchAndInfer(
+								z.object({
+									label: z.string().catch(""),
+									backgroundColor: z.string().catch(""),
+									textColor: z.string().catch(""),
+								})
+							),
 						})
 					)
-					.catch([{ value: "apples", label: "Apples" }]),
+					.catch([]),
 				dynamicInlineJs: z.string().catch(""),
 				dynamicFileJs: z.string().catch(""),
 			})
