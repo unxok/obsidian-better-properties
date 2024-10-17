@@ -8,6 +8,7 @@ import {
 	Menu,
 	parseYaml,
 	Plugin,
+	PluginSettingTab,
 	ProgressBarComponent,
 	TFile,
 	ValueComponent,
@@ -36,26 +37,6 @@ import { patchMetdataEditor } from "./monkey-patches/MetadataEditor";
 import { patchMenu } from "./monkey-patches/Menu";
 import { tryParseYaml } from "./libs/utils/obsidian";
 import { MetadataEditor } from "obsidian-typings";
-
-type BetterPropertiesSettingsOld = {
-	/* General */
-	showResetPropertySettingWarning: boolean;
-	/* Syncronization */
-	propertySettings: Record<string, PropertySettings>;
-	templatePropertyName: string;
-	templateIdName: string;
-	showSyncTemplateWarning: boolean;
-};
-
-const DEFAULT_SETTINGS_OLD: BetterPropertiesSettings = {
-	propertySettings: {},
-	/* General */
-	showResetPropertySettingWarning: true,
-	/* Syncronization */
-	templatePropertyName: "property-template",
-	templateIdName: "property-template-id",
-	showSyncTemplateWarning: true,
-};
 
 const BetterPropertiesSettingsSchema = catchAndInfer(
 	z.object({
