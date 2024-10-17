@@ -123,3 +123,14 @@ input.better-properties-dropdown-setting-input {
 	width: 100%;
 	max-width: none;
 }
+
+.better-properties-inline-property-widget {
+	display: inline-flex;
+}
+
+/* Not prefixed because it is meant to users to be able to easily use */
+.metadata-property-widget {
+	border: var(--metadata-border-width) var(--metadata-border-color) solid;
+	border-radius: var(--metadata-border-radius);
+	background-color: var(--metadata-background);
+}

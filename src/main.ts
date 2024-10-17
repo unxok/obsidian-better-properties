@@ -1,19 +1,4 @@
-import {
-	CachedMetadata,
-	ColorComponent,
-	Component,
-	FrontMatterCache,
-	MarkdownPostProcessorContext,
-	MarkdownRenderChild,
-	Menu,
-	parseYaml,
-	Plugin,
-	PluginSettingTab,
-	ProgressBarComponent,
-	TFile,
-	ValueComponent,
-	View,
-} from "obsidian";
+import { Menu, Plugin, ProgressBarComponent, View } from "obsidian";
 import { typeWidgetPrefix } from "./libs/constants";
 import {
 	addUsedBy,
@@ -35,8 +20,11 @@ import { catchAndInfer } from "./libs/utils/zod";
 import { findKeyInsensitive } from "./libs/utils/pure";
 import { patchMetdataEditor } from "./monkey-patches/MetadataEditor";
 import { patchMenu } from "./monkey-patches/Menu";
-import { tryParseYaml } from "./libs/utils/obsidian";
-import { MetadataEditor } from "obsidian-typings";
+import { createInlineCodePlugin } from "./classes/InlineCodeWidget";
+import {
+	insertPropertyEditorInline,
+	propertyCodeBlock,
+} from "./PropertyRenderer";
 
 const BetterPropertiesSettingsSchema = catchAndInfer(
 	z.object({
@@ -53,16 +41,6 @@ const BetterPropertiesSettingsSchema = catchAndInfer(
 
 type BetterPropertiesSettings = z.infer<typeof BetterPropertiesSettingsSchema>;
 
-const PropertyCodeBlockSchema = z.object({
-	propertyName: z
-		.string()
-		.min(1, "Property name must be at least one character."),
-	filePath: z
-		.string()
-		.min(1, "File path must be at least one character.")
-		.optional(),
-});
-
 export default class BetterProperties extends Plugin {
 	settings: BetterPropertiesSettings = BetterPropertiesSettingsSchema.parse(
 		{}
@@ -71,8 +49,10 @@ export default class BetterProperties extends Plugin {
 	menu: Menu | null = null;
 
 	async onload() {
+		this.registerEditorExtension([createInlineCodePlugin(this)]);
 		this.progressTesting();
 		await this.loadSettings();
+		// @ts-ignore obsidian-typings error
 		this.addSettingTab(new BetterPropertiesSettingTab(this));
 		registerCustomWidgets(this);
 		patchMenu(this);
@@ -80,9 +60,11 @@ export default class BetterProperties extends Plugin {
 		this.listenPropertyMenu();
 		this.rebuildLeaves();
 
+		this.addCommand(insertPropertyEditorInline);
+
 		this.app.workspace.onLayoutReady(() => {
 			this.registerMarkdownCodeBlockProcessor("property", (...args) =>
-				this.propertyCodeBlock(this, ...args)
+				propertyCodeBlock(this, ...args)
 			);
 		});
 	}
@@ -90,7 +72,7 @@ export default class BetterProperties extends Plugin {
 	progressTesting() {
 		this.registerMarkdownCodeBlockProcessor(
 			"progress",
-			(source, el, ctx) => {
+			(_source, el, _ctx) => {
 				el.empty();
 				const cmp = new ProgressBarComponent(el).setValue(75);
 				// @ts-ignore
@@ -103,178 +85,9 @@ export default class BetterProperties extends Plugin {
 					console.log("perc: ", percentage);
 					cmp.setValue(percentage);
 				});
-				console.log(cmp);
+				// console.log(cmp);
 			}
 		);
-	}
-
-	propertyCodeBlock(
-		plugin: this,
-		source: string,
-		el: HTMLElement,
-		ctx: MarkdownPostProcessorContext
-	): void {
-		el.empty();
-		const result = tryParseYaml(source);
-		if (!result.success) {
-			const msg =
-				result.error instanceof Error
-					? result.error.message
-					: "unknown error";
-			el.style.setProperty("color", "var(--text-error)");
-			el.createDiv({ text: "Failed to parse YAML." });
-			el.createDiv({ text: msg });
-			return;
-		}
-		const parsed = PropertyCodeBlockSchema.safeParse(result.data);
-		if (!parsed.success) {
-			el.style.setProperty("color", "var(--text-error)");
-			el.createDiv({ text: "Invalid config provided." });
-			parsed.error.issues.forEach((e) => {
-				el.createDiv({ text: e.path.join(", ") + ": " + e.message });
-			});
-			return;
-		}
-
-		const config = {
-			filePath: ctx.sourcePath,
-			...parsed.data,
-		};
-		const nameLower = config.propertyName.toLocaleLowerCase();
-
-		const typeInfo =
-			plugin.app.metadataTypeManager.getPropertyInfo(nameLower);
-
-		const getFrontmatter = () => {
-			const fileCacheRecord =
-				plugin.app.metadataCache.fileCache[config.filePath];
-			if (!fileCacheRecord) {
-				console.log("nope: ", config.filePath);
-				// deal with this
-				return;
-			}
-			const frontmatter =
-				plugin.app.metadataCache.metadataCache[fileCacheRecord.hash]
-					?.frontmatter;
-			return frontmatter;
-		};
-
-		const getValue = (frontmatter: FrontMatterCache) => {
-			const possibleValue = frontmatter.hasOwnProperty(
-				config.propertyName
-			)
-				? frontmatter[config.propertyName]
-				: findKeyInsensitive(config.propertyName, frontmatter);
-			return possibleValue ?? "";
-		};
-
-		const currentFm = getFrontmatter();
-		if (!currentFm) {
-			// deal with this
-			return;
-		}
-		const currentValue = getValue(currentFm);
-
-		const onMetadataChange = (
-			file: TFile,
-			_data: string,
-			cache: CachedMetadata
-		) => {
-			const newType =
-				plugin.app.metadataTypeManager.getPropertyInfo(nameLower)?.type;
-			if (file.path !== config.filePath) return;
-			const fm = cache.frontmatter;
-			if (!fm) {
-				// deal with this
-				return;
-			}
-			const value = getValue(fm);
-			if (value === currentValue) return;
-			render(value, newType);
-		};
-		plugin.app.metadataCache.on("changed", onMetadataChange);
-
-		const onTypeChange = (..._data: unknown[]) => {
-			const newType =
-				plugin.app.metadataTypeManager.getPropertyInfo(nameLower)?.type;
-			if (newType === typeInfo.type) return;
-			const fm = getFrontmatter();
-			if (!fm) {
-				// deal with this
-				return;
-			}
-			const value = getValue(fm);
-			render(value, newType);
-		};
-
-		plugin.app.metadataTypeManager.on("changed", onTypeChange);
-
-		const mdrc = new MarkdownRenderChild(el);
-		mdrc.register(() => {
-			// @ts-ignore
-			plugin.app.metadataCache.off("changed", onMetadataChange);
-			plugin.app.metadataTypeManager.off("changed", onTypeChange);
-		});
-
-		ctx.addChild(mdrc);
-		const fakeMetadataEditor: Pick<MetadataEditor, "register"> = {
-			register: (cb) => {
-				console.log("register called");
-				mdrc.register(cb);
-			},
-		};
-
-		const render = (value: unknown, type: string) => {
-			el.empty();
-
-			const widget =
-				plugin.app.metadataTypeManager.registeredTypeWidgets[type] ??
-				plugin.app.metadataTypeManager.registeredTypeWidgets["text"];
-			widget.render(
-				el,
-				{
-					key: config.propertyName,
-					type: typeInfo.type,
-					value,
-				},
-				{
-					app: plugin.app,
-					blur: () => {},
-					key: config.propertyName,
-					metadataEditor: fakeMetadataEditor as MetadataEditor,
-					onChange: (value) => {
-						console.log("value changed: ", value);
-						const file = plugin.app.vault.getFileByPath(
-							config.filePath
-						);
-						if (!file) {
-							// deal with this
-							console.log("no file found");
-							return;
-						}
-						plugin.app.fileManager.processFrontMatter(
-							file,
-							(fm) => {
-								const key = fm.hasOwnProperty(
-									config.propertyName
-								)
-									? config.propertyName
-									: findKeyInsensitive(
-											config.propertyName,
-											fm
-									  ) ?? config.propertyName;
-								fm[key] = value;
-							}
-						);
-					},
-					sourcePath:
-						plugin.app.workspace.activeEditor?.file?.path ?? "",
-				}
-			);
-		};
-
-		render(currentValue, typeInfo.type);
-		console.log("parsed: ", parsed.data);
 	}
 
 	onunload() {
@@ -387,6 +200,7 @@ export default class BetterProperties extends Plugin {
 
 	refreshPropertyEditor(property: string): void {
 		const lower = property.toLowerCase();
+		this.app.metadataTypeManager.trigger("changed", lower);
 		this.app.workspace.iterateAllLeaves((leaf) => {
 			if (!leaf.view.hasOwnProperty("metadataEditor")) return;
 			const view = leaf.view as View & {

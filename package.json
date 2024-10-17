@@ -13,6 +13,7 @@
 	"author": "",
 	"license": "MIT",
 	"devDependencies": {
+		"@codemirror/language": "^6.10.3",
 		"@types/node": "^22.7.4",
 		"@typescript-eslint/eslint-plugin": "5.29.0",
 		"@typescript-eslint/parser": "5.29.0",

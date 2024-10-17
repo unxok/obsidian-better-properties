@@ -87,11 +87,14 @@ Additional options shown when clickong in the icon next to the property key
 -   [ ] nested properties
     -   a way to do 'grouped' properties that are just objects in YAML. Dataview already supports these, so I could use them to create a copy of the metdataEditor for each nested property 'group'.
 -   [ ] render property within regular and inline codeblocks
+    -   First implementation ready, need to review and refine
+        -   [ ] Need to replace hard coded strings with i18next
+        -   [ ] Doesn't render in table cells. For reference, it looks like dataview has this issue but meta-bind doesn't.
     -   allow render of individual property editors that can update the current note or other notes.
-    -   inline code something like `&(key: string, filePath?: string, hideKey?: boolean)`
+    -   inline code something like `&=propertyName: <string>, fileName: <string | undefined>, cssClass: <string | undefined>`
     -   Codeblock something like
         -   ```yaml
-            key: <property-key>
-            filePath: <file-path> (defaults to current note)
-            hideKey: <boolean> (default false)
+            propertyName: <string>
+            filePath: <string | undefined> (defaults to current note)
+            cssClass: <string | undefined>
             ```

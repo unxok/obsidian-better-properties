@@ -88,7 +88,7 @@ export const DropdownWidget: CustomTypeWidget = {
 			const {
 				config: { backgroundColor, textColor },
 			} = data;
-			console.log("got data: ", data);
+			// console.log("got data: ", data);
 			if (backgroundColor) {
 				dropdown.selectEl.style.setProperty(
 					"background-color",

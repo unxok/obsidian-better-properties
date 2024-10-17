@@ -14,6 +14,15 @@ export class ConfirmationModal extends Modal {
 		}));
 	}
 
+	getButtonContainer(): HTMLDivElement {
+		const { buttonContainer, contentEl } = this;
+		if (contentEl.contains(buttonContainer)) {
+			return buttonContainer;
+		}
+		const container = this.createButtonContainer();
+		return container;
+	}
+
 	createCheckBox(options: {
 		text?: string;
 		defaultChecked?: boolean;
@@ -24,7 +33,7 @@ export class ConfirmationModal extends Modal {
 			defaultChecked = false,
 			onChange = () => {},
 		} = options;
-		const { buttonContainer } = this;
+		const buttonContainer = this.getButtonContainer();
 		const input = buttonContainer
 			.createEl("label", { cls: "mod-checkbox" })
 			.createEl("input", {
@@ -45,7 +54,7 @@ export class ConfirmationModal extends Modal {
 	}
 
 	createFooterButton(cb: (cmp: ButtonComponent) => void): this {
-		const cmp = new ButtonComponent(this.buttonContainer);
+		const cmp = new ButtonComponent(this.getButtonContainer());
 		cb(cmp);
 		return this;
 	}

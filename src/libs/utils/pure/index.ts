@@ -55,3 +55,22 @@ export const findKeyInsensitive = (
 	);
 	return found ?? null;
 };
+
+type ParseJsonResult =
+	| {
+			success: true;
+			data: unknown;
+	  }
+	| {
+			success: false;
+			error: unknown;
+	  };
+
+export const tryParseJson: (str: string) => ParseJsonResult = (str) => {
+	try {
+		const data: unknown = JSON.parse(str);
+		return { success: true, data };
+	} catch (error) {
+		return { success: false, error };
+	}
+};
