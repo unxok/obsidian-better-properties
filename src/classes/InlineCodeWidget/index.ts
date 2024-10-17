@@ -79,17 +79,19 @@ class InlineCodeWidget extends WidgetType {
 			mdrc
 		);
 
+		console.log("el: ", el);
 		return el;
 	}
 
 	ignoreEvent(event: MouseEvent | Event): boolean {
 		// instanceof check does not work in pop-out windows, so check it like this
 		if (event.type !== "mousedown") return true;
+		const e = event as MouseEvent;
 		const currentPos = this.view.posAtCoords({
-			x: (event as MouseEvent).x,
-			y: (event as MouseEvent).y,
+			x: e.x,
+			y: e.y,
 		});
-		if ((event as MouseEvent).shiftKey) {
+		if (e.shiftKey) {
 			// Set the cursor after the element so that it doesn't select starting from the last cursor position.
 			if (currentPos) {
 				const { editor } = this.view.state.field(editorInfoField);
@@ -104,8 +106,7 @@ class InlineCodeWidget extends WidgetType {
 	}
 
 	eq(widget: InlineCodeWidget): boolean {
-		if (widget.codeText === this.codeText) return true;
-		return false;
+		return widget.codeText === this.codeText;
 	}
 }
 
@@ -189,6 +190,8 @@ export const createInlineCodePlugin = (plugin: BetterProperties) => {
 
 							const file = view.state.field(editorInfoField).file;
 							if (!file) return;
+
+							console.log("got node: ", node);
 
 							let widget = Decoration.replace({
 								widget: new InlineCodeWidget(
