@@ -11,6 +11,7 @@ import { EditorSelection, Range } from "@codemirror/state";
 import {
 	editorInfoField,
 	editorLivePreviewField,
+	MarkdownPostProcessor,
 	MarkdownRenderChild,
 	TFile,
 } from "obsidian";
@@ -27,6 +28,81 @@ import {
 // TODO make this configurable
 export const codePrefix = "&=";
 
+type RenderInlinePropertyEditor = (
+	codeText: string,
+	plugin: BetterProperties,
+	file: TFile,
+	element?: HTMLElement
+) => { el: HTMLElement; mdrc?: MarkdownRenderChild };
+const renderInlinePropertyEditor: RenderInlinePropertyEditor = (
+	codeText,
+	plugin,
+	file,
+	element
+) => {
+	const el = document.createElement("span");
+	if (element) {
+		element.replaceWith(el);
+	}
+	el.classList.add("better-properties-inline-property-widget");
+	const jsonStr = "[" + codeText.slice(codePrefix.length) + "]";
+	const result = tryParseYaml(jsonStr);
+	if (!result.success) {
+		const msg =
+			result.error instanceof Error
+				? result.error.message
+				: "unknown error";
+		renderYamlParseError(el, msg);
+		return { el };
+	}
+
+	const transformed = tryTransformInlineData(result.data);
+	if (!transformed) {
+		const msg = "Expected array, received something else.";
+		renderYamlParseError(el, msg);
+		return { el };
+	}
+
+	const parsed = PropertyCodeBlockSchema.safeParse(transformed);
+	if (!parsed.success) {
+		renderZodParseError(el, parsed.error);
+		return { el };
+	}
+
+	const mdrc = new MarkdownRenderChild(el);
+
+	renderPropertyTypeWidget(el, parsed.data, plugin, file.path, mdrc);
+
+	return { el, mdrc };
+};
+
+export const createPostProcessInlinePropertyEditor = (
+	plugin: BetterProperties
+) => {
+	const postProcessInlinePropertyEditor: MarkdownPostProcessor = (
+		el,
+		ctx
+	) => {
+		const codeEl =
+			el.tagName.toLowerCase() === "code" ? el : el.find("code");
+		if (!codeEl) return;
+		if (codeEl?.tagName.toLowerCase() !== "code") return;
+		const text = codeEl.textContent;
+		if (!text) return;
+		if (!text.startsWith(codePrefix)) return;
+		const file = plugin.app.vault.getFileByPath(ctx.sourcePath);
+		if (!file) {
+			// TODO handle better
+			return;
+		}
+		// el.empty();
+		const { mdrc } = renderInlinePropertyEditor(text, plugin, file, codeEl);
+		if (!mdrc) return;
+		ctx.addChild(mdrc);
+	};
+	return postProcessInlinePropertyEditor;
+};
+
 // Define a widget to replace the inline code block
 class InlineCodeWidget extends WidgetType {
 	constructor(
@@ -39,47 +115,23 @@ class InlineCodeWidget extends WidgetType {
 	}
 
 	toDOM(): HTMLElement {
-		const el = document.createElement("span");
-		el.classList.add("better-properties-inline-property-widget");
-		const jsonStr = "[" + this.codeText.slice(codePrefix.length) + "]";
-		const result = tryParseYaml(jsonStr);
-		if (!result.success) {
-			const msg =
-				result.error instanceof Error
-					? result.error.message
-					: "unknown error";
-			renderYamlParseError(el, msg);
-			return el;
-		}
-
-		const transformed = tryTransformData(result.data);
-		if (!transformed) {
-			const msg = "Expected array, received something else.";
-			renderYamlParseError(el, msg);
-			return el;
-		}
-
-		const parsed = PropertyCodeBlockSchema.safeParse(transformed);
-		if (!parsed.success) {
-			renderZodParseError(el, parsed.error);
-			return el;
-		}
-
-		const mdrc = new MarkdownRenderChild(el);
+		const { el, mdrc } = renderInlinePropertyEditor(
+			this.codeText,
+			this.plugin,
+			this.file
+		);
 		this.destroy = function (dom) {
 			dom.remove();
-			mdrc.unload();
+			mdrc && mdrc.unload();
 		};
 
-		renderPropertyTypeWidget(
-			el,
-			parsed.data,
-			this.plugin,
-			this.file.path,
-			mdrc
-		);
+		const field = this.view.state.field(editorInfoField);
+		// console.log("view: ", this.view);
+		if (field.editor?.inTableCell) {
+			console.log("got field: ", field);
+			console.log("view: ", this.view);
+		}
 
-		console.log("el: ", el);
 		return el;
 	}
 
@@ -124,10 +176,10 @@ export const createInlineCodePlugin = (plugin: BetterProperties) => {
 			}
 
 			update(update: ViewUpdate) {
-				if (!update.state.field(editorLivePreviewField)) {
-					this.decorations = Decoration.none;
-					return;
-				}
+				// if (!update.state.field(editorLivePreviewField)) {
+				// 	this.decorations = Decoration.none;
+				// 	return;
+				// }
 				if (
 					!(
 						update.docChanged ||
@@ -160,7 +212,8 @@ export const createInlineCodePlugin = (plugin: BetterProperties) => {
 							let codeText = view.state.doc.sliceString(
 								node.from,
 								node.to
-							); // Extract text between the backticks
+							);
+							// Extract text between the backticks
 							const isBP = codeText.startsWith(codePrefix);
 							const selOverlap = selectionAndRangeOverlap(
 								view.state.selection,
@@ -191,8 +244,6 @@ export const createInlineCodePlugin = (plugin: BetterProperties) => {
 							const file = view.state.field(editorInfoField).file;
 							if (!file) return;
 
-							console.log("got node: ", node);
-
 							let widget = Decoration.replace({
 								widget: new InlineCodeWidget(
 									codeText,
@@ -200,7 +251,7 @@ export const createInlineCodePlugin = (plugin: BetterProperties) => {
 									file,
 									view
 								),
-								side: 1,
+								// side: 1,
 							}).range(node.from - 1, node.to + 1);
 							widgets.push(widget);
 						},
@@ -225,15 +276,13 @@ const selectionAndRangeOverlap = (
 	rangeTo: number
 ) => {
 	for (const range of selection.ranges) {
-		if (range.from <= rangeTo && range.to >= rangeFrom) {
-			return true;
-		}
+		return range.from <= rangeTo && range.to >= rangeFrom;
 	}
 
 	return false;
 };
 
-const tryTransformData = (data: unknown) => {
+const tryTransformInlineData = (data: unknown) => {
 	if (!Array.isArray(data)) return null;
 	const rec: Record<string, string> = {};
 	for (let i = 0; i < data.length; i++) {

@@ -27,6 +27,8 @@ export type TranslationResource = {
 		reset: string;
 		resetToDefault: string;
 		more: string;
+		insertInline: string;
+		insertBlock: string;
 	};
 	BetterPropertiesSettingTab: {
 		settings: {
@@ -275,6 +277,29 @@ export type TranslationResource = {
 			};
 		};
 		toggle: {
+			name: string;
+		};
+	};
+	propertyEditor: {
+		insertModal: {
+			title: string;
+			desc: string;
+			settings: {
+				propertyNameSetting: {
+					title: string;
+					desc: string;
+				};
+				filePathSetting: {
+					title: string;
+					desc: string;
+				};
+				cssClassSetting: {
+					title: string;
+					desc: string;
+				};
+			};
+		};
+		insertCommand: {
 			name: string;
 		};
 	};

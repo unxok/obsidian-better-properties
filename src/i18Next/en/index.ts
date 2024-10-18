@@ -28,6 +28,8 @@ export const en: TranslationResource = {
 		reset: "Reset",
 		resetToDefault: "Reset to default",
 		more: "More",
+		insertInline: "Insert inline",
+		insertBlock: "Insert block",
 	},
 	metadataMoreOptionsMenu: {
 		showHidden: "Show hidden",
@@ -280,6 +282,29 @@ export const en: TranslationResource = {
 		},
 		toggle: {
 			name: "Toggle",
+		},
+	},
+	propertyEditor: {
+		insertModal: {
+			title: "Insert property editor",
+			desc: "Insert syntax into the editor to render an editable property value.",
+			settings: {
+				propertyNameSetting: {
+					title: "Property name",
+					desc: "The name of the frontmatter property to edit.",
+				},
+				filePathSetting: {
+					title: "File path",
+					desc: "The path to the file to update. Defaults to current file.",
+				},
+				cssClassSetting: {
+					title: "CSS Class",
+					desc: "The CSS class to set for the element. Separate multiple names with a space.",
+				},
+			},
+		},
+		insertCommand: {
+			name: "Insert property editor",
 		},
 	},
 };

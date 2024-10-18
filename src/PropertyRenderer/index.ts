@@ -2,6 +2,7 @@ import { ConfirmationModal } from "@/classes/ConfirmationModal";
 import { FileSuggest } from "@/classes/FileSuggest";
 import { codePrefix } from "@/classes/InlineCodeWidget";
 import { PropertySuggest } from "@/classes/PropertySuggest";
+import { text } from "@/i18Next";
 import { tryParseYaml } from "@/libs/utils/obsidian";
 import { findKeyInsensitive } from "@/libs/utils/pure";
 import BetterProperties from "@/main";
@@ -15,6 +16,8 @@ import {
 	Command,
 	App,
 	Setting,
+	Editor,
+	stringifyYaml,
 } from "obsidian";
 import { MetadataEditor, PropertyInfo } from "obsidian-typings";
 import { z, ZodError } from "zod";
@@ -230,19 +233,11 @@ export const propertyCodeBlock = (
 	renderPropertyTypeWidget(el, parsed.data, plugin, ctx.sourcePath, mdrc);
 };
 
-export const insertPropertyEditorInline: Command = {
-	id: "insert-inline-property-editor",
-	name: "Insert inline property editor",
+export const insertPropertyEditor: Command = {
+	id: "insert-property-editor",
+	name: text("propertyEditor.insertCommand.name"),
 	editorCallback: (editor, ctx) => {
-		const modal = new InsertPropertyEditorModal(ctx.app, (data) => {
-			const entries = Object.entries(data)
-				.map(([key, value]) => key + ": " + value)
-				.join(", ");
-			const str = "`" + codePrefix + entries + "`";
-			const pos = editor.getCursor();
-			editor.replaceRange(str, pos, pos);
-			modal.close();
-		});
+		const modal = new InsertPropertyEditorModal(ctx.app, editor);
 		modal.open();
 	},
 };
@@ -250,35 +245,49 @@ export const insertPropertyEditorInline: Command = {
 class InsertPropertyEditorModal extends ConfirmationModal {
 	constructor(
 		app: App,
-		private onSubmit: (data: PropertyRendererData) => void
+		// private onSubmit: (data: PropertyRendererData) => void
+		private editor: Editor,
+		private initialData?: PropertyRendererData
 	) {
 		super(app);
 	}
 
 	onOpen(): void {
-		const { contentEl, onSubmit } = this;
+		const { contentEl, app, editor, initialData } = this;
 		contentEl.empty();
-		this.setTitle("Insert property editor");
+		this.setTitle(text("propertyEditor.insertModal.title"));
 		contentEl.createEl("p", {
-			text: "Insert syntax into the editor to render an editable property value.",
+			text: text("propertyEditor.insertModal.desc"),
 		});
 
-		const data: PropertyRendererData = {
+		const data: PropertyRendererData = initialData ?? {
 			propertyName: "",
 		};
 
 		new Setting(contentEl)
-			.setName("Property name")
-			.setDesc("The name of the frontmatter property to edit.")
+			.setName(
+				text(
+					"propertyEditor.insertModal.settings.propertyNameSetting.title"
+				)
+			)
+			.setDesc(
+				text(
+					"propertyEditor.insertModal.settings.propertyNameSetting.desc"
+				)
+			)
 			.addSearch((cmp) => {
 				cmp.onChange((v) => (data.propertyName = v));
-				new PropertySuggest(this.app, cmp);
+				new PropertySuggest(app, cmp);
 			});
 
 		new Setting(contentEl)
-			.setName("File path")
+			.setName(
+				text(
+					"propertyEditor.insertModal.settings.filePathSetting.title"
+				)
+			)
 			.setDesc(
-				"The path to the file to update. Defaults to current file."
+				text("propertyEditor.insertModal.settings.filePathSetting.desc")
 			)
 			.addSearch((cmp) => {
 				cmp.onChange((v) => (data.filePath = v));
@@ -286,17 +295,39 @@ class InsertPropertyEditorModal extends ConfirmationModal {
 			});
 
 		new Setting(contentEl)
-			.setName("CSS Class")
+			.setName(
+				text(
+					"propertyEditor.insertModal.settings.cssClassSetting.title"
+				)
+			)
 			.setDesc(
-				"The CSS class to set for the element. Separate multiple names with a space."
+				text("propertyEditor.insertModal.settings.cssClassSetting.desc")
 			)
 			.addText((cmp) => cmp.onChange((v) => (data.cssClass = v)));
 
 		this.createFooterButton((cmp) =>
 			cmp
 				.setCta()
-				.setButtonText("insert")
-				.onClick(() => this.onSubmit(data))
+				.setButtonText(text("buttonText.insertInline"))
+				.onClick(() => {
+					const entries = Object.entries(data)
+						.map(([key, value]) => key + ": " + value)
+						.join(", ");
+					const str = "`" + codePrefix + entries + "`";
+					editor.replaceSelection(str);
+					this.close();
+				})
+		);
+
+		this.createFooterButton((cmp) =>
+			cmp
+				.setCta()
+				.setButtonText(text("buttonText.insertBlock"))
+				.onClick(() => {
+					const str = "```property\n" + stringifyYaml(data) + "```";
+					editor.replaceSelection(str);
+					this.close();
+				})
 		);
 	}
 }

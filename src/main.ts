@@ -20,11 +20,11 @@ import { catchAndInfer } from "./libs/utils/zod";
 import { findKeyInsensitive } from "./libs/utils/pure";
 import { patchMetdataEditor } from "./monkey-patches/MetadataEditor";
 import { patchMenu } from "./monkey-patches/Menu";
-import { createInlineCodePlugin } from "./classes/InlineCodeWidget";
 import {
-	insertPropertyEditorInline,
-	propertyCodeBlock,
-} from "./PropertyRenderer";
+	createInlineCodePlugin,
+	createPostProcessInlinePropertyEditor,
+} from "./classes/InlineCodeWidget";
+import { insertPropertyEditor, propertyCodeBlock } from "./PropertyRenderer";
 
 const BetterPropertiesSettingsSchema = catchAndInfer(
 	z.object({
@@ -52,7 +52,6 @@ export default class BetterProperties extends Plugin {
 		this.registerEditorExtension([createInlineCodePlugin(this)]);
 		this.progressTesting();
 		await this.loadSettings();
-		// @ts-ignore obsidian-typings error
 		this.addSettingTab(new BetterPropertiesSettingTab(this));
 		registerCustomWidgets(this);
 		patchMenu(this);
@@ -60,13 +59,14 @@ export default class BetterProperties extends Plugin {
 		this.listenPropertyMenu();
 		this.rebuildLeaves();
 
-		this.addCommand(insertPropertyEditorInline);
+		this.addCommand(insertPropertyEditor);
 
-		this.app.workspace.onLayoutReady(() => {
-			this.registerMarkdownCodeBlockProcessor("property", (...args) =>
-				propertyCodeBlock(this, ...args)
-			);
-		});
+		this.registerMarkdownCodeBlockProcessor("property", (...args) =>
+			propertyCodeBlock(this, ...args)
+		);
+		this.registerMarkdownPostProcessor(
+			createPostProcessInlinePropertyEditor(this)
+		);
 	}
 
 	progressTesting() {

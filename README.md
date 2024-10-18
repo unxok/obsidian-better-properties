@@ -89,7 +89,8 @@ Additional options shown when clickong in the icon next to the property key
 -   [ ] render property within regular and inline codeblocks
     -   First implementation ready, need to review and refine
         -   [ ] Need to replace hard coded strings with i18next
-        -   [ ] Doesn't render in table cells. For reference, it looks like dataview has this issue but meta-bind doesn't.
+        -   [x] Doesn't render in table cells. For reference, it looks like dataview has this issue but meta-bind doesn't.
+            -   Fixed. However, when you click the cell obsidian switches the cell from reading to live-preview and places the cursor in the code text and unrenders the widget. Don't know a solution yet. Meta-bind has the same problem.
     -   allow render of individual property editors that can update the current note or other notes.
     -   inline code something like `&=propertyName: <string>, fileName: <string | undefined>, cssClass: <string | undefined>`
     -   Codeblock something like
