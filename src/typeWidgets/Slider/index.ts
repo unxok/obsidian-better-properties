@@ -18,7 +18,7 @@ export const SliderWidget: CustomTypeWidget = {
 		};
 		const container = el
 			.createDiv({
-				cls: "metadata-input-longtext",
+				// cls: "metadata-input-longtext",
 			})
 			.createDiv({
 				cls: "better-properties-flex-center better-properties-w-fit",

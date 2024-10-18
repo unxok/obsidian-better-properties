@@ -29,6 +29,11 @@ export const getButtonStyledClass = (
 	return "";
 };
 
+/**
+ * Returns a number or the min or max if it's out of bounds.
+ *
+ * Is inclusive with min and max by default.
+ */
 export const clampNumber = (
 	num: number,
 	min: number,

@@ -11,6 +11,7 @@ import { NumberPlusWidget } from "./NumberPlus";
 import { Component, setIcon } from "obsidian";
 import { defaultPropertySettings, PropertySettings } from "@/PropertySettings";
 import { StarsWidget } from "./Stars";
+import { ProgressWidget } from "./Progress";
 
 export type CustomTypeWidget = {
 	type: keyof PropertySettings;
@@ -35,6 +36,7 @@ const widgets: CustomTypeWidget[] = [
 	MarkdownWidget,
 	NumberPlusWidget,
 	StarsWidget,
+	ProgressWidget,
 ];
 
 export const registerCustomWidgets = (plugin: BetterProperties) => {

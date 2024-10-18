@@ -125,7 +125,12 @@ input.better-properties-dropdown-setting-input {
 }
 
 .better-properties-inline-property-widget {
+	height: 1lh;
 	display: inline-flex;
+	align-items: end;
+	& .setting-progress-bar {
+		min-width: 100px;
+	}
 }
 
 /* Not prefixed because it is meant to users to be able to easily use */
@@ -133,4 +138,45 @@ input.better-properties-dropdown-setting-input {
 	border: var(--metadata-border-width) var(--metadata-border-color) solid;
 	border-radius: var(--metadata-border-radius);
 	background-color: var(--metadata-background);
+
+	& .metadata-input-longtext {
+		padding: 0;
+	}
+}
+
+.metadata-property-value {
+	& .setting-progress-bar {
+		width: 100px;
+	}
+
+	&:has(.setting-progress-bar) {
+		padding: var(--size-4-1) var(--size-4-2);
+	}
+}
+
+.better-properties-progress-inp-container {
+	position: relative;
+	display: inline-flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.better-properties-progress-percent {
+	position: absolute;
+	right: 0.75ch;
+	color: var(--text-muted);
+}
+
+.better-properties-progress-container {
+	display: inline-flex;
+	justify-content: center;
+	align-items: center;
+	gap: var(--size-4-1);
+
+	& .metadata-input-number:first-child {
+		padding-left: 0;
+	}
+	& .metadata-input-number:last-child {
+		padding-right: 0;
+	}
 }

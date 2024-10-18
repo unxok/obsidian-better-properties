@@ -66,6 +66,8 @@ export const renderPropertyTypeWidget = (
 		...data,
 	};
 
+	el.classList.add("metadata-property");
+
 	if (data.cssClass) {
 		const arr = data.cssClass.split(" ");
 		el.classList.add(...arr);
@@ -203,6 +205,28 @@ export const renderPropertyTypeWidget = (
 
 	render(currentValue, typeInfo.type);
 	// console.log("parsed: ", parsed.data);
+
+	/* 
+	TODO 
+	- table cell places cursor in inline-code text on click
+	- causing the widget to not be interactable in live preview
+	- unless there's a separate token in the cell where the cursor can be placed
+	- stopImmediatePropagation() stopImmediatePropagation() don't work at all
+	- preventDefault() causes clickables (like data calendar button) to not work
+	*/
+	// let shouldPreventDefault = true;
+	// el.addEventListener("click", (e) => {
+	// 	if (!el.matchParent("div.table-cell-wrapper")) return;
+	// 	console.log("click: ", shouldPreventDefault);
+	// 	e.stopImmediatePropagation();
+	// 	e.stopImmediatePropagation();
+	// 	if (shouldPreventDefault) {
+	// 		e.preventDefault();
+	// 		shouldPreventDefault = false;
+	// 	}
+	// });
+
+	// el.addEventListener("focusout", () => (shouldPreventDefault = true));
 };
 
 export const propertyCodeBlock = (

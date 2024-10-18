@@ -197,6 +197,8 @@ export const PropertySettingsSchema = catchAndInfer(
 				max: z.number().catch(5),
 			})
 		),
+
+		progress: catchAndInfer(z.object({})),
 	})
 );
 

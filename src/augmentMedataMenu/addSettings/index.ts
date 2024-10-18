@@ -21,6 +21,7 @@ import { createStarsSettings } from "@/typeWidgets/Stars";
 import { ConfirmationModal } from "@/classes/ConfirmationModal";
 import { text } from "@/i18Next";
 import { createSection } from "@/libs/utils/setting";
+import { createProgressSettings } from "@/typeWidgets/Progress";
 
 export const addSettings = ({ menu, plugin, key }: MetadataAddItemProps) => {
 	menu.addItem((item) =>
@@ -221,6 +222,13 @@ class SettingsModal extends Modal {
 					this.form["stars"],
 					(key, value) => this.updateForm("stars", key, value),
 					this.plugin
+				);
+			case "progress":
+				return createProgressSettings(
+					contentEl,
+					this.form["progress"],
+					(key, value) => this.updateForm("progress", key, value)
+					// this.plugin
 				);
 			default:
 				new Setting(contentEl)
