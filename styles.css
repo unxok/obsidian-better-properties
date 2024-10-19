@@ -125,19 +125,30 @@ input.better-properties-dropdown-setting-input {
 }
 
 .better-properties-inline-property-widget {
-	height: 1lh;
+	min-height: 1lh;
 	display: inline-flex;
-	align-items: end;
+	align-items: center;
+	justify-content: center;
+	padding-inline: var(--size-4-2);
+	padding-top: var(--size-2-1);
+	padding-bottom: var(--size-2-1);
 	& .setting-progress-bar {
 		min-width: 100px;
+	}
+
+	& .multi-select-pill {
+		text-wrap: nowrap;
+		& .multi-select-pill-content {
+			text-overflow: unset;
+		}
 	}
 }
 
 /* Not prefixed because it is meant to users to be able to easily use */
 .metadata-property-widget {
-	border: var(--metadata-border-width) var(--metadata-border-color) solid;
-	border-radius: var(--metadata-border-radius);
-	background-color: var(--metadata-background);
+	border: 1px var(--background-modifier-border) solid;
+	border-radius: var(--radius-s);
+	background-color: var(--background-secondary);
 
 	& .metadata-input-longtext {
 		padding: 0;
@@ -159,6 +170,11 @@ input.better-properties-dropdown-setting-input {
 	display: inline-flex;
 	justify-content: center;
 	align-items: center;
+
+	& input.metadata-input.metadata-input-number[type="number"] {
+		padding: 0;
+		height: fit-content;
+	}
 }
 
 .better-properties-progress-percent {
