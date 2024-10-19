@@ -83,10 +83,16 @@ export const createPostProcessInlinePropertyEditor = (
 		el,
 		ctx
 	) => {
-		const codeEl =
-			el.tagName.toLowerCase() === "code" ? el : el.find("code");
+		// const codeEl =
+		// 	el.tagName.toLowerCase() === "code" ? el : el.find("code");
+		const codeEl = el;
+		if (codeEl?.tagName.toLowerCase() !== "code") {
+			const arr = codeEl.findAll("code");
+			return arr.forEach((code) =>
+				postProcessInlinePropertyEditor(code, ctx)
+			);
+		}
 		if (!codeEl) return;
-		if (codeEl?.tagName.toLowerCase() !== "code") return;
 		const text = codeEl.textContent;
 		if (!text) return;
 		if (!text.startsWith(codePrefix)) return;
@@ -158,7 +164,9 @@ class InlineCodeWidget extends WidgetType {
 	}
 
 	eq(widget: InlineCodeWidget): boolean {
-		return widget.codeText === this.codeText;
+		return false;
+		// TODO need to check position in doc as well
+		// return widget.codeText === this.codeText;
 	}
 }
 
