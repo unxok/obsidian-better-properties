@@ -18,6 +18,8 @@ export abstract class InputSuggest<T> extends AbstractInputSuggest<T> {
 	constructor(app: App, component: SearchComponent | TextComponent) {
 		super(app, component.inputEl);
 		this.component = component;
+
+		console.log("input sugg: ", this);
 	}
 
 	/**

@@ -25,6 +25,7 @@ import {
 	createPostProcessInlinePropertyEditor,
 } from "./classes/InlineCodeWidget";
 import { insertPropertyEditor, propertyCodeBlock } from "./PropertyRenderer";
+import { patchAbstractInputSuggest } from "./monkey-patches/AbstractInputSuggest";
 
 const BetterPropertiesSettingsSchema = catchAndInfer(
 	z.object({
@@ -56,6 +57,7 @@ export default class BetterProperties extends Plugin {
 		registerCustomWidgets(this);
 		patchMenu(this);
 		patchMetdataEditor(this);
+		patchAbstractInputSuggest(this);
 		this.listenPropertyMenu();
 		this.rebuildLeaves();
 

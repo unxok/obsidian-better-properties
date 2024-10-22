@@ -11,4 +11,8 @@ declare module "obsidian" {
 
 		randomTest(): void;
 	}
+
+	interface AbstractInputSuggest<T> extends PopoverSuggest<T> {
+		showSuggestions: (suggestions: T[]) => void;
+	}
 }

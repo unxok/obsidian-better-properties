@@ -10,7 +10,7 @@
 		"release": "git tag -a %npm_config_tag% -m '%npm_config_tag%' && git push origin %npm_config_tag%"
 	},
 	"keywords": [],
-	"author": "",
+	"author": "Unxok",
 	"license": "MIT",
 	"devDependencies": {
 		"@codemirror/language": "^6.10.3",
