@@ -56,7 +56,10 @@ Adds additional property types and configuration options to Obsidian's core **Pr
     -   Essentially a "custom" type. Executes arbitrary JS that receives the normal arguments provided to type widget render functions, allowing users to make a practically custom type widget
 -   [ ] Progress
     -   May or may not do this. Most people probably would want JS to update this dynamically which is better suited for the JS type
--   [ ] ...more??
+-   [ ] Date range
+-   [ ] Group (nested object)
+-   [ ] Cycle
+-   [ ] ...more?? (open an issue for a FR with suggestions!)
 
 ### Property icon menu
 
