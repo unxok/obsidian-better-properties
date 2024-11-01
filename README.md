@@ -59,6 +59,7 @@ Adds additional property types and configuration options to Obsidian's core **Pr
 -   [ ] Date range
 -   [ ] Group (nested object)
 -   [ ] Cycle
+-   [ ] Time
 -   [ ] ...more?? (open an issue for a FR with suggestions!)
 
 ### Property icon menu
