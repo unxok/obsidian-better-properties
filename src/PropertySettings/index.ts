@@ -199,6 +199,9 @@ export const PropertySettingsSchema = catchAndInfer(
 		),
 
 		progress: catchAndInfer(z.object({})),
+
+		time: catchAndInfer(z.object({})),
+		group: catchAndInfer(z.object({})),
 	})
 );
 

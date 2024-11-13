@@ -49,9 +49,7 @@ const renderInlinePropertyEditor: RenderInlinePropertyEditor = (
 	const result = tryParseYaml(jsonStr);
 	if (!result.success) {
 		const msg =
-			result.error instanceof Error
-				? result.error.message
-				: "unknown error";
+			result.error instanceof Error ? result.error.message : "unknown error";
 		renderYamlParseError(el, msg);
 		return { el };
 	}
@@ -79,18 +77,13 @@ const renderInlinePropertyEditor: RenderInlinePropertyEditor = (
 export const createPostProcessInlinePropertyEditor = (
 	plugin: BetterProperties
 ) => {
-	const postProcessInlinePropertyEditor: MarkdownPostProcessor = (
-		el,
-		ctx
-	) => {
+	const postProcessInlinePropertyEditor: MarkdownPostProcessor = (el, ctx) => {
 		// const codeEl =
 		// 	el.tagName.toLowerCase() === "code" ? el : el.find("code");
 		const codeEl = el;
 		if (codeEl?.tagName.toLowerCase() !== "code") {
 			const arr = codeEl.findAll("code");
-			return arr.forEach((code) =>
-				postProcessInlinePropertyEditor(code, ctx)
-			);
+			return arr.forEach((code) => postProcessInlinePropertyEditor(code, ctx));
 		}
 		if (!codeEl) return;
 		const text = codeEl.textContent;
@@ -189,11 +182,7 @@ export const createInlineCodePlugin = (plugin: BetterProperties) => {
 				// 	return;
 				// }
 				if (
-					!(
-						update.docChanged ||
-						update.selectionSet ||
-						update.viewportChanged
-					)
+					!(update.docChanged || update.selectionSet || update.viewportChanged)
 				)
 					return;
 				this.decorations = this.buildDecorations(update.view);
@@ -211,16 +200,17 @@ export const createInlineCodePlugin = (plugin: BetterProperties) => {
 						to,
 						enter: (node) => {
 							const names = node.name.split("_");
+							// console.log("node names: ", names);
+							// if (names.includes("HyperMD-header")) {
+							// 	console.log("header node: ", node);
+							// }
 							if (
 								!names.includes("inline-code") &&
 								names.includes("formatting")
 							)
 								return;
 							// Check for inline code nodes
-							let codeText = view.state.doc.sliceString(
-								node.from,
-								node.to
-							);
+							let codeText = view.state.doc.sliceString(node.from, node.to);
 							// Extract text between the backticks
 							const isBP = codeText.startsWith(codePrefix);
 							const selOverlap = selectionAndRangeOverlap(
@@ -235,12 +225,11 @@ export const createInlineCodePlugin = (plugin: BetterProperties) => {
 									node.from - 1,
 									node.to + 1,
 									(from, to, value) => {
-										this.decorations =
-											this.decorations.update({
-												filterFrom: from,
-												filterTo: to,
-												filter: () => false,
-											});
+										this.decorations = this.decorations.update({
+											filterFrom: from,
+											filterTo: to,
+											filter: () => false,
+										});
 									}
 								);
 								return;
@@ -253,12 +242,7 @@ export const createInlineCodePlugin = (plugin: BetterProperties) => {
 							if (!file) return;
 
 							let widget = Decoration.replace({
-								widget: new InlineCodeWidget(
-									codeText,
-									plugin,
-									file,
-									view
-								),
+								widget: new InlineCodeWidget(codeText, plugin, file, view),
 								// side: 1,
 							}).range(node.from - 1, node.to + 1);
 							widgets.push(widget);

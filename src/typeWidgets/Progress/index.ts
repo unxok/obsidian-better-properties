@@ -9,7 +9,7 @@ export const ProgressWidget: CustomTypeWidget = {
 	type: "progress",
 	icon: "percent-square",
 	default: () => 0,
-	name: () => "Progress",
+	name: () => text("typeWidgets.progress.name"),
 	validate: (v) => !Number.isNaN(Number(v)),
 	render: (plugin, el, data, ctx) => {
 		const {} = plugin.settings.propertySettings[data.key.toLowerCase()]?.[
@@ -39,7 +39,7 @@ export const ProgressWidget: CustomTypeWidget = {
 		const inp = inpContainer.createEl("input", {
 			value: currentParsed.toString(),
 			type: "number",
-			cls: "metadata-input metadata-input-number",
+			cls: "metadata-input metadata-input-number better-properties-progress-input",
 			attr: {
 				step: "1",
 				min: "0",
@@ -79,26 +79,8 @@ export const ProgressWidget: CustomTypeWidget = {
 
 		progressEl.addEventListener("mouseover", () => cmp.showTooltip());
 
-		const onMouseMove = (e: MouseEvent) => {
-			const { left, width } = progressEl.getBoundingClientRect();
-			const relative = Math.floor(e.clientX - left);
-			const percentage = Math.round((relative / width) * 100);
-			const parsed = parseValue(percentage);
-			cmp.setValue(parsed);
-			// setTooltip(parsed);
-			cmp.showTooltip();
-			ctx.onChange(parsed);
-			inp.value = parsed.toString();
-		};
-
-		const onMouseUp = (e: MouseEvent) => {
-			onMouseMove(e);
-			document.removeEventListener("mousemove", onMouseMove);
-			document.removeEventListener("mouseup", onMouseUp);
-		};
-
 		const setInpWidth = () => {
-			const len = inp.value.length + 3;
+			const len = inp.value.length + 0.25;
 			inp.style.setProperty("width", len + "ch");
 		};
 
@@ -109,7 +91,22 @@ export const ProgressWidget: CustomTypeWidget = {
 			cmp.setValue(num);
 			ctx.onChange(num);
 			inp.value = num.toString();
+			setInpWidth();
 		};
+
+		const onMouseMove = (e: MouseEvent) => {
+			const { left, width } = progressEl.getBoundingClientRect();
+			const relative = Math.floor(e.clientX - left);
+			const percentage = Math.round((relative / width) * 100);
+			inpUpdateValue(percentage);
+		};
+
+		const onMouseUp = (e: MouseEvent) => {
+			onMouseMove(e);
+			document.removeEventListener("mousemove", onMouseMove);
+			document.removeEventListener("mouseup", onMouseUp);
+		};
+
 		inp.addEventListener("input", () => {
 			setInpWidth();
 		});

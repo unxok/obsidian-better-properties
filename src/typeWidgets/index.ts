@@ -2,7 +2,11 @@ import BetterProperties from "@/main";
 import { ToggleWidget } from "./Toggle";
 import { DropdownWidget } from "./Dropdown";
 import { typeWidgetPrefix } from "@/libs/constants";
-import { PropertyEntryData, PropertyRenderContext } from "obsidian-typings";
+import {
+	PropertyEntryData,
+	PropertyRenderContext,
+	PropertyWidget,
+} from "obsidian-typings";
 import { ButtonWidget } from "./Button";
 import { SliderWidget } from "./Slider";
 import { ColorWidget } from "./Color";
@@ -12,6 +16,8 @@ import { Component, setIcon } from "obsidian";
 import { defaultPropertySettings, PropertySettings } from "@/PropertySettings";
 import { StarsWidget } from "./Stars";
 import { ProgressWidget } from "./Progress";
+import { TimeWidget } from "./Time";
+import { GroupWidget } from "./Group";
 
 export type CustomTypeWidget = {
 	type: keyof PropertySettings;
@@ -37,6 +43,8 @@ const widgets: CustomTypeWidget[] = [
 	NumberPlusWidget,
 	StarsWidget,
 	ProgressWidget,
+	TimeWidget,
+	GroupWidget,
 ];
 
 export const registerCustomWidgets = (plugin: BetterProperties) => {
@@ -50,18 +58,32 @@ export const registerCustomWidgets = (plugin: BetterProperties) => {
 		};
 	});
 
-	const registered = plugin.app.metadataTypeManager.registeredTypeWidgets;
+	const registered = {
+		...plugin.app.metadataTypeManager.registeredTypeWidgets,
+	};
 	Object.keys(registered).forEach((key) => {
 		if (key.startsWith(typeWidgetPrefix)) return;
 		const widget = registered[key];
 		const render = getWidgetRender(plugin, (_, ...args) =>
 			widget.render(...args)
 		);
-		plugin.app.metadataTypeManager.registeredTypeWidgets[key] = {
+		registered[key] = {
 			...widget,
 			render,
 		};
 	});
+
+	const sortedKeys = Object.entries(registered).sort(
+		([_keyA, valueA], [_keyB, valueB]) =>
+			valueA.name().localeCompare(valueB.name())
+	);
+	console.log("sortedKeys: ", sortedKeys);
+	const sorted = sortedKeys.reduce((acc, [key, widget]) => {
+		acc[key] = widget;
+		return acc;
+	}, {} as Record<string, PropertyWidget<unknown>>);
+
+	plugin.app.metadataTypeManager.registeredTypeWidgets = sorted;
 
 	plugin.app.metadataTypeManager.trigger("changed");
 };
@@ -80,9 +102,11 @@ const getWidgetRender = (
 		data: PropertyEntryData<unknown>,
 		ctx: PropertyRenderContext
 	) => {
+		const key =
+			(data as PropertyEntryData<unknown> & { dotKey?: string })?.dotKey ??
+			data.key;
 		const general =
-			plugin.settings.propertySettings[data.key.toLowerCase()]?.general ??
-			{};
+			plugin.settings.propertySettings[key.toLowerCase()]?.general ?? {};
 
 		const {
 			hidden,

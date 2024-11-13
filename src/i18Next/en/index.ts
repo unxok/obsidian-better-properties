@@ -6,8 +6,7 @@ export const en: TranslationResource = {
 	notices: {
 		noFileMetadataEditor:
 			"Better Properties: No file found for metadata editor.",
-		noTemplateId:
-			"Better Properties: No template ID found in current file.",
+		noTemplateId: "Better Properties: No template ID found in current file.",
 		templateIdIsArray:
 			"Better Properties: Template ID is a list when it should be a single value.",
 		syncronizeComplete: "Synchronized properties with {{noteCount}} notes.",
@@ -282,6 +281,17 @@ export const en: TranslationResource = {
 		},
 		toggle: {
 			name: "Toggle",
+		},
+		progress: {
+			name: "Progress",
+		},
+		time: {
+			name: "Time",
+		},
+		group: {
+			name: "Group",
+			addProperty: "Add property",
+			propertyAlreadyExists: "Property already exists!",
 		},
 	},
 	propertyEditor: {

@@ -279,6 +279,17 @@ export type TranslationResource = {
 		toggle: {
 			name: string;
 		};
+		progress: {
+			name: string;
+		};
+		time: {
+			name: string;
+		};
+		group: {
+			name: string;
+			addProperty: string;
+			propertyAlreadyExists: string;
+		};
 	};
 	propertyEditor: {
 		insertModal: {

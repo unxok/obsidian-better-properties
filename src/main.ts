@@ -43,9 +43,7 @@ const BetterPropertiesSettingsSchema = catchAndInfer(
 type BetterPropertiesSettings = z.infer<typeof BetterPropertiesSettingsSchema>;
 
 export default class BetterProperties extends Plugin {
-	settings: BetterPropertiesSettings = BetterPropertiesSettingsSchema.parse(
-		{}
-	);
+	settings: BetterPropertiesSettings = BetterPropertiesSettingsSchema.parse({});
 
 	menu: Menu | null = null;
 
@@ -57,7 +55,7 @@ export default class BetterProperties extends Plugin {
 		registerCustomWidgets(this);
 		patchMenu(this);
 		patchMetdataEditor(this);
-		patchAbstractInputSuggest(this);
+		// patchAbstractInputSuggest(this);
 		this.listenPropertyMenu();
 		this.rebuildLeaves();
 
@@ -72,24 +70,21 @@ export default class BetterProperties extends Plugin {
 	}
 
 	progressTesting() {
-		this.registerMarkdownCodeBlockProcessor(
-			"progress",
-			(_source, el, _ctx) => {
-				el.empty();
-				const cmp = new ProgressBarComponent(el).setValue(75);
-				// @ts-ignore
-				const progressEl = cmp.progressBar as HTMLProgressElement;
-				progressEl.addEventListener("click", (e) => {
-					const { left, width } = el.getBoundingClientRect();
-					const relative = Math.floor(e.clientX - left);
-					const percentage = Math.floor((relative / width) * 100);
-					console.log("right: ", width);
-					console.log("perc: ", percentage);
-					cmp.setValue(percentage);
-				});
-				// console.log(cmp);
-			}
-		);
+		this.registerMarkdownCodeBlockProcessor("progress", (_source, el, _ctx) => {
+			el.empty();
+			const cmp = new ProgressBarComponent(el).setValue(75);
+			// @ts-ignore
+			const progressEl = cmp.progressBar as HTMLProgressElement;
+			progressEl.addEventListener("click", (e) => {
+				const { left, width } = el.getBoundingClientRect();
+				const relative = Math.floor(e.clientX - left);
+				const percentage = Math.floor((relative / width) * 100);
+				console.log("right: ", width);
+				console.log("perc: ", percentage);
+				cmp.setValue(percentage);
+			});
+			// console.log(cmp);
+		});
 	}
 
 	onunload() {
@@ -117,8 +112,11 @@ export default class BetterProperties extends Plugin {
 				const fm = mdc[hash].frontmatter ?? {};
 				if (fm?.hasOwnProperty(key)) return { hash, value: fm[key] };
 				const found = findKeyInsensitive(key, fm);
-				if (!found) return null;
-				return { hash, value: fm[found] };
+				if (found) {
+					return { hash, value: fm[found] };
+				}
+				// TODO find nested properties
+				return null;
 			})
 			.filter((o) => o !== null)
 			.map((obj) => {
@@ -202,18 +200,19 @@ export default class BetterProperties extends Plugin {
 
 	refreshPropertyEditor(property: string): void {
 		const lower = property.toLowerCase();
+		const withoutDots = lower.split(".")[0];
 		this.app.metadataTypeManager.trigger("changed", lower);
 		this.app.workspace.iterateAllLeaves((leaf) => {
 			if (!leaf.view.hasOwnProperty("metadataEditor")) return;
 			const view = leaf.view as View & {
 				metadataEditor: {
-					onMetadataTypeChange: (lower: string) => void;
+					onMetadataTypeChange: (propName: string) => void;
 				};
 			};
 
 			// This is to force dropdowns to re-render with updated options
 			// the easiest way I found was to emulate a type change
-			view.metadataEditor.onMetadataTypeChange(lower);
+			view.metadataEditor.onMetadataTypeChange(withoutDots);
 		});
 	}
 }

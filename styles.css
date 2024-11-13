@@ -177,9 +177,13 @@ input.better-properties-dropdown-setting-input {
 	}
 }
 
+.better-properties-progress-input {
+	width: 3ch;
+}
+
 .better-properties-progress-percent {
-	position: absolute;
-	right: 0.75ch;
+	/* position: absolute; */
+	/* right: 0.75ch; */
 	color: var(--text-muted);
 }
 
@@ -195,4 +199,20 @@ input.better-properties-dropdown-setting-input {
 	& .metadata-input-number:last-child {
 		padding-right: 0;
 	}
+}
+
+.better-properties-time-container {
+	& input[type="time"] {
+		border: none;
+		border-radius: 0;
+	}
+}
+
+input[type="time"]::-webkit-calendar-picker-indicator {
+	opacity: 0.5;
+	margin: 0;
+}
+
+.better-properties-group-container {
+	padding: 2px;
 }
