@@ -1,15 +1,13 @@
-import {
-	Menu,
-	ProgressBarComponent,
-	setIcon,
-	Setting,
-	SliderComponent,
-} from "obsidian";
+import { Menu, ProgressBarComponent, setIcon, stringifyYaml } from "obsidian";
 import { defaultPropertySettings, PropertySettings } from "@/PropertySettings";
 import { CustomTypeWidget } from "..";
 import { createSection } from "@/libs/utils/setting";
 import { text } from "@/i18Next";
 import { PropertyEntryData } from "obsidian-typings";
+import { obsidianText } from "@/i18Next/defaultObsidian";
+import { tryParseYaml } from "@/libs/utils/obsidian";
+
+// TODO Allow selecting nested properties to do clipboard actions like obsidian allows
 
 export const GroupWidget: CustomTypeWidget = {
 	type: "group",
@@ -23,6 +21,8 @@ export const GroupWidget: CustomTypeWidget = {
 		] ?? {
 			...defaultPropertySettings["group"],
 		};
+
+		el.style.setProperty("--metadata-input-background-active", "transparent");
 		const container = el.createDiv({
 			cls: "better-properties-group-container",
 		});
@@ -36,8 +36,6 @@ export const GroupWidget: CustomTypeWidget = {
 		}
 		const valueObj = { ...value } as Record<string, unknown>;
 		const keys = Object.keys(valueObj);
-
-		console.log("group val: ", keys);
 
 		container
 			.createDiv({
@@ -55,17 +53,23 @@ export const GroupWidget: CustomTypeWidget = {
 
 		const generateNestedProp = (key: string, focus?: boolean) => {
 			const val = valueObj[key];
-			const dotKey = data.key + "." + key;
-			const assignedType =
-				plugin.app.metadataTypeManager.getAssignedType(dotKey);
 
-			console.log("assigned: ", assignedType);
-			// if (!assignedType) {
-			// 	plugin.app.metadataTypeManager.setType(key, "text");
-			// 	console.log("setting type");
-			// 	return;
-			// causes infinite re-rendering loop...
-			// }
+			const copyClipboard = async () => {
+				const obj = {
+					[key]: val,
+				};
+				const yaml = stringifyYaml(obj);
+				await navigator.clipboard.writeText(yaml);
+			};
+
+			const dotKey = data.key + "." + key;
+			// const assignedType =
+			// 	plugin.app.metadataTypeManager.getAssignedType(dotKey);
+
+			// TODO obsidian-typings has this typed badly. Opened a PR to fix it 2024-11-13
+			const assignedType: string =
+				plugin.app.metadataTypeManager.types[dotKey.toLowerCase()]?.type;
+
 			const type = assignedType ?? "text";
 
 			const widget = plugin.app.metadataTypeManager.registeredTypeWidgets[type];
@@ -88,7 +92,7 @@ export const GroupWidget: CustomTypeWidget = {
 				new Menu()
 					.addItem((item) => {
 						const sub = item
-							.setTitle("Property type")
+							.setTitle(obsidianText("properties.option-property-type"))
 							.setSection("property-type")
 							.setSubmenu();
 						Object.entries(
@@ -104,15 +108,68 @@ export const GroupWidget: CustomTypeWidget = {
 								item
 									.setTitle(widgetVal.name())
 									.setIcon(widgetVal.icon)
-									.onClick(() =>
-										plugin.app.metadataTypeManager.setType(
-											dotKey,
-											widgetVal.type
-										)
+									.onClick(
+										async () =>
+											await plugin.app.metadataTypeManager.setType(
+												dotKey,
+												widgetVal.type
+											)
 									)
 							);
 						});
 					})
+					.addItem((item) =>
+						item
+							.setSection("clipboard")
+							.setTitle(obsidianText("interface.menu.cut"))
+							.setIcon("scissors")
+							.onClick(async () => {
+								await copyClipboard();
+								delete valueObj[key];
+								ctx.onChange({ ...valueObj });
+								plugin.refreshPropertyEditor(dotKey);
+							})
+					)
+					.addItem((item) =>
+						item
+							.setSection("clipboard")
+							.setTitle(obsidianText("interface.menu.copy"))
+							.setIcon("copy")
+							.onClick(async () => {
+								await copyClipboard();
+							})
+					)
+					.addItem((item) =>
+						item
+							.setSection("clipboard")
+							.setTitle(obsidianText("interface.menu.paste"))
+							.setIcon("clipboard-check")
+							.onClick(async () => {
+								const readStr = await navigator.clipboard.readText();
+								const parsed = tryParseYaml(readStr);
+								if (!parsed.success) return;
+								const { data } = parsed;
+								if (!data || typeof data !== "object" || Array.isArray(data))
+									return;
+								Object.entries(data).forEach(([dKey, dValue]) => {
+									valueObj[dKey] = dValue;
+								});
+								ctx.onChange({ ...valueObj });
+								plugin.refreshPropertyEditor(dotKey);
+							})
+					)
+					.addItem((item) =>
+						item
+							.setSection("danger")
+							.setWarning(true)
+							.setTitle(obsidianText("interface.menu.remove"))
+							.setIcon("trash")
+							.onClick(() => {
+								delete valueObj[key];
+								ctx.onChange({ ...valueObj });
+								plugin.refreshPropertyEditor(dotKey);
+							})
+					)
 					.showAtMouseEvent(e);
 			});
 			const typeIcon = widget.icon;
@@ -185,24 +242,31 @@ export const GroupWidget: CustomTypeWidget = {
 			);
 		};
 
-		keys.forEach((k) => {
-			generateNestedProp(k);
-		});
+		// TODO it seems the metadataType change which triggers this entire widget to re-render, doesn't actually update the types in the MetadataTypeManager prior to
+		// the widget re-rendering, thus we have to do this timeout to wait for that to be updated because otherwise the type for the nested property is undefined
+		// There's got to be a better way than doing this though
+		window.setTimeout(() => {
+			keys.forEach((k) => {
+				generateNestedProp(k);
+			});
 
-		const addButtonDiv = contentDiv.createDiv({
-			cls: "metadata-add-button text-icon-button",
-			attr: {
-				tabindex: "0",
-			},
-		});
+			const addButtonDiv = contentDiv.createDiv({
+				cls: "metadata-add-button text-icon-button",
+				attr: {
+					tabindex: "0",
+				},
+			});
 
-		setIcon(addButtonDiv.createSpan({ cls: "text-button-icon" }), "plus");
-		addButtonDiv.createSpan({
-			cls: "text-button-label",
-			text: text("typeWidgets.group.addProperty"),
-		});
+			setIcon(addButtonDiv.createSpan({ cls: "text-button-icon" }), "plus");
+			addButtonDiv.createSpan({
+				cls: "text-button-label",
+				text: obsidianText("properties.label-add-property-button"),
+			});
 
-		addButtonDiv.addEventListener("click", () => generateNestedProp("", true));
+			addButtonDiv.addEventListener("click", () =>
+				generateNestedProp("", true)
+			);
+		}, 0);
 	},
 };
 

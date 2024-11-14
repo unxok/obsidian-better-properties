@@ -16,11 +16,14 @@ export const addUsedBy = ({ plugin, menu, files }: MetadataAddItemProps) => {
 
 		files.forEach(({ path, value }) => {
 			subMenu.addItem((sub) => {
+				const valueText =
+					typeof value === "object" ? JSON.stringify(value) : value?.toString();
+
 				const frag = new DocumentFragment();
 				frag.createSpan({ text: path });
 				frag.createEl("br");
 				frag.createSpan({
-					text: value?.toString(),
+					text: valueText,
 					cls: "better-properties-menu-item-note",
 				});
 				sub.setTitle(frag).onClick(async (e) => {

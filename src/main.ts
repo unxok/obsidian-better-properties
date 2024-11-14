@@ -17,7 +17,10 @@ import { addChangeIcon } from "./augmentMedataMenu/addChangeIcon";
 import { BetterPropertiesSettingTab } from "./classes/BetterPropertiesSettingTab";
 import { z } from "zod";
 import { catchAndInfer } from "./libs/utils/zod";
-import { findKeyInsensitive } from "./libs/utils/pure";
+import {
+	findKeyInsensitive,
+	findKeyValueByDotNotation,
+} from "./libs/utils/pure";
 import { patchMetdataEditor } from "./monkey-patches/MetadataEditor";
 import { patchMenu } from "./monkey-patches/Menu";
 import {
@@ -25,7 +28,6 @@ import {
 	createPostProcessInlinePropertyEditor,
 } from "./classes/InlineCodeWidget";
 import { insertPropertyEditor, propertyCodeBlock } from "./PropertyRenderer";
-import { patchAbstractInputSuggest } from "./monkey-patches/AbstractInputSuggest";
 
 const BetterPropertiesSettingsSchema = catchAndInfer(
 	z.object({
@@ -115,8 +117,9 @@ export default class BetterProperties extends Plugin {
 				if (found) {
 					return { hash, value: fm[found] };
 				}
-				// TODO find nested properties
-				return null;
+				const foundByDotKey = findKeyValueByDotNotation(key, fm);
+				if (!foundByDotKey) return null;
+				return { hash, value: foundByDotKey };
 			})
 			.filter((o) => o !== null)
 			.map((obj) => {

@@ -14,24 +14,18 @@ export const addDelete = ({
 	menu.addItem((item) =>
 		item
 			.setSection(metdataSectionId)
-			.setIcon("trash")
-			.setTitle(
-				text("augmentedPropertyMenu.delete.menuItemTitle", { key })
-			)
+			.setIcon("circle-x")
+			.setTitle(text("augmentedPropertyMenu.delete.menuItemTitle", { key }))
 			.setWarning(true)
 			.onClick(() => {
 				const modal = new Modal(app).setTitle(
 					text("augmentedPropertyMenu.delete.confirmationModal.title")
 				);
 				modal.contentEl.createEl("p", {
-					text: text(
-						"augmentedPropertyMenu.delete.confirmationModal.desc"
-					),
+					text: text("augmentedPropertyMenu.delete.confirmationModal.desc"),
 				});
 				modal.contentEl.createEl("p", {
-					text: text(
-						"augmentedPropertyMenu.delete.confirmationModal.warning"
-					),
+					text: text("augmentedPropertyMenu.delete.confirmationModal.warning"),
 					cls: "better-properties-text-error",
 				});
 
@@ -44,12 +38,9 @@ export const addDelete = ({
 								files.map(async ({ path }) => {
 									const file = vault.getFileByPath(path);
 									if (!file) return;
-									await fileManager.processFrontMatter(
-										file,
-										(fm) => {
-											delete fm[key];
-										}
-									);
+									await fileManager.processFrontMatter(file, (fm) => {
+										delete fm[key];
+									});
 								})
 							);
 							modal.close();

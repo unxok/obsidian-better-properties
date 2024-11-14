@@ -79,3 +79,21 @@ export const tryParseJson: (str: string) => ParseJsonResult = (str) => {
 		return { success: false, error };
 	}
 };
+
+export const findKeyValueByDotNotation = (
+	key: string,
+	obj: Record<string, any>
+) => {
+	const keys = key.toLowerCase().split(".");
+
+	let current = obj;
+	for (const k of keys) {
+		const foundKey = Object.keys(current).find(
+			(objKey) => objKey.toLowerCase() === k
+		);
+
+		if (!foundKey) return null;
+		current = current[foundKey];
+	}
+	return current;
+};
