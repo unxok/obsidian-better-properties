@@ -1,6 +1,6 @@
 import { Setting } from "obsidian";
 
-export const createSection = (
+export const createSectionOld = (
 	el: HTMLElement,
 	label: string,
 	defaultOpen?: boolean
@@ -36,4 +36,17 @@ export const createSection = (
 		content.style.display = "none";
 	});
 	return { heading, content, icon };
+};
+
+// TODO I think the collapsible sections wasn't actually needed and the implementation wasn't really accessible-friendly
+// so once I make sure it doesn't break anything, I'll delete the old implementation
+
+export const createSection = (
+	el: HTMLElement,
+	label: string,
+	defaultOpen?: boolean
+) => {
+	const heading = new Setting(el).setHeading().setName(label);
+
+	return { heading, content: el };
 };

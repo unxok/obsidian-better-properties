@@ -216,3 +216,21 @@ input[type="time"]::-webkit-calendar-picker-indicator {
 .better-properties-group-container {
 	padding: 2px;
 }
+
+.better-properties-background-fade {
+	background-color: #ffb3f5; /* Pick any color you like, queen! */
+	animation: betterPropertiesfadeOutBackground 0.75s ease forwards; /* Adjust duration here */
+}
+
+@keyframes betterPropertiesfadeOutBackground {
+	0% {
+		background-color: var(--interactive-hover); /* Same color as above */
+	}
+	100% {
+		background-color: unset;
+	}
+}
+
+.better-properties-text-list-component-input {
+	width: 100%;
+}

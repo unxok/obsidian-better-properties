@@ -132,6 +132,14 @@ export const en: TranslationResource = {
 						title: "Value text color",
 						desc: "Set a custom color to override the default normal text color in the property value. Choose a color from the picker or enter any valid CSS color.",
 					},
+					includeDefaultSuggestions: {
+						title: "Include default suggestions",
+						desc: "Whether to include the default suggestions Obsidian would normally include in the suggestions popover.",
+					},
+					staticSuggestions: {
+						title: "Static suggestions",
+						desc: "A list of items to always show in the suggestions popover.",
+					},
 				},
 			},
 		},
@@ -292,7 +300,17 @@ export const en: TranslationResource = {
 			name: "Group",
 			addProperty: "Add property",
 			propertyAlreadyExists: "Property already exists!",
+			settings: {
+				headerTextSetting: {
+					title: "Header text",
+					desc: "The text to display above the nested properties in this group. Leave blank to remove header entirely.",
+				},
+			},
 		},
+		js: {
+			name: "JavaScript",
+		},
+		text: {},
 	},
 	propertyEditor: {
 		insertModal: {

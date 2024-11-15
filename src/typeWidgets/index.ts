@@ -77,7 +77,6 @@ export const registerCustomWidgets = (plugin: BetterProperties) => {
 		([_keyA, valueA], [_keyB, valueB]) =>
 			valueA.name().localeCompare(valueB.name())
 	);
-	console.log("sortedKeys: ", sortedKeys);
 	const sorted = sortedKeys.reduce((acc, [key, widget]) => {
 		acc[key] = widget;
 		return acc;

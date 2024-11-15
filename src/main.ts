@@ -1,4 +1,4 @@
-import { Menu, Plugin, ProgressBarComponent, View } from "obsidian";
+import { Menu, Plugin, ProgressBarComponent, Setting, View } from "obsidian";
 import { typeWidgetPrefix } from "./libs/constants";
 import {
 	addUsedBy,
@@ -28,6 +28,8 @@ import {
 	createPostProcessInlinePropertyEditor,
 } from "./classes/InlineCodeWidget";
 import { insertPropertyEditor, propertyCodeBlock } from "./PropertyRenderer";
+import { patchMetdataCache } from "./monkey-patches/MetadataCache";
+import { TextListComponent } from "./classes/ListComponent";
 
 const BetterPropertiesSettingsSchema = catchAndInfer(
 	z.object({
@@ -51,12 +53,13 @@ export default class BetterProperties extends Plugin {
 
 	async onload() {
 		this.registerEditorExtension([createInlineCodePlugin(this)]);
-		this.progressTesting();
+		this.listTesting();
 		await this.loadSettings();
 		this.addSettingTab(new BetterPropertiesSettingTab(this));
 		registerCustomWidgets(this);
 		patchMenu(this);
 		patchMetdataEditor(this);
+		patchMetdataCache(this);
 		// patchAbstractInputSuggest(this);
 		this.listenPropertyMenu();
 		this.rebuildLeaves();
@@ -71,21 +74,20 @@ export default class BetterProperties extends Plugin {
 		);
 	}
 
-	progressTesting() {
-		this.registerMarkdownCodeBlockProcessor("progress", (_source, el, _ctx) => {
+	listTesting() {
+		this.registerMarkdownCodeBlockProcessor("list", (_source, el, _ctx) => {
 			el.empty();
-			const cmp = new ProgressBarComponent(el).setValue(75);
-			// @ts-ignore
-			const progressEl = cmp.progressBar as HTMLProgressElement;
-			progressEl.addEventListener("click", (e) => {
-				const { left, width } = el.getBoundingClientRect();
-				const relative = Math.floor(e.clientX - left);
-				const percentage = Math.floor((relative / width) * 100);
-				console.log("right: ", width);
-				console.log("perc: ", percentage);
-				cmp.setValue(percentage);
-			});
-			// console.log(cmp);
+			new Setting(el)
+				.setName("List testing")
+				.setDesc("Testing out the ListComponent")
+				.addText((cmp) => cmp.setPlaceholder("this is for spacing"));
+
+			new Setting(el).setName("List example");
+
+			new TextListComponent(el.createDiv(), "empty")
+				.createNewItemButton()
+				.setValue(["apples", "oranges", "bananas"])
+				.onChange((v) => console.log("items: ", v));
 		});
 	}
 

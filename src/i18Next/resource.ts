@@ -126,6 +126,14 @@ export type TranslationResource = {
 						title: string;
 						desc: string;
 					};
+					includeDefaultSuggestions: {
+						title: string;
+						desc: string;
+					};
+					staticSuggestions: {
+						title: string;
+						desc: string;
+					};
 				};
 				nonCustomizableType: {
 					title: string;
@@ -289,7 +297,17 @@ export type TranslationResource = {
 			name: string;
 			addProperty: string;
 			propertyAlreadyExists: string;
+			settings: {
+				headerTextSetting: {
+					title: string;
+					desc: string;
+				};
+			};
 		};
+		js: {
+			name: string;
+		};
+		text: {};
 	};
 	propertyEditor: {
 		insertModal: {

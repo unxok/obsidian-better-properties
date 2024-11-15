@@ -1,4 +1,10 @@
-import { Menu, ProgressBarComponent, setIcon, stringifyYaml } from "obsidian";
+import {
+	Menu,
+	ProgressBarComponent,
+	setIcon,
+	Setting,
+	stringifyYaml,
+} from "obsidian";
 import { defaultPropertySettings, PropertySettings } from "@/PropertySettings";
 import { CustomTypeWidget } from "..";
 import { createSection } from "@/libs/utils/setting";
@@ -12,13 +18,16 @@ import { tryParseYaml } from "@/libs/utils/obsidian";
 export const GroupWidget: CustomTypeWidget = {
 	type: "group",
 	icon: "braces",
-	default: () => {},
+	default: () => {
+		{
+		}
+	},
 	name: () => text("typeWidgets.group.name"),
 	validate: (v) => typeof v === "object",
 	render: (plugin, el, data, ctx) => {
-		const {} = plugin.settings.propertySettings[data.key.toLowerCase()]?.[
-			"group"
-		] ?? {
+		const { headerText } = plugin.settings.propertySettings[
+			data.key.toLowerCase()
+		]?.["group"] ?? {
 			...defaultPropertySettings["group"],
 		};
 
@@ -26,22 +35,27 @@ export const GroupWidget: CustomTypeWidget = {
 		const container = el.createDiv({
 			cls: "better-properties-group-container",
 		});
-		const { value } = data;
+		const { value: initialValue } = data;
 
-		if (!value || typeof value !== "object") {
-			return;
+		let valueObj: Record<string, unknown> = {};
+
+		if (
+			initialValue &&
+			typeof initialValue === "object" &&
+			!Array.isArray(initialValue)
+		) {
+			valueObj = { ...initialValue };
 		}
-		if (Array.isArray(value)) {
-			return;
-		}
-		const valueObj = { ...value } as Record<string, unknown>;
+
 		const keys = Object.keys(valueObj);
 
-		container
-			.createDiv({
-				cls: "metadata-properties-heading",
-			})
-			.createDiv({ cls: "metadata-properties-title", text: data.key });
+		if (headerText) {
+			container
+				.createDiv({
+					cls: "metadata-properties-heading",
+				})
+				.createDiv({ cls: "metadata-properties-title", text: headerText });
+		}
 
 		const contentDiv = container.createDiv({
 			cls: "metadata-content",
@@ -279,54 +293,14 @@ export const createGroupSettings = (
 	) => void
 	// defaultOpen: boolean
 ) => {
-	const { content } = createSection(el, "Progress", true);
+	const { content } = createSection(el, "Group", true);
 
-	// new Setting(content)
-	// 	.setName(text("typeWidgets.slider.settings.minSetting.title"))
-	// 	.setDesc(text("typeWidgets.slider.settings.minSetting.desc"))
-	// 	.addText((cmp) =>
-	// 		cmp.setValue(form.min.toString()).onChange((v) => {
-	// 			const n = Number(v);
-	// 			const num = Number.isNaN(n) ? 0 : n;
-	// 			updateForm("min", num);
-	// 		})
-	// 	);
-
-	// new Setting(content)
-	// 	.setName(text("typeWidgets.slider.settings.maxSetting.title"))
-	// 	.setDesc(text("typeWidgets.slider.settings.maxSetting.desc"))
-	// 	.addText((cmp) =>
-	// 		cmp.setValue(form.max.toString()).onChange((v) => {
-	// 			const n = Number(v);
-	// 			const num = Number.isNaN(n) ? 0 : n;
-	// 			updateForm("max", num);
-	// 		})
-	// 	);
-
-	// new Setting(content)
-	// 	.setName(text("typeWidgets.slider.settings.stepSetting.title"))
-	// 	.setDesc(text("typeWidgets.slider.settings.stepSetting.desc"))
-	// 	.addText((cmp) =>
-	// 		cmp.setValue(form.step.toString()).onChange((v) => {
-	// 			const n = Number(v);
-	// 			const num = Number.isNaN(n) ? 0 : n;
-	// 			updateForm("step", num);
-	// 		})
-	// 	);
-
-	// new Setting(content)
-	// 	.setName(text("typeWidgets.slider.settings.showLabelsSetting.title"))
-	// 	.setDesc(text("typeWidgets.slider.settings.showLabelsSetting.desc"))
-	// 	.addToggle((cmp) =>
-	// 		cmp
-	// 			.setValue(form.showLabels)
-	// 			.onChange((b) => updateForm("showLabels", b))
-	// 	);
+	new Setting(content)
+		.setName(text("typeWidgets.group.settings.headerTextSetting.title"))
+		.setDesc(text("typeWidgets.group.settings.headerTextSetting.desc"))
+		.addText((cmp) =>
+			cmp.setValue(form.headerText).onChange((v) => {
+				updateForm("headerText", v);
+			})
+		);
 };
-
-interface AugmentedProgressComponent extends ProgressBarComponent {
-	sliderEl: HTMLElement;
-	getValuePretty(): string;
-	showTooltip(): void;
-	setDynamicTooltip(): void;
-}

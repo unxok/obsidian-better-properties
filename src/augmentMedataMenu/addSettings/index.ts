@@ -22,6 +22,7 @@ import { ConfirmationModal } from "@/classes/ConfirmationModal";
 import { text } from "@/i18Next";
 import { createSection } from "@/libs/utils/setting";
 import { createProgressSettings } from "@/typeWidgets/Progress";
+import { createGroupSettings } from "@/typeWidgets/Group";
 
 export const addSettings = ({ menu, plugin, key }: MetadataAddItemProps) => {
 	menu.addItem((item) =>
@@ -46,9 +47,7 @@ class SettingsModal extends Modal {
 		this.plugin = plugin;
 		this.property = property;
 		const defaultForm = { ...defaultPropertySettings };
-		const form = plugin.settings.propertySettings[
-			property.toLowerCase()
-		] ?? {
+		const form = plugin.settings.propertySettings[property.toLowerCase()] ?? {
 			...defaultForm,
 		};
 		Object.keys(defaultForm).forEach((k) => {
@@ -126,21 +125,16 @@ class SettingsModal extends Modal {
 				modal.onOpen = () => {
 					modal.contentEl.empty();
 					modal.setTitle(
-						text(
-							"augmentedPropertyMenu.settings.modal.resetModal.title"
-						)
+						text("augmentedPropertyMenu.settings.modal.resetModal.title")
 					);
 					modal.contentEl.createEl("p", {
-						text: text(
-							"augmentedPropertyMenu.settings.modal.resetModal.desc"
-						),
+						text: text("augmentedPropertyMenu.settings.modal.resetModal.desc"),
 					});
 					modal.createButtonContainer();
 					modal.createCheckBox({
 						text: text("dontAskAgain"),
 						defaultChecked:
-							!this.plugin.settings
-								.showResetPropertySettingWarning,
+							!this.plugin.settings.showResetPropertySettingWarning,
 						onChange: async (b) =>
 							await this.plugin.updateSettings((prev) => ({
 								...prev,
@@ -187,14 +181,10 @@ class SettingsModal extends Modal {
 			this.updateForm("general", key, value);
 		});
 
-		switch (
-			typeKey.slice(typeWidgetPrefix.length) as keyof PropertySettings
-		) {
+		switch (typeKey.slice(typeWidgetPrefix.length) as keyof PropertySettings) {
 			case "slider":
-				return createSliderSettings(
-					contentEl,
-					this.form.slider,
-					(key, value) => this.updateForm("slider", key, value)
+				return createSliderSettings(contentEl, this.form.slider, (key, value) =>
+					this.updateForm("slider", key, value)
 				);
 			case "numberPlus":
 				return createNumberPlusSettings(
@@ -229,6 +219,12 @@ class SettingsModal extends Modal {
 					this.form["progress"],
 					(key, value) => this.updateForm("progress", key, value)
 					// this.plugin
+				);
+			case "group":
+				return createGroupSettings(
+					contentEl,
+					this.form["group"],
+					(key, value) => this.updateForm("group", key, value)
 				);
 			default:
 				new Setting(contentEl)
@@ -282,29 +278,49 @@ class SettingsModal extends Modal {
 
 		new Setting(content)
 			.setName(
-				text(
-					"augmentedPropertyMenu.settings.modal.general.hidden.title"
-				)
+				text("augmentedPropertyMenu.settings.modal.general.hidden.title")
 			)
-			.setDesc(
-				text("augmentedPropertyMenu.settings.modal.general.hidden.desc")
-			)
+			.setDesc(text("augmentedPropertyMenu.settings.modal.general.hidden.desc"))
 			.addToggle((cmp) =>
-				cmp
-					.setValue(form.hidden)
-					.onChange((b) => updateForm("hidden", b))
+				cmp.setValue(form.hidden).onChange((b) => updateForm("hidden", b))
 			);
 
 		new Setting(content)
 			.setName(
 				text(
-					"augmentedPropertyMenu.settings.modal.general.customIcon.desc"
+					"augmentedPropertyMenu.settings.modal.general.includeDefaultSuggestions.title"
 				)
 			)
 			.setDesc(
 				text(
-					"augmentedPropertyMenu.settings.modal.general.customIcon.desc"
+					"augmentedPropertyMenu.settings.modal.general.includeDefaultSuggestions.desc"
 				)
+			)
+			.addToggle((cmp) =>
+				cmp
+					.setValue(form.includeDefaultSuggestions)
+					.onChange((b) => updateForm("includeDefaultSuggestions", b))
+			);
+
+		new Setting(content)
+			.setName(
+				text(
+					"augmentedPropertyMenu.settings.modal.general.staticSuggestions.title"
+				)
+			)
+			.setDesc(
+				text(
+					"augmentedPropertyMenu.settings.modal.general.staticSuggestions.desc"
+				)
+			);
+		// .addText(cmp => cmp.setValue(form.staticSuggestions)) // make a list
+
+		new Setting(content)
+			.setName(
+				text("augmentedPropertyMenu.settings.modal.general.customIcon.desc")
+			)
+			.setDesc(
+				text("augmentedPropertyMenu.settings.modal.general.customIcon.desc")
 			)
 			.addSearch((cmp) =>
 				cmp
@@ -315,14 +331,10 @@ class SettingsModal extends Modal {
 
 		new Setting(content)
 			.setName(
-				text(
-					"augmentedPropertyMenu.settings.modal.general.iconColor.title"
-				)
+				text("augmentedPropertyMenu.settings.modal.general.iconColor.title")
 			)
 			.setDesc(
-				text(
-					"augmentedPropertyMenu.settings.modal.general.iconColor.desc"
-				)
+				text("augmentedPropertyMenu.settings.modal.general.iconColor.desc")
 			)
 			.then((cmp) =>
 				new TextColorComponent(cmp.controlEl)
@@ -337,9 +349,7 @@ class SettingsModal extends Modal {
 				)
 			)
 			.setDesc(
-				text(
-					"augmentedPropertyMenu.settings.modal.general.iconHoverColor.desc"
-				)
+				text("augmentedPropertyMenu.settings.modal.general.iconHoverColor.desc")
 			)
 			.then((cmp) =>
 				new TextColorComponent(cmp.controlEl)
@@ -349,14 +359,10 @@ class SettingsModal extends Modal {
 
 		new Setting(content)
 			.setName(
-				text(
-					"augmentedPropertyMenu.settings.modal.general.labelColor.title"
-				)
+				text("augmentedPropertyMenu.settings.modal.general.labelColor.title")
 			)
 			.setDesc(
-				text(
-					"augmentedPropertyMenu.settings.modal.general.labelColor.desc"
-				)
+				text("augmentedPropertyMenu.settings.modal.general.labelColor.desc")
 			)
 			.then((cmp) =>
 				new TextColorComponent(cmp.controlEl)
@@ -371,9 +377,7 @@ class SettingsModal extends Modal {
 				)
 			)
 			.setDesc(
-				text(
-					"augmentedPropertyMenu.settings.modal.general.valueTextColor.desc"
-				)
+				text("augmentedPropertyMenu.settings.modal.general.valueTextColor.desc")
 			)
 			.then((cmp) =>
 				new TextColorComponent(cmp.controlEl)
@@ -406,14 +410,10 @@ class ImportModal extends ConfirmationModal {
 		let jsonText = "";
 		new Setting(contentEl)
 			.setName(
-				text(
-					"augmentedPropertyMenu.settings.modal.importModal.setting.title"
-				)
+				text("augmentedPropertyMenu.settings.modal.importModal.setting.title")
 			)
 			.setDesc(
-				text(
-					"augmentedPropertyMenu.settings.modal.importModal.setting.desc"
-				)
+				text("augmentedPropertyMenu.settings.modal.importModal.setting.desc")
 			)
 			.addText((cmp) =>
 				cmp
@@ -427,9 +427,7 @@ class ImportModal extends ConfirmationModal {
 
 		this.createButtonContainer();
 		this.createFooterButton((cmp) =>
-			cmp
-				.setButtonText(text("buttonText.cancel"))
-				.onClick(() => this.close())
+			cmp.setButtonText(text("buttonText.cancel")).onClick(() => this.close())
 		).createFooterButton((cmp) =>
 			cmp
 				.setCta()

@@ -52,7 +52,7 @@ export const createTimeSettings = (
 	) => void
 	// defaultOpen: boolean
 ) => {
-	const { content } = createSection(el, "Progress", true);
+	const { content } = createSection(el, "Time", true);
 
 	// new Setting(content)
 	// 	.setName(text("typeWidgets.slider.settings.minSetting.title"))
@@ -96,10 +96,3 @@ export const createTimeSettings = (
 	// 			.onChange((b) => updateForm("showLabels", b))
 	// 	);
 };
-
-interface AugmentedProgressComponent extends ProgressBarComponent {
-	sliderEl: HTMLElement;
-	getValuePretty(): string;
-	showTooltip(): void;
-	setDynamicTooltip(): void;
-}

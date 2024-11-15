@@ -118,6 +118,8 @@ export const PropertySettingsSchema = catchAndInfer(
 				iconHoverColor: z.string().catch(""),
 				labelColor: z.string().catch(""),
 				textColor: z.string().catch(""),
+				includeDefaultSuggestions: z.boolean().catch(true),
+				staticSuggestions: z.array(z.string().catch("")).catch([]),
 			})
 		),
 
@@ -201,7 +203,18 @@ export const PropertySettingsSchema = catchAndInfer(
 		progress: catchAndInfer(z.object({})),
 
 		time: catchAndInfer(z.object({})),
-		group: catchAndInfer(z.object({})),
+		group: catchAndInfer(
+			z.object({
+				headerText: z.string().catch(""),
+			})
+		),
+		js: catchAndInfer(z.object({})),
+		text: catchAndInfer(
+			z.object({
+				includeDefaultSuggestions: z.boolean().catch(true),
+				staticSuggestions: z.array(z.string().catch("")).catch([]),
+			})
+		),
 	})
 );
 
