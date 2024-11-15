@@ -101,6 +101,7 @@ export abstract class ListComponent<T> extends ValueComponent<T[]> {
 	public addDragHandle(setting: Setting, index: number): Setting {
 		const onMouseDown = (e: MouseEvent) => {
 			const dragEl = setting.settingEl.cloneNode(true) as HTMLElement;
+			dragEl.classList.remove("better-properties-background-fade");
 			setting.settingEl.classList.add("better-properties-dragging-origin");
 			const { width } = getComputedStyle(setting.settingEl);
 			const { left, top } = setting.settingEl.getBoundingClientRect();

@@ -1,4 +1,11 @@
-import { Menu, Plugin, ProgressBarComponent, Setting, View } from "obsidian";
+import {
+	MarkdownPreviewRenderer,
+	Menu,
+	Plugin,
+	ProgressBarComponent,
+	Setting,
+	View,
+} from "obsidian";
 import { typeWidgetPrefix } from "./libs/constants";
 import {
 	addUsedBy,
@@ -30,6 +37,7 @@ import {
 import { insertPropertyEditor, propertyCodeBlock } from "./PropertyRenderer";
 import { patchMetdataCache } from "./monkey-patches/MetadataCache";
 import { TextListComponent } from "./classes/ListComponent";
+import { patchMarkdownPreviewRenderer } from "./monkey-patches/MarkdownPreviewRenderer";
 
 const BetterPropertiesSettingsSchema = catchAndInfer(
 	z.object({
@@ -60,6 +68,7 @@ export default class BetterProperties extends Plugin {
 		patchMenu(this);
 		patchMetdataEditor(this);
 		patchMetdataCache(this);
+		// patchMarkdownPreviewRenderer(this);
 		// patchAbstractInputSuggest(this);
 		this.listenPropertyMenu();
 		this.rebuildLeaves();

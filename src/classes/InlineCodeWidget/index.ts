@@ -201,14 +201,15 @@ export const createInlineCodePlugin = (plugin: BetterProperties) => {
 						enter: (node) => {
 							const names = node.name.split("_");
 							// console.log("node names: ", names);
-							// if (names.includes("HyperMD-header")) {
-							// 	console.log("header node: ", node);
-							// }
+							if (names.includes("HyperMD-header")) {
+								console.log("header node: ", node.node);
+							}
 							if (
 								!names.includes("inline-code") &&
 								names.includes("formatting")
-							)
+							) {
 								return;
+							}
 							// Check for inline code nodes
 							let codeText = view.state.doc.sliceString(node.from, node.to);
 							// Extract text between the backticks

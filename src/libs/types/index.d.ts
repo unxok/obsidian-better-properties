@@ -15,4 +15,8 @@ declare module "obsidian" {
 	interface AbstractInputSuggest<T> extends PopoverSuggest<T> {
 		showSuggestions: (suggestions: T[]) => void;
 	}
+
+	interface MarkdownPreviewRenderer {
+		onHeadingCollapseClick(e: MouseEvent, el: HTMLElement): void;
+	}
 }
