@@ -82,7 +82,7 @@ export default class BetterProperties extends Plugin {
 				.setDesc("Testing out the ListComponent")
 				.addText((cmp) => cmp.setPlaceholder("this is for spacing"));
 
-			new Setting(el).setName("List example");
+			new Setting(el).setName("List example").setDesc("some description");
 
 			new TextListComponent(el.createDiv(), "empty")
 				.createNewItemButton()

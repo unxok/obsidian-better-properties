@@ -4,7 +4,7 @@ import {
 	typeWidgetPrefix,
 } from "@/libs/constants";
 import { MetadataAddItemProps } from "..";
-import { App, Modal, Setting } from "obsidian";
+import { App, Modal, Setting, TextComponent } from "obsidian";
 import BetterProperties from "@/main";
 import { IconSuggest } from "@/classes/IconSuggest";
 import { TextColorComponent } from "@/classes/TextColorComponent";
@@ -23,6 +23,7 @@ import { text } from "@/i18Next";
 import { createSection } from "@/libs/utils/setting";
 import { createProgressSettings } from "@/typeWidgets/Progress";
 import { createGroupSettings } from "@/typeWidgets/Group";
+import { ListComponent, TextListComponent } from "@/classes/ListComponent";
 
 export const addSettings = ({ menu, plugin, key }: MetadataAddItemProps) => {
 	menu.addItem((item) =>
@@ -313,11 +314,15 @@ class SettingsModal extends Modal {
 					"augmentedPropertyMenu.settings.modal.general.staticSuggestions.desc"
 				)
 			);
-		// .addText(cmp => cmp.setValue(form.staticSuggestions)) // make a list
+		new TextListComponent(content.createDiv(), "")
+			.createSortAlphabetical()
+			.createNewItemButton()
+			.setValue([...form.staticSuggestions])
+			.onChange((v) => updateForm("staticSuggestions", v));
 
 		new Setting(content)
 			.setName(
-				text("augmentedPropertyMenu.settings.modal.general.customIcon.desc")
+				text("augmentedPropertyMenu.settings.modal.general.customIcon.title")
 			)
 			.setDesc(
 				text("augmentedPropertyMenu.settings.modal.general.customIcon.desc")

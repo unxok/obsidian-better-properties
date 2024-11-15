@@ -4,10 +4,12 @@ import {
 	ColorComponent,
 	DropdownComponent,
 	Keymap,
+	Menu,
 	Modal,
 	SearchComponent,
 	setIcon,
 	Setting,
+	TextComponent,
 	TFile,
 } from "obsidian";
 import {
@@ -21,6 +23,8 @@ import { arrayMove, dangerousEval } from "@/libs/utils/pure";
 import { createSection } from "@/libs/utils/setting";
 import { text } from "@/i18Next";
 import { TextColorComponent } from "@/classes/TextColorComponent";
+import { ListComponent } from "@/classes/ListComponent";
+import { obsidianText } from "@/i18Next/defaultObsidian";
 
 export const DropdownWidget: CustomTypeWidget = {
 	type: "dropdown",
@@ -49,10 +53,7 @@ export const DropdownWidget: CustomTypeWidget = {
 		});
 
 		const updateLinkButton = (dropdownValue: string) => {
-			if (
-				dropdownValue.startsWith("[[") &&
-				dropdownValue.endsWith("]]")
-			) {
+			if (dropdownValue.startsWith("[[") && dropdownValue.endsWith("]]")) {
 				const linkText = dropdownValue.slice(2, -2);
 				const withoutPipe = (() => {
 					let pipe = -1;
@@ -65,11 +66,7 @@ export const DropdownWidget: CustomTypeWidget = {
 				linkButton.style.setProperty("display", "flex");
 				linkButton.onclick = async (e) => {
 					const paneType = Keymap.isModEvent(e);
-					await plugin.app.workspace.openLinkText(
-						withoutPipe,
-						"",
-						paneType
-					);
+					await plugin.app.workspace.openLinkText(withoutPipe, "", paneType);
 				};
 				return;
 			}
@@ -132,9 +129,7 @@ export const DropdownWidget: CustomTypeWidget = {
 				plugin
 			);
 
-			dropdown
-				.addOptions(optionsObj)
-				.setValue(data.value?.toString() ?? "");
+			dropdown.addOptions(optionsObj).setValue(data.value?.toString() ?? "");
 
 			applyConfig(data.value?.toString() ?? "");
 		})();
@@ -147,9 +142,9 @@ const getDynamicOptionsInline = async (
 ) => {
 	if (!inlineJs) return obj;
 	try {
-		const func = dangerousEval(
-			`async () => {${inlineJs}}`
-		) as () => Promise<PropertySettings["dropdown"]["options"]>;
+		const func = dangerousEval(`async () => {${inlineJs}}`) as () => Promise<
+			PropertySettings["dropdown"]["options"]
+		>;
 		const dynamicArr = await func();
 		const parsed = PropertySettingsSchema.removeCatch()
 			.shape.dropdown.removeCatch()
@@ -199,63 +194,82 @@ export const createDropdownSettings = (
 		true
 	);
 
-	const updateOptions = (
-		cb: (prev: (typeof form)["options"]) => (typeof form)["options"]
-	) => {
-		const newOpts = cb([...form.options]);
-		updateForm("options", newOpts);
-	};
+	// const updateOptions = (
+	// 	cb: (prev: (typeof form)["options"]) => (typeof form)["options"]
+	// ) => {
+	// 	const newOpts = cb([...form.options]);
+	// 	updateForm("options", newOpts);
+	// };
 
 	new Setting(content)
 		.setHeading()
 		.setName(text("typeWidgets.dropdown.settings.options.title"))
 		.setDesc(text("typeWidgets.dropdown.settings.options.desc"));
 
-	const optionContainer = content.createDiv();
-
-	const renderOptions = () => {
-		optionContainer.empty();
-		form.options.forEach((data, index) =>
-			createOption(
-				optionContainer,
-				updateOptions,
-				renderOptions,
-				data,
-				index,
-				plugin
-			)
-		);
+	const defaultOption: Option = {
+		value: "",
+		config: {
+			label: "",
+			backgroundColor: "",
+			textColor: "",
+		},
 	};
 
-	renderOptions();
+	const optionContainer = content.createDiv();
 
-	new Setting(content).addButton((cmp) =>
-		cmp
-			.setCta()
-			.setIcon("plus")
-			.onClick(() => {
-				const newOpts = [...form.options];
-				const defaultData: PropertySettings["dropdown"]["options"][0] =
-					{
-						value: "",
-						config: {
-							label: "",
-							backgroundColor: "",
-							textColor: "",
-						},
-					};
-				const newLen = newOpts.push({ ...defaultData });
-				createOption(
-					optionContainer,
-					updateOptions,
-					renderOptions,
-					{ ...defaultData },
-					newLen - 1,
-					plugin
-				);
-				updateForm("options", newOpts);
-			})
-	);
+	new OptionList(
+		optionContainer,
+		{ ...defaultOption },
+		[...form.options],
+		plugin
+	).onChange((v) => {
+		console.log("changed: ", v);
+		updateForm("options", [...v]);
+	});
+
+	// const renderOptions = () => {
+	// 	optionContainer.empty();
+	// 	form.options.forEach((data, index) =>
+	// 		createOption(
+	// 			optionContainer,
+	// 			updateOptions,
+	// 			renderOptions,
+	// 			data,
+	// 			index,
+	// 			plugin
+	// 		)
+	// 	);
+	// };
+
+	// renderOptions();
+
+	// new Setting(content).addButton((cmp) =>
+	// 	cmp
+	// 		.setCta()
+	// 		.setIcon("plus")
+	// 		.onClick(() => {
+	// 			const newOpts = [...form.options];
+	// 			const defaultData: PropertySettings["dropdown"]["options"][0] =
+	// 				{
+	// 					value: "",
+	// 					config: {
+	// 						label: "",
+	// 						backgroundColor: "",
+	// 						textColor: "",
+	// 					},
+	// 				};
+	// 			const newLen = newOpts.push({ ...defaultData });
+	// 			createOption(
+	// 				optionContainer,
+	// 				updateOptions,
+	// 				renderOptions,
+	// 				{ ...defaultData },
+	// 				newLen - 1,
+	// 				plugin
+	// 			);
+	// 			updateForm("options", newOpts);
+	// 		})
+	// );
 
 	new Setting(content)
 		.setHeading()
@@ -281,15 +295,14 @@ export const createDropdownSettings = (
 		);
 
 	new Setting(content)
-		.setName(
-			text("typeWidgets.dropdown.settings.dynamicOptions.fileJs.title")
-		)
+		.setName(text("typeWidgets.dropdown.settings.dynamicOptions.fileJs.title"))
 		.addSearch((cmp) => {
-			cmp.setPlaceholder(
-				text(
-					"typeWidgets.dropdown.settings.dynamicOptions.fileJs.placeholder"
+			cmp
+				.setPlaceholder(
+					text(
+						"typeWidgets.dropdown.settings.dynamicOptions.fileJs.placeholder"
+					)
 				)
-			)
 				.setValue(form.dynamicFileJs)
 				.onChange((v) => updateForm("dynamicFileJs", v));
 			new JsSuggest(plugin.app, cmp);
@@ -332,9 +345,7 @@ const createOption = (
 						"aria-label",
 						text("typeWidgets.dropdown.createOption.value.tooltip")
 					);
-					c.inputEl.classList.add(
-						"better-properties-dropdown-setting-input"
-					);
+					c.inputEl.classList.add("better-properties-dropdown-setting-input");
 				})
 		)
 		.addExtraButton((cmp) =>
@@ -348,9 +359,7 @@ const createOption = (
 					});
 					renderOptions();
 				})
-				.setTooltip(
-					text("typeWidgets.dropdown.createOption.moveUpTooltip")
-				)
+				.setTooltip(text("typeWidgets.dropdown.createOption.moveUpTooltip"))
 		)
 		.addExtraButton((cmp) =>
 			cmp
@@ -363,9 +372,7 @@ const createOption = (
 					});
 					renderOptions();
 				})
-				.setTooltip(
-					text("typeWidgets.dropdown.createOption.moveDownTooltip")
-				)
+				.setTooltip(text("typeWidgets.dropdown.createOption.moveDownTooltip"))
 		)
 		.addExtraButton((cmp) =>
 			cmp
@@ -373,12 +380,12 @@ const createOption = (
 				.onClick(() => {
 					const modal = new OptionConfigModal(
 						plugin.app,
-						data,
-						(cb: (prev: typeof data) => typeof data) =>
-							updateOptions((prev) => {
-								prev[index] = cb(prev[index]);
-								return [...prev];
-							})
+						data
+						// (cb: (prev: typeof data) => typeof data) =>
+						// 	updateOptions((prev) => {
+						// 		prev[index] = cb(prev[index]);
+						// 		return [...prev];
+						// 	})
 					);
 
 					modal.onClose = () => renderOptions();
@@ -398,9 +405,7 @@ const createOption = (
 					});
 					renderOptions();
 				})
-				.setTooltip(
-					text("typeWidgets.dropdown.createOption.removeTooltip")
-				)
+				.setTooltip(text("typeWidgets.dropdown.createOption.removeTooltip"))
 		);
 };
 
@@ -437,27 +442,31 @@ class JsSuggest extends AbstractInputSuggest<TFile> {
 
 class OptionConfigModal extends Modal {
 	option: PropertySettings["dropdown"]["options"][0];
-	updateOption: (
-		cb: (prev: OptionConfigModal["option"]) => OptionConfigModal["option"]
-	) => void;
+	// updateOption: (
+	// 	cb: (prev: OptionConfigModal["option"]) => OptionConfigModal["option"]
+	// ) => void;
 
 	constructor(
 		app: App,
-		option: OptionConfigModal["option"],
-		updateConfig: OptionConfigModal["updateOption"]
+		option: OptionConfigModal["option"]
+		// updateConfig: OptionConfigModal["updateOption"]
 	) {
 		super(app);
 		this.option = { ...option };
-		this.updateOption = updateConfig;
+		// this.updateOption = updateConfig;
+	}
+
+	updateConfig<
+		T extends keyof PropertySettings["dropdown"]["options"][0]["config"]
+	>(key: T, value: PropertySettings["dropdown"]["options"][0]["config"][T]) {
+		this.option["config"][key] = value;
 	}
 
 	onOpen(): void {
 		const { contentEl, option } = this;
 		contentEl.empty();
 
-		this.setTitle(
-			text("typeWidgets.dropdown.createOption.configModal.title")
-		);
+		this.setTitle(text("typeWidgets.dropdown.createOption.configModal.title"));
 
 		new Setting(contentEl)
 			.setName(
@@ -472,10 +481,11 @@ class OptionConfigModal extends Modal {
 			)
 			.addText((cmp) =>
 				cmp.setValue(option.config.label).onChange((v) => {
-					this.updateOption((prev) => ({
-						...prev,
-						config: { ...prev.config, label: v },
-					}));
+					this.updateConfig("label", v);
+					// this.updateOption((prev) => ({
+					// 	...prev,
+					// 	config: { ...prev.config, label: v },
+					// }));
 				})
 			);
 
@@ -493,11 +503,12 @@ class OptionConfigModal extends Modal {
 			.then((cmp) =>
 				new TextColorComponent(cmp.controlEl)
 					.setValue(option.config.backgroundColor)
-					.onChange((v) =>
-						this.updateOption((prev) => ({
-							...prev,
-							config: { ...prev.config, backgroundColor: v },
-						}))
+					.onChange(
+						(v) => this.updateConfig("backgroundColor", v)
+						// this.updateOption((prev) => ({
+						// 	...prev,
+						// 	config: { ...prev.config, backgroundColor: v },
+						// }))
 					)
 			);
 
@@ -515,12 +526,99 @@ class OptionConfigModal extends Modal {
 			.then((cmp) =>
 				new TextColorComponent(cmp.controlEl)
 					.setValue(option.config.textColor)
-					.onChange((v) =>
-						this.updateOption((prev) => ({
-							...prev,
-							config: { ...prev.config, textColor: v },
-						}))
+					.onChange(
+						(v) => this.updateConfig("textColor", v)
+						// this.updateOption((prev) => ({
+						// 	...prev,
+						// 	config: { ...prev.config, textColor: v },
+						// }))
 					)
 			);
+	}
+}
+
+type Option = PropertySettings["dropdown"]["options"][0];
+
+class OptionList extends ListComponent<Option> {
+	constructor(
+		containerEl: HTMLElement,
+		defaultItemValue: Option,
+		options: Option[],
+		public plugin: BetterProperties
+	) {
+		super(containerEl, defaultItemValue, [...options]);
+
+		this.createSortAlphabetical().createNewItemButton();
+	}
+	renderItem({ value, config }: Option, setting: Setting, index: number): void {
+		this.addDragHandle(setting, index);
+		new TextComponent(setting.controlEl)
+			.setValue(value)
+			.onChange((v) =>
+				this.updateItemValue((prev) => ({ ...prev, value: v }), index)
+			)
+			.inputEl.classList.add("better-properties-text-list-component-input");
+		this.addMoveUpButton(setting, index);
+		this.addMoveDownButton(setting, index);
+		this.addConfigureButton({ value, config }, setting, index);
+		this.addDeleteButton(setting, index);
+	}
+
+	addConfigureButton(value: Option, setting: Setting, index: number): this {
+		setting.addExtraButton((cmp) =>
+			cmp
+				.setIcon("settings")
+				.setTooltip(obsidianText("interface.settings"))
+				.onClick(() => {
+					const modal = new OptionConfigModal(this.plugin.app, value);
+
+					modal.onClose = () => {
+						this.updateItemValue({ ...modal.option }, index);
+					};
+
+					modal.open();
+				})
+		);
+		return this;
+	}
+
+	public createSortAlphabetical(): this {
+		this.toolbarSetting.addButton((cmp) =>
+			cmp
+				.setIcon("sort-asc")
+				.setClass("clickable-icon")
+				.setTooltip(obsidianText("plugins.file-explorer.action-change-sort"))
+				.onClick((e) => {
+					new Menu()
+						.addItem((item) =>
+							item
+								.setTitle(
+									obsidianText("plugins.file-explorer.label-sort-a-to-z")
+								)
+								.onClick(() =>
+									this.setValue(
+										this.items.toSorted((a, b) =>
+											a.value.localeCompare(b.value)
+										)
+									)
+								)
+						)
+						.addItem((item) =>
+							item
+								.setTitle(
+									obsidianText("plugins.file-explorer.label-sort-z-to-a")
+								)
+								.onClick(() =>
+									this.setValue(
+										this.items.toSorted((a, b) =>
+											b.value.localeCompare(a.value)
+										)
+									)
+								)
+						)
+						.showAtMouseEvent(e);
+				})
+		);
+		return this;
 	}
 }

@@ -234,3 +234,24 @@ input[type="time"]::-webkit-calendar-picker-indicator {
 .better-properties-text-list-component-input {
 	width: 100%;
 }
+
+/* Recreation of built in table vertical drag target */
+.better-properties-list-drag-target {
+	transform: translateY(-1px);
+	height: 3px;
+	position: absolute;
+	border-radius: 2px;
+	background-color: var(--interactive-accent);
+	z-index: calc(var(--layer-modal) + 1);
+}
+
+.better-properties-dragging {
+	background-color: var(--background-primary);
+	padding-left: 5px;
+	z-index: calc(var(--layer-modal) + 1);
+	box-shadow: 10px 10px 7px -3px rgba(0, 0, 0, 0.52);
+}
+
+.better-properties-dragging-origin {
+	opacity: 0.5;
+}
