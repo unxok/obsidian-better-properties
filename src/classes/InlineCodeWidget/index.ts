@@ -201,9 +201,9 @@ export const createInlineCodePlugin = (plugin: BetterProperties) => {
 						enter: (node) => {
 							const names = node.name.split("_");
 							// console.log("node names: ", names);
-							if (names.includes("HyperMD-header")) {
-								console.log("header node: ", node.node);
-							}
+							// if (names.includes("HyperMD-header")) {
+							// 	console.log("header node: ", node.node);
+							// }
 							if (
 								!names.includes("inline-code") &&
 								names.includes("formatting")

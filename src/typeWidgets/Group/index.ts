@@ -12,6 +12,8 @@ import { text } from "@/i18Next";
 import { PropertyEntryData } from "obsidian-typings";
 import { obsidianText } from "@/i18Next/defaultObsidian";
 import { tryParseYaml } from "@/libs/utils/obsidian";
+import { createDragHandle } from "@/libs/utils/drag";
+import { arrayMove } from "@/libs/utils/pure";
 
 // TODO Allow selecting nested properties to do clipboard actions like obsidian allows
 
@@ -65,7 +67,11 @@ export const GroupWidget: CustomTypeWidget = {
 			cls: "metadata-properties",
 		});
 
-		const generateNestedProp = (key: string, focus?: boolean) => {
+		const generateNestedProp = (
+			key: string,
+			index: number,
+			focus?: boolean
+		) => {
 			const val = valueObj[key];
 
 			const copyClipboard = async () => {
@@ -188,6 +194,22 @@ export const GroupWidget: CustomTypeWidget = {
 			});
 			const typeIcon = widget.icon;
 			setIcon(iconSpan, typeIcon);
+			createDragHandle({
+				containerEl: propertyDiv,
+				index,
+				items: keys,
+				itemsContainerEl: propertiesDiv,
+				onDragEnd: (items, from, to) => {
+					const newKeys = arrayMove(items, from, to);
+					const newValueObj: Record<string, unknown> = {};
+					for (const k of newKeys) {
+						newValueObj[k] = valueObj[k];
+					}
+					ctx.onChange(newValueObj);
+				},
+				dragStyle: "swap",
+				handleEl: iconSpan,
+			});
 
 			const keyInput = keyDiv.createEl("input", {
 				type: "text",
@@ -260,8 +282,8 @@ export const GroupWidget: CustomTypeWidget = {
 		// the widget re-rendering, thus we have to do this timeout to wait for that to be updated because otherwise the type for the nested property is undefined
 		// There's got to be a better way than doing this though
 		window.setTimeout(() => {
-			keys.forEach((k) => {
-				generateNestedProp(k);
+			keys.forEach((k, i) => {
+				generateNestedProp(k, i);
 			});
 
 			const addButtonDiv = contentDiv.createDiv({
@@ -278,7 +300,7 @@ export const GroupWidget: CustomTypeWidget = {
 			});
 
 			addButtonDiv.addEventListener("click", () =>
-				generateNestedProp("", true)
+				generateNestedProp("", keys.length, true)
 			);
 		}, 0);
 	},

@@ -18,6 +18,7 @@ import { StarsWidget } from "./Stars";
 import { ProgressWidget } from "./Progress";
 import { TimeWidget } from "./Time";
 import { GroupWidget } from "./Group";
+import { tryParseYaml } from "@/libs/utils/obsidian";
 
 export type CustomTypeWidget = {
 	type: keyof PropertySettings;
