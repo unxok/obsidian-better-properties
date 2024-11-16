@@ -1,7 +1,9 @@
 // TRANSLATIONS done
 import { text } from "@/i18Next";
+import { obsidianText } from "@/i18Next/defaultObsidian";
+import { searchSettings } from "@/libs/utils/setting";
 import BetterProperties from "@/main";
-import { PluginSettingTab, Setting } from "obsidian";
+import { PluginSettingTab, SearchComponent, Setting } from "obsidian";
 
 export class BetterPropertiesSettingTab extends PluginSettingTab {
 	plugin: BetterProperties;
@@ -22,13 +24,17 @@ export class BetterPropertiesSettingTab extends PluginSettingTab {
 
 		containerEl.empty();
 
+		new SearchComponent(containerEl)
+			.setPlaceholder(
+				obsidianText("plugins.search.label-toggle-search-settings") + "..."
+			)
+			.onChange((v) => searchSettings(containerEl, v));
+
+		containerEl.createEl("br");
+
 		new Setting(containerEl)
-			.setName(
-				text("BetterPropertiesSettingTab.settings.confirmReset.title")
-			)
-			.setDesc(
-				text("BetterPropertiesSettingTab.settings.confirmReset.desc")
-			)
+			.setName(text("BetterPropertiesSettingTab.settings.confirmReset.title"))
+			.setDesc(text("BetterPropertiesSettingTab.settings.confirmReset.desc"))
 			.addToggle((cmp) =>
 				cmp.setValue(showResetPropertySettingWarning).onChange(
 					async (b) =>
@@ -42,9 +48,7 @@ export class BetterPropertiesSettingTab extends PluginSettingTab {
 		new Setting(containerEl)
 			.setHeading()
 			.setName(
-				text(
-					"BetterPropertiesSettingTab.settings.synchronization.header"
-				)
+				text("BetterPropertiesSettingTab.settings.synchronization.header")
 			);
 
 		new Setting(containerEl)

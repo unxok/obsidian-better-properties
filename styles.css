@@ -248,3 +248,8 @@ input[type="time"]::-webkit-calendar-picker-indicator {
 .better-properties-dragging-origin {
 	opacity: 0.5;
 }
+
+.setting-item.better-properties-text-list-setting-container {
+	flex-direction: column;
+	align-items: unset;
+}

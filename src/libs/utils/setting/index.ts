@@ -50,3 +50,27 @@ export const createSection = (
 
 	return { heading, content: el };
 };
+
+export const searchSettings = (container: HTMLElement, query: string) => {
+	const settingItems = container.querySelectorAll("& > div.setting-item");
+	settingItems.forEach((el) => {
+		if (!(el instanceof HTMLElement)) return;
+		if (el.classList.contains("setting-item-heading")) return;
+		if (!query) {
+			el.style.removeProperty("display");
+			return;
+		}
+		const lower = query.toLowerCase();
+		const title = el.find("div.setting-item-name")?.textContent?.toLowerCase();
+		const desc = el
+			.find("div.setting-item-description")
+			?.textContent?.toLowerCase();
+		console.log(title, desc);
+		const isMatch = title?.includes(lower) || desc?.includes(lower);
+		if (!isMatch) {
+			el.style.display = "none";
+			return;
+		}
+		el.style.removeProperty("display");
+	});
+};

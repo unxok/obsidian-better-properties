@@ -4,7 +4,7 @@ import {
 	typeWidgetPrefix,
 } from "@/libs/constants";
 import { MetadataAddItemProps } from "..";
-import { App, Modal, Setting, TextComponent } from "obsidian";
+import { App, Modal, SearchComponent, Setting, TextComponent } from "obsidian";
 import BetterProperties from "@/main";
 import { IconSuggest } from "@/classes/IconSuggest";
 import { TextColorComponent } from "@/classes/TextColorComponent";
@@ -20,10 +20,11 @@ import {
 import { createStarsSettings } from "@/typeWidgets/Stars";
 import { ConfirmationModal } from "@/classes/ConfirmationModal";
 import { text } from "@/i18Next";
-import { createSection } from "@/libs/utils/setting";
+import { createSection, searchSettings } from "@/libs/utils/setting";
 import { createProgressSettings } from "@/typeWidgets/Progress";
 import { createGroupSettings } from "@/typeWidgets/Group";
 import { ListComponent, TextListComponent } from "@/classes/ListComponent";
+import { obsidianText } from "@/i18Next/defaultObsidian";
 
 export const addSettings = ({ menu, plugin, key }: MetadataAddItemProps) => {
 	menu.addItem((item) =>
@@ -178,6 +179,16 @@ class SettingsModal extends Modal {
 				modal.open();
 			});
 
+		// contentEl.createEl("br");
+
+		new SearchComponent(contentEl)
+			.setPlaceholder(
+				obsidianText("plugins.search.label-toggle-search-settings") + "..."
+			)
+			.onChange((v) => searchSettings(contentEl, v));
+
+		contentEl.createEl("br");
+
 		this.createGeneral(contentEl, this.form.general, (key, value) => {
 			this.updateForm("general", key, value);
 		});
@@ -229,6 +240,7 @@ class SettingsModal extends Modal {
 				);
 			default:
 				new Setting(contentEl)
+					.setHeading()
 					.setName(
 						text(
 							"augmentedPropertyMenu.settings.modal.nonCustomizableType.title"
@@ -303,7 +315,11 @@ class SettingsModal extends Modal {
 					.onChange((b) => updateForm("includeDefaultSuggestions", b))
 			);
 
-		new Setting(content)
+		const staticSuggestionsContainer = content.createDiv({
+			cls: "setting-item better-properties-text-list-setting-container",
+		});
+
+		new Setting(staticSuggestionsContainer)
 			.setName(
 				text(
 					"augmentedPropertyMenu.settings.modal.general.staticSuggestions.title"
@@ -314,7 +330,7 @@ class SettingsModal extends Modal {
 					"augmentedPropertyMenu.settings.modal.general.staticSuggestions.desc"
 				)
 			);
-		new TextListComponent(content.createDiv(), "")
+		new TextListComponent(staticSuggestionsContainer, "")
 			.createSortAlphabetical()
 			.createNewItemButton()
 			.setValue([...form.staticSuggestions])
