@@ -290,7 +290,7 @@ export class TextListComponent extends ListComponent<string> {
 				itemsContainerEl: this.itemsContainerEl,
 				onDragEnd: (items, from, to) =>
 					this.setValueHighlight(arrayMove(items, from, to), to),
-				dragStyle: "swap",
+				dragStyle: "indicator",
 			})
 		);
 		new TextComponent(setting.controlEl)
