@@ -52,25 +52,46 @@ export const createSection = (
 };
 
 export const searchSettings = (container: HTMLElement, query: string) => {
-	const settingItems = container.querySelectorAll("& > div.setting-item");
+	const ITEM = "setting-item";
+	const HEADING = "setting-item-heading";
+
+	const headings: [el: HTMLElement, hasMatch: boolean][] = [];
+
+	const settingItems = container.querySelectorAll(`& > div.${ITEM}`);
 	settingItems.forEach((el) => {
 		if (!(el instanceof HTMLElement)) return;
-		if (el.classList.contains("setting-item-heading")) return;
-		if (!query) {
+
+		if (el.classList.contains(HEADING)) {
+			headings.push([el, false]);
+			return;
+		}
+
+		const hLen = headings.length;
+		const currentHeading = hLen ? headings[hLen - 1] : null;
+
+		const show = () => {
 			el.style.removeProperty("display");
-			return;
-		}
+			if (!currentHeading) return;
+			currentHeading[1] = true;
+		};
+
+		// query is empty, show everything
+		if (!query) return show();
+
+		// match query to text contents
 		const lower = query.toLowerCase();
-		const title = el.find("div.setting-item-name")?.textContent?.toLowerCase();
-		const desc = el
-			.find("div.setting-item-description")
-			?.textContent?.toLowerCase();
-		console.log(title, desc);
+		const title = el.find(`div.${ITEM}-name`)?.textContent?.toLowerCase();
+		const desc = el.find(`div.${ITEM}-description`)?.textContent?.toLowerCase();
 		const isMatch = title?.includes(lower) || desc?.includes(lower);
-		if (!isMatch) {
-			el.style.display = "none";
-			return;
-		}
-		el.style.removeProperty("display");
+
+		if (isMatch) return show();
+
+		// not a match
+		el.style.display = "none";
+	});
+
+	headings.forEach(([el, isMatch]) => {
+		if (isMatch) return el.style.removeProperty("display");
+		el.style.setProperty("display", "none");
 	});
 };
