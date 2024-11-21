@@ -31,9 +31,8 @@ export const GroupWidget: CustomTypeWidget = {
 			"div.better-properties-group-container"
 		).forEach((el) => el.remove());
 
-		const { headerText } = plugin.settings.propertySettings[
-			data.key.toLowerCase()
-		]?.["group"] ?? {
+		const { headerText, showIndentationLines } = plugin.settings
+			.propertySettings[data.key.toLowerCase()]?.["group"] ?? {
 			...defaultPropertySettings["group"],
 		};
 
@@ -110,7 +109,11 @@ export const GroupWidget: CustomTypeWidget = {
 				cls: "better-properties-metadata-property-wrapper",
 			});
 
-			wrapper.createSpan({ cls: "better-properties-cm-indent" });
+			wrapper.createSpan({
+				cls:
+					"better-properties-cm-indent" +
+					(showIndentationLines ? " cm-indent" : ""),
+			});
 			const propertyDiv = wrapper.createDiv({
 				cls: "metadata-property",
 				attr: {
@@ -342,6 +345,15 @@ export const createGroupSettings = (
 		.addText((cmp) =>
 			cmp.setValue(form.headerText).onChange((v) => {
 				updateForm("headerText", v);
+			})
+		);
+
+	new Setting(content)
+		.setName(text("typeWidgets.group.settings.showIndentationLines.title"))
+		.setDesc(text("typeWidgets.group.settings.showIndentationLines.desc"))
+		.addToggle((cmp) =>
+			cmp.setValue(form.showIndentationLines).onChange((v) => {
+				updateForm("showIndentationLines", v);
 			})
 		);
 };

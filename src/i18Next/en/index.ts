@@ -305,6 +305,10 @@ export const en: TranslationResource = {
 					title: "Header text",
 					desc: "The text to display above the nested properties in this group. Leave blank to remove header entirely.",
 				},
+				showIndentationLines: {
+					title: "Show indentation guides",
+					desc: "Show vertical relationship lines for property items within this nested property.",
+				},
 			},
 		},
 		js: {

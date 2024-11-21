@@ -302,6 +302,10 @@ export type TranslationResource = {
 					title: string;
 					desc: string;
 				};
+				showIndentationLines: {
+					title: string;
+					desc: string;
+				};
 			};
 		};
 		js: {
