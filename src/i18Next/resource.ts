@@ -224,6 +224,55 @@ export type TranslationResource = {
 				removeTooltip: string;
 			};
 		};
+		// suggester: {
+		// 	name: string;
+		// 	openNoteTooltip: string;
+		// 	settings: {
+		// 		options: {
+		// 			title: string;
+		// 			desc: string;
+		// 		};
+		// 		dynamicOptions: {
+		// 			title: string;
+		// 			desc: string;
+		// 			inlineJs: {
+		// 				title: string;
+		// 				placeholder: string;
+		// 			};
+		// 			fileJs: {
+		// 				title: string;
+		// 				placeholder: string;
+		// 			};
+		// 		};
+		// 	};
+		// 	createOption: {
+		// 		value: {
+		// 			placeholder: string;
+		// 			tooltip: string;
+		// 		};
+		// 		configModal: {
+		// 			title: string;
+		// 			settings: {
+		// 				labelSetting: {
+		// 					title: string;
+		// 					desc: string;
+		// 				};
+		// 				backgroundColorSetting: {
+		// 					title: string;
+		// 					desc: string;
+		// 				};
+		// 				textColorSetting: {
+		// 					title: string;
+		// 					desc: string;
+		// 				};
+		// 			};
+		// 		};
+		// 		moveUpTooltip: string;
+		// 		moveDownTooltip: string;
+		// 		configTooltip: string;
+		// 		removeTooltip: string;
+		// 	};
+		// };
 		markdown: {
 			name: string;
 		};

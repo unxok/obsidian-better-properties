@@ -218,6 +218,10 @@ input[type="time"]::-webkit-calendar-picker-indicator {
 	padding: 2px;
 	display: block;
 	flex: 1 1 auto;
+
+	.metadata-property:has(> .metadata-property-value > &) {
+		flex-direction: column;
+	}
 }
 
 .better-properties-break {

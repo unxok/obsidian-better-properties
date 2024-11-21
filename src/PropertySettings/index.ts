@@ -56,6 +56,28 @@ export const PropertySettingsSchema = catchAndInfer(
 			})
 		),
 
+		suggester: catchAndInfer(
+			z.object({
+				options: z
+					.array(
+						z.object({
+							value: z.string().catch(""),
+							config: catchAndInfer(
+								z.object({
+									labelTitle: z.string().catch(""),
+									labelNote: z.string().catch(""),
+									labelAux: z.string().catch(""),
+									labelIcon: z.string().catch(""),
+								})
+							),
+						})
+					)
+					.catch([]),
+				dynamicInlineJs: z.string().catch(""),
+				dynamicFileJs: z.string().catch(""),
+			})
+		),
+
 		button: catchAndInfer(
 			z.object({
 				displayText: z.string().catch("click me"),
