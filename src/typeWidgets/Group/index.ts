@@ -4,6 +4,7 @@ import {
 	setIcon,
 	Setting,
 	stringifyYaml,
+	TextComponent,
 } from "obsidian";
 import { defaultPropertySettings, PropertySettings } from "@/PropertySettings";
 import { CustomTypeWidget } from "..";
@@ -14,6 +15,10 @@ import { obsidianText } from "@/i18Next/defaultObsidian";
 import { tryParseYaml } from "@/libs/utils/obsidian";
 import { createDragHandle } from "@/libs/utils/drag";
 import { arrayMove } from "@/libs/utils/pure";
+import {
+	NestedPropertySuggest,
+	PropertySuggest,
+} from "@/classes/PropertySuggest";
 
 // TODO Allow selecting nested properties to do clipboard actions like obsidian allows
 
@@ -231,25 +236,47 @@ export const GroupWidget: CustomTypeWidget = {
 				handleEl: iconSpan,
 			});
 
-			const keyInput = keyDiv.createEl("input", {
-				type: "text",
-				value: key,
-				cls: "metadata-property-key-input",
-				attr: {
-					"autocapitalize": "none",
-					"enterkeyhint": "next",
-					"aria-label": key,
-				},
-			});
+			// const keyInput = keyDiv.createEl("input", {
+			// 	type: "text",
+			// 	value: key,
+			// 	cls: "metadata-property-key-input",
+			// 	attr: {
+			// 		"autocapitalize": "none",
+			// 		"enterkeyhint": "next",
+			// 		"aria-label": key,
+			// 	},
+			// });
+
+			const keyInputCmp = new TextComponent(keyDiv)
+				.setValue(key)
+				.then((cmp) => {
+					cmp.inputEl.classList.add("metadata-property-key-input");
+					cmp.inputEl.type = "text";
+					cmp.inputEl.setAttribute("autocapitalize", "none");
+					cmp.inputEl.setAttribute("enterkeyhint", "next");
+					cmp.inputEl.setAttr("aria-label", key);
+				});
+
+			const suggester = new NestedPropertySuggest(
+				data.key,
+				plugin.app,
+				keyInputCmp
+			);
+
+			suggester.selectSuggestion = function (value) {
+				updateKey(value.property);
+				this.close();
+			};
+
+			const keyInput = keyInputCmp.inputEl;
 
 			if (focus) {
-				console.log("should focus");
 				keyInput.focus();
 			}
 
-			const updateKey = (e: Event) => {
+			const updateKey = (e: Event | string) => {
 				const ev = e as MouseEvent & { target: HTMLInputElement };
-				const newKey = ev.target.value;
+				const newKey = typeof e === "string" ? e : ev.target.value;
 				const obj = { ...valueObj };
 				if (!newKey) {
 					delete obj[key];

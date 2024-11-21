@@ -3,6 +3,7 @@ import {
 	AbstractInputSuggest,
 	App,
 	SearchComponent,
+	setIcon,
 	TextComponent,
 } from "obsidian";
 
@@ -10,6 +11,7 @@ export type Suggestion = {
 	title: string;
 	note?: string;
 	aux?: string;
+	icon?: string;
 };
 
 export abstract class InputSuggest<T> extends AbstractInputSuggest<T> {
@@ -41,7 +43,8 @@ export abstract class InputSuggest<T> extends AbstractInputSuggest<T> {
 		contentEl: HTMLDivElement,
 		titleEl: HTMLDivElement,
 		noteEl?: HTMLDivElement,
-		auxEl?: HTMLDivElement
+		auxEl?: HTMLDivElement,
+		icon?: string
 	): void;
 
 	/**
@@ -54,8 +57,14 @@ export abstract class InputSuggest<T> extends AbstractInputSuggest<T> {
 	 * @remark Do **NOT** override this! Use `this.onRenderSuggestion()` if you need to mutate the suggestion DOM elements
 	 */
 	renderSuggestion(value: T, el: HTMLElement): void {
-		const { title, aux, note } = this.parseSuggestion(value);
+		const { title, aux, note, icon } = this.parseSuggestion(value);
 		el.classList.add("mod-complex");
+		if (icon) {
+			const iconEl = el
+				.createDiv({ cls: "suggestion-icon" })
+				.createSpan({ cls: "suggestion-flair" });
+			setIcon(iconEl, icon);
+		}
 		const contentEl = el.createDiv({ cls: "suggestion-content" });
 		const titleEl = contentEl.createDiv({
 			cls: "suggestion-title",
