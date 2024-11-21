@@ -127,8 +127,8 @@ class InlineCodeWidget extends WidgetType {
 		const field = this.view.state.field(editorInfoField);
 		// console.log("view: ", this.view);
 		if (field.editor?.inTableCell) {
-			console.log("got field: ", field);
-			console.log("view: ", this.view);
+			// console.log("got field: ", field);
+			// console.log("view: ", this.view);
 		}
 
 		return el;

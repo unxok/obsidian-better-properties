@@ -224,7 +224,6 @@ export const createDropdownSettings = (
 		[...form.options],
 		plugin
 	).onChange((v) => {
-		console.log("changed: ", v);
 		updateForm("options", [...v]);
 	});
 

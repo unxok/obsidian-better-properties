@@ -293,8 +293,6 @@ export const GroupWidget: CustomTypeWidget = {
 				delete obj[key];
 				obj[newKey] = val ?? "";
 				ctx.onChange(obj);
-				console.log("updated: ", obj);
-				console.log(ctx.onChange);
 			};
 
 			keyInput.addEventListener("blur", updateKey);

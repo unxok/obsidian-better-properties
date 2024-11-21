@@ -38,7 +38,6 @@ export const TimeWidget: CustomTypeWidget = {
 			const val = ev.target.value;
 			const time = toTime(val).format("HH:mm");
 			ctx.onChange(time);
-			console.log("input: ", time);
 		});
 	},
 };

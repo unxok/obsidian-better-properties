@@ -15,9 +15,6 @@ const patch = () => {
 			return dedupe(monkeyAroundKey, old, function (e, el) {
 				// @ts-ignore
 				const that = this as MarkdownPreviewRenderer;
-
-				console.log("el: ", el);
-
 				old.call(that, e, el);
 			});
 		},
