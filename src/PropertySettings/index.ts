@@ -101,6 +101,7 @@ export const PropertySettingsSchema = catchAndInfer(
 			z.object({
 				headerText: z.string().catch(""),
 				showIndentationLines: z.boolean().catch(true),
+				showAddButton: z.boolean().catch(true),
 			})
 		),
 		js: catchAndInfer(z.object({})),

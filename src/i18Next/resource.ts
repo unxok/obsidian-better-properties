@@ -312,6 +312,10 @@ export type TranslationResource = {
 					title: string;
 					desc: string;
 				};
+				showAddButton: {
+					title: string;
+					desc: string;
+				};
 			};
 		};
 		js: {

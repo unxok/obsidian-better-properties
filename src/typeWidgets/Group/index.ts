@@ -36,7 +36,7 @@ export const GroupWidget: CustomTypeWidget = {
 			"div.better-properties-group-container"
 		).forEach((el) => el.remove());
 
-		const { headerText, showIndentationLines } = plugin.settings
+		const { headerText, showIndentationLines, showAddButton } = plugin.settings
 			.propertySettings[data.key.toLowerCase()]?.["group"] ?? {
 			...defaultPropertySettings["group"],
 		};
@@ -236,17 +236,6 @@ export const GroupWidget: CustomTypeWidget = {
 				handleEl: iconSpan,
 			});
 
-			// const keyInput = keyDiv.createEl("input", {
-			// 	type: "text",
-			// 	value: key,
-			// 	cls: "metadata-property-key-input",
-			// 	attr: {
-			// 		"autocapitalize": "none",
-			// 		"enterkeyhint": "next",
-			// 		"aria-label": key,
-			// 	},
-			// });
-
 			const keyInputCmp = new TextComponent(keyDiv)
 				.setValue(key)
 				.then((cmp) => {
@@ -308,7 +297,7 @@ export const GroupWidget: CustomTypeWidget = {
 			widget.render(
 				valueDiv,
 				{
-					key,
+					key: dotKey,
 					type,
 					value: val,
 					dotKey,
@@ -332,6 +321,8 @@ export const GroupWidget: CustomTypeWidget = {
 			});
 
 			contentDiv.createSpan({ cls: "better-properties-cm-indent" });
+
+			if (!showAddButton) return;
 
 			const addButtonDiv = contentDiv.createDiv({
 				cls: "metadata-add-button text-icon-button better-properties-metadata-add-button",
@@ -379,6 +370,15 @@ export const createGroupSettings = (
 		.addToggle((cmp) =>
 			cmp.setValue(form.showIndentationLines).onChange((v) => {
 				updateForm("showIndentationLines", v);
+			})
+		);
+
+	new Setting(content)
+		.setName(text("typeWidgets.group.settings.showAddButton.title"))
+		.setDesc(text("typeWidgets.group.settings.showAddButton.desc"))
+		.addToggle((cmp) =>
+			cmp.setValue(form.showAddButton).onChange((v) => {
+				updateForm("showAddButton", v);
 			})
 		);
 };

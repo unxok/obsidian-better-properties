@@ -315,6 +315,10 @@ export const en: TranslationResource = {
 					title: "Show indentation guides",
 					desc: "Show vertical relationship lines for property items within this nested property.",
 				},
+				showAddButton: {
+					title: "Show add property button",
+					desc: "Show a button at the bottom of the group property which allows adding a new property to the group.",
+				},
 			},
 		},
 		js: {
