@@ -65,13 +65,12 @@ export class NestedPropertySuggest extends PropertySuggest {
 		const { parentKey } = this;
 		const props = Object.values(metadataTypeManager.getAllProperties());
 		const filtered = props.filter(({ name }) => {
-			const arr = name.split(".");
-			if (arr[0].toLowerCase() !== parentKey) return false;
-			if (arr.length !== 2) return false;
-			return true;
+			const arr = name.split(parentKey + ".");
+			if (arr.length === 2) return true;
+			return false;
 		});
 		const arr = filtered.map((obj) => ({
-			property: obj.name.split(".")[1],
+			property: obj.name.split(parentKey + ".")[1],
 			type: obj.type,
 			icon:
 				metadataTypeManager.registeredTypeWidgets[obj.type]?.icon ??
