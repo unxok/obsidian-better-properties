@@ -27,6 +27,10 @@ export const GroupWidget: CustomTypeWidget = {
 	name: () => text("typeWidgets.group.name"),
 	validate: (v) => typeof v === "object",
 	render: (plugin, el, data, ctx) => {
+		el.parentElement!.querySelectorAll(
+			"div.better-properties-group-container"
+		).forEach((el) => el.remove());
+
 		const { headerText } = plugin.settings.propertySettings[
 			data.key.toLowerCase()
 		]?.["group"] ?? {
@@ -34,7 +38,13 @@ export const GroupWidget: CustomTypeWidget = {
 		};
 
 		el.style.setProperty("--metadata-input-background-active", "transparent");
-		const container = el.createDiv({
+		el.parentElement!.style.setProperty("flex-wrap", "wrap");
+
+		el.parentElement!.createDiv({
+			cls: "better-properties-break",
+		});
+
+		const container = el.parentElement!.createDiv({
 			cls: "better-properties-group-container",
 		});
 		const { value: initialValue } = data;
@@ -52,6 +62,8 @@ export const GroupWidget: CustomTypeWidget = {
 		const keys = Object.keys(valueObj);
 
 		if (headerText) {
+			container.createDiv({ cls: "better-properties-cm-indent" });
+
 			container
 				.createDiv({
 					cls: "metadata-properties-heading",
@@ -64,7 +76,7 @@ export const GroupWidget: CustomTypeWidget = {
 		});
 
 		const propertiesDiv = contentDiv.createDiv({
-			cls: "metadata-properties",
+			cls: "metadata-properties better-properties-metadata-properties",
 		});
 
 		const generateNestedProp = (
@@ -94,7 +106,12 @@ export const GroupWidget: CustomTypeWidget = {
 
 			const widget = plugin.app.metadataTypeManager.registeredTypeWidgets[type];
 
-			const propertyDiv = propertiesDiv.createDiv({
+			const wrapper = propertiesDiv.createDiv({
+				cls: "better-properties-metadata-property-wrapper",
+			});
+
+			wrapper.createSpan({ cls: "better-properties-cm-indent" });
+			const propertyDiv = wrapper.createDiv({
 				cls: "metadata-property",
 				attr: {
 					"tabindex": "0",
@@ -195,7 +212,7 @@ export const GroupWidget: CustomTypeWidget = {
 			const typeIcon = widget.icon;
 			setIcon(iconSpan, typeIcon);
 			createDragHandle({
-				containerEl: propertyDiv,
+				containerEl: wrapper,
 				index,
 				items: keys,
 				itemsContainerEl: propertiesDiv,
@@ -286,8 +303,10 @@ export const GroupWidget: CustomTypeWidget = {
 				generateNestedProp(k, i);
 			});
 
+			contentDiv.createSpan({ cls: "better-properties-cm-indent" });
+
 			const addButtonDiv = contentDiv.createDiv({
-				cls: "metadata-add-button text-icon-button",
+				cls: "metadata-add-button text-icon-button better-properties-metadata-add-button",
 				attr: {
 					tabindex: "0",
 				},

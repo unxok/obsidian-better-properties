@@ -160,7 +160,8 @@ input.better-properties-dropdown-setting-input {
 		width: 100px;
 	}
 
-	&:has(.setting-progress-bar) {
+	&:has(.setting-progress-bar),
+	&:has(.dropdown) {
 		padding: var(--size-4-1) var(--size-4-2);
 	}
 }
@@ -215,6 +216,44 @@ input[type="time"]::-webkit-calendar-picker-indicator {
 
 .better-properties-group-container {
 	padding: 2px;
+	display: block;
+	flex: 1 1 auto;
+}
+
+.better-properties-break {
+	flex-basis: 100%;
+	height: 0;
+}
+
+.better-properties-metadata-properties {
+	&.metadata-properties {
+		gap: 0;
+
+		& > div.better-properties-metadata-property-wrapper {
+			padding-block: var(--metadata-gap);
+			display: flex;
+			flex-direction: row;
+			position: relative;
+
+			& .metadata-property {
+				flex: 1 1 auto;
+			}
+
+			&:first-child {
+				padding-top: 0;
+			}
+
+			&:last-child {
+				padding-bottom: 0;
+			}
+
+			.markdown-source-view.mod-cm6.is-live-preview & .cm-indent::before {
+				margin-inline-start: calc(
+					var(--indentation-guide-editing-indent) - var(--size-4-1)
+				);
+			}
+		}
+	}
 }
 
 .better-properties-background-fade {
@@ -252,4 +291,9 @@ input[type="time"]::-webkit-calendar-picker-indicator {
 .setting-item.better-properties-text-list-setting-container {
 	flex-direction: column;
 	align-items: unset;
+}
+
+.better-properties-cm-indent {
+	min-width: var(--list-indent);
+	display: inline-block;
 }
