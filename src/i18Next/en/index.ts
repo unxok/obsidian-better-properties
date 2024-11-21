@@ -34,6 +34,11 @@ export const en: TranslationResource = {
 		showHidden: "Show hidden",
 		syncProps: "Synchronize",
 		reorderProps: "Reorder",
+		reorderByNameAZ: "Name (A to Z)",
+		reorderByNameZA: "Name (Z to A)",
+		reorderByTypeAZ: "Type (A to Z)",
+		reorderByTypeZA: "Type (Z to A)",
+		reorderByTemplate: "Template",
 	},
 	BetterPropertiesSettingTab: {
 		settings: {

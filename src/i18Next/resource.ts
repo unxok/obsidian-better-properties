@@ -57,6 +57,11 @@ export type TranslationResource = {
 		showHidden: string;
 		syncProps: string;
 		reorderProps: string;
+		reorderByNameAZ: string;
+		reorderByNameZA: string;
+		reorderByTypeAZ: string;
+		reorderByTypeZA: string;
+		reorderByTemplate: string;
 	};
 	augmentedPropertyMenu: {
 		delete: {
