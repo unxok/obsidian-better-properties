@@ -1,4 +1,4 @@
-import { setIcon } from "obsidian";
+import { Keymap, setIcon } from "obsidian";
 
 type AddDragHandleProps<T> = {
 	containerEl: HTMLElement;
@@ -22,12 +22,12 @@ export const createDragHandle = <T>({
 	draggingElClasses,
 }: AddDragHandleProps<T>) => {
 	const onMouseDown = (e: MouseEvent) => {
-		document.body.classList.add("is-grabbing");
+		let isInitialized = false;
 		const { left, top, width, height } = containerEl.getBoundingClientRect();
 		const dragTargetEl = document.body.createDiv({
 			cls: "better-properties-list-drag-target",
 			attr: {
-				style: `display: block; width: ${width}px; left: ${left}px;`,
+				style: `display: none; width: ${width}px; left: ${left}px;`,
 			},
 		});
 		const dragEl = createDragEl(
@@ -38,10 +38,6 @@ export const createDragHandle = <T>({
 			top,
 			draggingElClasses
 		);
-		containerEl.classList.add("better-properties-dragging-origin");
-		if (dragStyle === "swap") {
-			containerEl.classList.add("drag-ghost-hidden");
-		}
 
 		const lastPos = {
 			x: e.clientX,
@@ -59,8 +55,19 @@ export const createDragHandle = <T>({
 		};
 
 		const onMouseMove = (e: MouseEvent) => {
+			if (!isInitialized) {
+				return (isInitialized = true);
+			}
+			containerEl.classList.add("better-properties-dragging-origin");
+			if (dragStyle === "swap") {
+				containerEl.classList.add("drag-ghost-hidden");
+			}
+			document.body.classList.add("is-grabbing");
+
 			const diffX = e.clientX - lastPos.x;
 			const diffY = e.clientY - lastPos.y;
+
+			dragEl.style.removeProperty("display");
 
 			const itemEls = Array.from(itemsContainerEl.children);
 			// find closest item
@@ -134,6 +141,115 @@ export const createDragHandle = <T>({
 	}
 	button.addEventListener("mousedown", onMouseDown);
 
+	button.addEventListener("click", (e) => {
+		if (e.detail !== 0) return;
+
+		document.body.classList.add("is-grabbing");
+		const { left, top, width, height } = containerEl.getBoundingClientRect();
+		const dragTargetEl = document.body.createDiv({
+			cls: "better-properties-list-drag-target",
+			attr: {
+				style: `display: block; width: ${width}px; left: ${left}px;`,
+			},
+		});
+		const dragEl = createDragEl(
+			containerEl,
+			width,
+			left + 30,
+			height,
+			top + 30,
+			draggingElClasses
+		);
+		containerEl.classList.add("better-properties-dragging-origin");
+		if (dragStyle === "swap") {
+			containerEl.classList.add("drag-ghost-hidden");
+		}
+
+		let closestItem = {
+			index: index,
+			pos: -1,
+		};
+
+		const finishDrag = () => {
+			document.body.classList.remove("is-grabbing");
+			dragEl.remove();
+			dragTargetEl.remove();
+			containerEl.classList.remove(
+				"better-properties-dragging-origin",
+				"drag-ghost-hidden"
+			);
+			if (closestItem.index !== index && closestItem.index !== -1) {
+				onDragEnd(items, index, closestItem.index);
+			}
+		};
+
+		const selectSibling = (e: KeyboardEvent, isUp: boolean) => {
+			e.preventDefault();
+			const itemEls = Array.from(itemsContainerEl.children);
+
+			const nextIndex =
+				closestItem.index + 1 > itemEls.length - 1
+					? itemEls.length - 1
+					: closestItem.index + 1;
+			const prevIndex = closestItem.index - 1 < 0 ? 0 : closestItem.index - 1;
+
+			isUp ? (closestItem.index = prevIndex) : (closestItem.index = nextIndex);
+
+			const bounding = itemEls[closestItem.index].getBoundingClientRect();
+
+			if (dragStyle === "indicator") {
+				updateDragTarget(dragTargetEl, index, {
+					index: closestItem.index,
+					y: closestItem.index > index ? bounding.bottom : bounding.top,
+				});
+			}
+			const closestEl = itemEls[closestItem.index];
+			if (dragStyle === "swap") {
+				closestEl &&
+					updateItemElPosition(
+						containerEl,
+						itemsContainerEl,
+						closestEl,
+						closestItem.index
+					);
+			}
+
+			const computed = getComputedStyle(closestEl);
+			const parsedTop = parseInt(computed.top);
+			const newTop = isUp ? parsedTop : 1 - parsedTop;
+			dragEl.style.top = parseInt(dragEl.style.top) + newTop + "px";
+		};
+
+		const onKeyDown = (e: KeyboardEvent) => {
+			const keys = [
+				"Escape",
+				" ",
+				"Enter",
+				"ArrowDown",
+				"ArrowUp",
+				"j",
+				"k",
+			] as const;
+			type keyType = (typeof keys)[number];
+			if (!keys.includes(e.key as keyType)) return;
+			const eKey = e.key as keyType;
+			if (eKey === "Escape") {
+				closestItem.index = index;
+				document.removeEventListener("keydown", onKeyDown);
+				finishDrag();
+				return;
+			}
+			if (eKey === "ArrowUp" || eKey === "k") return selectSibling(e, true);
+			if (eKey === "ArrowDown" || eKey === "j") return selectSibling(e, false);
+			if (eKey === " " || eKey === "Enter") {
+				document.removeEventListener("keydown", onKeyDown);
+				finishDrag();
+			}
+		};
+
+		document.addEventListener("keydown", onKeyDown);
+	});
+
 	return button;
 };
 
@@ -152,6 +268,7 @@ const createDragEl = (
 	if (cssClasses) {
 		dragEl.classList.add(...cssClasses);
 	}
+	dragEl.style.display = "none";
 	dragEl.style.width = width + "px";
 	dragEl.style.left = left + "px";
 	dragEl.style.top = top + "px";
@@ -205,19 +322,9 @@ const reduceClosestEl = (
 	// to make typescript happy
 	if (!(child instanceof HTMLElement)) return closest;
 	const { originIndex, ev, dir } = context;
-	const { top, bottom, left, right, x, y, width, height } =
-		child.getBoundingClientRect();
-	const isGreaterIndex = i > originIndex;
-	const getPos = () => {
-		if (dir === "vertical") {
-			return isGreaterIndex ? bottom : top;
-			// return top + height / 2;
-		}
-		return isGreaterIndex ? right : left;
-		// return left + width / 2;
-	};
+	const { top, bottom, left, right } = child.getBoundingClientRect();
 
-	const pos = getPos();
+	const pos = getPos(originIndex, i, dir, { top, bottom, left, right });
 
 	if (closest.index === -1) {
 		return { index: i, pos };
@@ -228,4 +335,24 @@ const reduceClosestEl = (
 
 	// else this child is closer
 	return { index: i, pos };
+};
+
+const getPos = (
+	originIndex: number,
+	targetIndex: number,
+	dir: "vertical" | "horizontal",
+	bounds: {
+		top: number;
+		bottom: number;
+		left: number;
+		right: number;
+	}
+) => {
+	const isGreaterIndex = targetIndex > originIndex;
+	if (dir === "vertical") {
+		return isGreaterIndex ? bounds.bottom : bounds.top;
+		// return top + height / 2;
+	}
+	return isGreaterIndex ? bounds.right : bounds.left;
+	// return left + width / 2;
 };
