@@ -56,6 +56,7 @@ export type TranslationResource = {
 	metadataMoreOptionsMenu: {
 		showHidden: string;
 		syncProps: string;
+		reorderProps: string;
 	};
 	augmentedPropertyMenu: {
 		delete: {

@@ -30,15 +30,9 @@ export const patchMetdataEditor = (plugin: BetterProperties) => {
 	MetadataEditorPrototype.toggleHiddenProperties = function () {
 		const shouldHide = this.showHiddenProperties;
 		if (shouldHide) {
-			this.containerEl.style.setProperty(
-				"--better-properties-hidden",
-				"none"
-			);
+			this.containerEl.style.setProperty("--better-properties-hidden", "none");
 		} else {
-			this.containerEl.style.setProperty(
-				"--better-properties-hidden",
-				"flex"
-			);
+			this.containerEl.style.setProperty("--better-properties-hidden", "flex");
 		}
 		this.showHiddenProperties = !shouldHide;
 	};
@@ -95,12 +89,7 @@ const patchLoad = (
 						await doSync(metaCache, plugin, parsedId);
 						return;
 					}
-					new SyncPropertiesModal(
-						plugin,
-						that,
-						metaCache,
-						parsedId
-					).open();
+					new SyncPropertiesModal(plugin, that, metaCache, parsedId).open();
 				};
 
 				moreOptionsButton.addEventListener("click", (e) => {
@@ -108,23 +97,23 @@ const patchLoad = (
 						.addItem((item) =>
 							item
 								.setSection("show-hidden")
-								.setTitle(
-									text("metadataMoreOptionsMenu.showHidden")
-								)
+								.setTitle(text("metadataMoreOptionsMenu.showHidden"))
 								.setIcon("eye-off")
 								.setChecked(that.showHiddenProperties)
-								.onClick(() =>
-									that.toggleHiddenProperties.call(that)
-								)
+								.onClick(() => that.toggleHiddenProperties.call(that))
 						)
 						.addItem((item) =>
 							item
-								.setSection("sync-properties")
-								.setTitle(
-									text("metadataMoreOptionsMenu.syncProps")
-								)
+								.setSection("properties-actions")
+								.setTitle(text("metadataMoreOptionsMenu.syncProps"))
 								.setIcon("arrow-right-left")
 								.onClick(onClickDoSync)
+						)
+						.addItem((item) =>
+							item
+								.setSection("properties-actions")
+								.setTitle(text("metadataMoreOptionsMenu.reorderProps"))
+								.setIcon("sort-asc")
 						)
 						.showAtMouseEvent(e);
 				});

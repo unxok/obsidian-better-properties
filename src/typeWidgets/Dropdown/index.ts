@@ -25,6 +25,7 @@ import { text } from "@/i18Next";
 import { TextColorComponent } from "@/classes/TextColorComponent";
 import { ListComponent } from "@/classes/ListComponent";
 import { obsidianText } from "@/i18Next/defaultObsidian";
+import { createDragHandle } from "@/libs/utils/drag";
 
 export const DropdownWidget: CustomTypeWidget = {
 	type: "dropdown",
@@ -550,16 +551,37 @@ class OptionList extends ListComponent<Option> {
 
 		this.createSortAlphabetical().createNewItemButton();
 	}
-	renderItem({ value, config }: Option, setting: Setting, index: number): void {
-		this.addDragHandle(setting, index);
+	renderItem(
+		{ value, config }: Option,
+		setting: Setting,
+		index: number,
+		shouldFocus?: boolean
+	): void {
+		setting.controlEl.appendChild(
+			createDragHandle({
+				containerEl: setting.settingEl,
+				dragStyle: "indicator",
+				index,
+				items: this.items,
+				itemsContainerEl: this.itemsContainerEl,
+				onDragEnd: (value, config, indexTo) => {
+					this.setValueHighlight(arrayMove(value, index, indexTo), indexTo);
+				},
+			})
+		);
 		new TextComponent(setting.controlEl)
 			.setValue(value)
 			.onChange((v) =>
 				this.updateItemValue((prev) => ({ ...prev, value: v }), index)
 			)
-			.inputEl.classList.add("better-properties-text-list-component-input");
-		this.addMoveUpButton(setting, index);
-		this.addMoveDownButton(setting, index);
+			.then((cmp) => {
+				cmp.inputEl.classList.add(
+					"better-properties-text-list-component-input"
+				);
+				if (shouldFocus) cmp.inputEl.focus();
+			});
+		// this.addMoveUpButton(setting, index);
+		// this.addMoveDownButton(setting, index);
 		this.addConfigureButton({ value, config }, setting, index);
 		this.addDeleteButton(setting, index);
 	}

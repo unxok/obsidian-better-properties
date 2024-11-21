@@ -32,7 +32,8 @@ export const en: TranslationResource = {
 	},
 	metadataMoreOptionsMenu: {
 		showHidden: "Show hidden",
-		syncProps: "Sync properties",
+		syncProps: "Synchronize",
+		reorderProps: "Reorder",
 	},
 	BetterPropertiesSettingTab: {
 		settings: {

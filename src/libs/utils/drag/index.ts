@@ -160,6 +160,7 @@ export const createDragHandle = <T>({
 			top + 30,
 			draggingElClasses
 		);
+		dragEl.style.removeProperty("display");
 		containerEl.classList.add("better-properties-dragging-origin");
 		if (dragStyle === "swap") {
 			containerEl.classList.add("drag-ghost-hidden");

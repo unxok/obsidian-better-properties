@@ -117,133 +117,6 @@ export abstract class ListComponent<T> extends ValueComponent<T[]> {
 		return setting;
 	}
 
-	// public addDragHandle(setting: Setting, index: number): Setting {
-	// 	const { itemsContainerEl, items } = this;
-	// 	const onMouseDown = (e: MouseEvent) => {
-	// 		const updateArray = (arr: T[], indexFrom: number, indexTo: number) => {
-	// 			this.setValueHighlight(
-	// 				arrayMove([...arr], indexFrom, indexTo),
-	// 				indexTo
-	// 			);
-	// 		};
-
-	// 		//
-	// 		const dragEl = setting.settingEl.cloneNode(true) as HTMLElement;
-	// 		dragEl.classList.remove("better-properties-background-fade");
-	// 		setting.settingEl.classList.add("better-properties-dragging-origin");
-	// 		const { width } = getComputedStyle(setting.settingEl);
-	// 		const { left, top } = setting.settingEl.getBoundingClientRect();
-	// 		const dragTargetEl = document.body.createDiv({
-	// 			cls: "better-properties-list-drag-target",
-	// 			attr: {
-	// 				style: `display: none; width: ${width}; left: ${left}px;`,
-	// 			},
-	// 		});
-	// 		dragEl.classList.add("better-properties-dragging");
-	// 		dragEl.style.position = "absolute";
-	// 		dragEl.style.width = width;
-	// 		dragEl.style.left = left + "px";
-	// 		dragEl.style.top = top + "px";
-	// 		document.body.appendChild(dragEl);
-
-	// 		const lastPos = {
-	// 			x: e.clientX,
-	// 			y: e.clientY,
-	// 		};
-
-	// 		let oldDiff = {
-	// 			x: 0,
-	// 			y: 0,
-	// 		};
-
-	// 		const closestItem = {
-	// 			index: -1,
-	// 			posY: -1,
-	// 		};
-
-	// 		const itemEls = Array.from(itemsContainerEl.children);
-
-	// 		const onMouseMove = (e: MouseEvent) => {
-	// 			const diffX = e.clientX - lastPos.x;
-	// 			const diffY = e.clientY - lastPos.y;
-
-	// 			// find closest item
-	// 			itemEls.forEach((child, i) => {
-	// 				// to make typescript happy
-	// 				if (!(child instanceof HTMLElement)) return;
-
-	// 				const { top, bottom } = child.getBoundingClientRect();
-
-	// 				const y = i > index ? bottom : top;
-
-	// 				// set the first child that's not the dragged child
-	// 				if (closestItem.index === -1) {
-	// 					closestItem.index = i;
-	// 					closestItem.posY = y;
-	// 					return;
-	// 				}
-
-	// 				// this child is farther than the currently recorded one
-	// 				if (Math.abs(y - e.clientY) > Math.abs(closestItem.posY - e.clientY))
-	// 					return;
-
-	// 				// else this child is closer
-	// 				closestItem.index = i;
-	// 				closestItem.posY = y;
-	// 			});
-
-	// 			// apply styles to drag target indicator
-	// 			dragTargetEl.style.top = closestItem.posY + "px";
-	// 			if (closestItem.index !== index) {
-	// 				dragTargetEl.style.display = "block";
-	// 			} else {
-	// 				dragTargetEl.style.display = "none";
-	// 			}
-
-	// 			// apply styles to dragged element
-	// 			dragEl.style.left = left + oldDiff.x + diffX + "px";
-	// 			dragEl.style.top = top + oldDiff.y + diffY + "px";
-
-	// 			// record coords for next iteration
-	// 			lastPos.x = e.clientX;
-	// 			lastPos.y = e.clientY;
-	// 			oldDiff.x += diffX;
-	// 			oldDiff.y += diffY;
-	// 		};
-
-	// 		const onMouseUp = () => {
-	// 			dragEl.remove();
-	// 			dragTargetEl.remove();
-	// 			setting.settingEl.classList.remove("better-properties-dragging-origin");
-	// 			if (closestItem.index !== index && closestItem.index !== -1) {
-	// 				updateArray(items, index, closestItem.index);
-	// 			}
-	// 			document.removeEventListener("mousemove", onMouseMove);
-	// 			document.removeEventListener("mouseup", onMouseUp);
-	// 		};
-
-	// 		const onKeyDown = (e: KeyboardEvent) => {
-	// 			if (e.key !== "Escape") return;
-	// 			closestItem.index = index;
-	// 			onMouseUp();
-	// 			document.removeEventListener("keydown", onKeyDown);
-	// 		};
-
-	// 		document.addEventListener("keydown", onKeyDown);
-	// 		document.addEventListener("mousemove", onMouseMove);
-	// 		document.addEventListener("mouseup", onMouseUp);
-	// 	};
-
-	// 	setting.addButton((cmp) =>
-	// 		cmp
-	// 			.setIcon("grip-vertical")
-	// 			.setClass("clickable-icon")
-	// 			.then((btn) => btn.buttonEl.addEventListener("mousedown", onMouseDown))
-	// 	);
-
-	// 	return setting;
-	// }
-
 	protected addDeleteButton(setting: Setting, index: number): Setting {
 		setting.addButton((cmp) =>
 			cmp
@@ -303,8 +176,8 @@ export class TextListComponent extends ListComponent<string> {
 				if (!shouldFocus) return;
 				cmp.inputEl.focus();
 			});
-		this.addMoveUpButton(setting, index);
-		this.addMoveDownButton(setting, index);
+		// this.addMoveUpButton(setting, index);
+		// this.addMoveDownButton(setting, index);
 		this.addDeleteButton(setting, index);
 	}
 
