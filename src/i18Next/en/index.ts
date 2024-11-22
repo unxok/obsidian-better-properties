@@ -325,6 +325,9 @@ export const en: TranslationResource = {
 			name: "JavaScript",
 		},
 		text: {},
+		relation: {
+			name: "Relation",
+		},
 	},
 	propertyEditor: {
 		insertModal: {

@@ -25,6 +25,7 @@ import { createProgressSettings } from "@/typeWidgets/Progress";
 import { createGroupSettings } from "@/typeWidgets/Group";
 import { ListComponent, TextListComponent } from "@/classes/ListComponent";
 import { obsidianText } from "@/i18Next/defaultObsidian";
+import { createRelationSettings } from "@/typeWidgets/Relation";
 
 export const addSettings = ({ menu, plugin, key }: MetadataAddItemProps) => {
 	menu.addItem((item) =>
@@ -237,6 +238,13 @@ class SettingsModal extends Modal {
 					contentEl,
 					this.form["group"],
 					(key, value) => this.updateForm("group", key, value)
+				);
+			case "relation":
+				return createRelationSettings(
+					contentEl,
+					this.form["relation"],
+					(key, value) => this.updateForm("relation", key, value),
+					this.plugin
 				);
 			default:
 				new Setting(contentEl)

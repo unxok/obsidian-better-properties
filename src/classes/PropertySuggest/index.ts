@@ -1,4 +1,4 @@
-import { setIcon } from "obsidian";
+import { App, setIcon, SuggestModal } from "obsidian";
 import { InputSuggest, Suggestion } from "../InputSuggest";
 
 type Data = {
@@ -78,5 +78,53 @@ export class NestedPropertySuggest extends PropertySuggest {
 		}));
 		if (!query) return arr;
 		return arr.filter((obj) => obj.property.includes(query));
+	}
+}
+
+export class PropertySuggestModal extends SuggestModal<Data> {
+	constructor(
+		app: App,
+		public onSelect: (
+			data: Data,
+			e: MouseEvent | KeyboardEvent
+		) => void | Promise<void>
+	) {
+		super(app);
+	}
+
+	getSuggestions(query: string): Data[] | Promise<Data[]> {
+		const { metadataTypeManager } = this.app;
+		const props = Object.values(metadataTypeManager.getAllProperties());
+		const arr = props.map((obj) => ({
+			property: obj.name,
+			type: obj.type,
+			icon:
+				metadataTypeManager.registeredTypeWidgets[obj.type]?.icon ??
+				"file-question",
+		}));
+		if (!query) return arr;
+		return arr.filter((obj) => obj.property.includes(query));
+	}
+
+	renderSuggestion(value: Data, el: HTMLElement): void {
+		el.classList.add("mod-complex");
+		el.createDiv({ cls: "suggestion-content" }).createDiv({
+			text: value.property,
+			cls: "suggestion-title",
+		});
+
+		setIcon(
+			el
+				.createDiv({ cls: "suggestion-aux" })
+				.createDiv({ cls: "suggestion-flair" }),
+			value.icon
+		);
+	}
+
+	async onChooseSuggestion(
+		value: Data,
+		evt: MouseEvent | KeyboardEvent
+	): Promise<void> {
+		await this.onSelect({ ...value }, evt);
 	}
 }

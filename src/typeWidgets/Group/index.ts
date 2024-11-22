@@ -25,28 +25,16 @@ import {
 export const GroupWidget: CustomTypeWidget = {
 	type: "group",
 	icon: "braces",
-	default: () => {
-		{
-		}
-	},
+	default: () => ({}),
 	name: () => text("typeWidgets.group.name"),
 	validate: (v) => typeof v === "object",
 	render: (plugin, el, data, ctx) => {
-		// el.parentElement!.querySelectorAll(
-		// 	"div.better-properties-group-container"
-		// ).forEach((el) => el.remove());
-
 		const { headerText, showIndentationLines, showAddButton } = plugin.settings
 			.propertySettings[data.key.toLowerCase()]?.["group"] ?? {
 			...defaultPropertySettings["group"],
 		};
 
 		el.style.setProperty("--metadata-input-background-active", "transparent");
-		// el.parentElement!.style.setProperty("flex-wrap", "wrap");
-
-		// el.parentElement!.createDiv({
-		// 	cls: "better-properties-break",
-		// });
 
 		const container = el.createDiv({
 			cls: "better-properties-group-container",

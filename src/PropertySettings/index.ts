@@ -133,6 +133,12 @@ export const PropertySettingsSchema = catchAndInfer(
 				staticSuggestions: z.array(z.string().catch("")).catch([]),
 			})
 		),
+
+		relation: catchAndInfer(
+			z.object({
+				relatedProperty: z.string().catch(""),
+			})
+		),
 	})
 );
 

@@ -19,22 +19,23 @@ import { ProgressWidget } from "./Progress";
 import { TimeWidget } from "./Time";
 import { GroupWidget } from "./Group";
 import { tryParseYaml } from "@/libs/utils/obsidian";
+import { RelationWidget } from "./Relation";
 
-export type CustomTypeWidget = {
+export type CustomTypeWidget<T = unknown> = {
 	type: keyof PropertySettings;
 	icon: string;
-	default: () => unknown;
+	default: () => T;
 	name: () => string;
 	validate: (v: unknown) => boolean;
 	render: (
 		plugin: BetterProperties,
 		el: HTMLElement,
-		data: PropertyEntryData<unknown>,
+		data: PropertyEntryData<T>,
 		ctx: PropertyRenderContext
 	) => void;
 };
 
-const widgets: CustomTypeWidget[] = [
+const widgets: CustomTypeWidget<any>[] = [
 	ToggleWidget,
 	DropdownWidget,
 	ButtonWidget,
@@ -46,6 +47,7 @@ const widgets: CustomTypeWidget[] = [
 	ProgressWidget,
 	TimeWidget,
 	GroupWidget,
+	RelationWidget,
 ];
 
 export const registerCustomWidgets = (plugin: BetterProperties) => {

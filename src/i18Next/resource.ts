@@ -371,6 +371,9 @@ export type TranslationResource = {
 			name: string;
 		};
 		text: {};
+		relation: {
+			name: string;
+		};
 	};
 	propertyEditor: {
 		insertModal: {
