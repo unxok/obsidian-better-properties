@@ -97,3 +97,28 @@ export const findKeyValueByDotNotation = (
 	}
 	return current;
 };
+
+export const updateNestedObject = (
+	obj: Record<string, any>,
+	key: string,
+	value: any
+) => {
+	const keys = key.split(".");
+	let current = obj;
+
+	for (let i = 0; i < keys.length - 1; i++) {
+		const k = keys[i];
+
+		// Ensure the current level exists and is an object
+		if (!current[k] || typeof current[k] !== "object") {
+			current[k] = {};
+		}
+
+		current = current[k];
+	}
+
+	// Update the final key with the given value
+	current[keys[keys.length - 1]] = value;
+
+	return obj;
+};

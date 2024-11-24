@@ -91,14 +91,14 @@ export const GroupWidget: CustomTypeWidget = {
 			// 	plugin.app.metadataTypeManager.getAssignedType(dotKey);
 
 			// TODO obsidian-typings has this typed badly. Opened a PR to fix it 2024-11-13
-			const assignedType: string =
-				plugin.app.metadataTypeManager.types[dotKey.toLowerCase()]?.type;
+			const assignedType =
+				plugin.app.metadataTypeManager.getAssignedType(dotKey);
 
 			const type = assignedType ?? "text";
 
 			const widget = plugin.app.metadataTypeManager.registeredTypeWidgets[type];
 
-			const wrapper = propertiesDiv.createDiv({
+			const wrapper = createDiv({
 				cls: "better-properties-metadata-property-wrapper",
 			});
 
@@ -298,6 +298,8 @@ export const GroupWidget: CustomTypeWidget = {
 					},
 				}
 			);
+
+			propertiesDiv.appendChild(wrapper);
 		};
 
 		// TODO it seems the metadataType change which triggers this entire widget to re-render, doesn't actually update the types in the MetadataTypeManager prior to

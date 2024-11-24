@@ -309,3 +309,44 @@ input[type="time"]::-webkit-calendar-picker-indicator {
 		gap: 0.125rem;
 	}
 }
+
+.markdown-source-view.mod-cm6
+	.cm-embed-block:not(.cm-table-widget):has(
+		.better-properties-dataview-table
+	):hover {
+	box-shadow: none;
+}
+
+.better-properties-dataview-table-wrapper {
+	overflow-x: auto;
+}
+
+.better-properties-dataview-table {
+	& > thead {
+		& > tr > th > .better-properties-dataview-table-th-wrapper {
+			display: flex;
+			gap: 0.25rem;
+			align-items: center;
+
+			&:hover {
+				color: var(--text-accent);
+				cursor: pointer;
+			}
+
+			& > span:first-child {
+				display: flex;
+				justify-content: center;
+				align-items: center;
+			}
+		}
+	}
+
+	& > tbody {
+		& > tr > td {
+			padding: 0;
+			& > p {
+				margin-block: 0;
+			}
+		}
+	}
+}

@@ -60,7 +60,8 @@ export const RelationWidget: CustomTypeWidget<string> = {
 			}
 
 			const relationType =
-				plugin.app.metadataTypeManager.getAssignedType(relatedProperty);
+				plugin.app.metadataTypeManager.getAssignedType(relatedProperty) ??
+				"text";
 			const relationWidget = Object.values(
 				plugin.app.metadataTypeManager.registeredTypeWidgets
 			).find((w) => w.type === relationType);
