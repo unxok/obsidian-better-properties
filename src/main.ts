@@ -96,7 +96,6 @@ export default class BetterProperties extends Plugin {
 			new TextListComponent(el.createDiv(), "empty")
 				.createNewItemButton()
 				.setValue(["apples", "oranges", "bananas"]);
-			// .onChange((v) => console.log("items: ", v));
 		});
 	}
 

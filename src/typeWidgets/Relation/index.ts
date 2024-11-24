@@ -1,5 +1,8 @@
 import {
 	App,
+	CachedMetadata,
+	FrontMatterCache,
+	Keymap,
 	Menu,
 	ProgressBarComponent,
 	setIcon,
@@ -13,13 +16,10 @@ import { defaultPropertySettings, PropertySettings } from "@/PropertySettings";
 import { CustomTypeWidget } from "..";
 import { createSection } from "@/libs/utils/setting";
 import { text } from "@/i18Next";
-import { PropertyEntryData } from "obsidian-typings";
-import { obsidianText } from "@/i18Next/defaultObsidian";
-import { tryParseYaml } from "@/libs/utils/obsidian";
-import { createDragHandle } from "@/libs/utils/drag";
-import { arrayMove } from "@/libs/utils/pure";
+import { PropertyEntryData, PropertyRenderContext } from "obsidian-typings";
+import { getFileFromMarkdownLink, tryParseYaml } from "@/libs/utils/obsidian";
+import { findKeyInsensitive } from "@/libs/utils/pure";
 import {
-	NestedPropertySuggest,
 	PropertySuggest,
 	PropertySuggestModal,
 } from "@/classes/PropertySuggest";
@@ -44,71 +44,217 @@ export const RelationWidget: CustomTypeWidget<string> = {
 		// });
 		const { value } = data;
 
-		if (!value || !relatedProperty) {
-			const btnContainer = el.createDiv({
-				cls: "metadata-input-longtext",
-			});
+		if (value && relatedProperty) {
+			const file = getFileFromMarkdownLink(plugin.app, ctx.sourcePath, value);
+			if (!file) {
+				const btnContainer = createContainer(el);
+				btnContainer.createDiv({ text: "Note not found" }).style.color =
+					"var(--text-error)";
+				const xBtn = btnContainer.createSpan({ cls: "clickable-icon" });
+				setIcon(xBtn, "x");
+				xBtn.addEventListener("click", () => {
+					ctx.onChange("");
+					plugin.refreshPropertyEditor(data.key);
+				});
+				return;
+			}
 
-			if (!value) {
-				console.log("no val: ", value);
-				btnContainer
-					.createEl("button", {
-						text: "choose note",
-						attr: {
-							style: "margin-top: 0px;",
-						},
-					})
-					.addEventListener("click", async () => {
-						new FileSuggestModal(plugin.app, (file) => {
-							const link = plugin.app.fileManager.generateMarkdownLink(
+			const relationType =
+				plugin.app.metadataTypeManager.getAssignedType(relatedProperty);
+			const relationWidget = Object.values(
+				plugin.app.metadataTypeManager.registeredTypeWidgets
+			).find((w) => w.type === relationType);
+
+			if (!relationWidget) {
+				const btnContainer = createContainer(el);
+				btnContainer.createSpan({ text: "Note not found" }).style.color =
+					"var(--text-error)";
+				createChangePropertyBtn(plugin, btnContainer, data);
+				return;
+			}
+
+			const relatedCache = plugin.app.metadataCache.getCache(file.path);
+			const { frontmatter } = relatedCache ?? {};
+
+			const relatedValue = getRelatedValue(relatedProperty, frontmatter);
+
+			const renderRelationWiddget = () => {
+				relationWidget.render(
+					el,
+					{ key: relatedProperty, type: relationType, value: relatedValue },
+					{
+						...ctx,
+						onChange: (v) => {
+							plugin.app.fileManager.processFrontMatter(
 								file,
-								ctx.sourcePath
+								(fm: Record<string, unknown>) => {
+									const foundKey =
+										findKeyInsensitive(relatedProperty, fm) ?? relatedProperty;
+									fm[foundKey] = v;
+								}
 							);
-
-							ctx.onChange(link);
-							plugin.refreshPropertyEditor(data.key);
-						}).open();
-					});
-			}
-
-			if (!relatedProperty) {
-				// TODO this is lazy
-				btnContainer.createSpan().innerHTML = "&nbsp;&nbsp;";
-				btnContainer
-					.createEl("button", {
-						text: "set property",
-						attr: {
-							style: "margin-top: 0px;",
 						},
-					})
-					.addEventListener("click", () =>
-						new PropertySuggestModal(plugin.app, async ({ property }) => {
-							await plugin.updatePropertySetting(data.key, (prev) => ({
-								...prev,
-								relation: {
-									...prev.relation,
-									relatedProperty: property,
-								},
-							}));
-							plugin.refreshPropertyEditor(data.key);
-						}).open()
+					}
+				);
+
+				const relatedLinkEl = el.createDiv({
+					cls: "clickable-icon",
+					attr: { "aria-label": 'Open related note\n"' + file.basename + '"' },
+				});
+
+				setIcon(relatedLinkEl, "arrow-up-right");
+
+				relatedLinkEl.addEventListener("click", (e) => {
+					plugin.app.workspace.openLinkText(
+						file.path,
+						ctx.sourcePath,
+						Keymap.isModEvent(e)
 					);
-			}
+				});
+
+				relatedLinkEl.addEventListener("contextmenu", (e) => {
+					new Menu()
+						.addItem((item) =>
+							item.setTitle("Set Note").onClick(() => {
+								const create = createSetNoteBtn(
+									plugin,
+									document.body,
+									data,
+									ctx
+								);
+								create.click();
+								create.remove();
+							})
+						)
+						.addItem((item) =>
+							item.setTitle("Change property").onClick(() => {
+								const create = createChangePropertyBtn(
+									plugin,
+									document.body,
+									data
+								);
+								create.click();
+								create.remove();
+							})
+						)
+						.showAtMouseEvent(e);
+				});
+			};
+
+			renderRelationWiddget();
+			const onMDCChanged = (
+				changedFile: TFile,
+				_fmYaml: string,
+				cache: CachedMetadata
+			) => {
+				if (changedFile.path !== file.path) return;
+				const changedFm = cache.frontmatter ?? {};
+				const k = findKeyInsensitive(relatedProperty, changedFm);
+				const changedValue = k ? changedFm[k] : undefined;
+				if (changedValue === relatedValue) return;
+				plugin.refreshPropertyEditor(data.key);
+			};
+
+			plugin.app.metadataCache.on("changed", onMDCChanged);
+			ctx.metadataEditor.register(() => {
+				// @ts-ignore TODO incorrect-type match
+				plugin.app.metadataCache.off("changed", onMDCChanged);
+			});
 
 			return;
 		}
 
-		el.createDiv({ text: value });
+		const btnContainer = createContainer(el);
+
+		if (!value) {
+			createSetNoteBtn(plugin, btnContainer, data, ctx);
+		}
+
+		if (!relatedProperty) {
+			createChangePropertyBtn(plugin, btnContainer, data);
+		}
 	},
 };
 
-// TODO put into obsidian functions
-const getFileFromMarkdownLink = (mdLink: string) => {
-	const noBrackets =
-		mdLink.startsWith("[[") && mdLink.endsWith("]]")
-			? mdLink.slice(2, -2)
-			: mdLink;
-	const nonAliased = mdLink.split(/(?<!\\)\|/g)[0];
+const createContainer = (parentEl: HTMLElement) => {
+	return parentEl.createDiv({
+		cls: "metadata-input-longtext better-properties-relation-container",
+	});
+};
+
+const getRelatedValue = (
+	relatedProperty: string,
+	frontmatter: FrontMatterCache | undefined
+) => {
+	if (!frontmatter) {
+		return undefined;
+	}
+	const foundValue = frontmatter[relatedProperty];
+	if (foundValue) {
+		return foundValue;
+	}
+	const foundKey = findKeyInsensitive(relatedProperty, frontmatter);
+	if (!foundKey) {
+		return undefined;
+	}
+};
+
+const createChangePropertyBtn = (
+	plugin: BetterProperties,
+	btnContainer: HTMLElement,
+	data: PropertyEntryData<string>
+) => {
+	// TODO this is lazy
+	btnContainer.createSpan().innerHTML = "&nbsp;&nbsp;";
+	const btn = btnContainer.createEl("button", {
+		text: "set property",
+		attr: {
+			style: "margin-top: 0px;",
+		},
+	});
+
+	btn.addEventListener("click", () =>
+		new PropertySuggestModal(plugin.app, async ({ property }) => {
+			await plugin.updatePropertySetting(data.key, (prev) => ({
+				...prev,
+				relation: {
+					...prev.relation,
+					relatedProperty: property,
+				},
+			}));
+			plugin.refreshPropertyEditor(data.key);
+		}).open()
+	);
+
+	return btn;
+};
+
+const createSetNoteBtn = (
+	plugin: BetterProperties,
+	btnContainer: HTMLElement,
+	data: PropertyEntryData<string>,
+	ctx: PropertyRenderContext
+) => {
+	const btn = btnContainer.createEl("button", {
+		text: "choose note",
+		attr: {
+			style: "margin-top: 0px;",
+		},
+	});
+
+	btn.addEventListener("click", async () => {
+		new FileSuggestModal(plugin.app, (file) => {
+			const link = plugin.app.fileManager.generateMarkdownLink(
+				file,
+				ctx.sourcePath
+			);
+
+			ctx.onChange(link);
+			plugin.refreshPropertyEditor(data.key);
+		}).open();
+	});
+
+	return btn;
 };
 
 export const createRelationSettings = (

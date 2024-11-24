@@ -1,3 +1,4 @@
+import { App } from "obsidian";
 import { parseYaml } from "obsidian";
 
 type ParseYamlResult =
@@ -17,4 +18,17 @@ export const tryParseYaml: (str: string) => ParseYamlResult = (str) => {
 	} catch (error) {
 		return { success: false, error };
 	}
+};
+
+export const getFileFromMarkdownLink = (
+	app: App,
+	sourcePath: string,
+	mdLink: string
+) => {
+	const noBrackets =
+		mdLink.startsWith("[[") && mdLink.endsWith("]]")
+			? mdLink.slice(2, -2)
+			: mdLink;
+	const nonAliased = noBrackets.split(/(?<!\\)\|/g)[0];
+	return app.metadataCache.getFirstLinkpathDest(nonAliased, sourcePath);
 };

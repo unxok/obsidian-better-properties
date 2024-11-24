@@ -301,3 +301,11 @@ input[type="time"]::-webkit-calendar-picker-indicator {
 	min-width: var(--list-indent);
 	display: inline-block;
 }
+
+.better-properties-relation-container {
+	&,
+	&.metadata-input-longtext {
+		display: flex;
+		gap: 0.125rem;
+	}
+}
