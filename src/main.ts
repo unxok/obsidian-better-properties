@@ -273,7 +273,7 @@ const dataviewBP = (plugin: BetterProperties) => {
 			}
 
 			const queryResults = await dv.query(source);
-			console.log("qr: ", queryResults);
+			// console.log("qr: ", queryResults);
 
 			const updateProperty = async (
 				filePath: string,
@@ -412,7 +412,6 @@ const dataviewBP = (plugin: BetterProperties) => {
 			renderResults(queryResults);
 
 			const onMetaChange = async () => {
-				console.log("changed");
 				const results = await dv.query(query, ctx.sourcePath);
 				renderResults(results);
 			};

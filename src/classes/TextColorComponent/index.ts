@@ -18,14 +18,13 @@ export class TextColorComponent extends ValueComponent<string> {
 			this.setValue(v);
 			this.onChanged();
 		});
+
 		this.textCmp = text;
 		this.colorCmp = color;
 	}
 
 	setValue(value: string): this {
-		// this.textCmp.setValue(value);
 		this.textCmp.inputEl.value = value;
-		// this.colorCmp.setValue(value);
 		this.colorCmp.colorPickerEl.value = value;
 		this.value = value;
 		return this;
