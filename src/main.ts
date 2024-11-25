@@ -136,18 +136,19 @@ export default class BetterProperties extends Plugin {
 
 		const { metadataCache: mdc, fileCache: fc } = metadataCache;
 		const fcKeys = Object.keys(fc);
-		const files = Object.keys(mdc)
-			.map((hash) => {
-				const fm = mdc[hash].frontmatter ?? {};
-				if (fm?.hasOwnProperty(key)) return { hash, value: fm[key] };
-				const found = findKeyInsensitive(key, fm);
-				if (found) {
-					return { hash, value: fm[found] };
-				}
-				const foundByDotKey = findKeyValueByDotNotation(key, fm);
-				if (!foundByDotKey) return null;
-				return { hash, value: foundByDotKey };
-			})
+		const preFiles = Object.keys(mdc).map((hash) => {
+			const fm = mdc[hash].frontmatter ?? {};
+			if (fm?.hasOwnProperty(key)) return { hash, value: fm[key] };
+			const found = findKeyInsensitive(key, fm);
+			if (found) {
+				return { hash, value: fm[found] };
+			}
+			const foundByDotKey = findKeyValueByDotNotation(key, fm);
+			if (!foundByDotKey) return null;
+			return { hash, value: foundByDotKey };
+		});
+
+		const files = preFiles
 			.filter((o) => o !== null)
 			.map((obj) => {
 				const path = fcKeys.find((k) => fc[k].hash === obj.hash)!;

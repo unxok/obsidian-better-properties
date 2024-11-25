@@ -21,7 +21,7 @@ export const SliderWidget: CustomTypeWidget = {
 				// cls: "metadata-input-longtext",
 			})
 			.createDiv({
-				cls: "better-properties-flex-center better-properties-w-fit",
+				cls: "better-properties-slider-container metadata-input-longtext",
 			});
 		const { value } = data;
 		showLabels &&
@@ -29,7 +29,11 @@ export const SliderWidget: CustomTypeWidget = {
 				text: min.toString(),
 				cls: "better-properties-slider-label-start",
 			});
-		new SliderComponent(container)
+
+		const inpContainer = container.createDiv({
+			cls: "better-properties-slider-input-container",
+		});
+		new SliderComponent(inpContainer)
 			.setValue(Number(value))
 			.onChange((n) => {
 				ctx.onChange(n);
@@ -94,8 +98,6 @@ export const createSliderSettings = (
 		.setName(text("typeWidgets.slider.settings.showLabelsSetting.title"))
 		.setDesc(text("typeWidgets.slider.settings.showLabelsSetting.desc"))
 		.addToggle((cmp) =>
-			cmp
-				.setValue(form.showLabels)
-				.onChange((b) => updateForm("showLabels", b))
+			cmp.setValue(form.showLabels).onChange((b) => updateForm("showLabels", b))
 		);
 };

@@ -36,7 +36,7 @@ export const GroupWidget: CustomTypeWidget = {
 
 		el.style.setProperty("--metadata-input-background-active", "transparent");
 
-		const container = el.createDiv({
+		const container = createDiv({
 			cls: "better-properties-group-container",
 		});
 		const { value: initialValue } = data;
@@ -300,20 +300,27 @@ export const GroupWidget: CustomTypeWidget = {
 			);
 
 			propertiesDiv.appendChild(wrapper);
+			// return wrapper;
 		};
 
 		// TODO it seems the metadataType change which triggers this entire widget to re-render, doesn't actually update the types in the MetadataTypeManager prior to
 		// the widget re-rendering, thus we have to do this timeout to wait for that to be updated because otherwise the type for the nested property is undefined
 		// There's got to be a better way than doing this though
 		window.setTimeout(() => {
+			// const nestedWrappers: HTMLElement[] = [];
 			keys.forEach((k, i) => {
-				generateNestedProp(k, i);
+				const nestedEl = generateNestedProp(k, i);
+				// nestedWrappers.push(nestedEl);
 			});
 
-			contentDiv.createSpan({ cls: "better-properties-cm-indent" });
+			// setTimeout(() => {
+			el.empty();
+			el.appendChild(container);
+			// }, 2000);
 
 			if (!showAddButton) return;
 
+			contentDiv.createSpan({ cls: "better-properties-cm-indent" });
 			const addButtonDiv = contentDiv.createDiv({
 				cls: "metadata-add-button text-icon-button better-properties-metadata-add-button",
 				attr: {

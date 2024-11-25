@@ -350,3 +350,16 @@ input[type="time"]::-webkit-calendar-picker-indicator {
 		}
 	}
 }
+
+.better-properties-slider-container,
+.better-properties-slider-container.metadata-input-longtext {
+	display: flex;
+	align-items: center;
+}
+
+.better-properties-slider-input-container {
+	display: flex;
+	flex: 1 1 auto;
+	justify-content: center;
+	align-items: center;
+}
