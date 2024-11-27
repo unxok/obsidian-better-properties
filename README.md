@@ -1,5 +1,5 @@
 > [!WARNING] 
-> 🚧UNDER CONSTRUCTION🚧
+> 🚧 **UNDER CONSTRUCTION** 🚧
 > 
 > This plugin is _almost_ ready for beta release... but not yet.
 > I am currently doing some integration testing and it should be stable for others to use, but I wouldn't reccomend it as of right now.
@@ -19,7 +19,7 @@ Adds additional property types and configuration options to Obsidian's core **Pr
 </div>
 
 > [!WARNING] 
-> DISCLAIMER
+> **DISCLAIMER**
 > 
 > This property aims to extend and seamlessly integrate into the existing metadata properties core-feature.
 >
@@ -56,7 +56,9 @@ Adds additional property types and configuration options to Obsidian's core **Pr
 
 Numerous property types are added to Obsidian!
 
-> [!WARNING] Changes to built-in types
+> [!WARNING] 
+> **Changes to built-in types**
+> 
 > _Better Properties_ heavily prefers to create new types as opposed to modifying existing types that Obsidian has built in. Therefore, requests to add/change functionality to built-in types will likely not be completed.
 
 | Type     | Summary                                                               |
@@ -105,7 +107,9 @@ FROM #tag
 ```
 ````
 
-> [!WARNING] Dataview gotchas
+> [!WARNING] 
+> **Dataview gotchas**
+> 
 >
 > - **Only** _TABLE_ queries are allowed
 > - _GROUP BY_ is **not** allowed
