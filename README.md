@@ -1,4 +1,5 @@
-> [!WARNING] 🚧UNDER CONSTRUCTION🚧
+> [!WARNING] 
+> 🚧UNDER CONSTRUCTION🚧
 > This plugin is _almost_ ready for beta release... but not yet.
 > I am currently doing some integration testing and it should be stable for others to use, but I wouldn't reccomend it as of right now.
 
