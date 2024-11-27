@@ -18,7 +18,9 @@ Adds additional property types and configuration options to Obsidian's core **Pr
 
 </div>
 
-> [!WARNING] DISCLAIMER
+> [!WARNING] 
+> DISCLAIMER
+> 
 > This property aims to extend and seamlessly integrate into the existing metadata properties core-feature.
 >
 > In order to be so closely integrated with core features, this plugin makes _heavy_ use of the _undocumented Obsidian API_ and uses a few _monkey-patches_ around existing app functions.
