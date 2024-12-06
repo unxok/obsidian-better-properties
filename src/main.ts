@@ -30,6 +30,7 @@ import { catchAndInfer } from "./libs/utils/zod";
 import {
 	findKeyInsensitive,
 	findKeyValueByDotNotation,
+	splitStringIntoChunks,
 	updateNestedObject,
 } from "./libs/utils/pure";
 import { patchMetdataEditor } from "./monkey-patches/MetadataEditor";
@@ -53,6 +54,11 @@ import {
 	PropertyRenderContext,
 	PropertyWidget,
 } from "obsidian-typings";
+import {
+	ensureIdCol,
+	getTableLine,
+	isStatedWithoutId,
+} from "./libs/utils/dataview";
 
 const BetterPropertiesSettingsSchema = catchAndInfer(
 	z.object({
@@ -254,7 +260,7 @@ const dataviewBP = (plugin: BetterProperties) => {
 		async (source, el, ctx) => {
 			const mdrc = new MarkdownRenderChild(el);
 			ctx.addChild(mdrc);
-			const query = source;
+			const preQuery = source;
 			const { lineStart, lineEnd, text } = ctx.getSectionInfo(el) ?? {};
 			if (!lineStart) {
 				el.createDiv({ text: "error: no lineStart" });
@@ -272,7 +278,16 @@ const dataviewBP = (plugin: BetterProperties) => {
 				return;
 			}
 
-			const queryResults = await dv.query(source);
+			const { tableIdColumnName } = dv.settings;
+
+			const tableLine = getTableLine(preQuery);
+			const isWithoutId = isStatedWithoutId(preQuery);
+			const { query, hideIdCol } = ensureIdCol(preQuery, tableIdColumnName);
+			console.log("table: ", tableLine);
+			console.log("is without: ", isWithoutId);
+			console.log("width id col: ", query);
+
+			const queryResults = await dv.query(query);
 			// console.log("qr: ", queryResults);
 
 			const updateProperty = async (
@@ -291,15 +306,15 @@ const dataviewBP = (plugin: BetterProperties) => {
 				);
 			};
 
-			const { tableIdColumnName } = dv.settings;
-
 			// if (type !== 'file') return
 
 			const renderResults = (results: DataviewQueryResult) => {
 				el.empty();
 
 				if (!results.successful) {
-					el.createDiv({ text: "Query failed" });
+					el.createEl("p")
+						.createEl("pre")
+						.createEl("code", { text: "Dataview: " + results.error });
 					return;
 				}
 
@@ -321,6 +336,12 @@ const dataviewBP = (plugin: BetterProperties) => {
 				const headerTypes = new Map<string, PropertyWidget<unknown>>();
 
 				headers.forEach((h, i) => {
+					const isIdCol = h === tableIdColumnName || h === "file.link";
+					// todo may false positive if aliased
+					if (isIdCol) {
+						idColIndex = i;
+					}
+					if (hideIdCol && i === headers.length - 1) return;
 					const thWrapper = tHeadRow
 						.createEl("th")
 						.createDiv({ cls: "better-properties-dataview-table-th-wrapper" });
@@ -328,12 +349,8 @@ const dataviewBP = (plugin: BetterProperties) => {
 					const iconEl = thWrapper.createSpan();
 					thWrapper.createSpan({ text: h });
 
-					const isIdCol = h === tableIdColumnName || h === "file.link";
-					// todo may false positive if aliased
 					if (isIdCol) {
-						idColIndex = i;
 						setIcon(iconEl, "file");
-						return;
 					}
 
 					const assignedType =
@@ -357,12 +374,15 @@ const dataviewBP = (plugin: BetterProperties) => {
 					const tr = tBody.createEl("tr");
 
 					rowValues.forEach((itemValue, itemIndex) => {
+						if (hideIdCol && itemIndex === rowValues.length - 1) return;
 						const td = tr.createEl("td");
 						if (itemIndex === idColIndex) {
 							MarkdownRenderer.render(
 								plugin.app,
 								itemValue?.toString() ?? "",
-								td.createDiv({ cls: "metadata-input-longtext" }),
+								td.createDiv({
+									cls: "metadata-input-longtext",
+								}),
 								ctx.sourcePath,
 								mdrc
 							);
@@ -381,7 +401,9 @@ const dataviewBP = (plugin: BetterProperties) => {
 							headerTypes.get(headers[itemIndex]) ??
 							plugin.app.metadataTypeManager.registeredTypeWidgets["text"];
 
-						const container = td.createDiv({ cls: "metadata-property-value" });
+						const container = td
+							.createDiv({ cls: "metadata-property" })
+							.createDiv({ cls: "metadata-property-value" });
 						widget.render(
 							container,
 							{

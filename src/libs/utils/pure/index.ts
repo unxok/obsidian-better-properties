@@ -122,3 +122,13 @@ export const updateNestedObject = (
 
 	return obj;
 };
+
+export const splitStringIntoChunks = (str: string, num: number) => {
+	const arr = [];
+
+	for (let i = 0; i < str.length; i += num) {
+		arr.push(str.substring(i, i + num));
+	}
+
+	return arr;
+};

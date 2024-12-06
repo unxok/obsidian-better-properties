@@ -20,6 +20,7 @@ import { TimeWidget } from "./Time";
 import { GroupWidget } from "./Group";
 import { tryParseYaml } from "@/libs/utils/obsidian";
 import { RelationWidget } from "./Relation";
+import { normalizeValue } from "@/libs/utils/dataview";
 
 export type CustomTypeWidget<T = unknown> = {
 	type: keyof PropertySettings;
@@ -104,6 +105,7 @@ const getWidgetRender = (
 		data: PropertyEntryData<unknown>,
 		ctx: PropertyRenderContext
 	) => {
+		data.value = normalizeValue(data.value);
 		const key =
 			(data as PropertyEntryData<unknown> & { dotKey?: string })?.dotKey ??
 			data.key;
