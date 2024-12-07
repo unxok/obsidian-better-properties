@@ -1,4 +1,5 @@
 import {
+	MarkdownPostProcessorContext,
 	MarkdownPreviewRenderer,
 	MarkdownRenderChild,
 	MarkdownRenderer,
@@ -56,9 +57,11 @@ import {
 } from "obsidian-typings";
 import {
 	ensureIdCol,
+	getDataviewLocalApi,
 	getTableLine,
 	isStatedWithoutId,
 } from "./libs/utils/dataview";
+import { processDataviewWrapperBlock } from "./DataviewWrapper";
 
 const BetterPropertiesSettingsSchema = catchAndInfer(
 	z.object({
@@ -103,7 +106,10 @@ export default class BetterProperties extends Plugin {
 			createPostProcessInlinePropertyEditor(this)
 		);
 
-		dataviewBP(this);
+		// dataviewBP(this);
+		this.registerMarkdownCodeBlockProcessor("dataview-bp", (...args) =>
+			processDataviewWrapperBlock(this, ...args)
+		);
 	}
 
 	listTesting() {
@@ -253,202 +259,3 @@ export default class BetterProperties extends Plugin {
 		});
 	}
 }
-
-const dataviewBP = (plugin: BetterProperties) => {
-	plugin.registerMarkdownCodeBlockProcessor(
-		"dataview-bp",
-		async (source, el, ctx) => {
-			const mdrc = new MarkdownRenderChild(el);
-			ctx.addChild(mdrc);
-			const preQuery = source;
-			const { lineStart, lineEnd, text } = ctx.getSectionInfo(el) ?? {};
-			if (!lineStart) {
-				el.createDiv({ text: "error: no lineStart" });
-				return;
-			}
-			const id = text?.split("\n")[lineStart].split(" ")[1];
-
-			const dv = plugin.app.plugins
-				.getPlugin("dataview")
-				// @ts-ignore
-				?.localApi(ctx.sourcePath, mdrc, el) as DataviewAPI | undefined;
-
-			if (!dv) {
-				el.createDiv({ text: "error: No DataviewAPI found" });
-				return;
-			}
-
-			const { tableIdColumnName } = dv.settings;
-
-			const tableLine = getTableLine(preQuery);
-			const isWithoutId = isStatedWithoutId(preQuery);
-			const { query, hideIdCol } = ensureIdCol(preQuery, tableIdColumnName);
-			console.log("table: ", tableLine);
-			console.log("is without: ", isWithoutId);
-			console.log("width id col: ", query);
-
-			const queryResults = await dv.query(query);
-			// console.log("qr: ", queryResults);
-
-			const updateProperty = async (
-				filePath: string,
-				key: string,
-				value: unknown
-			) => {
-				const file = plugin.app.vault.getFileByPath(filePath);
-				if (!file) return;
-				await plugin.app.fileManager.processFrontMatter(
-					file,
-					(fm: Record<string, unknown>) => {
-						const foundKey = findKeyInsensitive(key, fm) ?? key;
-						updateNestedObject(fm, foundKey, value);
-					}
-				);
-			};
-
-			// if (type !== 'file') return
-
-			const renderResults = (results: DataviewQueryResult) => {
-				el.empty();
-
-				if (!results.successful) {
-					el.createEl("p")
-						.createEl("pre")
-						.createEl("code", { text: "Dataview: " + results.error });
-					return;
-				}
-
-				const { headers, values, type } = results.value;
-
-				const tableWrapper = createDiv({
-					cls: "better-properties-dataview-table-wrapper markdown-source-view mod-cm6",
-				});
-				const table = tableWrapper.createEl("table", {
-					cls: "table-editor better-properties-dataview-table",
-					attr: {
-						"tab-index": "-1",
-					},
-				});
-				const tHead = table.createEl("thead");
-				const tHeadRow = tHead.createEl("tr");
-
-				let idColIndex = -1;
-				const headerTypes = new Map<string, PropertyWidget<unknown>>();
-
-				headers.forEach((h, i) => {
-					const isIdCol = h === tableIdColumnName || h === "file.link";
-					// todo may false positive if aliased
-					if (isIdCol) {
-						idColIndex = i;
-					}
-					if (hideIdCol && i === headers.length - 1) return;
-					const thWrapper = tHeadRow
-						.createEl("th")
-						.createDiv({ cls: "better-properties-dataview-table-th-wrapper" });
-
-					const iconEl = thWrapper.createSpan();
-					thWrapper.createSpan({ text: h });
-
-					if (isIdCol) {
-						setIcon(iconEl, "file");
-					}
-
-					const assignedType =
-						plugin.app.metadataTypeManager.getAssignedType(h) ?? "text";
-					const { registeredTypeWidgets } = plugin.app.metadataTypeManager;
-					const assignedWidget =
-						Object.values(registeredTypeWidgets).find(
-							(w) => w.type === assignedType
-						) ?? registeredTypeWidgets["text"];
-					headerTypes.set(h, assignedWidget);
-
-					const icon =
-						plugin.getPropertySetting(h)?.general.customIcon ||
-						assignedWidget.icon;
-					setIcon(iconEl, icon);
-				});
-
-				const tBody = table.createEl("tbody");
-
-				values.forEach((rowValues, rowIndex) => {
-					const tr = tBody.createEl("tr");
-
-					rowValues.forEach((itemValue, itemIndex) => {
-						if (hideIdCol && itemIndex === rowValues.length - 1) return;
-						const td = tr.createEl("td");
-						if (itemIndex === idColIndex) {
-							MarkdownRenderer.render(
-								plugin.app,
-								itemValue?.toString() ?? "",
-								td.createDiv({
-									cls: "metadata-input-longtext",
-								}),
-								ctx.sourcePath,
-								mdrc
-							);
-							return;
-						}
-
-						const dotKeysArr = headers[itemIndex].split(".");
-						const key = dotKeysArr[dotKeysArr.length - 1];
-
-						const link = values[rowIndex][idColIndex];
-						const filePath = link?.hasOwnProperty("path")
-							? (link as DataviewLink).path
-							: null;
-
-						const widget =
-							headerTypes.get(headers[itemIndex]) ??
-							plugin.app.metadataTypeManager.registeredTypeWidgets["text"];
-
-						const container = td
-							.createDiv({ cls: "metadata-property" })
-							.createDiv({ cls: "metadata-property-value" });
-						widget.render(
-							container,
-							{
-								key: key,
-								type: widget.type,
-								value: itemValue,
-								dotKey: headers[itemIndex],
-							} as PropertyEntryData<unknown>,
-							{
-								app: plugin.app,
-								blur: () => {},
-								key: key,
-								metadataEditor: {
-									register: (cb) => mdrc.register(cb),
-								} as MetadataEditor,
-								onChange: (value) =>
-									filePath &&
-									updateProperty(filePath, headers[itemIndex], value),
-								sourcePath: ctx.sourcePath,
-							}
-						);
-					});
-				});
-
-				el.appendChild(tableWrapper);
-			};
-
-			renderResults(queryResults);
-
-			const onMetaChange = async () => {
-				const results = await dv.query(query, ctx.sourcePath);
-				renderResults(results);
-			};
-
-			plugin.app.metadataCache.on(
-				"dataview:metadata-change" as "changed",
-				onMetaChange
-			);
-
-			mdrc.register(() =>
-				plugin.app.metadataCache.off(
-					"dataview:metadata-change" as "changed",
-					onMetaChange
-				)
-			);
-		}
-	);
-};

@@ -1,5 +1,23 @@
-import { DataviewLink } from "@/libs/types/dataview";
+import {
+	DataviewAPI,
+	DataviewLink,
+	DataviewPlugin,
+} from "@/libs/types/dataview";
 import { DateTime } from "luxon";
+import { Component, Plugin } from "obsidian";
+
+export const getDataviewLocalApi = (
+	plugin: Plugin,
+	sourcePath: string,
+	component: Component,
+	el: HTMLElement
+) => {
+	const dvPlugin = plugin.app.plugins.getPlugin(
+		"dataview"
+	) as DataviewPlugin | null;
+	if (!dvPlugin) return null;
+	return dvPlugin.localApi(sourcePath, component, el);
+};
 
 export const normalizeValue = (value: unknown) => {
 	if (!value) return value;
@@ -53,4 +71,39 @@ export const ensureIdCol: (
 	if (hasIdCol) return { query: tableLine + rest, hideIdCol: false };
 	const q = tableLine + ', file.link AS "' + tableIdColumnName + '" ' + rest;
 	return { query: q, hideIdCol: true };
+};
+
+export const getCols = (tableLine: string) => {
+	const [_, tableKeyword, colsString] = tableLine.split(
+		/(\n*\s*(?:TABLE\s?W?I?T?H?O?U?T?\s?I?D?\s))(?!(?=[^"]*"[^"]*(?:"[^"]*"[^"]*)*$))/im
+	);
+	const cols = colsString.split(/,\s?(?!(?=[^"]*"[^"]*(?:"[^"]*"[^"]*)*$))/gm);
+	return { tableKeyword, cols };
+};
+
+export const getColsDetails = (cols: string[]) => {
+	return cols.map((c) => {
+		const [prop = "", alias = ""] = c.split(
+			/\sAS\s?(?!(?=[^"]*"[^"]*(?:"[^"]*"[^"]*)*$))/gim
+		);
+		const aliasNoQuotes =
+			alias.startsWith('"') && alias.endsWith('"')
+				? alias.slice(1, alias.length - 1)
+				: alias;
+
+		const propFromRowFormat =
+			prop.startsWith('row["') && prop.endsWith('"]')
+				? prop.slice(5, -2)
+				: prop;
+
+		console.log(propFromRowFormat, " AS ", aliasNoQuotes);
+	});
+};
+
+export const findPropertyKey = (key: string, obj: Record<string, unknown>) => {
+	const lowerWithSpaces = key.toLowerCase().replaceAll("-", " ");
+	const found = Object.keys(obj).find(
+		(k) => k.toLowerCase() === lowerWithSpaces
+	);
+	return found ?? null;
 };

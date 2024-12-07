@@ -1,4 +1,5 @@
 import { DateTime } from "luxon/src/datetime";
+import { Component } from "obsidian";
 
 export type DataviewSettings = {
 	renderNullAs: string;
@@ -124,6 +125,14 @@ export type DataviewQueryResult =
 
 export type ModifiedDataviewQueryResult = DataviewQueryResult & {
 	truePropertyNames: string[];
+};
+
+export type DataviewPlugin = {
+	localApi: (
+		sourcePath: string,
+		component: Component,
+		el: HTMLElement
+	) => DataviewAPI;
 };
 
 export type DataviewAPI = {

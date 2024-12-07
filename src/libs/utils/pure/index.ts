@@ -55,9 +55,8 @@ export const findKeyInsensitive = (
 	key: string,
 	obj: Record<string, unknown>
 ) => {
-	const found = Object.keys(obj).find(
-		(k) => k.toLowerCase() === key.toLowerCase()
-	);
+	const lower = key.toLowerCase();
+	const found = Object.keys(obj).find((k) => k.toLowerCase() === lower);
 	return found ?? null;
 };
 
