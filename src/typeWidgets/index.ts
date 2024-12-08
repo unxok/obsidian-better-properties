@@ -105,7 +105,7 @@ const getWidgetRender = (
 		data: PropertyEntryData<unknown>,
 		ctx: PropertyRenderContext
 	) => {
-		data.value = normalizeValue(data.value);
+		// data.value = normalizeValue(data.value);
 		const key =
 			(data as PropertyEntryData<unknown> & { dotKey?: string })?.dotKey ??
 			data.key;

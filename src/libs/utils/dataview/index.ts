@@ -5,6 +5,8 @@ import {
 } from "@/libs/types/dataview";
 import { DateTime } from "luxon";
 import { Component, Plugin } from "obsidian";
+import { MetadataTypeManager } from "obsidian-typings";
+import { findKeyInsensitive } from "../pure";
 
 export const getDataviewLocalApi = (
 	plugin: Plugin,
@@ -20,13 +22,19 @@ export const getDataviewLocalApi = (
 };
 
 export const normalizeValue = (value: unknown) => {
+	console.log(value);
 	if (!value) return value;
 	const t = typeof value;
 	if (t !== "object") return value;
 	if (DateTime.isDateTime(value)) {
+		console.log("normalizing date/datetime");
 		if (value.second === 0 && value.minute === 0 && value.hour === 0) {
-			return value.toFormat("yyyy-MM-dd");
+			console.log("no time");
+			const r = value.toFormat("yyyy-MM-dd");
+			console.log(r);
+			return r;
 		}
+		console.log("has time");
 		return value.toFormat("yyyy-MM-dd'T'hh:mm:ss");
 	}
 	if (Array.isArray(value)) {
@@ -53,7 +61,7 @@ export const getTableLine = (query: string) => {
 	};
 };
 
-export const isStatedWithoutId = (query: string) => {
+export const checkIsStatedWithoutId = (query: string) => {
 	const reg = /(\n*\s*(?:without id))(?!(?=[^"]*"[^"]*(?:"[^"]*"[^"]*)*$))/im;
 	return reg.test(query);
 };
@@ -63,7 +71,7 @@ export const ensureIdCol: (
 	tableIdColumnName: string
 ) => { query: string; hideIdCol: boolean } = (query, tableIdColumnName) => {
 	// Does not contain "WITHOUT ID", so id col is there by default
-	if (!isStatedWithoutId(query)) return { query, hideIdCol: false };
+	if (!checkIsStatedWithoutId(query)) return { query, hideIdCol: false };
 
 	const { tableLine, rest } = getTableLine(query);
 	const reg = /(\n*\s*(?:file\.link))(?!(?=[^"]*"[^"]*(?:"[^"]*"[^"]*)*$))/im;
@@ -81,22 +89,41 @@ export const getCols = (tableLine: string) => {
 	return { tableKeyword, cols };
 };
 
-export const getColsDetails = (cols: string[]) => {
+export const getColsDetails = (cols: string[], mtm: MetadataTypeManager) => {
 	return cols.map((c) => {
-		const [prop = "", alias = ""] = c.split(
+		// split on 'AS' where it is not escaped within double quotes
+		const [prop = ""] = c.split(
 			/\sAS\s?(?!(?=[^"]*"[^"]*(?:"[^"]*"[^"]*)*$))/gim
 		);
-		const aliasNoQuotes =
-			alias.startsWith('"') && alias.endsWith('"')
-				? alias.slice(1, alias.length - 1)
-				: alias;
 
+		// property is within some function
+		// ex: striptime(date-property)
+		const isCalculated = /.+\(.*\)/gm.test(prop);
+
+		// row format is required for properties named the same as a reserved DV keyword
+		// ex: table, group, from, etc.
 		const propFromRowFormat =
 			prop.startsWith('row["') && prop.endsWith('"]')
 				? prop.slice(5, -2)
 				: prop;
 
-		console.log(propFromRowFormat, " AS ", aliasNoQuotes);
+		const propMatchedExisting = findExistingProperty(
+			propFromRowFormat,
+			mtm.properties
+		);
+
+		const assignedType = mtm.getAssignedType(propMatchedExisting) ?? "text";
+		const assignedTypeWidget =
+			Object.values(mtm.registeredTypeWidgets).find(
+				(w) => w.type === assignedType
+			) ?? null;
+
+		return {
+			property: propMatchedExisting,
+			// alias: aliasNoQuotes,
+			isCalculated,
+			assignedTypeWidget,
+		};
 	});
 };
 
@@ -106,4 +133,15 @@ export const findPropertyKey = (key: string, obj: Record<string, unknown>) => {
 		(k) => k.toLowerCase() === lowerWithSpaces
 	);
 	return found ?? null;
+};
+
+const findExistingProperty = (key: string, obj: Record<string, unknown>) => {
+	const lower = key.toLowerCase();
+	const withSpaces = lower.replaceAll("-", " ");
+	const keys = Object.keys(obj);
+	const found = keys.find((k) => {
+		const kLower = k.toLowerCase();
+		return kLower === lower || kLower === withSpaces;
+	});
+	return found ?? key;
 };

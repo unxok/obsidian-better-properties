@@ -59,7 +59,7 @@ import {
 	ensureIdCol,
 	getDataviewLocalApi,
 	getTableLine,
-	isStatedWithoutId,
+	checkIsStatedWithoutId,
 } from "./libs/utils/dataview";
 import { processDataviewWrapperBlock } from "./DataviewWrapper";
 
