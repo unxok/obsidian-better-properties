@@ -319,11 +319,36 @@ input[type="time"]::-webkit-calendar-picker-indicator {
 
 .better-properties-dataview-table-wrapper {
 	overflow-x: auto;
+	animation: fade-in 500ms ease forwards;
+	animation-iteration-count: 1;
+}
+
+@keyframes fade-in {
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
+	}
+}
+
+.better-properties-dataview-th {
+	position: relative;
+	& > .better-properties-dataview-th-resize-handle {
+		position: absolute;
+		width: 5px;
+		height: 100%;
+		right: 0;
+		top: 50%;
+		transform: translate(0px, -50%);
+		user-select: none;
+		cursor: col-resize;
+	}
 }
 
 .better-properties-dataview-table {
 	& > thead {
-		& > tr > th > .better-properties-dataview-table-th-wrapper {
+		& > tr > th > .better-properties-dataview-table-th-container {
 			display: flex;
 			gap: 0.25rem;
 			align-items: center;

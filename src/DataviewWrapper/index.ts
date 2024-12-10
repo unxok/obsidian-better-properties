@@ -21,6 +21,7 @@ import {
 	setIcon,
 	MarkdownRenderer,
 	Plugin,
+	Editor,
 } from "obsidian";
 import {
 	PropertyWidget,
@@ -60,6 +61,8 @@ type RenderHeaderProps = {
 	headerIndex: number;
 	tableIdColumnName: string;
 	updateIdColIndex: (i: number) => void;
+	config: BlockConfig;
+	updateConfig: UpdateConfigFunction;
 	hideIdCol: boolean;
 	headerLength: number;
 	tHeadRow: HTMLElement;
@@ -72,6 +75,8 @@ const renderHeader = ({
 	isCalculated,
 	headerIndex,
 	updateIdColIndex,
+	config,
+	updateConfig,
 	tableIdColumnName,
 	hideIdCol,
 	headerLength,
@@ -84,9 +89,65 @@ const renderHeader = ({
 		updateIdColIndex(headerIndex);
 	}
 	if (hideIdCol && headerIndex === headerLength - 1) return;
-	const thWrapper = tHeadRow
-		.createEl("th")
-		.createDiv({ cls: "better-properties-dataview-table-th-wrapper" });
+	const th = tHeadRow.createEl("th", { cls: "better-properties-dataview-th" });
+
+	const setThWidth = (w: number) => {
+		th.style.setProperty("min-width", w + "px");
+		th.style.setProperty("max-width", w + "px");
+	};
+
+	const configWidth = config.colWidths[headerIndex];
+	if (configWidth) {
+		setThWidth(configWidth);
+	}
+
+	const resizeHandle = th.createDiv({
+		cls: "better-properties-dataview-th-resize-handle",
+	});
+
+	let lastMousePos = 0;
+	let width = 0;
+
+	const onMouseMove = (e: MouseEvent) => {
+		const diff = e.clientX - lastMousePos;
+		const newWidth = width + diff;
+		setThWidth(newWidth);
+		width = newWidth;
+		lastMousePos = e.clientX;
+	};
+
+	const onMouseUp = (e: MouseEvent) => {
+		updateConfig((c) => ({
+			...c,
+			colWidths: {
+				...c.colWidths,
+				[headerIndex]: width,
+			},
+		}));
+		document.removeEventListener("mousemove", onMouseMove);
+		document.removeEventListener("mouseup", onMouseUp);
+	};
+
+	resizeHandle.addEventListener("mousedown", (e) => {
+		width = th.getBoundingClientRect().width;
+		lastMousePos = e.clientX;
+
+		document.addEventListener("mousemove", onMouseMove);
+		document.addEventListener("mouseup", onMouseUp);
+	});
+
+	resizeHandle.addEventListener("dblclick", () => {
+		updateConfig((c) => {
+			delete c.colWidths[headerIndex];
+			return c;
+		});
+		th.style.removeProperty("min-width");
+		th.style.removeProperty("max-width");
+	});
+
+	const thWrapper = th.createDiv({
+		cls: "better-properties-dataview-table-th-container",
+	});
 
 	const iconEl = thWrapper.createSpan();
 	thWrapper.createSpan({ text: alias ?? property });
@@ -116,16 +177,26 @@ export const processDataviewWrapperBlock = async (
 	const mdrc = new MarkdownRenderChild(el);
 	ctx.addChild(mdrc);
 	const preQuery = source;
-	const {
-		lineStart = NaN,
-		lineEnd = NaN,
-		text = "",
-	} = ctx.getSectionInfo(el) ?? {};
-	if (!lineStart) {
-		el.createDiv({ text: "error: no lineStart" });
-		return;
-	}
-	const id = text?.split("\n")[lineStart].split(" ")[1];
+
+	const foundConfigStr =
+		source.split("\n").find((ln) => ln.startsWith("//BP ")) ?? "";
+	const config = getConfigFromStr(foundConfigStr.slice(5));
+	console.log("config: ", config);
+
+	const updateConfig: UpdateConfigFunction = (cb) => {
+		const newConfig = cb({ ...config });
+		const info = ctx.getSectionInfo(el);
+		const { editor } = plugin.app.workspace.activeEditor ?? {};
+		if (!info || !editor) return;
+		const { lineStart, lineEnd } = info;
+		setConfig({
+			source,
+			config: newConfig,
+			sourceLineStart: lineStart + 1,
+			sourceLineEnd: lineEnd - 1,
+			editor,
+		});
+	};
 
 	const dv = getDataviewLocalApi(plugin, ctx.sourcePath, mdrc, el);
 
@@ -147,6 +218,7 @@ export const processDataviewWrapperBlock = async (
 	const colsDetails = getColsDetails(cols, plugin.app.metadataTypeManager);
 	// console.log("cols details: ", JSON.parse(JSON.stringify(colsDetails)));
 
+	el.createDiv({ cls: "is-loading" });
 	const queryResults = await dv.query(query);
 
 	const updateProperty = getPropertyUpdater(plugin);
@@ -165,43 +237,6 @@ export const processDataviewWrapperBlock = async (
 		const tableWrapper = createDiv({
 			cls: "better-properties-dataview-table-wrapper markdown-source-view mod-cm6",
 		});
-
-		// tableWrapper
-		// 	.createEl("button", { text: "counter" })
-		// 	.addEventListener("click", () => {
-		// 		const editor = plugin.app.workspace.activeEditor?.editor;
-		// 		if (!editor) return;
-		// 		const fullBlockSource = text
-		// 			.split("\n")
-		// 			.slice(lineStart, lineEnd)
-		// 			.join("\n");
-		// 		editor.replaceRange(
-		// 			fullBlockSource + "\nAND true\n```",
-		// 			{ ch: 0, line: lineStart },
-		// 			{ ch: NaN, line: lineEnd }
-		// 		);
-		// 	});
-
-		tableWrapper
-			.createEl("button", { text: "counter" })
-			.addEventListener("click", () => {
-				const editor = plugin.app.workspace.activeEditor?.editor;
-				if (!editor) return;
-				const fullBlockSource = text
-					.split("\n")
-					.slice(lineStart, lineEnd)
-					.join("\n");
-
-				const scrollTop = editor.getScrollInfo().top;
-				editor.replaceRange(
-					fullBlockSource + "\nAND true\n```",
-					{ ch: 0, line: lineStart },
-					{ ch: NaN, line: lineEnd }
-				);
-				setTimeout(() => {
-					editor.scrollTo(null, scrollTop);
-				}, 0);
-			});
 
 		const table = tableWrapper.createEl("table", {
 			cls: "table-editor better-properties-dataview-table",
@@ -226,6 +261,8 @@ export const processDataviewWrapperBlock = async (
 				headerIndex,
 				tableIdColumnName,
 				updateIdColIndex: (i) => (idColIndex = i),
+				config,
+				updateConfig,
 				hideIdCol,
 				headerLength: headers.length,
 				tHeadRow,
@@ -311,6 +348,7 @@ export const processDataviewWrapperBlock = async (
 
 	const onMetaChange = async () => {
 		const results = await dv.query(query, ctx.sourcePath);
+		if (JSON.stringify(results) === JSON.stringify(queryResults)) return;
 		const scrollX = tableWrapper?.scrollLeft ?? 0;
 		const newWrapper = renderResults(results);
 		newWrapper?.scroll({ left: scrollX });
@@ -329,3 +367,58 @@ export const processDataviewWrapperBlock = async (
 		)
 	);
 };
+
+// TODO use zod
+
+type BlockConfig = {
+	colWidths: Record<number, number>;
+};
+
+const defaultBlockConfig: BlockConfig = {
+	colWidths: {},
+};
+
+const getConfigFromStr = (configLine: string) => {
+	try {
+		const parsed = JSON.parse(configLine) as BlockConfig;
+		return { ...defaultBlockConfig, ...parsed };
+	} catch (_) {
+		return { ...defaultBlockConfig };
+	}
+};
+
+type SetConfigProps = {
+	source: string;
+	config: BlockConfig;
+	sourceLineStart: number;
+	sourceLineEnd: number;
+	editor: Editor;
+};
+const setConfig = ({
+	source,
+	config,
+	sourceLineStart,
+	sourceLineEnd,
+	editor,
+}: SetConfigProps) => {
+	const lines = source.split("\n");
+	const foundConfigLineIndex = lines.findIndex((ln) => ln.startsWith("//BP "));
+	const configLineIndex =
+		foundConfigLineIndex === -1 ? lines.length : foundConfigLineIndex;
+	const configStr = JSON.stringify(config);
+	lines[configLineIndex] = "//BP " + configStr;
+	const newSource = lines.join("\n");
+
+	const scroll = editor.getScrollInfo().top;
+	editor.replaceRange(
+		newSource,
+		{ ch: 0, line: sourceLineStart },
+		{ ch: NaN, line: sourceLineEnd }
+	);
+
+	window.setTimeout(() => {
+		editor.scrollTo(null, scroll);
+	}, 0);
+};
+
+type UpdateConfigFunction = (cb: (current: BlockConfig) => BlockConfig) => void;
