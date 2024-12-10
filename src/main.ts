@@ -1,15 +1,4 @@
-import {
-	MarkdownPostProcessorContext,
-	MarkdownPreviewRenderer,
-	MarkdownRenderChild,
-	MarkdownRenderer,
-	Menu,
-	Plugin,
-	ProgressBarComponent,
-	setIcon,
-	Setting,
-	View,
-} from "obsidian";
+import { Menu, Plugin, Setting, View } from "obsidian";
 import { typeWidgetPrefix } from "./libs/constants";
 import {
 	addUsedBy,
@@ -31,8 +20,6 @@ import { catchAndInfer } from "./libs/utils/zod";
 import {
 	findKeyInsensitive,
 	findKeyValueByDotNotation,
-	splitStringIntoChunks,
-	updateNestedObject,
 } from "./libs/utils/pure";
 import { patchMetdataEditor } from "./monkey-patches/MetadataEditor";
 import { patchMenu } from "./monkey-patches/Menu";
@@ -43,24 +30,6 @@ import {
 import { insertPropertyEditor, propertyCodeBlock } from "./PropertyRenderer";
 import { patchMetdataCache } from "./monkey-patches/MetadataCache";
 import { TextListComponent } from "./classes/ListComponent";
-import { patchMarkdownPreviewRenderer } from "./monkey-patches/MarkdownPreviewRenderer";
-import {
-	DataviewAPI,
-	DataviewLink,
-	DataviewQueryResult,
-} from "./libs/types/dataview";
-import {
-	MetadataEditor,
-	PropertyEntryData,
-	PropertyRenderContext,
-	PropertyWidget,
-} from "obsidian-typings";
-import {
-	ensureIdCol,
-	getDataviewLocalApi,
-	getTableLine,
-	checkIsStatedWithoutId,
-} from "./libs/utils/dataview";
 import { processDataviewWrapperBlock } from "./DataviewWrapper";
 
 const BetterPropertiesSettingsSchema = catchAndInfer(
@@ -84,6 +53,8 @@ export default class BetterProperties extends Plugin {
 	menu: Menu | null = null;
 
 	async onload() {
+		this.blockingTest();
+
 		this.registerEditorExtension([createInlineCodePlugin(this)]);
 		this.listTesting();
 		await this.loadSettings();
@@ -110,6 +81,36 @@ export default class BetterProperties extends Plugin {
 		this.registerMarkdownCodeBlockProcessor("dataview-bp", (...args) =>
 			processDataviewWrapperBlock(this, ...args)
 		);
+	}
+
+	blockingTest() {
+		this.registerMarkdownCodeBlockProcessor("blocking", (source, el, ctx) => {
+			el.empty();
+			const btn = el.createEl("button", { text: "start func" });
+			const result = el.createDiv({ text: "click button to get results" });
+
+			const waitFiveSecond = async () => {
+				new Notice("5 second start");
+				return new Promise<void>((res) =>
+					setTimeout(() => {
+						new Notice("5 second end");
+						res();
+					}, 5000)
+				);
+			};
+
+			const waitFifteenSeconds = async () => {
+				await waitFiveSecond();
+				await waitFiveSecond();
+				await waitFiveSecond();
+			};
+
+			btn.addEventListener("click", async () => {
+				new Notice("started");
+				await waitFifteenSeconds();
+				new Notice("ended");
+			});
+		});
 	}
 
 	listTesting() {
@@ -155,6 +156,7 @@ export default class BetterProperties extends Plugin {
 			if (found) {
 				return { hash, value: fm[found] };
 			}
+			if (!fm) return null;
 			const foundByDotKey = findKeyValueByDotNotation(key, fm);
 			if (!foundByDotKey) return null;
 			return { hash, value: foundByDotKey };

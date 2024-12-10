@@ -140,12 +140,12 @@ export const processDataviewWrapperBlock = async (
 	const isWithoutId = checkIsStatedWithoutId(preQuery);
 	const { cols } = getCols(tableLine);
 	const { query, hideIdCol } = ensureIdCol(preQuery, tableIdColumnName);
-	console.log("table: ", tableLine);
+	// console.log("table: ", tableLine);
 	// console.log("is without: ", isWithoutId);
 	// console.log("width id col: ", query);
-	console.log("cols: ", cols);
+	// console.log("cols: ", cols);
 	const colsDetails = getColsDetails(cols, plugin.app.metadataTypeManager);
-	console.log("cols details: ", JSON.parse(JSON.stringify(colsDetails)));
+	// console.log("cols details: ", JSON.parse(JSON.stringify(colsDetails)));
 
 	const queryResults = await dv.query(query);
 

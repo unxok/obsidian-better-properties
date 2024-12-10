@@ -300,44 +300,45 @@ export const GroupWidget: CustomTypeWidget = {
 			);
 
 			propertiesDiv.appendChild(wrapper);
-			// return wrapper;
+			return wrapper;
 		};
 
 		// TODO it seems the metadataType change which triggers this entire widget to re-render, doesn't actually update the types in the MetadataTypeManager prior to
 		// the widget re-rendering, thus we have to do this timeout to wait for that to be updated because otherwise the type for the nested property is undefined
-		// There's got to be a better way than doing this though
-		window.setTimeout(() => {
-			// const nestedWrappers: HTMLElement[] = [];
-			keys.forEach((k, i) => {
-				const nestedEl = generateNestedProp(k, i);
-				// nestedWrappers.push(nestedEl);
-			});
+		// There's got to be a better way than doing a zero timeout before rendering though
 
-			// setTimeout(() => {
-			el.empty();
-			el.appendChild(container);
-			// }, 2000);
+		// SOLVED? It seems that generating the nested prop once, then again after a zero-timeout solves the issue and get's rid of "jumping" when re-rendering. However, there seems to be an issue where *sometimes* a nested property will throw an error when clicking the property icon, but I can't consistently reproduce it :(
 
-			if (!showAddButton) return;
+		keys.forEach((k, i) => {
+			const nestedEl = generateNestedProp(k, i);
+			window.setTimeout(() => {
+				nestedEl.remove();
+				generateNestedProp(k, i);
+			}, 0);
+		});
 
-			contentDiv.createSpan({ cls: "better-properties-cm-indent" });
-			const addButtonDiv = contentDiv.createDiv({
-				cls: "metadata-add-button text-icon-button better-properties-metadata-add-button",
-				attr: {
-					tabindex: "0",
-				},
-			});
+		el.empty();
+		el.appendChild(container);
 
-			setIcon(addButtonDiv.createSpan({ cls: "text-button-icon" }), "plus");
-			addButtonDiv.createSpan({
-				cls: "text-button-label",
-				text: obsidianText("properties.label-add-property-button"),
-			});
+		if (!showAddButton) return;
 
-			addButtonDiv.addEventListener("click", () =>
-				generateNestedProp("", keys.length, true)
-			);
-		}, 0);
+		contentDiv.createSpan({ cls: "better-properties-cm-indent" });
+		const addButtonDiv = contentDiv.createDiv({
+			cls: "metadata-add-button text-icon-button better-properties-metadata-add-button",
+			attr: {
+				tabindex: "0",
+			},
+		});
+
+		setIcon(addButtonDiv.createSpan({ cls: "text-button-icon" }), "plus");
+		addButtonDiv.createSpan({
+			cls: "text-button-label",
+			text: obsidianText("properties.label-add-property-button"),
+		});
+
+		addButtonDiv.addEventListener("click", () =>
+			generateNestedProp("", keys.length, true)
+		);
 	},
 };
 

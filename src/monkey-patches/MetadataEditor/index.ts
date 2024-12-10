@@ -14,8 +14,16 @@ import {
 	ProgressBarComponent,
 	Plugin,
 	TFile,
+	App,
+	MarkdownView,
+	Component,
+	ValueComponent,
 } from "obsidian";
-import { MetadataEditor } from "obsidian-typings";
+import {
+	MetadataEditor,
+	MetadataEditorProperty,
+	MetadataWidget,
+} from "obsidian-typings";
 import { obsidianText } from "@/i18Next/defaultObsidian";
 
 export type PatchedMetadataEditor = MetadataEditor & {
@@ -162,7 +170,7 @@ const patchLoad = (
 						.showAtMouseEvent(e);
 				});
 				that.moreOptionsButton = moreOptionsButton;
-				that.addPropertyButtonEl.insertAdjacentElement(
+				that.addPropertyButtonEl?.insertAdjacentElement(
 					"afterend",
 					moreOptionsButton
 				);
@@ -172,7 +180,8 @@ const patchLoad = (
 };
 
 // Might be useful later but not needed right now
-// const getMetdataEditorPrototype = (app: App) => {
+// export const getMetdataEditorPrototype = (plugin: Plugin) => {
+// 	const { app } = plugin;
 // 	app.workspace.onLayoutReady(() => {
 // 		const leaf = app.workspace.getLeaf("tab");
 // 		// const view = app.viewRegistry.viewByType["markdown"]({
@@ -180,37 +189,82 @@ const patchLoad = (
 // 		// 	app: app,
 // 		// } as unknown as WorkspaceLeaf);
 // 		const view = app.viewRegistry.viewByType["markdown"](leaf);
-// 		const properties = app.viewRegistry.viewByType["file-properties"](leaf);
-// 		const proto = Object.getPrototypeOf(
+// 		// const properties = app.viewRegistry.viewByType["file-properties"](leaf);
+// 		const protoTrue = Object.getPrototypeOf(
 // 			// @ts-ignore
 // 			view.metadataEditor
 // 		) as MetadataEditor;
+// 		// @ts-ignore
+// 		const proto: MetadataEditor = { ...protoTrue };
+// 		Object.setPrototypeOf(proto, protoTrue);
 // 		proto._children = [];
+// 		proto._events = [];
 // 		proto.owner = {
 // 			getFile: () => {},
 // 		} as MarkdownView;
-// 		proto.addPropertyButtonEl
+// 		proto.addPropertyButtonEl;
 // 		proto.propertyListEl = createDiv();
 // 		proto.containerEl = createDiv();
 // 		proto.app = app;
 // 		proto.save = () => {
 // 			console.log("save called");
 // 		};
-// 		proto.properties = [{ key: "fizz", type: "text", value: "bar" }];
+// 		// proto.properties = [{ key: "fizz", type: "text", value: "bar" }];
+// 		proto.properties = [];
 // 		proto.rendered = [];
 // 		// proto.insertProperties({ foo: "bar" });
 // 		proto.load();
 // 		proto.synchronize({ foo: "bar" });
-// 		const metadataEditorRow = Object.getPrototypeOf(proto.rendered[0]) as typeof proto.rendered[0];
-// 		const old = metadataEditorRow.showPropertyMenu
-// 		metadataEditorRow.showPropertyMenu = (e) => {
-// 			console.log('hi');
-// 		}
-// 		console.log("properties: ", properties);
-// 		console.log("view: ", view);
-// 		console.log("proto: ", proto);
+// 		const metadataEditorRow = Object.getPrototypeOf(
+// 			proto.rendered[0]
+// 		) as (typeof proto.rendered)[0];
+// 		console.log("row proto: ", metadataEditorRow);
+
+// 		const removePatch = around(metadataEditorRow, {
+// 			renderProperty(old) {
+// 				return dedupe(monkeyAroundKey, old, function (...args) {
+// 					// @ts-ignore
+// 					const that = this as MetadataEditorProperty;
+
+// 					console.log("render property: ", that.entry);
+
+// 					if (that.valueEl.children.length === 0) {
+// 						console.log("is empty");
+// 						return old.call(that, ...args);
+// 					}
+
+// 					const [newEntry] = args;
+
+// 					const cmp = that.rendered as { value: unknown };
+// 					if (cmp) {
+// 						// console.log("cmp: ", cmp);
+// 						const isSame = compareValues(cmp.value, newEntry.value);
+// 						if (!isSame) {
+// 							console.log(
+// 								`Compared ${that.entry.value} and ${newEntry.value}: `,
+// 								isSame
+// 							);
+// 						}
+// 					}
+
+// 					return old.call(that, ...args);
+// 				});
+// 			},
+// 		});
+
+// 		plugin.register(removePatch);
+
 // 		leaf.detach();
 // 	});
+// };
+
+// const compareValues = (a: unknown, b: unknown) => {
+// 	const aType = typeof a;
+// 	const bType = typeof b;
+// 	if (aType !== bType) return false;
+
+// 	if (aType !== "object") return a === b;
+// 	return JSON.stringify(a) === JSON.stringify(b);
 // };
 
 type ReorderKeysStrategy =
@@ -261,6 +315,7 @@ const reorderKeys = (
 
 		keys.forEach((key) => {
 			const t = plugin.app.metadataTypeManager.getAssignedType(key);
+			if (!t) return;
 			if (!types.hasOwnProperty(t)) {
 				types[t] = {
 					name: "unknown",

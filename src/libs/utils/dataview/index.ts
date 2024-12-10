@@ -22,19 +22,14 @@ export const getDataviewLocalApi = (
 };
 
 export const normalizeValue = (value: unknown) => {
-	console.log(value);
 	if (!value) return value;
 	const t = typeof value;
 	if (t !== "object") return value;
 	if (DateTime.isDateTime(value)) {
-		console.log("normalizing date/datetime");
 		if (value.second === 0 && value.minute === 0 && value.hour === 0) {
-			console.log("no time");
 			const r = value.toFormat("yyyy-MM-dd");
-			console.log(r);
 			return r;
 		}
-		console.log("has time");
 		return value.toFormat("yyyy-MM-dd'T'hh:mm:ss");
 	}
 	if (Array.isArray(value)) {

@@ -106,6 +106,8 @@ const getWidgetRender = (
 		ctx: PropertyRenderContext
 	) => {
 		// data.value = normalizeValue(data.value);
+
+		// console.log("widget rendered: ", data.key);
 		const key =
 			(data as PropertyEntryData<unknown> & { dotKey?: string })?.dotKey ??
 			data.key;
@@ -145,6 +147,6 @@ const getWidgetRender = (
 			parent.style.setProperty("--text-normal", textColor);
 		}
 
-		exit();
+		return exit();
 	};
 };

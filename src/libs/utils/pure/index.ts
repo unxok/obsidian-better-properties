@@ -87,6 +87,7 @@ export const findKeyValueByDotNotation = (
 
 	let current = obj;
 	for (const k of keys) {
+		if (typeof current !== "object") return null;
 		const foundKey = Object.keys(current).find(
 			(objKey) => objKey.toLowerCase() === k
 		);
