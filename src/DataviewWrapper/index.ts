@@ -116,8 +116,12 @@ const renderHeader = ({
 		lastMousePos = e.clientX;
 	};
 
-	const onMouseUp = (e: MouseEvent) => {
-		updateConfig((c) => ({
+	const onMouseUp = async (e: MouseEvent) => {
+		console.log("up");
+		e.preventDefault();
+		e.stopImmediatePropagation();
+		e.stopPropagation();
+		await updateConfig((c) => ({
 			...c,
 			colWidths: {
 				...c.colWidths,
@@ -128,6 +132,9 @@ const renderHeader = ({
 		document.removeEventListener("mouseup", onMouseUp);
 	};
 
+	// If within a calloout, will prevent it from going into "callout edit mode"
+	resizeHandle.addEventListener("click", (e) => e.preventDefault());
+
 	resizeHandle.addEventListener("mousedown", (e) => {
 		width = th.getBoundingClientRect().width;
 		lastMousePos = e.clientX;
@@ -136,8 +143,8 @@ const renderHeader = ({
 		document.addEventListener("mouseup", onMouseUp);
 	});
 
-	resizeHandle.addEventListener("dblclick", () => {
-		updateConfig((c) => {
+	resizeHandle.addEventListener("dblclick", async () => {
+		await updateConfig((c) => {
 			delete c.colWidths[headerIndex];
 			return c;
 		});
@@ -183,18 +190,19 @@ export const processDataviewWrapperBlock = async (
 	const config = getConfigFromStr(foundConfigStr.slice(5));
 	console.log("config: ", config);
 
-	const updateConfig: UpdateConfigFunction = (cb) => {
+	const updateConfig: UpdateConfigFunction = async (cb) => {
 		const newConfig = cb({ ...config });
 		const info = ctx.getSectionInfo(el);
 		const { editor } = plugin.app.workspace.activeEditor ?? {};
 		if (!info || !editor) return;
 		const { lineStart, lineEnd } = info;
-		setConfig({
+		await setConfig({
 			source,
+			sourcePath: ctx.sourcePath,
 			config: newConfig,
 			sourceLineStart: lineStart + 1,
 			sourceLineEnd: lineEnd - 1,
-			editor,
+			plugin,
 		});
 	};
 
@@ -348,7 +356,8 @@ export const processDataviewWrapperBlock = async (
 
 	const onMetaChange = async () => {
 		const results = await dv.query(query, ctx.sourcePath);
-		if (JSON.stringify(results) === JSON.stringify(queryResults)) return;
+		// if (JSON.stringify(results?.value) === JSON.stringify(queryResults?.value))
+		// 	return;
 		const scrollX = tableWrapper?.scrollLeft ?? 0;
 		const newWrapper = renderResults(results);
 		newWrapper?.scroll({ left: scrollX });
@@ -389,17 +398,19 @@ const getConfigFromStr = (configLine: string) => {
 
 type SetConfigProps = {
 	source: string;
+	sourcePath: string;
 	config: BlockConfig;
 	sourceLineStart: number;
 	sourceLineEnd: number;
-	editor: Editor;
+	plugin: Plugin;
 };
-const setConfig = ({
+const setConfig = async ({
 	source,
+	sourcePath,
 	config,
 	sourceLineStart,
 	sourceLineEnd,
-	editor,
+	plugin,
 }: SetConfigProps) => {
 	const lines = source.split("\n");
 	const foundConfigLineIndex = lines.findIndex((ln) => ln.startsWith("//BP "));
@@ -407,18 +418,49 @@ const setConfig = ({
 		foundConfigLineIndex === -1 ? lines.length : foundConfigLineIndex;
 	const configStr = JSON.stringify(config);
 	lines[configLineIndex] = "//BP " + configStr;
-	const newSource = lines.join("\n");
 
-	const scroll = editor.getScrollInfo().top;
-	editor.replaceRange(
-		newSource,
-		{ ch: 0, line: sourceLineStart },
-		{ ch: NaN, line: sourceLineEnd }
-	);
+	const file = plugin.app.vault.getFileByPath(sourcePath);
+	if (!file) {
+		// TODO handle better
+		console.error("Could not find file for current code block");
+		return;
+	}
+	await plugin.app.vault.process(file, (data) => {
+		console.log("hi");
+		const lines = data.split("\n");
+		const foundConfigLineIndex = lines.findIndex((ln) =>
+			ln.startsWith("//BP ")
+		);
+		// TOD won't work
+		const configLineIndex =
+			foundConfigLineIndex === -1 ? sourceLineEnd : foundConfigLineIndex;
+		const configStr = JSON.stringify(config);
 
-	window.setTimeout(() => {
-		editor.scrollTo(null, scroll);
-	}, 0);
+		const existingConfigLine = lines[configLineIndex];
+		const startIndex = existingConfigLine.indexOf("//BP");
+		if (startIndex === -1) {
+			lines[configLineIndex] += "\n//BP " + configStr + "\n";
+			return lines.join("\n");
+		}
+
+		lines[configLineIndex] =
+			existingConfigLine.slice(0, startIndex) + "//BP " + configStr;
+
+		return lines.join("\n");
+	});
+
+	// const scroll = editor.getScrollInfo().top;
+	// editor.replaceRange(
+	// 	newSource,
+	// 	{ ch: 0, line: sourceLineStart },
+	// 	{ ch: NaN, line: sourceLineEnd }
+	// );
+
+	// window.setTimeout(() => {
+	// 	editor.scrollTo(null, scroll);
+	// }, 0);
 };
 
-type UpdateConfigFunction = (cb: (current: BlockConfig) => BlockConfig) => void;
+type UpdateConfigFunction = (
+	cb: (current: BlockConfig) => BlockConfig
+) => Promise<void>;
