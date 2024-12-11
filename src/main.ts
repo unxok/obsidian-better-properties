@@ -31,6 +31,7 @@ import { insertPropertyEditor, propertyCodeBlock } from "./PropertyRenderer";
 import { patchMetdataCache } from "./monkey-patches/MetadataCache";
 import { TextListComponent } from "./classes/ListComponent";
 import { processDataviewWrapperBlock } from "./DataviewWrapper";
+import { SidebarModal } from "./classes/SidebarModal";
 
 const BetterPropertiesSettingsSchema = catchAndInfer(
 	z.object({
@@ -86,29 +87,26 @@ export default class BetterProperties extends Plugin {
 	blockingTest() {
 		this.registerMarkdownCodeBlockProcessor("blocking", (source, el, ctx) => {
 			el.empty();
-			const btn = el.createEl("button", { text: "start func" });
-			const result = el.createDiv({ text: "click button to get results" });
-
-			const waitFiveSecond = async () => {
-				new Notice("5 second start");
-				return new Promise<void>((res) =>
-					setTimeout(() => {
-						new Notice("5 second end");
-						res();
-					}, 5000)
-				);
-			};
-
-			const waitFifteenSeconds = async () => {
-				await waitFiveSecond();
-				await waitFiveSecond();
-				await waitFiveSecond();
-			};
+			const btn = el.createEl("button", { text: "open modal" });
 
 			btn.addEventListener("click", async () => {
-				new Notice("started");
-				await waitFifteenSeconds();
-				new Notice("ended");
+				const modal = new SidebarModal(this.app);
+				modal.createTabHeaderGroup((group) =>
+					group
+						// .setTitle("General")
+						.createTab((tab) => tab.setTitle("section1").onSelect(() => {}))
+						.createTab((tab) =>
+							tab.setTitle("section2").onSelect((e) => {
+								modal.tabContentEl.empty();
+								new Setting(modal.tabContentEl)
+									.setName("Test setting")
+									.setDesc("some description goes here")
+									.addText((cmp) => cmp);
+							})
+						)
+				);
+
+				modal.open();
 			});
 		});
 	}

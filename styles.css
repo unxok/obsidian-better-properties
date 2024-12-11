@@ -1,3 +1,12 @@
+/* .vertical-tab-resize-handle {
+	width: var(--divider-width-hover);
+	border: none;
+	cursor: col-resize;
+	&:hover {
+		background-color: var(--interactive-accent);
+	}
+} */
+
 .better-properties-menu-item-note {
 	font-size: 0.8;
 	color: var(--text-muted);
@@ -319,8 +328,8 @@ input[type="time"]::-webkit-calendar-picker-indicator {
 
 .better-properties-dataview-table-wrapper {
 	overflow-x: auto;
-	animation: fade-in 500ms ease forwards;
-	animation-iteration-count: 1;
+	/* animation: fade-in 500ms ease forwards;
+	animation-iteration-count: 1; */
 }
 
 @keyframes fade-in {
