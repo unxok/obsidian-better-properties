@@ -1,26 +1,43 @@
 import BetterProperties from "@/main";
-import { ToggleWidget } from "./Toggle";
-import { DropdownWidget } from "./Dropdown";
+// import { ToggleWidget } from "./Toggle";
+// import { widget } from "./Dropdown";
 import { typeWidgetPrefix } from "@/libs/constants";
 import {
 	PropertyEntryData,
 	PropertyRenderContext,
 	PropertyWidget,
 } from "obsidian-typings";
-import { ButtonWidget } from "./Button";
-import { SliderWidget } from "./Slider";
-import { ColorWidget } from "./Color";
-import { MarkdownWidget } from "./Markdown";
-import { NumberPlusWidget } from "./NumberPlus";
+// import { ButtonWidget } from "./Button";
+// import { SliderWidget } from "./Slider";
+// import { ColorWidget } from "./Color";
+// import { MarkdownWidget } from "./Markdown";
+// import { NumberPlusWidget } from "./NumberPlus";
 import { Component, setIcon } from "obsidian";
-import { defaultPropertySettings, PropertySettings } from "@/PropertySettings";
-import { StarsWidget } from "./Stars";
-import { ProgressWidget } from "./Progress";
-import { TimeWidget } from "./Time";
-import { GroupWidget } from "./Group";
+import {
+	CreatePropertySettings,
+	defaultPropertySettings,
+	PropertySettings,
+} from "@/PropertySettings";
+// import { StarsWidget } from "./Stars";
+// import { ProgressWidget } from "./Progress";
+// import { TimeWidget } from "./Time";
+// import { createSettings, Group, widget } from "./Group";
 import { tryParseYaml } from "@/libs/utils/obsidian";
-import { RelationWidget } from "./Relation";
-import { normalizeValue } from "@/libs/utils/dataview";
+import { Group } from "./Group";
+import { Dropdown } from "./Dropdown";
+import { Color } from "./Color";
+import { Button } from "./Button";
+import { Js } from "./Js";
+import { Markdown } from "./Markdown";
+import { NumberPlus } from "./NumberPlus";
+import { Progress } from "./Progress";
+import { Relation } from "./Relation";
+import { Slider } from "./Slider";
+import { Stars } from "./Stars";
+import { Time } from "./Time";
+import { Toggle } from "./Toggle";
+// import { RelationWidget } from "./Relation";
+// import { normalizeValue } from "@/libs/utils/dataview";
 
 export type CustomTypeWidget<T = unknown> = {
 	type: keyof PropertySettings;
@@ -35,24 +52,44 @@ export type CustomTypeWidget<T = unknown> = {
 		ctx: PropertyRenderContext
 	) => void;
 };
-
-const widgets: CustomTypeWidget<any>[] = [
-	ToggleWidget,
-	DropdownWidget,
-	ButtonWidget,
-	SliderWidget,
-	ColorWidget,
-	MarkdownWidget,
-	NumberPlusWidget,
-	StarsWidget,
-	ProgressWidget,
-	TimeWidget,
-	GroupWidget,
-	RelationWidget,
+export type WidgetAndSettings = [
+	widget: CustomTypeWidget<any>,
+	createSettings: CreatePropertySettings<any>
 ];
 
+export const allWidgetsAndSettings: WidgetAndSettings[] = [
+	Button,
+	Color,
+	Dropdown,
+	Group,
+	Js,
+	Markdown,
+	NumberPlus,
+	Progress,
+	Relation,
+	Slider,
+	Stars,
+	Time,
+	Toggle,
+];
+
+// const widgets: CustomTypeWidget<any>[] = [
+// 	ToggleWidget,
+// 	DropdownWidget,
+// 	ButtonWidget,
+// 	SliderWidget,
+// 	ColorWidget,
+// 	MarkdownWidget,
+// 	NumberPlusWidget,
+// 	StarsWidget,
+// 	ProgressWidget,
+// 	TimeWidget,
+// 	GroupWidget,
+// 	RelationWidget,
+// ];
+
 export const registerCustomWidgets = (plugin: BetterProperties) => {
-	widgets.forEach((w) => {
+	allWidgetsAndSettings.forEach(([w]) => {
 		const render = getWidgetRender(plugin, w.render);
 		const type = typeWidgetPrefix + w.type.toString();
 		plugin.app.metadataTypeManager.registeredTypeWidgets[type] = {

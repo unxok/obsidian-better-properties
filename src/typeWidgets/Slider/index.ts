@@ -1,11 +1,17 @@
 import { Setting, SliderComponent } from "obsidian";
-import { defaultPropertySettings, PropertySettings } from "@/PropertySettings";
-import { CustomTypeWidget } from "..";
+import {
+	CreatePropertySettings,
+	defaultPropertySettings,
+	PropertySettings,
+} from "@/PropertySettings";
+import { CustomTypeWidget, WidgetAndSettings } from "..";
 import { createSection } from "@/libs/utils/setting";
 import { text } from "@/i18Next";
 
-export const SliderWidget: CustomTypeWidget = {
-	type: "slider",
+const typeKey: CustomTypeWidget["type"] = "slider";
+
+export const widget: CustomTypeWidget = {
+	type: typeKey,
 	icon: "git-commit",
 	default: () => 0,
 	name: () => text("typeWidgets.slider.name"),
@@ -13,8 +19,8 @@ export const SliderWidget: CustomTypeWidget = {
 	render: (plugin, el, data, ctx) => {
 		const { min, max, step, showLabels } = plugin.settings.propertySettings[
 			data.key.toLowerCase()
-		]?.["slider"] ?? {
-			...defaultPropertySettings["slider"],
+		]?.[typeKey] ?? {
+			...defaultPropertySettings[typeKey],
 		};
 		const container = el
 			.createDiv({
@@ -50,14 +56,10 @@ export const SliderWidget: CustomTypeWidget = {
 	},
 };
 
-export const createSliderSettings = (
-	el: HTMLElement,
-	form: PropertySettings["slider"],
-	updateForm: <T extends keyof PropertySettings["slider"]>(
-		key: T,
-		value: PropertySettings["slider"][T]
-	) => void
-	// defaultOpen: boolean
+export const createSettings: CreatePropertySettings<typeof typeKey> = (
+	el,
+	form,
+	updateForm
 ) => {
 	const { content } = createSection(el, "Slider", true);
 
@@ -101,3 +103,5 @@ export const createSliderSettings = (
 			cmp.setValue(form.showLabels).onChange((b) => updateForm("showLabels", b))
 		);
 };
+
+export const Slider: WidgetAndSettings = [widget, createSettings];

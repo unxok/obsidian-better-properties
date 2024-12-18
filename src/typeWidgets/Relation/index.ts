@@ -12,8 +12,12 @@ import {
 	TextComponent,
 	TFile,
 } from "obsidian";
-import { defaultPropertySettings, PropertySettings } from "@/PropertySettings";
-import { CustomTypeWidget } from "..";
+import {
+	CreatePropertySettings,
+	defaultPropertySettings,
+	PropertySettings,
+} from "@/PropertySettings";
+import { CustomTypeWidget, WidgetAndSettings } from "..";
 import { createSection } from "@/libs/utils/setting";
 import { text } from "@/i18Next";
 import { PropertyEntryData, PropertyRenderContext } from "obsidian-typings";
@@ -27,8 +31,10 @@ import BetterProperties from "@/main";
 
 // TODO Allow selecting nested properties to do clipboard actions like obsidian allows
 
-export const RelationWidget: CustomTypeWidget<string> = {
-	type: "relation",
+const typeKey: CustomTypeWidget["type"] = "relation";
+
+export const widget: CustomTypeWidget<string> = {
+	type: typeKey,
 	icon: "arrow-up-right",
 	default: () => "",
 	name: () => text("typeWidgets.relation.name"),
@@ -36,8 +42,8 @@ export const RelationWidget: CustomTypeWidget<string> = {
 	render: (plugin, el, data, ctx) => {
 		const { relatedProperty } = plugin.settings.propertySettings[
 			data.key.toLowerCase()
-		]?.["relation"] ?? {
-			...defaultPropertySettings["relation"],
+		]?.[typeKey] ?? {
+			...defaultPropertySettings[typeKey],
 		};
 		// const container = el.createDiv({
 		// 	cls: "better-properties-relation-container",
@@ -258,14 +264,11 @@ const createSetNoteBtn = (
 	return btn;
 };
 
-export const createRelationSettings = (
-	el: HTMLElement,
-	form: PropertySettings["relation"],
-	updateForm: <T extends keyof PropertySettings["relation"]>(
-		key: T,
-		value: PropertySettings["relation"][T]
-	) => void,
-	plugin: BetterProperties
+export const createSettings: CreatePropertySettings<typeof typeKey> = (
+	el,
+	form,
+	updateForm,
+	plugin
 ) => {
 	const { content } = createSection(el, "relation", true);
 
@@ -323,3 +326,5 @@ class FileSuggestModal extends SuggestModal<TFile> {
 		await this.onSelect(item, evt);
 	}
 }
+
+export const Relation: WidgetAndSettings = [widget, createSettings];

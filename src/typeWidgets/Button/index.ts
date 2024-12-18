@@ -1,15 +1,21 @@
 import { ButtonComponent, DropdownComponent, Setting } from "obsidian";
-import { CustomTypeWidget } from "..";
+import { CustomTypeWidget, WidgetAndSettings } from "..";
 import { dangerousEval, getButtonStyledClass } from "@/libs/utils/pure";
 import { IconSuggest } from "@/classes/IconSuggest";
 import { TextColorComponent } from "@/classes/TextColorComponent";
 import { createSection } from "@/libs/utils/setting";
 import BetterProperties from "@/main";
-import { defaultPropertySettings, PropertySettings } from "@/PropertySettings";
+import {
+	CreatePropertySettings,
+	defaultPropertySettings,
+	PropertySettings,
+} from "@/PropertySettings";
 import { text } from "@/i18Next";
 
-export const ButtonWidget: CustomTypeWidget = {
-	type: "button",
+const typeKey: CustomTypeWidget["type"] = "button";
+
+export const widget: CustomTypeWidget = {
+	type: typeKey,
 	icon: "plus-square",
 	default: () => "new Notice('Hello there')",
 	name: () => text("typeWidgets.button.name"),
@@ -23,10 +29,8 @@ export const ButtonWidget: CustomTypeWidget = {
 			textColor,
 			callbackType,
 			cssClass,
-		} = plugin.settings.propertySettings[data.key.toLowerCase()]?.[
-			"button"
-		] ?? {
-			...defaultPropertySettings["button"],
+		} = plugin.settings.propertySettings[data.key.toLowerCase()]?.[typeKey] ?? {
+			...defaultPropertySettings[typeKey],
 		};
 
 		const container = el.createDiv({
@@ -96,14 +100,11 @@ export const ButtonWidget: CustomTypeWidget = {
 	},
 };
 
-export const createButtonSettings = (
-	el: HTMLElement,
-	form: PropertySettings["button"],
-	updateForm: <T extends keyof PropertySettings["button"]>(
-		key: T,
-		value: PropertySettings["button"][T]
-	) => void,
-	plugin: BetterProperties
+export const createSettings: CreatePropertySettings<typeof typeKey> = (
+	el,
+	form,
+	updateForm,
+	plugin
 	// defaultOpen: boolean
 ) => {
 	const {
@@ -122,9 +123,7 @@ export const createButtonSettings = (
 		.setName("Display text")
 		.setDesc("The text that will show within the button.")
 		.addText((cmp) =>
-			cmp
-				.setValue(displayText)
-				.onChange((v) => updateForm("displayText", v))
+			cmp.setValue(displayText).onChange((v) => updateForm("displayText", v))
 		);
 
 	new Setting(content)
@@ -221,3 +220,5 @@ export const createButtonSettings = (
 				.onChange((v) => updateForm("cssClass", v))
 		);
 };
+
+export const Button: WidgetAndSettings = [widget, createSettings];

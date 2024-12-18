@@ -1,9 +1,12 @@
 import { EmbeddableMarkdownEditor } from "@/classes/EmbeddableMarkdownEditor";
-import { CustomTypeWidget } from "..";
+import { CustomTypeWidget, WidgetAndSettings } from "..";
 import { text } from "@/i18Next";
+import { CreatePropertySettings } from "@/PropertySettings";
 
-export const MarkdownWidget: CustomTypeWidget = {
-	type: "markdown",
+const typeKey: CustomTypeWidget["type"] = "markdown";
+
+export const widget: CustomTypeWidget = {
+	type: typeKey,
 	icon: "m-square",
 	default: () => "",
 	name: () => text("typeWidgets.markdown.name"),
@@ -29,3 +32,9 @@ export const MarkdownWidget: CustomTypeWidget = {
 		ctx.metadataEditor.register(() => emde.destroy());
 	},
 };
+
+const createSettings: CreatePropertySettings<typeof typeKey> = (el) => {
+	el.createDiv({ text: "Nothing to see here... yet!" });
+};
+
+export const Markdown: WidgetAndSettings = [widget, createSettings];

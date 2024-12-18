@@ -1,12 +1,18 @@
 import { App, ButtonComponent, Modal, setIcon, Setting } from "obsidian";
-import { defaultPropertySettings, PropertySettings } from "@/PropertySettings";
-import { CustomTypeWidget } from "..";
+import {
+	CreatePropertySettings,
+	defaultPropertySettings,
+	PropertySettings,
+} from "@/PropertySettings";
+import { CustomTypeWidget, WidgetAndSettings } from "..";
 import { createSection } from "@/libs/utils/setting";
 import { dangerousEval } from "@/libs/utils/pure";
 import { text } from "@/i18Next";
 
-export const NumberPlusWidget: CustomTypeWidget = {
-	type: "numberPlus",
+const typeKey: CustomTypeWidget["type"] = "numberPlus";
+
+export const widget: CustomTypeWidget = {
+	type: typeKey,
 	icon: "calculator",
 	default: () => 0,
 	name: () => text("typeWidgets.numberPlus.name"),
@@ -14,8 +20,8 @@ export const NumberPlusWidget: CustomTypeWidget = {
 	render: (plugin, el, data, ctx) => {
 		const { min, max, step, validate } = plugin.settings.propertySettings[
 			data.key.toLowerCase()
-		]?.numberPlus ?? {
-			...defaultPropertySettings.numberPlus,
+		]?.[typeKey] ?? {
+			...defaultPropertySettings[typeKey],
 		};
 		const doValidation = (num: number) => {
 			if (!validate) return num;
@@ -84,22 +90,16 @@ class ExpressionModal extends Modal {
 		// contentEl.createEl('p', {text: ''});
 		const setting = new Setting(contentEl)
 			.setName(
-				text(
-					"typeWidgets.numberPlus.expressionModal.expressionSetting.title"
-				)
+				text("typeWidgets.numberPlus.expressionModal.expressionSetting.title")
 			)
 			.setDesc(
-				text(
-					"typeWidgets.numberPlus.expressionModal.expressionSetting.desc"
-				)
+				text("typeWidgets.numberPlus.expressionModal.expressionSetting.desc")
 			);
 
 		const calculteEl = setting.descEl.createDiv();
 		calculteEl.createEl("br");
 		calculteEl.createSpan({
-			text: text(
-				"typeWidgets.numberPlus.expressionModal.calculatedPrefix"
-			),
+			text: text("typeWidgets.numberPlus.expressionModal.calculatedPrefix"),
 		});
 		const resultEl = calculteEl.createSpan({
 			text: defaultNumber.toString(),
@@ -136,14 +136,10 @@ class ExpressionModal extends Modal {
 	}
 }
 
-export const createNumberPlusSettings = (
-	el: HTMLElement,
-	form: PropertySettings["numberPlus"],
-	updateForm: <T extends keyof PropertySettings["numberPlus"]>(
-		key: T,
-		value: PropertySettings["numberPlus"][T]
-	) => void
-	// defaultOpen: boolean
+export const createSettings: CreatePropertySettings<typeof typeKey> = (
+	el,
+	form,
+	updateForm
 ) => {
 	const { content } = createSection(
 		el,
@@ -155,9 +151,7 @@ export const createNumberPlusSettings = (
 		.setName(text("typeWidgets.numberPlus.settings.validateSetting.title"))
 		.setDesc(text("typeWidgets.numberPlus.settings.validateSetting.desc"))
 		.addToggle((cmp) =>
-			cmp
-				.setValue(form.validate)
-				.onChange((b) => updateForm("validate", b))
+			cmp.setValue(form.validate).onChange((b) => updateForm("validate", b))
 		);
 
 	new Setting(content)
@@ -193,3 +187,5 @@ export const createNumberPlusSettings = (
 			})
 		);
 };
+
+export const NumberPlus: WidgetAndSettings = [widget, createSettings];

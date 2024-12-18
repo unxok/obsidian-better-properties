@@ -1,12 +1,18 @@
-import { defaultPropertySettings, PropertySettings } from "@/PropertySettings";
-import { CustomTypeWidget } from "..";
+import {
+	CreatePropertySettings,
+	defaultPropertySettings,
+	PropertySettings,
+} from "@/PropertySettings";
+import { CustomTypeWidget, WidgetAndSettings } from "..";
 import { createSection } from "@/libs/utils/setting";
 import { text } from "@/i18Next";
 
 // TODO start work on this
 
-export const JsWidget: CustomTypeWidget = {
-	type: "js",
+const typeKey: CustomTypeWidget["type"] = "js";
+
+export const widget: CustomTypeWidget = {
+	type: typeKey,
 	icon: "braces",
 	default: () => {
 		{
@@ -16,9 +22,9 @@ export const JsWidget: CustomTypeWidget = {
 	validate: (v) => typeof v === "object",
 	render: (plugin, el, data, ctx) => {
 		const {} = plugin.settings.propertySettings[data.key.toLowerCase()]?.[
-			"js"
+			typeKey
 		] ?? {
-			...defaultPropertySettings["js"],
+			...defaultPropertySettings[typeKey],
 		};
 
 		const container = el.createDiv({
@@ -28,14 +34,10 @@ export const JsWidget: CustomTypeWidget = {
 	},
 };
 
-export const createJsSettings = (
-	el: HTMLElement,
-	form: PropertySettings["js"],
-	updateForm: <T extends keyof PropertySettings["js"]>(
-		key: T,
-		value: PropertySettings["js"][T]
-	) => void
-	// defaultOpen: boolean
+export const createSettings: CreatePropertySettings<typeof typeKey> = (
+	el,
+	form,
+	updateForm
 ) => {
 	const { content } = createSection(el, "Group", true);
 
@@ -48,3 +50,5 @@ export const createJsSettings = (
 	// 		})
 	// 	);
 };
+
+export const Js: WidgetAndSettings = [widget, createSettings];

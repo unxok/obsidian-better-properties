@@ -52,7 +52,8 @@ export class IconSuggest extends InputSuggest<string> {
 	protected parseSuggestion(value: string): Suggestion {
 		return {
 			title: value,
-			aux: "",
+			// aux: "",
+			icon: value,
 		};
 	}
 
@@ -63,8 +64,8 @@ export class IconSuggest extends InputSuggest<string> {
 		_noteEl?: HTMLDivElement,
 		auxEl?: HTMLDivElement
 	): void {
-		if (!auxEl) return;
-		setIcon(auxEl, value);
+		// if (!auxEl) return;
+		// setIcon(auxEl, value);
 	}
 
 	selectSuggestion(value: string, _evt: MouseEvent | KeyboardEvent): void {

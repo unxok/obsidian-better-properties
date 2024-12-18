@@ -13,12 +13,13 @@ import {
 	TFile,
 } from "obsidian";
 import {
+	CreatePropertySettings,
 	defaultPropertySettings,
 	PropertySettings,
 	PropertySettingsSchema,
 } from "@/PropertySettings";
 import BetterProperties from "@/main";
-import { CustomTypeWidget } from "..";
+import { CustomTypeWidget, WidgetAndSettings } from "..";
 import { arrayMove, dangerousEval } from "@/libs/utils/pure";
 import { createSection } from "@/libs/utils/setting";
 import { text } from "@/i18Next";
@@ -27,16 +28,18 @@ import { ListComponent } from "@/classes/ListComponent";
 import { obsidianText } from "@/i18Next/defaultObsidian";
 import { createDragHandle } from "@/libs/utils/drag";
 
-export const DropdownWidget: CustomTypeWidget = {
-	type: "dropdown",
+const typeKey: CustomTypeWidget["type"] = "dropdown";
+
+export const widget: CustomTypeWidget = {
+	type: typeKey,
 	icon: "chevron-down-circle",
 	default: () => "",
 	name: () => text("typeWidgets.dropdown.name"),
 	validate: (v) => typeof v?.toString() === "string",
 	render: (plugin, el, data, ctx) => {
 		const { options, dynamicFileJs, dynamicInlineJs } = plugin.settings
-			.propertySettings[data.key.toLowerCase()]?.["dropdown"] ?? {
-			...defaultPropertySettings["dropdown"],
+			.propertySettings[data.key.toLowerCase()]?.[typeKey] ?? {
+			...defaultPropertySettings[typeKey],
 		};
 
 		// const container = el.createDiv({
@@ -179,14 +182,11 @@ const getDynamicOptionsFile = async (
 	return getDynamicOptionsInline(inlineJs, obj);
 };
 
-export const createDropdownSettings = (
-	el: HTMLElement,
-	form: PropertySettings["dropdown"],
-	updateForm: <T extends keyof PropertySettings["dropdown"]>(
-		key: T,
-		value: PropertySettings["dropdown"][T]
-	) => void,
-	plugin: BetterProperties
+export const createSettings: CreatePropertySettings<typeof typeKey> = (
+	el,
+	form,
+	updateForm,
+	plugin
 	// defaultOpen: boolean
 ) => {
 	const { content } = createSection(
@@ -194,13 +194,6 @@ export const createDropdownSettings = (
 		text("typeWidgets.dropdown.name"),
 		true
 	);
-
-	// const updateOptions = (
-	// 	cb: (prev: (typeof form)["options"]) => (typeof form)["options"]
-	// ) => {
-	// 	const newOpts = cb([...form.options]);
-	// 	updateForm("options", newOpts);
-	// };
 
 	new Setting(content)
 		.setHeading()
@@ -226,50 +219,6 @@ export const createDropdownSettings = (
 	).onChange((v) => {
 		updateForm("options", [...v]);
 	});
-
-	// const renderOptions = () => {
-	// 	optionContainer.empty();
-	// 	form.options.forEach((data, index) =>
-	// 		createOption(
-	// 			optionContainer,
-	// 			updateOptions,
-	// 			renderOptions,
-	// 			data,
-	// 			index,
-	// 			plugin
-	// 		)
-	// 	);
-	// };
-
-	// renderOptions();
-
-	// new Setting(content).addButton((cmp) =>
-	// 	cmp
-	// 		.setCta()
-	// 		.setIcon("plus")
-	// 		.onClick(() => {
-	// 			const newOpts = [...form.options];
-	// 			const defaultData: PropertySettings["dropdown"]["options"][0] =
-	// 				{
-	// 					value: "",
-	// 					config: {
-	// 						label: "",
-	// 						backgroundColor: "",
-	// 						textColor: "",
-	// 					},
-	// 				};
-	// 			const newLen = newOpts.push({ ...defaultData });
-	// 			createOption(
-	// 				optionContainer,
-	// 				updateOptions,
-	// 				renderOptions,
-	// 				{ ...defaultData },
-	// 				newLen - 1,
-	// 				plugin
-	// 			);
-	// 			updateForm("options", newOpts);
-	// 		})
-	// );
 
 	new Setting(content)
 		.setHeading()
@@ -309,105 +258,105 @@ export const createDropdownSettings = (
 		});
 };
 
-const createOption = (
-	container: HTMLElement,
-	updateOptions: (
-		cb: (
-			prev: PropertySettings["dropdown"]["options"]
-		) => PropertySettings["dropdown"]["options"]
-	) => void,
-	renderOptions: () => void,
-	data: PropertySettings["dropdown"]["options"][0],
-	index: number,
-	plugin: BetterProperties
-) => {
-	const { value } = data;
-	const setting = new Setting(container);
+// const createOption = (
+// 	container: HTMLElement,
+// 	updateOptions: (
+// 		cb: (
+// 			prev: PropertySettings["dropdown"]["options"]
+// 		) => PropertySettings["dropdown"]["options"]
+// 	) => void,
+// 	renderOptions: () => void,
+// 	data: PropertySettings["dropdown"]["options"][0],
+// 	index: number,
+// 	plugin: BetterProperties
+// ) => {
+// 	const { value } = data;
+// 	const setting = new Setting(container);
 
-	// don't need this
-	setting.infoEl.remove();
+// 	// don't need this
+// 	setting.infoEl.remove();
 
-	setting
-		.addText((cmp) =>
-			cmp
-				.setPlaceholder(
-					text("typeWidgets.dropdown.createOption.value.placeholder")
-				)
-				.setValue(value)
-				.onChange((v) => {
-					updateOptions((prev) => {
-						prev[index].value = v;
-						return prev;
-					});
-				})
-				.then((c) => {
-					c.inputEl.setAttribute(
-						"aria-label",
-						text("typeWidgets.dropdown.createOption.value.tooltip")
-					);
-					c.inputEl.classList.add("better-properties-dropdown-setting-input");
-				})
-		)
-		.addExtraButton((cmp) =>
-			cmp
-				.setIcon("chevron-up")
-				.onClick(() => {
-					if (index === 0) return;
-					updateOptions((prev) => {
-						const newArr = arrayMove(prev, index, index - 1);
-						return newArr;
-					});
-					renderOptions();
-				})
-				.setTooltip(text("typeWidgets.dropdown.createOption.moveUpTooltip"))
-		)
-		.addExtraButton((cmp) =>
-			cmp
-				.setIcon("chevron-down")
-				.onClick(() => {
-					updateOptions((prev) => {
-						if (prev.length === index + 1) return prev;
-						const newArr = arrayMove(prev, index, index + 1);
-						return newArr;
-					});
-					renderOptions();
-				})
-				.setTooltip(text("typeWidgets.dropdown.createOption.moveDownTooltip"))
-		)
-		.addExtraButton((cmp) =>
-			cmp
-				.setIcon("settings")
-				.onClick(() => {
-					const modal = new OptionConfigModal(
-						plugin.app,
-						data
-						// (cb: (prev: typeof data) => typeof data) =>
-						// 	updateOptions((prev) => {
-						// 		prev[index] = cb(prev[index]);
-						// 		return [...prev];
-						// 	})
-					);
+// 	setting
+// 		.addText((cmp) =>
+// 			cmp
+// 				.setPlaceholder(
+// 					text("typeWidgets.dropdown.createOption.value.placeholder")
+// 				)
+// 				.setValue(value)
+// 				.onChange((v) => {
+// 					updateOptions((prev) => {
+// 						prev[index].value = v;
+// 						return prev;
+// 					});
+// 				})
+// 				.then((c) => {
+// 					c.inputEl.setAttribute(
+// 						"aria-label",
+// 						text("typeWidgets.dropdown.createOption.value.tooltip")
+// 					);
+// 					c.inputEl.classList.add("better-properties-dropdown-setting-input");
+// 				})
+// 		)
+// 		.addExtraButton((cmp) =>
+// 			cmp
+// 				.setIcon("chevron-up")
+// 				.onClick(() => {
+// 					if (index === 0) return;
+// 					updateOptions((prev) => {
+// 						const newArr = arrayMove(prev, index, index - 1);
+// 						return newArr;
+// 					});
+// 					renderOptions();
+// 				})
+// 				.setTooltip(text("typeWidgets.dropdown.createOption.moveUpTooltip"))
+// 		)
+// 		.addExtraButton((cmp) =>
+// 			cmp
+// 				.setIcon("chevron-down")
+// 				.onClick(() => {
+// 					updateOptions((prev) => {
+// 						if (prev.length === index + 1) return prev;
+// 						const newArr = arrayMove(prev, index, index + 1);
+// 						return newArr;
+// 					});
+// 					renderOptions();
+// 				})
+// 				.setTooltip(text("typeWidgets.dropdown.createOption.moveDownTooltip"))
+// 		)
+// 		.addExtraButton((cmp) =>
+// 			cmp
+// 				.setIcon("settings")
+// 				.onClick(() => {
+// 					const modal = new OptionConfigModal(
+// 						plugin.app,
+// 						data
+// 						// (cb: (prev: typeof data) => typeof data) =>
+// 						// 	updateOptions((prev) => {
+// 						// 		prev[index] = cb(prev[index]);
+// 						// 		return [...prev];
+// 						// 	})
+// 					);
 
-					modal.onClose = () => renderOptions();
+// 					modal.onClose = () => renderOptions();
 
-					modal.open();
-				})
-				.setTooltip("Configuration")
-		)
-		.addExtraButton((cmp) =>
-			cmp
-				.setIcon("x")
-				.onClick(() => {
-					setting.settingEl.remove();
-					updateOptions((prev) => {
-						const arr = prev.filter((_, i) => i !== index);
-						return arr;
-					});
-					renderOptions();
-				})
-				.setTooltip(text("typeWidgets.dropdown.createOption.removeTooltip"))
-		);
-};
+// 					modal.open();
+// 				})
+// 				.setTooltip("Configuration")
+// 		)
+// 		.addExtraButton((cmp) =>
+// 			cmp
+// 				.setIcon("x")
+// 				.onClick(() => {
+// 					setting.settingEl.remove();
+// 					updateOptions((prev) => {
+// 						const arr = prev.filter((_, i) => i !== index);
+// 						return arr;
+// 					});
+// 					renderOptions();
+// 				})
+// 				.setTooltip(text("typeWidgets.dropdown.createOption.removeTooltip"))
+// 		);
+// };
 
 class JsSuggest extends AbstractInputSuggest<TFile> {
 	searchCmp: SearchComponent;
@@ -643,3 +592,5 @@ class OptionList extends ListComponent<Option> {
 		return this;
 	}
 }
+
+export const Dropdown: WidgetAndSettings = [widget, createSettings];

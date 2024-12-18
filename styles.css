@@ -397,3 +397,36 @@ input[type="time"]::-webkit-calendar-picker-indicator {
 	justify-content: center;
 	align-items: center;
 }
+
+.better-properties-search-setting-control.setting-item-control {
+	width: 100%;
+	& .search-input-container {
+		width: 100%;
+	}
+}
+
+.better-properties-property-settings-type-label {
+	background-color: hsl(var(--accent-h), var(--accent-s), var(--accent-l));
+	color: var(--text-on-accent);
+	width: fit-content;
+	padding: var(--size-4-1);
+	text-align: center;
+	font-size: var(--font-ui-small);
+	border-radius: var(--radius-s);
+	font-weight: normal;
+	margin-block: var(--size-2-2);
+}
+
+.better-properties-property-settings-type-label-inline {
+	background-color: hsl(var(--accent-h), var(--accent-s), var(--accent-l));
+	color: var(--text-on-accent);
+	width: fit-content;
+	padding: var(--size-2-2);
+	text-align: center;
+	font-size: var(--font-ui-small);
+	border-radius: var(--radius-s);
+	font-weight: normal;
+	margin-inline: var(--size-2-2);
+	display: inline;
+	height: fit-content;
+}

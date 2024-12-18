@@ -6,8 +6,12 @@ import {
 	stringifyYaml,
 	TextComponent,
 } from "obsidian";
-import { defaultPropertySettings, PropertySettings } from "@/PropertySettings";
-import { CustomTypeWidget } from "..";
+import {
+	CreatePropertySettings,
+	defaultPropertySettings,
+	PropertySettings,
+} from "@/PropertySettings";
+import { CustomTypeWidget, WidgetAndSettings } from "..";
 import { createSection } from "@/libs/utils/setting";
 import { text } from "@/i18Next";
 import { PropertyEntryData } from "obsidian-typings";
@@ -22,16 +26,18 @@ import {
 
 // TODO Allow selecting nested properties to do clipboard actions like obsidian allows
 
-export const GroupWidget: CustomTypeWidget = {
-	type: "group",
+const typeKey: CustomTypeWidget["type"] = "group";
+
+export const widget: CustomTypeWidget = {
+	type: typeKey,
 	icon: "braces",
 	default: () => ({}),
 	name: () => text("typeWidgets.group.name"),
 	validate: (v) => typeof v === "object",
 	render: (plugin, el, data, ctx) => {
 		const { headerText, showIndentationLines, showAddButton } = plugin.settings
-			.propertySettings[data.key.toLowerCase()]?.["group"] ?? {
-			...defaultPropertySettings["group"],
+			.propertySettings[data.key.toLowerCase()]?.[typeKey] ?? {
+			...defaultPropertySettings[typeKey],
 		};
 
 		el.style.setProperty("--metadata-input-background-active", "transparent");
@@ -342,14 +348,10 @@ export const GroupWidget: CustomTypeWidget = {
 	},
 };
 
-export const createGroupSettings = (
-	el: HTMLElement,
-	form: PropertySettings["group"],
-	updateForm: <T extends keyof PropertySettings["group"]>(
-		key: T,
-		value: PropertySettings["group"][T]
-	) => void
-	// defaultOpen: boolean
+export const createSettings: CreatePropertySettings<typeof typeKey> = (
+	el,
+	form,
+	updateForm
 ) => {
 	const { content } = createSection(el, "Group", true);
 
@@ -380,3 +382,5 @@ export const createGroupSettings = (
 			})
 		);
 };
+
+export const Group: WidgetAndSettings = [widget, createSettings];

@@ -32,6 +32,8 @@ import { patchMetdataCache } from "./monkey-patches/MetadataCache";
 import { TextListComponent } from "./classes/ListComponent";
 import { processDataviewWrapperBlock } from "./DataviewWrapper";
 import { SidebarModal } from "./classes/SidebarModal";
+import { PropertySuggestModal } from "./classes/PropertySuggest";
+import { PropertySettingsModal } from "./augmentMedataMenu/addSettings";
 
 const BetterPropertiesSettingsSchema = catchAndInfer(
 	z.object({
@@ -82,6 +84,16 @@ export default class BetterProperties extends Plugin {
 		this.registerMarkdownCodeBlockProcessor("dataview-bp", (...args) =>
 			processDataviewWrapperBlock(this, ...args)
 		);
+
+		this.addCommand({
+			id: "Open settings for a property",
+			name: "Open settings for a property",
+			callback: () => {
+				new PropertySuggestModal(this.app, (data) => {
+					new PropertySettingsModal(this, data.property).open();
+				}).open();
+			},
+		});
 	}
 
 	blockingTest() {
@@ -93,16 +105,18 @@ export default class BetterProperties extends Plugin {
 				const modal = new SidebarModal(this.app);
 				modal.createTabHeaderGroup((group) =>
 					group
-						// .setTitle("General")
 						.createTab((tab) => tab.setTitle("section1").onSelect(() => {}))
 						.createTab((tab) =>
-							tab.setTitle("section2").onSelect((e) => {
-								modal.tabContentEl.empty();
-								new Setting(modal.tabContentEl)
-									.setName("Test setting")
-									.setDesc("some description goes here")
-									.addText((cmp) => cmp);
-							})
+							tab
+								.setTitle("section2")
+								.onSelect(() => {
+									modal.tabContentEl.empty();
+									new Setting(modal.tabContentEl)
+										.setName("Test setting")
+										.setDesc("some description goes here")
+										.addText((cmp) => cmp);
+								})
+								.setActive()
 						)
 				);
 
@@ -178,6 +192,7 @@ export default class BetterProperties extends Plugin {
 	}
 
 	listenPropertyMenu(): void {
+		5;
 		this.registerEvent(
 			this.app.workspace.on("file-property-menu", (menu, property) => {
 				this.setMenu(menu, property);
@@ -212,7 +227,7 @@ export default class BetterProperties extends Plugin {
 		const lower = propertyName.toLowerCase();
 		const settings =
 			this.settings.propertySettings[lower] ?? defaultPropertySettings;
-		return settings;
+		return { ...settings };
 	}
 
 	async updatePropertySetting(

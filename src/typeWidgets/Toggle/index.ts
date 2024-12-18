@@ -1,9 +1,12 @@
 import { ToggleComponent } from "obsidian";
-import { CustomTypeWidget } from "..";
+import { CustomTypeWidget, WidgetAndSettings } from "..";
 import { text } from "@/i18Next";
+import { CreatePropertySettings } from "@/PropertySettings";
 
-export const ToggleWidget: CustomTypeWidget = {
-	type: "toggle",
+const typeKey: CustomTypeWidget["type"] = "toggle";
+
+export const widget: CustomTypeWidget = {
+	type: typeKey,
 	icon: "toggle-right",
 	default: () => false,
 	name: () => text("typeWidgets.toggle.name"),
@@ -22,3 +25,9 @@ export const ToggleWidget: CustomTypeWidget = {
 		});
 	},
 };
+
+const createSettings: CreatePropertySettings<typeof typeKey> = (el) => {
+	el.createDiv({ text: "Nothing to see here... yet!" });
+};
+
+export const Toggle: WidgetAndSettings = [widget, createSettings];

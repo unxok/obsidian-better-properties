@@ -1,14 +1,20 @@
 import { setIcon, Setting } from "obsidian";
-import { CustomTypeWidget } from "..";
+import { CustomTypeWidget, WidgetAndSettings } from "..";
 import { clampNumber } from "@/libs/utils/pure";
 import { IconSuggest } from "@/classes/IconSuggest";
 import { createSection } from "@/libs/utils/setting";
 import BetterProperties from "@/main";
-import { defaultPropertySettings, PropertySettings } from "@/PropertySettings";
+import {
+	CreatePropertySettings,
+	defaultPropertySettings,
+	PropertySettings,
+} from "@/PropertySettings";
 import { text } from "@/i18Next";
 
-export const StarsWidget: CustomTypeWidget = {
-	type: "stars",
+const typeKey: CustomTypeWidget["type"] = "stars";
+
+export const widget: CustomTypeWidget = {
+	type: typeKey,
 	icon: "star",
 	default: () => 0,
 	name: () => text("typeWidgets.stars.name"),
@@ -16,8 +22,8 @@ export const StarsWidget: CustomTypeWidget = {
 	render: (plugin, el, data, ctx) => {
 		const { customIcon, max } = plugin.settings.propertySettings[
 			data.key.toLowerCase()
-		]?.["stars"] ?? {
-			...defaultPropertySettings["stars"],
+		]?.[typeKey] ?? {
+			...defaultPropertySettings[typeKey],
 		};
 
 		const container = el.createDiv({
@@ -70,14 +76,11 @@ export const StarsWidget: CustomTypeWidget = {
 	},
 };
 
-export const createStarsSettings = (
-	el: HTMLElement,
-	form: PropertySettings["stars"],
-	updateForm: <T extends keyof PropertySettings["stars"]>(
-		key: T,
-		value: PropertySettings["stars"][T]
-	) => void,
-	plugin: BetterProperties
+export const createSettings: CreatePropertySettings<typeof typeKey> = (
+	el,
+	form,
+	updateForm,
+	plugin
 	// defaultOpen: boolean
 ) => {
 	const { customIcon, max } = form;
@@ -106,3 +109,5 @@ export const createStarsSettings = (
 				})
 		);
 };
+
+export const Stars: WidgetAndSettings = [widget, createSettings];

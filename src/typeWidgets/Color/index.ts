@@ -1,9 +1,12 @@
 import { ColorComponent } from "obsidian";
-import { CustomTypeWidget } from "..";
+import { CustomTypeWidget, WidgetAndSettings } from "..";
 import { text } from "@/i18Next";
+import { CreatePropertySettings } from "@/PropertySettings";
 
-export const ColorWidget: CustomTypeWidget = {
-	type: "color",
+const typeKey: CustomTypeWidget["type"] = "color";
+
+export const widget: CustomTypeWidget = {
+	type: typeKey,
 	icon: "paintbrush",
 	default: () => "#000000",
 	name: () => text("typeWidgets.color.name"),
@@ -24,3 +27,9 @@ export const ColorWidget: CustomTypeWidget = {
 			});
 	},
 };
+
+const createSettings: CreatePropertySettings<typeof typeKey> = (el) => {
+	el.createDiv({ text: "Nothing to see here... yet!" });
+};
+
+export const Color: WidgetAndSettings = [widget, createSettings];

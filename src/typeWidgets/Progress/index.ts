@@ -1,21 +1,27 @@
 import { ProgressBarComponent, Setting, SliderComponent } from "obsidian";
-import { defaultPropertySettings, PropertySettings } from "@/PropertySettings";
-import { CustomTypeWidget } from "..";
+import {
+	CreatePropertySettings,
+	defaultPropertySettings,
+	PropertySettings,
+} from "@/PropertySettings";
+import { CustomTypeWidget, WidgetAndSettings } from "..";
 import { createSection } from "@/libs/utils/setting";
 import { text } from "@/i18Next";
 import { clampNumber } from "@/libs/utils/pure";
 
-export const ProgressWidget: CustomTypeWidget = {
-	type: "progress",
+const typeKey: CustomTypeWidget["type"] = "progress";
+
+export const widget: CustomTypeWidget = {
+	type: typeKey,
 	icon: "percent-square",
 	default: () => 0,
 	name: () => text("typeWidgets.progress.name"),
 	validate: (v) => !Number.isNaN(Number(v)),
 	render: (plugin, el, data, ctx) => {
 		const {} = plugin.settings.propertySettings[data.key.toLowerCase()]?.[
-			"progress"
+			typeKey
 		] ?? {
-			...defaultPropertySettings["progress"],
+			...defaultPropertySettings[typeKey],
 		};
 		const container = el.createDiv({
 			cls: "better-properties-progress-container",
@@ -127,58 +133,8 @@ export const ProgressWidget: CustomTypeWidget = {
 	},
 };
 
-export const createProgressSettings = (
-	el: HTMLElement,
-	form: PropertySettings["progress"],
-	updateForm: <T extends keyof PropertySettings["progress"]>(
-		key: T,
-		value: PropertySettings["progress"][T]
-	) => void
-	// defaultOpen: boolean
-) => {
-	const { content } = createSection(el, "Progress", true);
-
-	// new Setting(content)
-	// 	.setName(text("typeWidgets.slider.settings.minSetting.title"))
-	// 	.setDesc(text("typeWidgets.slider.settings.minSetting.desc"))
-	// 	.addText((cmp) =>
-	// 		cmp.setValue(form.min.toString()).onChange((v) => {
-	// 			const n = Number(v);
-	// 			const num = Number.isNaN(n) ? 0 : n;
-	// 			updateForm("min", num);
-	// 		})
-	// 	);
-
-	// new Setting(content)
-	// 	.setName(text("typeWidgets.slider.settings.maxSetting.title"))
-	// 	.setDesc(text("typeWidgets.slider.settings.maxSetting.desc"))
-	// 	.addText((cmp) =>
-	// 		cmp.setValue(form.max.toString()).onChange((v) => {
-	// 			const n = Number(v);
-	// 			const num = Number.isNaN(n) ? 0 : n;
-	// 			updateForm("max", num);
-	// 		})
-	// 	);
-
-	// new Setting(content)
-	// 	.setName(text("typeWidgets.slider.settings.stepSetting.title"))
-	// 	.setDesc(text("typeWidgets.slider.settings.stepSetting.desc"))
-	// 	.addText((cmp) =>
-	// 		cmp.setValue(form.step.toString()).onChange((v) => {
-	// 			const n = Number(v);
-	// 			const num = Number.isNaN(n) ? 0 : n;
-	// 			updateForm("step", num);
-	// 		})
-	// 	);
-
-	// new Setting(content)
-	// 	.setName(text("typeWidgets.slider.settings.showLabelsSetting.title"))
-	// 	.setDesc(text("typeWidgets.slider.settings.showLabelsSetting.desc"))
-	// 	.addToggle((cmp) =>
-	// 		cmp
-	// 			.setValue(form.showLabels)
-	// 			.onChange((b) => updateForm("showLabels", b))
-	// 	);
+const createSettings: CreatePropertySettings<typeof typeKey> = (el) => {
+	el.createDiv({ text: "Nothing to see here... yet!" });
 };
 
 interface AugmentedProgressComponent extends ProgressBarComponent {
@@ -187,3 +143,5 @@ interface AugmentedProgressComponent extends ProgressBarComponent {
 	showTooltip(): void;
 	setDynamicTooltip(): void;
 }
+
+export const Progress: WidgetAndSettings = [widget, createSettings];

@@ -1,14 +1,8 @@
 import { monkeyAroundKey } from "@/libs/constants";
+import { compareFunc } from "@/libs/utils/obsidian";
 import BetterProperties from "@/main";
 import { around, dedupe } from "monkey-around";
 import { MetadataCache } from "obsidian";
-
-// recreation of the collator that obsidian uses for sorting suggestions
-const compareFunc = new Intl.Collator(undefined, {
-	usage: "sort",
-	sensitivity: "base",
-	numeric: false,
-}).compare;
 
 export const patchMetdataCache = (plugin: BetterProperties) => {
 	const MetadataCachePrototype = Object.getPrototypeOf(

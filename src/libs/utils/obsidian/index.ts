@@ -32,3 +32,10 @@ export const getFileFromMarkdownLink = (
 	const nonAliased = noBrackets.split(/(?<!\\)\|/g)[0];
 	return app.metadataCache.getFirstLinkpathDest(nonAliased, sourcePath);
 };
+
+// recreation of the collator that obsidian uses for sorting suggestions
+export const compareFunc = new Intl.Collator(undefined, {
+	usage: "sort",
+	sensitivity: "base",
+	numeric: false,
+}).compare;

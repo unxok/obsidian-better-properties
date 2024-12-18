@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { catchAndInfer } from "../libs/utils/zod";
+import BetterProperties from "@/main";
 
 export const PropertySettingsSchema = catchAndInfer(
 	z.object({
@@ -145,3 +146,13 @@ export const PropertySettingsSchema = catchAndInfer(
 export const defaultPropertySettings = PropertySettingsSchema.parse({});
 
 export type PropertySettings = z.infer<typeof PropertySettingsSchema>;
+
+export type CreatePropertySettings<K extends keyof PropertySettings> = (
+	el: HTMLElement,
+	form: PropertySettings[K],
+	updateForm: <T extends keyof PropertySettings[K]>(
+		key: T,
+		value: PropertySettings[K][T]
+	) => void,
+	plugin: BetterProperties
+) => void;
