@@ -1,5 +1,13 @@
 import BetterProperties from "@/main";
-import { CachedMetadata, Menu, Modal, Setting, TFile } from "obsidian";
+import {
+	CachedMetadata,
+	DropdownComponent,
+	Menu,
+	Modal,
+	SearchComponent,
+	Setting,
+	TFile,
+} from "obsidian";
 import { MetadataEditor } from "obsidian-typings";
 import { ConfirmationModal } from "../ConfirmationModal";
 import { text } from "@/i18Next";
@@ -167,10 +175,18 @@ import { TagSuggest } from "../TagSuggest";
 const conditionTypes = ["folder", "tag", "property"] as const;
 type ConditionType = (typeof conditionTypes)[number];
 
+const folderConditionOperators = [
+	"activeFolder",
+	"in",
+	"inSub",
+	"notIn",
+	"notInSub",
+] as const;
+type FolderConditionOperator = (typeof folderConditionOperators)[number];
 type FolderCondition = {
 	conditionType: "folder";
 	state: {
-		operator: string;
+		operator: FolderConditionOperator;
 		folderPath: string;
 	};
 };
@@ -315,32 +331,58 @@ export class SyncPropertiesModal extends ConfirmationModal {
 				display: "Folder",
 				icon: "folder",
 				renderer: (container, index) => {
-					const condition: FolderCondition = {
+					const existingCondition = this.form.toFilesConditions[index] as
+						| FolderCondition
+						| undefined;
+					const condition: FolderCondition = existingCondition ?? {
 						conditionType: "folder",
 						state: {
 							operator: "in",
 							folderPath: "",
 						},
 					};
-					this.form.toFilesConditions.push(condition);
-					const operatorOptions = [
+					if (!existingCondition) {
+						this.form.toFilesConditions.push(condition);
+					}
+					const operatorOptions: [FolderConditionOperator, string][] = [
+						["activeFolder", "Same folder as active note"],
 						["in", "In folder"],
 						["inSub", "In folder (or its subfolders)"],
 						["notIn", "Not in folder"],
 						["notInSub", "Not in folder (or its subfolders)"],
 					];
 
+					let operatorDropdown: DropdownComponent;
+					let folderPathSearch: SearchComponent;
+
 					new Setting(container)
 						.setName("Folder")
 						.addDropdown((cmp) => {
-							cmp.onChange((v) => (condition.state.operator = v));
-							operatorOptions.forEach(([v, d]) => cmp.addOption(v, d));
+							operatorDropdown = cmp;
 						})
 						.addSearch((cmp) => {
+							folderPathSearch = cmp;
 							cmp.setPlaceholder("Folder path");
 							cmp.onChange((v) => (condition.state.folderPath = v));
+							cmp.setValue(condition.state.folderPath);
 							new FolderSuggest(this.app, cmp);
 						});
+
+					operatorDropdown!.onChange((v) => {
+						const op = v as FolderConditionOperator;
+						condition.state.operator = op;
+
+						if (op === "activeFolder") {
+							folderPathSearch.inputEl.style.display = "none";
+							return;
+						}
+						console.log("search: ", folderPathSearch);
+						folderPathSearch.inputEl.style.removeProperty("display");
+					});
+					operatorOptions.forEach(([v, d]) =>
+						operatorDropdown!.addOption(v, d)
+					);
+					operatorDropdown!.setValue(condition.state.operator);
 				},
 			},
 			{
