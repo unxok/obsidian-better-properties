@@ -430,3 +430,12 @@ input[type="time"]::-webkit-calendar-picker-indicator {
 	display: inline;
 	height: fit-content;
 }
+
+.better-properties-sync-properties-modal-active-file-container {
+	font-size: var(--font-small);
+	color: var(--text-muted);
+}
+
+.better-properties-setting-item-control-no-name.setting-item-control {
+	justify-content: flex-start;
+}

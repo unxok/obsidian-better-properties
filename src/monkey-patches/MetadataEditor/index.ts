@@ -1,30 +1,10 @@
-import {
-	doSync,
-	getTemplateID,
-	SyncPropertiesModal,
-} from "@/classes/SyncPropertiesModal";
+import { SyncPropertiesModal } from "@/classes/SyncPropertiesModal";
 import { monkeyAroundKey } from "@/libs/constants";
 import { text } from "@/i18Next";
 import BetterProperties from "@/main";
 import { around, dedupe } from "monkey-around";
-import {
-	WorkspaceLeaf,
-	setIcon,
-	Menu,
-	ProgressBarComponent,
-	Plugin,
-	TFile,
-	App,
-	MarkdownView,
-	Component,
-	ValueComponent,
-} from "obsidian";
-import {
-	MetadataEditor,
-	MetadataEditorProperty,
-	MetadataWidget,
-} from "obsidian-typings";
-import { obsidianText } from "@/i18Next/defaultObsidian";
+import { WorkspaceLeaf, setIcon, Menu, Plugin, TFile } from "obsidian";
+import { MetadataEditor } from "obsidian-typings";
 
 export type PatchedMetadataEditor = MetadataEditor & {
 	// toggleHiddenButton: HTMLDivElement;
@@ -88,24 +68,31 @@ const patchLoad = (
 				});
 				setIcon(iconEl, "more-horizontal");
 
+				// const onClickDoSync = async () => {
+				// 	const file = that.app.workspace.activeEditor?.file;
+				// 	if (!file) {
+				// 		new Notice(text("notices.noFileMetadataEditor"));
+				// 		return;
+				// 	}
+				// 	const metaCache = that.app.metadataCache.getFileCache(file);
+				// 	if (!metaCache) {
+				// 		new Notice(text("notices.noTemplateId"));
+				// 		return;
+				// 	}
+				// 	const parsedId = getTemplateID(metaCache, plugin);
+				// 	if (!parsedId) return;
+				// 	if (!plugin.settings.showSyncTemplateWarning) {
+				// 		await doSync(metaCache, plugin, parsedId);
+				// 		return;
+				// 	}
+				// 	new SyncPropertiesModal(plugin, that, metaCache, parsedId).open();
+				// };
+
 				const onClickDoSync = async () => {
-					const file = that.app.workspace.activeEditor?.file;
-					if (!file) {
-						new Notice(text("notices.noFileMetadataEditor"));
-						return;
-					}
-					const metaCache = that.app.metadataCache.getFileCache(file);
-					if (!metaCache) {
-						new Notice(text("notices.noTemplateId"));
-						return;
-					}
-					const parsedId = getTemplateID(metaCache, plugin);
-					if (!parsedId) return;
-					if (!plugin.settings.showSyncTemplateWarning) {
-						await doSync(metaCache, plugin, parsedId);
-						return;
-					}
-					new SyncPropertiesModal(plugin, that, metaCache, parsedId).open();
+					const currentFile = that.owner.file;
+					// TODO handle better?
+					if (!currentFile) return;
+					new SyncPropertiesModal(plugin, currentFile).open();
 				};
 
 				const reorder = (strat: ReorderKeysStrategy) => {
