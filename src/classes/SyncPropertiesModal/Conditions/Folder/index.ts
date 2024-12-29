@@ -29,32 +29,46 @@ export const defaultFolderCondition: FolderCondition = {
 		includeSubfolders: false,
 	},
 };
+
+const updateSettingText = (setting: Setting, condition: FolderCondition) => {
+	const { importance, negated, folderPath, includeSubfolders } =
+		condition.state;
+	const { nameEl, descEl } = setting;
+
+	if (!folderPath) {
+		condition.valid = false;
+		descEl.style.color = "var(--text-error)";
+		nameEl.textContent = "Folder: ???";
+		descEl.textContent = "Error: Folder path must not be empty!";
+		return;
+	}
+
+	condition.valid = true;
+	descEl.style.removeProperty("color");
+
+	nameEl.textContent = "Folder: " + folderPath;
+
+	const stateText = {
+		/* importance: conditionImportanceTypeDetails.find(
+			([v]) => v === importance
+		)![1], */
+		negated: negated ? "Not in folder" : "In folder",
+		includeSubfolders: includeSubfolders
+			? "including subfolders"
+			: "not including subfolders",
+	};
+	descEl.textContent = Object.values(stateText).join(", ");
+};
+
 export const folderConditionOption: ConditionTypeOption<FolderCondition> = {
 	value: "folder",
 	display: "Folder",
 	icon: "folder",
-	renderer: (app, descEl, condition) => {
+	renderer: (app, setting, condition) => {
 		const modal = new ConfirmationModal(app);
 
 		modal.onClose = () => {
-			const { importance, negated, folderPath, includeSubfolders } =
-				condition.state;
-
-			if (folderPath) {
-				condition.valid = true;
-				descEl.style.removeProperty("color");
-				descEl.textContent = `${
-					conditionImportanceTypeDetails.find(([v]) => v === importance)![1]
-				}: ${negated ? "Not in" : "In"} folder "${folderPath}", ${
-					includeSubfolders
-						? "including subfolders"
-						: "not including subfolders"
-				}`;
-			} else {
-				condition.valid = false;
-				descEl.style.color = "var(--text-error)";
-				descEl.textContent = "Error: Folder path must not be empty!";
-			}
+			updateSettingText(setting, condition);
 		};
 
 		modal.onOpen = () => {
@@ -66,7 +80,7 @@ export const folderConditionOption: ConditionTypeOption<FolderCondition> = {
 				text: "Looks for notes within a given folder.",
 			});
 
-			new Setting(contentEl)
+			/*			new Setting(contentEl)
 				.setName("Importance")
 				.setDesc("The importance of this condition.")
 				.addDropdown((cmp) => {
@@ -77,7 +91,7 @@ export const folderConditionOption: ConditionTypeOption<FolderCondition> = {
 					cmp.onChange(
 						(v) => (condition.state.importance = v as ConditionImportance)
 					);
-				});
+				}); */
 
 			new Setting(contentEl)
 				.setName("Not within folder")

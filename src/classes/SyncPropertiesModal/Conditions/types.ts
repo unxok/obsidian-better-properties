@@ -1,4 +1,4 @@
-import { App } from "obsidian";
+import { App, Setting } from "obsidian";
 import { ToFileCondition } from ".";
 
 export const conditionImportanceTypes = ["required", "optional"] as const;
@@ -15,5 +15,5 @@ export type ConditionTypeOption<T extends ToFileCondition> = {
 	value: T["conditionType"];
 	display: string;
 	icon: string;
-	renderer: (app: App, descEl: HTMLElement, condition: T) => void;
+	renderer: (app: App, rowSetting: Setting, condition: T) => void;
 };

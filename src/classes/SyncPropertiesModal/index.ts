@@ -129,7 +129,6 @@ export class SyncPropertiesModal extends ConfirmationModal {
 		const onClickConditionMenuItem = ({
 			value,
 			display,
-			icon,
 			renderer,
 		}: (typeof conditionTypeOptions)[number]) => {
 			const index = this.form.toFilesConditions.length;
@@ -139,7 +138,7 @@ export class SyncPropertiesModal extends ConfirmationModal {
 			this.form.toFilesConditions.push(condition);
 			const doRender = () =>
 				// TODO typescript weirdness
-				renderer(this.app, s.descEl, condition as never);
+				renderer(this.app, s, condition as never);
 			if (value !== "activeFile") {
 				s.addExtraButton((cmp) => cmp.setIcon("edit").onClick(doRender));
 			}

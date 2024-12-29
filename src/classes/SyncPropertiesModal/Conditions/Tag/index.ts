@@ -39,36 +39,52 @@ export const defaultTagCondition: TagCondition = {
 		tagType: tagTypes[0],
 	},
 };
+
+const renderDescription = (setting: Setting, condition: TagCondition) => {
+	const { importance, negated, tagName, includeNested, tagType } =
+		condition.state;
+	const { nameEl, descEl } = setting;
+
+	if (!tagName) {
+		condition.valid = false;
+		descEl.style.color = "var(--text-error)";
+		nameEl.textContent = "Tag: ???";
+		descEl.textContent = "Error: Tag name must not be empty!";
+		return;
+	}
+
+	condition.valid = true;
+	descEl.style.removeProperty("color");
+
+	nameEl.textContent = "Tag: " + tagName;
+
+	const stateText = {
+		/* importance: conditionImportanceTypeDetails.find(
+			([v]) => v === importance
+		)![1], */
+		negated: negated ? "doesn't contain tag" : "contains tag",
+		tagType:
+			tagType === "fm"
+				? "where tag is in the note's properties"
+				: tagType === "body"
+				? "where tag is in the note's body"
+				: "where tag is in the note's properties or body",
+		includeNested: includeNested
+			? "including nested tags"
+			: "not including nested tags",
+	};
+	descEl.textContent = Object.values(stateText).join(", ");
+};
+
 export const tagConditionOption: ConditionTypeOption<TagCondition> = {
 	value: "tag",
 	display: "Tag",
 	icon: "tag",
-	renderer: (app, descEl, condition) => {
+	renderer: (app, setting, condition) => {
 		const modal = new ConfirmationModal(app);
 
 		modal.onClose = () => {
-			const { importance, negated, tagName, tagType, includeNested } =
-				condition.state;
-
-			if (tagName) {
-				condition.valid = true;
-				descEl.style.removeProperty("color");
-				descEl.textContent = `${
-					conditionImportanceTypeDetails.find(([v]) => v === importance)![1]
-				}: ${negated ? "Doesn't contain" : "Contains"} tag "${tagName}", ${
-					includeNested ? "including nested tags" : "not including nested tags"
-				}, within the note's ${
-					tagType === "fm"
-						? "properties"
-						: tagType === "body"
-						? "content"
-						: "properties or content"
-				}`;
-			} else {
-				condition.valid = false;
-				descEl.style.color = "var(--text-error)";
-				descEl.textContent = "Error: Tag name must not be empty!";
-			}
+			renderDescription(setting, condition);
 		};
 
 		modal.onOpen = () => {
@@ -80,7 +96,7 @@ export const tagConditionOption: ConditionTypeOption<TagCondition> = {
 				text: "Looks for notes containing a given tag.",
 			});
 
-			new Setting(contentEl)
+			/*			new Setting(contentEl)
 				.setName("Importance")
 				.setDesc("The importance of this condition.")
 				.addDropdown((cmp) => {
@@ -91,7 +107,7 @@ export const tagConditionOption: ConditionTypeOption<TagCondition> = {
 					cmp.onChange(
 						(v) => (condition.state.importance = v as ConditionImportance)
 					);
-				});
+				}); */
 
 			new Setting(contentEl)
 				.setName("Does not contain tag")

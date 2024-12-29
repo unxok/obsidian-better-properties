@@ -132,3 +132,7 @@ export const splitStringIntoChunks = (str: string, num: number) => {
 
 	return arr;
 };
+
+export const toFirstUpperCase = (s: string) => {
+	return s.charAt(0).toUpperCase() + s.slice(1).toLowerCase();
+};
