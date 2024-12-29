@@ -436,6 +436,12 @@ input[type="time"]::-webkit-calendar-picker-indicator {
 	color: var(--text-muted);
 }
 
+.better-properties-modal-desc {
+	font-size: var(--font-small);
+	color: var(--text-muted);
+	margin-bottom: 0.75rem;
+}
+
 .better-properties-setting-item-control-no-name.setting-item-control {
 	justify-content: flex-start;
 }

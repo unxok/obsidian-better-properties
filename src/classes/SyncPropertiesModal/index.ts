@@ -1,218 +1,20 @@
 import BetterProperties from "@/main";
-import {
-	CachedMetadata,
-	DropdownComponent,
-	Menu,
-	Modal,
-	SearchComponent,
-	Setting,
-	TFile,
-} from "obsidian";
-import { MetadataEditor } from "obsidian-typings";
+import { Menu, MenuItem, Modal, Setting, TFile } from "obsidian";
 import { ConfirmationModal } from "../ConfirmationModal";
 import { text } from "@/i18Next";
 import { PropertySuggest } from "../PropertySuggest";
 import { FileSuggest } from "../FileSuggest";
-import { FolderSuggest } from "../FolderSuggest";
-import { TagSuggest } from "../TagSuggest";
+import {
+	conditionTypeOptions,
+	defaultConditions,
+	ToFileCondition,
+} from "./Conditions";
 
-// export const getTemplateID = (
-// 	metaCache: CachedMetadata,
-// 	plugin: BetterProperties
-// ) => {
-// 	const {
-// 		settings: { templateIdName },
-// 	} = plugin;
-
-// 	const findLower = () => {
-// 		const found = Object.keys(metaCache).find((key) => {
-// 			key.toLowerCase() === templateIdName;
-// 		});
-// 		if (!found) return null;
-// 		return metaCache[found as keyof typeof metaCache];
-// 	};
-
-// 	const id = metaCache?.frontmatter?.[templateIdName] ?? findLower();
-// 	if (!id) {
-// 		new Notice(text("notices.noTemplateId"));
-// 		return;
-// 	}
-// 	if (Array.isArray(id)) {
-// 		new Notice(text("notices.templateIdIsArray"));
-// 		return;
-// 	}
-// 	const parsedId: string = id.toString();
-// 	return parsedId;
-// };
-
-// export const doSync = async (
-// 	// file: TFile,
-// 	metaCache: CachedMetadata,
-// 	plugin: BetterProperties,
-// 	templateId: string
-// ) => {
-// 	const {
-// 		settings: { templateIdName, templatePropertyName },
-// 		app,
-// 	} = plugin;
-
-// 	const parsedId = templateId;
-
-// 	const templateEntries = Object.entries(metaCache.frontmatter ?? {});
-
-// 	const hashes = Object.entries(app.metadataCache.metadataCache)
-// 		.map(([hash, metadata]) => {
-// 			if (!metadata.frontmatter) return null;
-// 			const exactMatch = metadata.frontmatter[templatePropertyName];
-// 			if (
-// 				exactMatch === parsedId ||
-// 				(Array.isArray(exactMatch) && exactMatch.includes(parsedId))
-// 			)
-// 				return hash;
-// 			// try to find case insensitively
-// 			const isMatch = Object.entries(metadata.frontmatter).some(
-// 				([prop, value]) => {
-// 					const a = prop.toLowerCase() === templatePropertyName.toLowerCase();
-// 					const b1 = value === parsedId;
-// 					const b2 = Array.isArray(value) && value.includes(parsedId);
-// 					const b = b1 || b2;
-// 					return a && b;
-// 				}
-// 			);
-// 			return isMatch ? hash : null;
-// 		})
-// 		.filter((h) => h !== null);
-
-// 	const fileHashMap = new Map<string, TFile>();
-
-// 	Object.entries(app.metadataCache.fileCache).forEach(([path, { hash }]) => {
-// 		const f = app.vault.getFileByPath(path);
-// 		if (!f) return;
-// 		fileHashMap.set(hash, f);
-// 	});
-
-// 	let count = 0;
-// 	await Promise.all(
-// 		hashes.map(async (hash) => {
-// 			const f = fileHashMap.get(hash);
-// 			if (!f) return;
-// 			count++;
-// 			await app.fileManager.processFrontMatter(f, (fm) => {
-// 				templateEntries.forEach(([prop, val]) => {
-// 					// don't add the template id property
-// 					if (prop === templateIdName) return;
-// 					// if already has property, skip
-// 					if (fm.hasOwnProperty(prop) || fm.hasOwnProperty(prop.toLowerCase()))
-// 						return;
-// 					fm[prop] = val;
-// 					// TODO add flag to delete or keep props not in template
-// 				});
-// 			});
-// 		})
-// 	);
-
-// 	new Notice("Synchronized properties with " + count + " notes.");
-// };
-
-// export class SyncPropertiesModalOld extends ConfirmationModal {
-// 	plugin: BetterProperties;
-// 	metadataEditor: MetadataEditor;
-// 	// file: TFile;
-// 	metaCache: CachedMetadata;
-// 	templateId: string;
-// 	constructor(
-// 		plugin: BetterProperties,
-// 		metadataeditor: MetadataEditor,
-// 		// file: TFile,
-// 		metaCache: CachedMetadata,
-// 		templateId: string
-// 	) {
-// 		super(plugin.app);
-// 		this.plugin = plugin;
-// 		this.metadataEditor = metadataeditor;
-// 		// this.file = file;
-// 		this.metaCache = metaCache;
-// 		this.templateId = templateId;
-// 	}
-
-// 	onOpen(): void {
-// 		const { contentEl, metaCache, plugin, templateId } = this;
-
-// 		contentEl.empty();
-
-// 		this.setTitle("Synchronize properties");
-
-// 		contentEl.createEl("p", {
-// 			text: "Synchronize this notes properties to others notes that match this note's property template id.",
-// 		});
-// 		contentEl.createEl("p", {
-// 			text: "This will only add properties from the template, so additional properties in the target notes will be unaffected.",
-// 		});
-// 		this.createButtonContainer();
-// 		this.createCheckBox({
-// 			text: "Don't ask again",
-// 			defaultChecked: !plugin.settings.showSyncTemplateWarning,
-// 			onChange: async (b) =>
-// 				plugin.updateSettings((prev) => ({
-// 					...prev,
-// 					showSyncTemplateWarning: !b,
-// 				})),
-// 		});
-// 		this.createFooterButton((cmp) =>
-// 			cmp.setButtonText("cancel").onClick(() => this.close())
-// 		).createFooterButton((cmp) =>
-// 			cmp
-// 				.setButtonText("synchronize")
-// 				.setCta()
-// 				.onClick(async () => {
-// 					await doSync(metaCache, this.plugin, templateId);
-// 					this.close();
-// 				})
-// 		);
-// 	}
-// }
-
-const conditionTypes = ["folder", "tag", "property"] as const;
-type ConditionType = (typeof conditionTypes)[number];
-
-const folderConditionOperators = [
-	"activeFolder",
-	"in",
-	"inSub",
-	"notIn",
-	"notInSub",
-] as const;
-type FolderConditionOperator = (typeof folderConditionOperators)[number];
-type FolderCondition = {
-	conditionType: "folder";
-	state: {
-		operator: FolderConditionOperator;
-		folderPath: string;
-	};
-};
-
-type TagCondition = {
-	conditionType: "tag";
-	state: {
-		operator: string;
-		tagName: string;
-	};
-};
-
-type PropertyCondition = {
-	conditionType: "property";
-	state: {
-		operator: string;
-		propertyName: string;
-		propertyValue: string;
-	};
-};
-
-type SyncPropertiesModalForm = {
+export type SyncPropertiesModalForm = {
 	fromFileType: "linked" | "selected";
 	fromNoteLinkedProperty: string;
 	fromFileSelectedPath: string;
-	toFilesConditions: (FolderCondition | TagCondition | PropertyCondition)[];
+	toFilesConditions: ToFileCondition[];
 };
 
 const defaultForm: SyncPropertiesModalForm = {
@@ -271,7 +73,10 @@ export class SyncPropertiesModal extends ConfirmationModal {
 							cmp.onChange((v) =>
 								this.updateForm("fromNoteLinkedProperty", () => v)
 							);
-							new PropertySuggest(this.app, cmp);
+							const suggest = new PropertySuggest(this.app, cmp);
+							if (activeFile) {
+								suggest.scopeToFile(activeFile);
+							}
 						});
 				},
 			},
@@ -316,145 +121,39 @@ export class SyncPropertiesModal extends ConfirmationModal {
 				});
 			});
 
-		new Setting(contentEl).setHeading().setName("To notes");
+		new Setting(contentEl).setHeading().setName("To notes conditions");
 
-		type ConditionTypeOption = {
-			value: ConditionType;
-			display: string;
-			icon: string;
-			renderer: (container: HTMLElement, index: number) => void;
-		};
-
-		const conditionTypeOptions: ConditionTypeOption[] = [
-			{
-				value: "folder",
-				display: "Folder",
-				icon: "folder",
-				renderer: (container, index) => {
-					const existingCondition = this.form.toFilesConditions[index] as
-						| FolderCondition
-						| undefined;
-					const condition: FolderCondition = existingCondition ?? {
-						conditionType: "folder",
-						state: {
-							operator: "in",
-							folderPath: "",
-						},
-					};
-					if (!existingCondition) {
-						this.form.toFilesConditions.push(condition);
-					}
-					const operatorOptions: [FolderConditionOperator, string][] = [
-						["activeFolder", "Same folder as active note"],
-						["in", "In folder"],
-						["inSub", "In folder (or its subfolders)"],
-						["notIn", "Not in folder"],
-						["notInSub", "Not in folder (or its subfolders)"],
-					];
-
-					let operatorDropdown: DropdownComponent;
-					let folderPathSearch: SearchComponent;
-
-					new Setting(container)
-						.setName("Folder")
-						.addDropdown((cmp) => {
-							operatorDropdown = cmp;
-						})
-						.addSearch((cmp) => {
-							folderPathSearch = cmp;
-							cmp.setPlaceholder("Folder path");
-							cmp.onChange((v) => (condition.state.folderPath = v));
-							cmp.setValue(condition.state.folderPath);
-							new FolderSuggest(this.app, cmp);
-						});
-
-					operatorDropdown!.onChange((v) => {
-						const op = v as FolderConditionOperator;
-						condition.state.operator = op;
-
-						if (op === "activeFolder") {
-							folderPathSearch.inputEl.style.display = "none";
-							return;
-						}
-						console.log("search: ", folderPathSearch);
-						folderPathSearch.inputEl.style.removeProperty("display");
-					});
-					operatorOptions.forEach(([v, d]) =>
-						operatorDropdown!.addOption(v, d)
-					);
-					operatorDropdown!.setValue(condition.state.operator);
-				},
-			},
-			{
-				value: "tag",
-				display: "Tag",
-				icon: "tag",
-				renderer: (container) => {
-					const condition: TagCondition = {
-						conditionType: "tag",
-						state: {
-							operator: "contains",
-							tagName: "",
-						},
-					};
-					this.form.toFilesConditions.push(condition);
-					const operatorOptions = [
-						["contains", "Contains tag"],
-						["containsNested", "Contains tag or nested tag"],
-						["notContains", "Doesn't contain tag"],
-						["notContainsNested", "Doesn't contain tag or nested tag"],
-					];
-
-					new Setting(container)
-						.setName("Tag")
-						.addDropdown((cmp) => {
-							cmp.onChange((v) => (condition.state.operator = v));
-							operatorOptions.forEach(([v, d]) => cmp.addOption(v, d));
-						})
-						.addSearch((cmp) => {
-							cmp.setPlaceholder("Tag name");
-							cmp.onChange((v) => (condition.state.tagName = v));
-							new TagSuggest(this.app, cmp);
-						});
-				},
-			},
-			{
-				value: "property",
-				display: "Property",
-				icon: "archive",
-				renderer: (container) => {
-					const condition: TagCondition = {
-						conditionType: "tag",
-						state: {
-							operator: "contains",
-							tagName: "",
-						},
-					};
-					this.form.toFilesConditions.push(condition);
-					const operatorOptions = [
-						["propEquals", "Property equals value"],
-						["notPropEquals", "Property doesn't equal value"],
-						["propLinksActive", "Property links to active note"],
-					];
-
-					new Setting(container)
-						.setName("Tag")
-						.addDropdown((cmp) => {
-							cmp.onChange((v) => (condition.state.operator = v));
-							operatorOptions.forEach(([v, d]) => cmp.addOption(v, d));
-						})
-						.addSearch((cmp) => {
-							cmp.setPlaceholder("Tag name");
-							cmp.onChange((v) => (condition.state.tagName = v));
-							new TagSuggest(this.app, cmp);
-						});
-				},
-			},
-		];
-
-		const conditionsContainer = contentEl.createDiv();
+		const conditionsContainer = contentEl.createDiv().createEl("ol");
 		conditionsContainer.createDiv(); // so borders for settings don't get messed up
 
+		const onClickConditionMenuItem = ({
+			value,
+			display,
+			icon,
+			renderer,
+		}: (typeof conditionTypeOptions)[number]) => {
+			const index = this.form.toFilesConditions.length;
+			const rowEl = conditionsContainer.createEl("li");
+			const s = new Setting(rowEl).setName(display);
+			const condition = defaultConditions[value];
+			this.form.toFilesConditions.push(condition);
+			const doRender = () =>
+				// TODO typescript weirdness
+				renderer(this.app, s.descEl, condition as never);
+			if (value !== "activeFile") {
+				s.addExtraButton((cmp) => cmp.setIcon("edit").onClick(doRender));
+			}
+
+			s.addExtraButton((cmp) =>
+				cmp.setIcon("trash").onClick(() => {
+					rowEl.remove();
+					this.form.toFilesConditions = this.form.toFilesConditions.filter(
+						(_, i) => i !== index
+					);
+				})
+			);
+			doRender();
+		};
 		new Setting(contentEl)
 			.addButton((cmp) =>
 				cmp
@@ -462,17 +161,12 @@ export class SyncPropertiesModal extends ConfirmationModal {
 					.setCta()
 					.onClick((e) => {
 						const m = new Menu();
-						conditionTypeOptions.forEach(({ display, icon, renderer }) =>
+						conditionTypeOptions.forEach((op) =>
 							m.addItem((item) =>
 								item
-									.setTitle(display)
-									.setIcon(icon)
-									.onClick(() => {
-										renderer(
-											conditionsContainer,
-											this.form.toFilesConditions.length
-										);
-									})
+									.setTitle(op.display)
+									.setIcon(op.icon)
+									.onClick(() => onClickConditionMenuItem(op))
 							)
 						);
 						m.showAtMouseEvent(e);
@@ -498,6 +192,28 @@ export class SyncPropertiesModal extends ConfirmationModal {
 			})
 		);
 		this.createFooterButton((cmp) => cmp.setButtonText("cancel"));
-		this.createFooterButton((cmp) => cmp.setButtonText("synchronize").setCta());
+		this.createFooterButton((cmp) =>
+			cmp
+				.setButtonText("synchronize")
+				.setCta()
+				.onClick(() => {
+					const {
+						toFilesConditions,
+						fromFileType,
+						fromFileSelectedPath,
+						fromNoteLinkedProperty,
+					} = this.form;
+					const isFormInvalid =
+						toFilesConditions.some(({ valid }) => !valid) ||
+						(fromFileType === "linked" && !fromNoteLinkedProperty) ||
+						(fromFileType === "selected" && !fromFileSelectedPath);
+					if (isFormInvalid) {
+						new Notice(
+							"One or more errors found! Please correct and try again."
+						);
+						return;
+					}
+				})
+		);
 	}
 }

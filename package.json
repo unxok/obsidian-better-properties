@@ -22,7 +22,7 @@
 		"esbuild": "0.17.3",
 		"luxon": "^3.5.0",
 		"obsidian": "latest",
-		"obsidian-typings": "^2.2.1-beta.33",
+		"obsidian-typings": "^2.7.0",
 		"tslib": "^2.7.0",
 		"typescript": "4.7.4",
 		"vite": "^5.4.8"

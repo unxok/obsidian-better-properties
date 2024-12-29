@@ -1,4 +1,4 @@
-import { App, setIcon, SuggestModal } from "obsidian";
+import { App, setIcon, SuggestModal, TFile } from "obsidian";
 import { InputSuggest, Suggestion } from "../InputSuggest";
 
 type Data = {
@@ -8,12 +8,38 @@ type Data = {
 };
 
 export class PropertySuggest extends InputSuggest<Data> {
+	private scopedFile: TFile | undefined;
 	constructor(...props: ConstructorParameters<typeof InputSuggest>) {
 		super(...props);
 	}
 
+	/**
+	 * Use to scope property suggestions to only be those present in the current file
+	 */
+	scopeToFile(file: TFile | string) {
+		const f =
+			typeof file === "string" ? this.app.vault.getFileByPath(file) : file;
+		if (!f) return;
+		this.scopedFile = f;
+	}
+
+	private getScopedProperties(data: Data[]): Data[] {
+		const {
+			scopedFile,
+			app: { metadataCache },
+		} = this;
+		if (!scopedFile) return data;
+		const fileProps = metadataCache.getFileCache(scopedFile)?.frontmatter;
+		if (!fileProps) return [];
+		const filePropsArr = Object.keys(fileProps);
+		return data.filter(({ property }) => filePropsArr.includes(property));
+	}
+
 	protected getSuggestions(query: string): Data[] | Promise<Data[]> {
-		const { metadataTypeManager } = this.app;
+		const {
+			app: { metadataTypeManager },
+			scopedFile,
+		} = this;
 		const props = Object.values(metadataTypeManager.getAllProperties());
 		const arr = props.map((obj) => ({
 			property: obj.name,
@@ -22,8 +48,9 @@ export class PropertySuggest extends InputSuggest<Data> {
 				metadataTypeManager.registeredTypeWidgets[obj.type]?.icon ??
 				"file-question",
 		}));
-		if (!query) return arr;
-		return arr.filter((obj) => obj.property.includes(query));
+		const scoped = scopedFile ? this.getScopedProperties(arr) : arr;
+		if (!query) return scoped;
+		return scoped.filter((obj) => obj.property.includes(query));
 	}
 
 	protected parseSuggestion(value: Data): Suggestion {
