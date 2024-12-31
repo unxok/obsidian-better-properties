@@ -7,6 +7,7 @@ import { FileSuggest } from "../FileSuggest";
 import {
 	conditionTypeOptions,
 	defaultConditions,
+	Requirements,
 	ToFileCondition,
 } from "./Conditions";
 
@@ -14,14 +15,30 @@ export type SyncPropertiesModalForm = {
 	fromFileType: "linked" | "selected";
 	fromNoteLinkedProperty: string;
 	fromFileSelectedPath: string;
-	toFilesConditions: ToFileCondition[];
+	toFileRequirements: Requirements;
 };
 
 const defaultForm: SyncPropertiesModalForm = {
 	fromFileType: "linked",
 	fromNoteLinkedProperty: "",
 	fromFileSelectedPath: "",
-	toFilesConditions: [],
+	toFileRequirements: {
+		folder: {
+			enabled: false,
+			allowed: [],
+			disallowed: [],
+		},
+		tags: {
+			enabled: false,
+			allowed: [],
+			disallowed: [],
+		},
+		props: {
+			enabled: false,
+			allowed: [],
+			disallowed: [],
+		},
+	},
 };
 
 export class SyncPropertiesModal extends ConfirmationModal {
@@ -121,59 +138,19 @@ export class SyncPropertiesModal extends ConfirmationModal {
 				});
 			});
 
-		new Setting(contentEl).setHeading().setName("To notes conditions");
+		new Setting(contentEl).setHeading().setName("To notes requirements");
 
-		const conditionsContainer = contentEl.createDiv().createEl("ol");
-		conditionsContainer.createDiv(); // so borders for settings don't get messed up
+		const requirementsContainer = contentEl.createEl("div");
 
-		const onClickConditionMenuItem = ({
-			value,
-			display,
-			renderer,
-		}: (typeof conditionTypeOptions)[number]) => {
-			const index = this.form.toFilesConditions.length;
-			const rowEl = conditionsContainer.createEl("li");
-			const s = new Setting(rowEl).setName(display);
-			const condition = defaultConditions[value];
-			this.form.toFilesConditions.push(condition);
-			const doRender = () =>
-				// TODO typescript weirdness
-				renderer(this.app, s, condition as never);
-			if (value !== "activeFile") {
-				s.addExtraButton((cmp) => cmp.setIcon("edit").onClick(doRender));
-			}
+		new Setting(requirementsContainer)
+			.setName("Folder")
+			.addExtraButton((cmp) => cmp.setIcon("edit"))
+			.addExtraButton((cmp) => cmp.setIcon("trash"));
 
-			s.addExtraButton((cmp) =>
-				cmp.setIcon("trash").onClick(() => {
-					rowEl.remove();
-					this.form.toFilesConditions = this.form.toFilesConditions.filter(
-						(_, i) => i !== index
-					);
-				})
-			);
-			doRender();
-		};
-		new Setting(contentEl)
-			.addButton((cmp) =>
-				cmp
-					.setButtonText("new condition")
-					.setCta()
-					.onClick((e) => {
-						const m = new Menu();
-						conditionTypeOptions.forEach((op) =>
-							m.addItem((item) =>
-								item
-									.setTitle(op.display)
-									.setIcon(op.icon)
-									.onClick(() => onClickConditionMenuItem(op))
-							)
-						);
-						m.showAtMouseEvent(e);
-					})
-			)
-			.then((s) => {
-				s.infoEl.remove();
-			});
+		new Setting(requirementsContainer)
+			.setName("Tags")
+			.addExtraButton((cmp) => cmp.setIcon("edit"))
+			.addExtraButton((cmp) => cmp.setIcon("trash"));
 
 		this.createFooterButton((cmp) =>
 			cmp.setButtonText("view form data").onClick(() => {
@@ -195,24 +172,7 @@ export class SyncPropertiesModal extends ConfirmationModal {
 			cmp
 				.setButtonText("synchronize")
 				.setCta()
-				.onClick(() => {
-					const {
-						toFilesConditions,
-						fromFileType,
-						fromFileSelectedPath,
-						fromNoteLinkedProperty,
-					} = this.form;
-					const isFormInvalid =
-						toFilesConditions.some(({ valid }) => !valid) ||
-						(fromFileType === "linked" && !fromNoteLinkedProperty) ||
-						(fromFileType === "selected" && !fromFileSelectedPath);
-					if (isFormInvalid) {
-						new Notice(
-							"One or more errors found! Please correct and try again."
-						);
-						return;
-					}
-				})
+				.onClick(() => {})
 		);
 	}
 }

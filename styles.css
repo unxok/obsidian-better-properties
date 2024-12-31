@@ -434,6 +434,7 @@ input[type="time"]::-webkit-calendar-picker-indicator {
 .better-properties-sync-properties-modal-active-file-container {
 	font-size: var(--font-small);
 	color: var(--text-muted);
+	padding-bottom: var(--size-4-2);
 }
 
 .better-properties-modal-desc {

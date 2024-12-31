@@ -1,4 +1,4 @@
-import { Menu, Plugin, Setting, View } from "obsidian";
+import { getLinkpath, Menu, Plugin, Setting, View } from "obsidian";
 import { typeWidgetPrefix } from "./libs/constants";
 import {
 	addUsedBy,

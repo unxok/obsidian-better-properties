@@ -1,4 +1,4 @@
-import { App } from "obsidian";
+import { App, getLinkpath, MetadataCache } from "obsidian";
 import { parseYaml } from "obsidian";
 
 type ParseYamlResult =
@@ -39,3 +39,34 @@ export const compareFunc = new Intl.Collator(undefined, {
 	sensitivity: "base",
 	numeric: false,
 }).compare;
+
+/**
+ * Improved version of built-in `MetadataCache.getLinkPathDest()`.
+ *
+ * ---
+ * - [x] Text may or may not contain brackets
+ * - [ ] Support for internal markdown links
+ * - [ ] Support for external markdown links
+ */
+export const getFirstLinkPathDest = (
+	mc: MetadataCache,
+	originPath: string,
+	text: string
+) => {
+	const noBrackets =
+		text.startsWith("[[") && text.endsWith("]]") ? text.slice(2, -2) : text;
+
+	const sectionCharIndex = noBrackets.indexOf("#");
+	const noSectionLink =
+		sectionCharIndex === -1
+			? noBrackets
+			: noBrackets.slice(0, sectionCharIndex);
+
+	const aliasCharIndex = noSectionLink.indexOf("|");
+	const noAlias =
+		aliasCharIndex === -1
+			? noSectionLink
+			: noSectionLink.slice(0, aliasCharIndex);
+
+	return mc.getFirstLinkpathDest(originPath, noAlias);
+};

@@ -2,6 +2,8 @@ import {
 	App,
 	CachedMetadata,
 	FrontMatterCache,
+	Modal,
+	Setting,
 	stringifyYaml,
 	TAbstractFile,
 	TFile,
@@ -23,6 +25,7 @@ import {
 	defaultPropertyCondition,
 } from "./Property";
 import { TagCondition, tagConditionOption, defaultTagCondition } from "./Tag";
+import { ConfirmationModal } from "@/classes/ConfirmationModal";
 
 export type ToFileCondition =
 	| FolderCondition
@@ -47,28 +50,120 @@ export const defaultConditions: Record<
 	activeFile: defaultActiveFileCondition,
 };
 
-type FolderRequirement = {
-	enabled: boolean;
+// interface BaseRequirement<T extends Record<string, unknown>> {
+// 	display: string;
+// 	enabled: boolean;
+// 	state: T;
+// 	render(app: App, setting: Setting, state: T): void;
+// }
+
+abstract class BaseRequirement<T extends Record<string, unknown>> {
+	static display: string;
+	static enabled: string;
+
+	constructor(public state: T) {}
+
+	protected updateState<K extends keyof T>(key: K, value: T[K]): void {
+		this.state[key] = value;
+	}
+
+	abstract render(app: App, setting: Setting): void;
+}
+
+type FolderRequirementState = {
 	allowed: string[];
 	disallowed: string[];
 };
+class FolderRequirement extends BaseRequirement<FolderRequirementState> {
+	render(app: App, setting: Setting): void {
+		const modal = new ConfirmationModal(app);
+		modal.onOpen = () => {
+			const { contentEl } = modal;
+			contentEl.empty();
+			modal.setTitle("Folder requirement");
 
-type TagsRequirement = {
-	enabled: boolean;
-	allowed: string[];
+			new Setting(contentEl)
+				.setName("Allowed folders")
+				.setDesc(
+					"Folders to look for notes within. If empty, all folders are allowed."
+				);
+		};
+
+		modal.open();
+	}
+}
+
+type TagsRequirementState = {
+	required: string[];
+	optional: string[];
 	disallowed: string[];
 };
+class TagsRequirement extends BaseRequirement<TagsRequirementState> {
+	render(app: App, setting: Setting): void {
+		const modal = new ConfirmationModal(app);
+		modal.onOpen = () => {
+			const { contentEl } = modal;
+			contentEl.empty();
+			modal.setTitle("Tags requirement");
 
-type PropertiesRequirement = {
-	enabled: boolean;
-	allowed: { property: string; value: string }[];
-	disallowed: { property: string; value: string }[];
-};
+			new Setting(contentEl)
+				.setName("Required tags")
+				.setDesc("Look for notes that contain all of the following tags.");
 
-type Requirements = {
+			new Setting(contentEl)
+				.setName("Optional tags")
+				.setDesc("Look for notes that contain one of the following tags.");
+		};
+
+		modal.open();
+	}
+}
+
+// interface FolderRequirement extends BaseRequirement {
+// 	enabled: boolean;
+// 	allowed: string[];
+// 	disallowed: string[];
+// };
+
+// interface TagsRequirement extends BaseRequirement {
+// 	enabled: boolean;
+// 	allowed: string[];
+// 	disallowed: string[];
+// };
+
+// interface PropertiesRequirement extends BaseRequirement {
+// 	enabled: boolean;
+// 	allowed: { property: string; value: string }[];
+// 	disallowed: { property: string; value: string }[];
+// };
+
+type Requirement = FolderRequirement | TagsRequirement | PropertiesRequirement;
+
+export type Requirements = {
 	folder: FolderRequirement;
 	tags: TagsRequirement;
 	props: PropertiesRequirement;
+};
+
+const folderRequirementRenderer: RequirementRenderer<FolderRequirement> = {
+	displayName: "Folder",
+	renderer: (app, setting, state) => {
+		const modal = new ConfirmationModal(app);
+		modal.onOpen = () => {
+			const { contentEl } = modal;
+			contentEl.empty();
+			modal.setTitle("Folder requirement");
+
+			new Setting(contentEl)
+				.setHeading()
+				.setName("Allowed folders")
+				.setDesc(
+					"Notes are allowed to be in of the following folders. If none are listed, all folders are allowed."
+				);
+		};
+
+		modal.open();
+	},
 };
 
 type SyncOptions = {

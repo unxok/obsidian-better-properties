@@ -5,6 +5,7 @@ import BetterProperties from "@/main";
 import { around, dedupe } from "monkey-around";
 import { WorkspaceLeaf, setIcon, Menu, Plugin, TFile } from "obsidian";
 import { MetadataEditor } from "obsidian-typings";
+import { SynchronizeModal } from "@/classes/SyncProperties";
 
 export type PatchedMetadataEditor = MetadataEditor & {
 	// toggleHiddenButton: HTMLDivElement;
@@ -90,9 +91,7 @@ const patchLoad = (
 
 				const onClickDoSync = async () => {
 					const currentFile = that.owner.file;
-					// TODO handle better?
-					if (!currentFile) return;
-					new SyncPropertiesModal(plugin, currentFile).open();
+					new SynchronizeModal(plugin, currentFile).open();
 				};
 
 				const reorder = (strat: ReorderKeysStrategy) => {
