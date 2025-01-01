@@ -446,3 +446,9 @@ input[type="time"]::-webkit-calendar-picker-indicator {
 .better-properties-setting-item-control-no-name.setting-item-control {
 	justify-content: flex-start;
 }
+
+.better-properties-github-stat-loading {
+	display: flex;
+	align-items: center;
+	gap: 5px;
+}

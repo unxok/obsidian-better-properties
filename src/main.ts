@@ -34,6 +34,7 @@ import { processDataviewWrapperBlock } from "./DataviewWrapper";
 import { SidebarModal } from "./classes/SidebarModal";
 import { PropertySuggestModal } from "./classes/PropertySuggest";
 import { PropertySettingsModal } from "./augmentMedataMenu/addSettings";
+import { patchModal } from "./monkey-patches/Modal";
 
 const BetterPropertiesSettingsSchema = catchAndInfer(
 	z.object({
@@ -57,6 +58,7 @@ export default class BetterProperties extends Plugin {
 
 	async onload() {
 		this.blockingTest();
+		patchModal(this);
 
 		this.registerEditorExtension([createInlineCodePlugin(this)]);
 		this.listTesting();
