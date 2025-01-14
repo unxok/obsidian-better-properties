@@ -108,11 +108,16 @@ export type DataviewQueryResultHeaders = string[];
 export type DataviewQueryResultValues = DataviewPropertyValue[][];
 export type DataviewQueryResultSuccess = {
 	successful: true;
-	value: {
-		headers: DataviewQueryResultHeaders;
-		values: DataviewQueryResultValues;
-		type: "table" | string;
-	};
+	value:
+		| {
+				type: "table";
+				headers: DataviewQueryResultHeaders;
+				values: DataviewQueryResultValues;
+		  }
+		| {
+				type: "list";
+				values: DataviewLink[];
+		  };
 };
 export type DataviewQueryResultFail = {
 	successful: false;

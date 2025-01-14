@@ -136,3 +136,5 @@ export const splitStringIntoChunks = (str: string, num: number) => {
 export const toFirstUpperCase = (s: string) => {
 	return s.charAt(0).toUpperCase() + s.slice(1).toLowerCase();
 };
+
+export const unsafeEval = eval;

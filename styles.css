@@ -447,8 +447,43 @@ input[type="time"]::-webkit-calendar-picker-indicator {
 	justify-content: flex-start;
 }
 
-.better-properties-github-stat-loading {
+/* TODO: NEW PLUGIN-- More Plugin Stats */
+
+.more-plugin-stats-container {
+	padding: var(--size-4-2);
+	border: 1px solid var(--color-accent);
+	border-radius: var(--radius-s);
+	margin-top: var(--size-4-2);
+}
+
+.more-plugin-stats-container-title {
+	font-size: var(--h4-size);
+	font-weight: var(--font-semibold);
+	margin-bottom: var(--size-4-1);
+}
+
+.more-plugin-stats-item-container {
 	display: flex;
+	justify-content: start;
 	align-items: center;
-	gap: 5px;
+	column-gap: var(--size-4-3);
+	flex-wrap: wrap;
+}
+
+.more-plugin-stats-item {
+	display: flex;
+	justify-content: start;
+	align-items: center;
+	gap: var(--size-2-1);
+}
+
+.more-plugin-stats-item-icon {
+	--icon-size: 1em;
+}
+
+.more-plugin-stats-item-icon,
+.more-plugin-stats-item-value {
+	display: flex;
+	justify-content: start;
+	align-items: center;
 }
