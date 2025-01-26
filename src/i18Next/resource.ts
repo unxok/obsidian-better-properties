@@ -62,6 +62,7 @@ export type TranslationResource = {
 		reorderByTypeAZ: string;
 		reorderByTypeZA: string;
 		reorderByTemplate: string;
+		resetLabelWidth: string;
 	};
 	augmentedPropertyMenu: {
 		delete: {

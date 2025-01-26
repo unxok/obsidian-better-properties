@@ -1,4 +1,4 @@
-import { SyncPropertiesModal } from "@/classes/SyncPropertiesModal";
+// import { SyncPropertiesModal } from "@/classes/SyncPropertiesModal";
 import { monkeyAroundKey } from "@/libs/constants";
 import { text } from "@/i18Next";
 import BetterProperties from "@/main";
@@ -6,6 +6,8 @@ import { around, dedupe } from "monkey-around";
 import { WorkspaceLeaf, setIcon, Menu, Plugin, TFile } from "obsidian";
 import { MetadataEditor } from "obsidian-typings";
 import { SynchronizeModal } from "@/classes/SyncProperties";
+
+const METADATA_LABEL_WIDTH = "--metadata-label-width";
 
 export type PatchedMetadataEditor = MetadataEditor & {
 	// toggleHiddenButton: HTMLDivElement;
@@ -107,11 +109,24 @@ const patchLoad = (
 					new Menu()
 						.addItem((item) =>
 							item
-								.setSection("show-hidden")
+								.setSection("general")
 								.setTitle(text("metadataMoreOptionsMenu.showHidden"))
 								.setIcon("eye-off")
 								.setChecked(that.showHiddenProperties)
 								.onClick(() => that.toggleHiddenProperties.call(that))
+						)
+						.addItem((sub) =>
+							sub
+								.setSection("general")
+								.setTitle(text("metadataMoreOptionsMenu.resetLabelWidth"))
+								.setIcon("move-horizontal")
+								.onClick(async () => {
+									that.containerEl.style.removeProperty(METADATA_LABEL_WIDTH);
+									await plugin.updateSettings((prev) => ({
+										...prev,
+										metadataLabelWidth: NaN,
+									}));
+								})
 						)
 						.addItem((item) =>
 							item
@@ -160,6 +175,72 @@ const patchLoad = (
 					"afterend",
 					moreOptionsButton
 				);
+			});
+		},
+		synchronize(old) {
+			return dedupe(monkeyAroundKey, old, function (...args) {
+				// @ts-ignore
+				const that = this as PatchedMetadataEditor;
+				old.call(that, ...args);
+
+				const appContainer: HTMLElement =
+					document.querySelector(".app-container")!;
+
+				that.propertyListEl.style.position = "relative";
+				const resizeHandle = that.propertyListEl.createDiv({
+					cls: "better-properties-metadata-editor-resize-handle",
+				});
+
+				let lastLeft = 0;
+				let lastWidth = 0;
+				const defaultValue = getComputedStyle(document.body).getPropertyValue(
+					METADATA_LABEL_WIDTH
+				);
+
+				resizeHandle.addEventListener("mousedown", (e) => {
+					const { metadataLabelWidth } = plugin.settings;
+					lastLeft = e.clientX;
+					lastWidth = Number.isNaN(metadataLabelWidth) ? 0 : metadataLabelWidth;
+					document.addEventListener("mousemove", onMouseMove);
+					document.addEventListener("mouseup", onMouseUp);
+				});
+
+				resizeHandle.addEventListener("dblclick", async () => {
+					that.containerEl.style.removeProperty(METADATA_LABEL_WIDTH);
+					appContainer.style.removeProperty(METADATA_LABEL_WIDTH);
+					await plugin.updateSettings((prev) => ({
+						...prev,
+						metadataLabelWidth: NaN,
+					}));
+				});
+
+				const onMouseMove = async ({ clientX }: MouseEvent) => {
+					const diff = clientX - lastLeft;
+					const newWidth = diff + lastWidth;
+					/*
+					setting on that.container rather than appContainer here
+					because it would cause significant lag on drag
+					*/
+					that.containerEl.style.setProperty(
+						METADATA_LABEL_WIDTH,
+						`max(0%, calc(${defaultValue} + ${newWidth}px))`
+					);
+					lastLeft = clientX;
+					lastWidth = newWidth;
+				};
+				const onMouseUp = async () => {
+					document.removeEventListener("mouseup", onMouseUp);
+					document.removeEventListener("mousemove", onMouseMove);
+					that.containerEl.style.removeProperty(METADATA_LABEL_WIDTH);
+					appContainer.style.setProperty(
+						METADATA_LABEL_WIDTH,
+						`max(0%, calc(${defaultValue} + ${lastWidth}px))`
+					);
+					await plugin.updateSettings((prev) => ({
+						...prev,
+						metadataLabelWidth: lastWidth,
+					}));
+				};
 			});
 		},
 	});

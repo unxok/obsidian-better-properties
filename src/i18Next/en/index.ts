@@ -39,6 +39,7 @@ export const en: TranslationResource = {
 		reorderByTypeAZ: "Type (A to Z)",
 		reorderByTypeZA: "Type (Z to A)",
 		reorderByTemplate: "Template",
+		resetLabelWidth: "Reset label width",
 	},
 	BetterPropertiesSettingTab: {
 		settings: {

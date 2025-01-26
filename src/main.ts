@@ -60,6 +60,7 @@ const BetterPropertiesSettingsSchema = catchAndInfer(
 	z.object({
 		/* General */
 		showResetPropertySettingWarning: z.boolean().catch(true),
+		metadataLabelWidth: z.number().catch(NaN),
 
 		/* Synchronization */
 		propertySettings: z.record(PropertySettingsSchema).catch({}),
@@ -77,7 +78,7 @@ export default class BetterProperties extends Plugin {
 	menu: Menu | null = null;
 
 	async onload() {
-		this.metaqueryTest();
+		// this.metaqueryTest();
 		patchModal(this);
 
 		this.registerEditorExtension([createInlineCodePlugin(this)]);

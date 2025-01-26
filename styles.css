@@ -447,6 +447,19 @@ input[type="time"]::-webkit-calendar-picker-indicator {
 	justify-content: flex-start;
 }
 
+.better-properties-metadata-editor-resize-handle {
+	position: absolute;
+	width: 3px;
+	height: 100%;
+	left: 0;
+	transform: translateX(var(--metadata-label-width));
+	cursor: col-resize;
+
+	&:hover {
+		background-color: hsl(var(--accent-h), var(--accent-s), var(--accent-l));
+	}
+}
+
 /* TODO: NEW PLUGIN-- More Plugin Stats */
 
 .more-plugin-stats-container {
