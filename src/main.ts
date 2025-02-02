@@ -3,12 +3,14 @@ import {
 	CachedMetadata,
 	Component,
 	getLinkpath,
+	MarkdownPostProcessorContext,
 	MarkdownRenderChild,
 	Menu,
 	MetadataCache,
 	Modal,
 	Plugin,
 	SearchComponent,
+	setIcon,
 	Setting,
 	TextComponent,
 	TFile,
@@ -34,9 +36,11 @@ import { BetterPropertiesSettingTab } from "./classes/BetterPropertiesSettingTab
 import { z } from "zod";
 import { catchAndInfer } from "./libs/utils/zod";
 import {
+	clampNumber,
 	findKeyInsensitive,
 	findKeyValueByDotNotation,
 	unsafeEval,
+	updateNestedObject,
 } from "./libs/utils/pure";
 import { patchMetdataEditor } from "./monkey-patches/MetadataEditor";
 import { patchMenu } from "./monkey-patches/Menu";
@@ -55,6 +59,14 @@ import { patchModal } from "./monkey-patches/Modal";
 import { InputSuggest, Suggestion } from "./classes/InputSuggest";
 import { getDataviewLocalApi } from "./libs/utils/dataview";
 import { ConfirmationModal } from "./classes/ConfirmationModal";
+import {
+	MetadataCacheMetadataCacheRecord,
+	MetadataEditor,
+	PropertyEntryData,
+	PropertyRenderContext,
+} from "obsidian-typings";
+import { compareFunc, createInternalLinkEl } from "./libs/utils/obsidian";
+import { obsidianText } from "./i18Next/defaultObsidian";
 
 const BetterPropertiesSettingsSchema = catchAndInfer(
 	z.object({
@@ -78,7 +90,6 @@ export default class BetterProperties extends Plugin {
 	menu: Menu | null = null;
 
 	async onload() {
-		// this.metaqueryTest();
 		patchModal(this);
 
 		this.registerEditorExtension([createInlineCodePlugin(this)]);
@@ -107,6 +118,7 @@ export default class BetterProperties extends Plugin {
 		this.registerMarkdownCodeBlockProcessor("dataview-bp", (...args) =>
 			processDataviewWrapperBlock(this, ...args)
 		);
+		this.registerMetaView();
 
 		this.addCommand({
 			id: "Open settings for a property",
@@ -119,415 +131,22 @@ export default class BetterProperties extends Plugin {
 		});
 	}
 
-	metaqueryTest() {
-		type Field = {
-			target: "searched" | "specific";
-		};
-		const operators = [
-			"equals",
-			"doesn't equal",
-			"includes",
-			"doesn't include",
-			"greater than",
-			"less than",
-		];
-		type Operator = {};
-
-		type MetaQueryConstraint = {
-			leftField: string;
-			operator: Operator;
-			rightField?: string;
-		};
-
-		const fileParentFields = Object.keys(TFolder.prototype);
-		const fileFields = Object.keys(TFile);
-
-		console.log(fileParentFields);
-
-		// this.registerMarkdownCodeBlockProcessor("metaquery", (source, el, ctx) => {
-		// 	el.empty();
-
-		// 	el.createEl("br");
-
-		// 	class MetaQueryFieldSuggest extends InputSuggest<string> {
-		// 		protected onRenderSuggestion(
-		// 			value: string,
-		// 			contentEl: HTMLDivElement,
-		// 			titleEl: HTMLDivElement,
-		// 			noteEl?: HTMLDivElement,
-		// 			auxEl?: HTMLDivElement,
-		// 			icon?: string
-		// 		): void {}
-
-		// 		protected parseSuggestion(value: string): Suggestion {
-		// 			return {
-		// 				title: value,
-		// 			};
-		// 		}
-
-		// 		protected getSuggestions(query: string): string[] {
-		// 			function getKeys(path: string): string[] {
-		// 				const regex = /(?:\.|^)([a-zA-Z0-9_]+)|\["([^"]+)"\]/g;
-		// 				const keys: string[] = [];
-		// 				let match;
-
-		// 				while ((match = regex.exec(path)) !== null) {
-		// 					keys.push(match[1] || match[2]);
-		// 				}
-
-		// 				return keys;
-		// 			}
-
-		// 			const keys = getKeys(query);
-
-		// 			const secondLastKey = keys.at(-2);
-		// 			const lastKey = keys.at(-1);
-
-		// 			const suggestions: Record<string, string[]> = {
-		// 				frontmatter: Object.keys(
-		// 					this.app.metadataTypeManager.getAllProperties()
-		// 				),
-		// 				metadataCache: [
-		// 					"frontmatter",
-		// 					"frontmatterLinks",
-		// 					"headings",
-		// 					"listItems",
-		// 					"sections",
-		// 				],
-		// 				file: ["name", "basename", "path", "parent"],
-		// 				parent: ["name", "path", "children"],
-		// 			};
-
-		// 			if (!lastKey) {
-		// 				return ["file", "metadataCache"];
-		// 			}
-
-		// 			for (const [key, arr] of Object.entries(suggestions)) {
-		// 				const isLastMatch = lastKey === key;
-		// 				const isSecondLastMatch =
-		// 					secondLastKey === key && !Number.isNaN(Number(lastKey));
-		// 				if (!isLastMatch && !isSecondLastMatch) continue;
-		// 				const lowerLast = lastKey.toLowerCase();
-		// 				const lowerSecondLast = secondLastKey?.toLowerCase();
-		// 				if (isLastMatch) return arr;
-		// 				return arr.filter((v) => v.toLowerCase().includes(lowerLast));
-		// 			}
-
-		// 			// if (lastKey === "file") {
-		// 			// 	return ["name", "basename", "path", "parent"];
-		// 			// }
-
-		// 			// if (lastKey === "parent") {
-		// 			// 	return ["name", "path", "children"];
-		// 			// }
-
-		// 			// if (lastKey === "metadataCache" || secondLastKey === 'metadataCache') {
-		// 			// 	const arr = [
-		// 			// 		"frontmatter",
-		// 			// 		"frontmatterLinks",
-		// 			// 		"headings",
-		// 			// 		"listItems",
-		// 			// 		"sections",
-		// 			// 	];
-		// 			// }
-
-		// 			// if (lastKey === "frontmatter" || secondLastKey === "frontmatter") {
-		// 			// 	const lower = lastKey.toLowerCase();
-		// 			// 	const allProps = Object.keys(
-		// 			// 		this.app.metadataTypeManager.getAllProperties()
-		// 			// 	);
-		// 			// 	if (!lower || lastKey === "frontmatter") return allProps;
-		// 			// 	return allProps.filter((p) => p.toLowerCase().includes(lower));
-		// 			// }
-
-		// 			return [];
-		// 		}
-
-		// 		selectSuggestion(value: string, evt: MouseEvent | KeyboardEvent): void {
-		// 			const { component } = this;
-
-		// 			const currValue = component.getValue();
-
-		// 			const reOpen = () => {
-		// 				// @ts-ignore
-		// 				this.onInputChange();
-		// 			};
-
-		// 			const hasSpace = value.includes(" ");
-		// 			if (!currValue) {
-		// 				component.setValue(hasSpace ? `["${value}"]` : value);
-		// 				component.onChanged();
-		// 				console.log(this);
-		// 				reOpen();
-		// 				return;
-		// 			}
-
-		// 			const newValue = hasSpace ? `["${value}"]` : "." + value;
-		// 			component.setValue(currValue + newValue);
-		// 			component.onChanged();
-		// 			console.log(this);
-		// 			reOpen();
-		// 		}
-		// 	}
-
-		// 	new Setting(el)
-		// 		.setName("Field")
-		// 		.setDesc("")
-		// 		.addText((cmp) => {
-		// 			new MetaQueryFieldSuggest(this.app, cmp);
-		// 		});
-		// });
-		this.registerMarkdownCodeBlockProcessor("metaquery", (source, el, ctx) => {
-			el.empty();
-
-			const mdrc = new MarkdownRenderChild(el);
-			ctx.addChild(mdrc);
-
-			type MetaQueryContext = {
-				plugin: BetterProperties;
-				el: HTMLElement;
-				sourcePath: string;
-				component: Component;
-			};
-
-			type MetaQuery<T extends Record<string, unknown>> = {
-				type: string;
-				display: string;
-				renderSettings: (el: HTMLElement, state: T) => void;
-				getDefaultState: () => T;
-				doQuery: (state: T, ctx: MetaQueryContext) => Promise<TFile[]>;
-			};
-
-			const dataviewMetaQuery: MetaQuery<{ query: string }> = {
-				type: "dv",
-				display: "Dataview",
-				renderSettings: (el, state) => {
-					el.empty();
-					new Setting(el)
-						.setName("Dataview query")
-						.setDesc("Enter a \"LIST' Dataview query to search for notes.")
-						.addTextArea((cmp) =>
-							cmp
-								.setPlaceholder('LIST FROM #projects WHERE status == "ongoing"')
-								.setValue(state.query)
-								.onChange((v) => (state.query = v))
-								.then((cmp) => {
-									cmp.inputEl.setAttribute("cols", "30");
-									cmp.inputEl.setAttribute("rows", "3");
-								})
-						);
-				},
-				getDefaultState: () => ({ query: "" }),
-				doQuery: async (state, { plugin, el, sourcePath, component }) => {
-					const dv = getDataviewLocalApi(plugin, sourcePath, component, el);
-					if (!dv) return [];
-					const res = await dv.query(state.query);
-					if (!res.successful) {
-						return [];
-					}
-					if (res.value.type !== "list") return [];
-					const links = res.value.values;
-					return links
-						.map(({ path }) => plugin.app.vault.getFileByPath(path))
-						.filter((f) => f !== null);
-				},
-			};
-
-			const javascriptMetaQuery: MetaQuery<{ code: string }> = {
-				type: "js",
-				display: "JavaScript",
-				renderSettings: (el, state) => {
-					el.empty();
-					new Setting(el)
-						.setName("JavaScript code")
-						.setDesc(
-							createFragment((el) => {
-								el.createDiv({
-									text: "Enter the body of a function which returns true or false for each file.",
-								});
-								el.createDiv().createEl("code", {
-									text: "const queriedFiles = allFiles.filter(async ({file, metadata}) => {/* Your code here */})",
-								});
-							})
-						)
-						.addTextArea((cmp) =>
-							cmp
-								.setPlaceholder(
-									'return file.path.startsWith("Projects") && metadata?.frontmatter?.status === "ongoing"'
-								)
-								.setValue(state.code)
-								.onChange((v) => (state.code = v))
-								.then((cmp) => {
-									cmp.inputEl.setAttribute("cols", "30");
-									cmp.inputEl.setAttribute("rows", "3");
-								})
-						);
-				},
-				getDefaultState: () => ({
-					code: "",
-				}),
-				doQuery: async (state, { plugin }) => {
-					const filterFunc = unsafeEval(
-						`async (file, metadata) => {${state.code}}`
-					) as (file: TFile, metadata: CachedMetadata) => Promise<boolean>;
-					const queriedFiles: TFile[] = [];
-					console.log("func: ", filterFunc);
-
-					for (const [path, { hash }] of Object.entries(
-						plugin.app.metadataCache.fileCache
-					)) {
-						const file = plugin.app.vault.getFileByPath(path);
-						if (!file) continue;
-						const metadata = plugin.app.metadataCache.metadataCache[hash];
-						try {
-							const passesFilter = !!(await filterFunc(file, metadata));
-							if (!passesFilter) continue;
-							queriedFiles.push(file);
-						} catch (e) {
-							console.error(
-								"Error when running custom filter function!\n\n",
-								e
-							);
-							continue;
-						}
-					}
-					return queriedFiles;
-				},
-			};
-
-			// const metaQueryTypes = [dataviewMetaQuery];
-			const metaQueryTypesRecord = {
-				dv: dataviewMetaQuery,
-				js: javascriptMetaQuery,
-			} as const;
-			type MetaQueryTypesRecord = typeof metaQueryTypesRecord;
-			type MetaQueryType = keyof MetaQueryTypesRecord;
-			type MetaQueryState<T extends MetaQueryType> = ReturnType<
-				MetaQueryTypesRecord[T]["getDefaultState"]
-			>;
-
-			class MetaQueryBuilder extends ConfirmationModal {
-				public form: {
-					queryType: MetaQueryType;
-					queryTypeState: Record<
-						MetaQueryType,
-						ReturnType<MetaQueryTypesRecord[MetaQueryType]["getDefaultState"]>
-					>;
-				} = {
-					queryType: "dv",
-					queryTypeState: {
-						dv: {
-							query: "",
-						},
-						js: {
-							code: "",
-						},
-					},
-				};
-				constructor(public ctx: MetaQueryContext) {
-					super(ctx.plugin.app);
-				}
-
-				onOpen(): void {
-					const { ctx, contentEl, form } = this;
-					contentEl.empty();
-
-					this.setTitle("Metadata Query Builder");
-
-					let queryTypeContainer: HTMLElement;
-
-					new Setting(contentEl)
-						.setName("Query type")
-						.setDesc("What type of query to use for search for files.")
-						.then(() => {
-							queryTypeContainer = contentEl.createDiv();
-						})
-						.addDropdown((cmp) => {
-							Object.entries(metaQueryTypesRecord).forEach(
-								([type, { display }]) => cmp.addOption(type, display)
-							);
-							cmp.onChange((v) => {
-								const newQueryType = v as MetaQueryType;
-								form.queryType = newQueryType;
-								const queryType = metaQueryTypesRecord[newQueryType];
-								queryType.renderSettings(
-									queryTypeContainer,
-									// @ts-ignore TODO Not sure how to type this correctly
-									form.queryTypeState[v as MetaQueryType]
-								);
-							});
-							cmp.then(() =>
-								metaQueryTypesRecord[form.queryType].renderSettings(
-									queryTypeContainer,
-									// @ts-ignore TODO Not sure how to type this correctly
-									form.queryTypeState[form.queryType]
-								)
-							);
-						});
-
-					this.createFooterButton((cmp) =>
-						cmp.setButtonText("View form state").onClick(() => {
-							const modal = new Modal(this.app);
-							modal.onOpen = () => {
-								modal.contentEl.empty();
-								const text = JSON.stringify(form, undefined, 2);
-								modal.contentEl.createEl("pre").createEl("code", { text });
-							};
-							modal.open();
-						})
-					)
-						.createFooterButton((cmp) =>
-							cmp.setButtonText("Test").onClick(async () => {
-								const start = performance.now();
-								const files = await this.doQuery();
-								const end = performance.now();
-								const duration = end - start;
-								const modal = new Modal(this.app);
-								modal.onOpen = () => {
-									modal.contentEl.empty();
-									modal.contentEl.createDiv({
-										text: `Query took ${duration} milliseconds and retrieved ${files.length} notes.`,
-									});
-									const ul = modal.contentEl.createEl("ul");
-									files.forEach((f) => ul.createEl("li", { text: f.path }));
-								};
-								modal.open();
-							})
-						)
-						.createFooterButton((cmp) =>
-							cmp.setButtonText("Save").onClick(() => this.save())
-						);
-				}
-
-				async doQuery(): Promise<TFile[]> {
-					const {
-						form: { queryType, queryTypeState },
-						ctx,
-					} = this;
-					const qType = metaQueryTypesRecord[queryType];
-					const qState = queryTypeState[queryType];
-					// @ts-ignore TODO Not sure how to type this correctly
-					return await qType.doQuery(qState, ctx);
-				}
-
-				private saveCallback: (builder: this) => void = () => {};
-				private save(): void {
-					this.saveCallback(this);
-				}
-
-				public onSave(cb: (builder: this) => void): this {
-					this.saveCallback = cb;
-					return this;
-				}
+	registerMetaView() {
+		this.registerMarkdownCodeBlockProcessor(
+			"metaview",
+			async (source, el, ctx) => {
+				el.empty();
+				const mdrc = new MarkdownRenderChild(el);
+				ctx.addChild(mdrc);
+				renderView({
+					plugin: this,
+					mdrc,
+					source,
+					el,
+					ctx,
+				});
 			}
-
-			new MetaQueryBuilder({
-				el,
-				plugin: this,
-				sourcePath: ctx.sourcePath,
-				component: mdrc,
-			}).open();
-		});
+		);
 	}
 
 	listTesting() {
@@ -679,3 +298,452 @@ export default class BetterProperties extends Plugin {
 		});
 	}
 }
+
+//////////////////////////////////////////////////////////////
+
+type Filter = (file: TFile, metadata: CachedMetadata | null) => boolean;
+type FileItem = { file: TFile; metadata: CachedMetadata | null };
+type Sorter = (a: FileItem, b: FileItem) => number;
+type PropertyColumn = {
+	type: "property";
+	alias: string;
+	colWidth?: number;
+	value: string;
+};
+type FileDataColumn = {
+	type: "fileData";
+	alias: string;
+	colWidth?: number;
+	value:
+		| "file-link"
+		| "file-name"
+		| "file-path"
+		| "file-created"
+		| "file-modified"
+		| "file-size";
+};
+type TagsColumn = {
+	type: "tags";
+	alias: string;
+	colWidth?: number;
+	value: string;
+};
+type EmbedColumn = {
+	type: "embed";
+	alias: string;
+	colWidth?: number;
+	value: string;
+	embedType: "heading" | "block";
+};
+type ColumnAccessor =
+	| PropertyColumn
+	| FileDataColumn
+	| TagsColumn
+	| EmbedColumn;
+
+type BlockConfig = {
+	columnAccessors: ColumnAccessor[];
+	filters: Filter[];
+	folder: string;
+	excludedFolders: string[];
+	sorter: Sorter;
+	pageNumber: number;
+	pageSize: number;
+};
+
+const renderView = ({
+	plugin,
+	mdrc,
+	el,
+	source,
+	ctx,
+}: {
+	plugin: BetterProperties;
+	mdrc: MarkdownRenderChild;
+	source: string;
+	el: HTMLElement;
+	ctx: MarkdownPostProcessorContext;
+}) => {
+	replaceEditBlockButton(el.parentElement!);
+
+	const items: FileItem[] = [];
+
+	// TODO parse from source
+	const blockConfig: BlockConfig = {
+		columnAccessors: [
+			{ type: "fileData", alias: "", value: "file-link" },
+			{ type: "tags", alias: "Body tags", value: "" },
+			{ type: "property", alias: "Property tags", value: "tags" },
+		],
+		filters: [],
+		folder: "02 Projects",
+		excludedFolders: [],
+		sorter: (a, b) => compareFunc(a.file.basename, b.file.basename),
+		pageNumber: 1,
+		pageSize: 10,
+	};
+
+	const {
+		columnAccessors,
+		filters,
+		folder,
+		excludedFolders,
+		sorter,
+		pageNumber,
+		pageSize,
+	} = blockConfig;
+
+	const {
+		app: { vault, metadataCache },
+	} = plugin;
+	const allFiles = vault.getMarkdownFiles();
+
+	const { tableHeadRowEl, tableBodyEl, containerEl } = createInitialEls();
+	renderHeaders(plugin, columnAccessors, tableHeadRowEl);
+	addMatchingItems({
+		items,
+		allFiles,
+		metadataCache,
+		filters,
+		folder,
+		excludedFolders,
+	});
+	items.sort(sorter);
+	console.log("filtered and sorted: ", items);
+	const paginatedItems = getPaginatedItems(items, pageNumber, pageSize);
+	console.log("paginated: ", paginatedItems);
+	renderRows({
+		plugin,
+		mdrc,
+		ctx,
+		paginatedItems,
+		tableBodyEl,
+		columnAccessors,
+	});
+
+	el.empty();
+	el.appendChild(containerEl);
+	console.log("container: ", containerEl);
+};
+
+const createInitialEls = () => {
+	const containerEl = createDiv({
+		cls: "better-properties-metaview-container",
+	});
+	const contentEl = containerEl.createDiv({
+		cls: "better-properties-metaview-content",
+	});
+	const tableEl = contentEl.createEl("table", {
+		cls: "better-properties-metaview-table",
+	});
+	const tableHeadEl = tableEl.createEl("thead", {
+		cls: "better-properties-metaview-table-head",
+	});
+	const tableHeadRowEl = tableHeadEl.createEl("tr", {
+		cls: "better-properties-metaview-table-head-row",
+	});
+	const tableBodyEl = tableEl.createEl("tbody", {
+		cls: "better-properties-metaview-table-body",
+	});
+	return {
+		containerEl,
+		contentEl,
+		tableEl,
+		tableHeadEl,
+		tableHeadRowEl,
+		tableBodyEl,
+	};
+};
+
+const renderHeaders = (
+	plugin: BetterProperties,
+	columnAccessors: ColumnAccessor[],
+	tableHeadRowEl: HTMLElement
+) => {
+	for (let i = 0; i < columnAccessors.length; i++) {
+		const col = columnAccessors[i];
+		const display = col.alias
+			? col.alias
+			: col.type === "tags"
+			? "tags"
+			: col.value;
+		const th = tableHeadRowEl.createEl("th", {
+			cls: "better-properties-metaview-table-header",
+		});
+		const wrapper = th.createDiv({
+			cls: "better-properties-metaview-table-header-wrapper",
+		});
+		const iconEl = wrapper.createSpan({
+			cls: "better-properties-metaview-table-header-icon",
+		});
+		setIcon(iconEl, getIconName(plugin, col));
+		wrapper.createSpan({
+			text: display,
+			cls: "better-properties-metaview-table-header-name",
+		});
+	}
+};
+
+const getIconName = (plugin: BetterProperties, col: ColumnAccessor) => {
+	if (col.type === "fileData") return "file";
+	if (col.type === "property") {
+		const customIcon = plugin.getPropertySetting(col.value)?.general
+			?.customIcon;
+		if (customIcon) return customIcon;
+		const assignedType = plugin.app.metadataTypeManager.getAssignedType(
+			col.value
+		);
+		if (!assignedType) return "text";
+		const defaultIcon =
+			plugin.app.metadataTypeManager.registeredTypeWidgets[assignedType]?.icon;
+		return defaultIcon ?? "text";
+	}
+	if (col.type === "tags") return "tags";
+	return "hash";
+};
+
+const addMatchingItems = ({
+	items,
+	allFiles,
+	metadataCache,
+	filters,
+	folder,
+	excludedFolders,
+}: {
+	items: { file: TFile; metadata: CachedMetadata | null }[];
+	allFiles: TFile[];
+	metadataCache: MetadataCache;
+	filters: Filter[];
+	folder: string;
+	excludedFolders: string[];
+}) => {
+	for (let i = 0; i < allFiles.length; i++) {
+		const file = allFiles[i];
+		const { path } = file;
+		// don't add if not in specified folder
+		if (folder && !path.startsWith(folder)) continue;
+		// don't add if in an excluded folder
+		if (
+			excludedFolders.length &&
+			excludedFolders.some((exFolder) => path.startsWith(exFolder))
+		) {
+			continue;
+		}
+
+		const metadata = metadataCache.getFileCache(file);
+		const hasFailedFilter = filters.some((filter) => !filter(file, metadata));
+		// don't add if one of the filters returns false
+		if (hasFailedFilter) continue;
+
+		items.push({
+			file,
+			metadata,
+		});
+	}
+};
+
+const getPaginatedItems = (
+	items: FileItem[],
+	pageNumber: number,
+	pageSize: number
+) => {
+	const truePageSize = Math.floor(pageSize);
+	// unneccessary +/- 1's are for sake of readability
+	const pageIndex = clampNumber(pageNumber - 1, 0, Number.MAX_SAFE_INTEGER);
+	const startingResultIndex = pageIndex * truePageSize;
+	const endingResultIndex = (pageIndex + 1) * truePageSize - 1;
+	return items.slice(startingResultIndex, endingResultIndex + 1);
+};
+
+const renderRows = ({
+	plugin,
+	mdrc,
+	ctx,
+	paginatedItems,
+	tableBodyEl,
+	columnAccessors,
+}: {
+	plugin: BetterProperties;
+	mdrc: MarkdownRenderChild;
+	ctx: MarkdownPostProcessorContext;
+	paginatedItems: FileItem[];
+	tableBodyEl: HTMLElement;
+	columnAccessors: ColumnAccessor[];
+}) => {
+	for (let i = 0; i < paginatedItems.length; i++) {
+		const item = paginatedItems[i];
+		const tr = tableBodyEl.createEl("tr", {
+			cls: "better-properties-metaview-table-row",
+		});
+		columnAccessors.forEach((col) => {
+			const td = tr.createEl("td", {
+				cls: "better-properties-metaview-table-cell",
+			});
+			const wrapperEl = td.createDiv({
+				cls: "better-properties-metaview-table-cell-wrapper",
+			});
+			renderCell({
+				plugin,
+				mdrc,
+				ctx,
+				wrapperEl,
+				item,
+				col,
+			});
+		});
+	}
+};
+
+type RenderCellArgs<T extends ColumnAccessor = ColumnAccessor> = {
+	plugin: BetterProperties;
+	mdrc: MarkdownRenderChild;
+	ctx: MarkdownPostProcessorContext;
+	wrapperEl: HTMLElement;
+	item: FileItem;
+	col: T;
+};
+const renderCell = (args: RenderCellArgs) => {
+	switch (args.col.type) {
+		case "fileData":
+			return renderFileDataCell(args as RenderCellArgs<FileDataColumn>);
+		case "property":
+			return renderPropertyCell(args as RenderCellArgs<PropertyColumn>);
+		case "tags":
+			return renderTagsCell(args as RenderCellArgs<TagsColumn>);
+	}
+};
+
+const renderFileDataCell = ({
+	wrapperEl,
+	item: { file },
+	col,
+}: RenderCellArgs<FileDataColumn>) => {
+	wrapperEl.classList.add("mod-filedata");
+	switch (col.value) {
+		case "file-link":
+			return wrapperEl.appendChild(createInternalLinkEl(file));
+		case "file-name":
+			return (wrapperEl.textContent = file.basename);
+		case "file-created":
+			return (wrapperEl.textContent = new Date(
+				file.stat.ctime
+			).toLocaleString());
+		case "file-modified":
+			return (wrapperEl.textContent = new Date(
+				file.stat.mtime
+			).toLocaleString());
+		case "file-path":
+			return (wrapperEl.textContent = file.path);
+		case "file-size":
+			return (wrapperEl.textContent = file.stat.size + " bytes");
+	}
+};
+
+const renderPropertyCell = ({
+	plugin,
+	mdrc,
+	ctx,
+	col,
+	item: { file, metadata },
+	wrapperEl,
+}: RenderCellArgs<PropertyColumn>) => {
+	const {
+		app: { metadataTypeManager, fileManager },
+	} = plugin;
+
+	const fm = metadata?.frontmatter ?? {};
+
+	const dotKeys = col.value.split(".");
+	const propertyKey = dotKeys[dotKeys.length - 1];
+	const propertyKeyWithDots = col.value;
+	const foundKey = findKeyInsensitive(propertyKey, fm) ?? propertyKey;
+	const propertyValue = fm[foundKey] ?? null;
+
+	const updateProperty = async (value: unknown) => {
+		await fileManager.processFrontMatter(file, (fm) => {
+			if (col.value.includes(".")) {
+				return updateNestedObject(fm, propertyKeyWithDots, value);
+			}
+			fm[foundKey] = value;
+		});
+	};
+
+	const assignedType =
+		metadataTypeManager.getAssignedType(propertyKey) ?? "text";
+	const widget = metadataTypeManager.registeredTypeWidgets[assignedType];
+	widget.render(
+		wrapperEl,
+		{
+			key: propertyKey,
+			type: assignedType,
+			value: propertyValue,
+			dotKey: propertyKeyWithDots,
+		} as PropertyEntryData<unknown>,
+		{
+			app: plugin.app,
+			blur: () => {},
+			key: propertyKey,
+			dotKey: propertyKeyWithDots,
+			metadataEditor: {
+				register: (cb) => mdrc.register(cb),
+			} as MetadataEditor,
+			onChange: async (v) => await updateProperty(v),
+			sourcePath: ctx.sourcePath,
+		} as PropertyRenderContext
+	);
+};
+
+const renderTagsCell = ({
+	col,
+	item: { metadata },
+	wrapperEl,
+}: RenderCellArgs<TagsColumn>) => {
+	const tagContainer = wrapperEl.createDiv({
+		cls: "better-properties-metaview-tags-container",
+	});
+	if (!metadata?.tags?.length) return;
+	const uniqueTags = new Set(metadata.tags.map(({ tag }) => tag));
+	uniqueTags.forEach((tag) => {
+		tagContainer.createSpan().createEl("a", {
+			text: tag,
+			href: tag,
+			cls: "tag",
+			attr: {
+				target: "_blank",
+				rel: "noopener nofollow",
+			},
+		});
+	});
+};
+
+const replaceEditBlockButton = (el: HTMLElement) => {
+	window.setTimeout(() => {
+		const newButton = createDiv({
+			cls: "edit-block-button",
+			attr: {
+				"aria-label": "Configure metaview",
+			},
+		});
+		const existingButton = el.querySelector(
+			"div.edit-block-button"
+		) as HTMLElement | null;
+		if (!existingButton) {
+			throw new Error("Could not find 'edit block button' div");
+		}
+		newButton.addEventListener("click", (e) => {
+			const menu = new Menu().addItem((item) =>
+				item
+					.setIcon("code-2")
+					.setTitle(obsidianText("plugins.properties.action-edit"))
+					.onClick(() => existingButton.click())
+			);
+
+			menu.showAtMouseEvent(e);
+		});
+
+		setIcon(newButton, "settings");
+
+		existingButton.style.setProperty("display", "none");
+		existingButton.insertAdjacentElement("afterend", newButton);
+	}, 0);
+};

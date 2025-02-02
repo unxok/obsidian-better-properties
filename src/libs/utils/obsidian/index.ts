@@ -1,4 +1,4 @@
-import { App, getLinkpath, MetadataCache } from "obsidian";
+import { App, getLinkpath, MetadataCache, TFile } from "obsidian";
 import { parseYaml } from "obsidian";
 
 type ParseYamlResult =
@@ -69,4 +69,23 @@ export const getFirstLinkPathDest = (
 			: noSectionLink.slice(0, aliasCharIndex);
 
 	return mc.getFirstLinkpathDest(originPath, noAlias);
+};
+
+export const createInternalLinkEl = (
+	file: TFile,
+	parent?: HTMLElement,
+	alias?: string
+) => {
+	const opts = {
+		href: file.path,
+		cls: "internal-link",
+		text: alias ? alias : file.basename,
+		attr: {
+			"data-tooltip-position": "top",
+			"aria-label": file.path,
+			"target": "_blank",
+			"rel": "noopener nofollow",
+		},
+	};
+	return parent ? parent.createEl("a", opts) : createEl("a", opts);
 };

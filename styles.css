@@ -500,3 +500,43 @@ input[type="time"]::-webkit-calendar-picker-indicator {
 	justify-content: start;
 	align-items: center;
 }
+
+.better-properties-metaview-container {
+	font-size: var(--font-text-size);
+}
+
+.better-properties-metaview-content {
+	overflow-x: auto;
+	overflow-y: hidden;
+}
+
+.better-properties-metaview-table-header-icon {
+	display: flex;
+	justify-content: start;
+	align-items: center;
+}
+
+.better-properties-metaview-table-header-wrapper {
+	display: flex;
+	justify-content: start;
+	align-items: center;
+	gap: 0.375ch;
+	white-space: nowrap;
+}
+
+.better-properties-metaview-tags-container {
+	display: flex;
+	justify-content: start;
+	align-items: center;
+	gap: var(--size-2-3);
+	flex-wrap: wrap;
+	padding: var(--size-4-1);
+}
+
+.better-properties-metaview-table-cell-wrapper {
+	&,
+	& .multi-select-container {
+		--background-modifier-form-field: transparent;
+		--background-modifier-border: transparent;
+	}
+}
