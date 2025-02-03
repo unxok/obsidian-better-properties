@@ -216,9 +216,11 @@ export const createSettings: CreatePropertySettings<typeof typeKey> = (
 		{ ...defaultOption },
 		[...form.options],
 		plugin
-	).onChange((v) => {
-		updateForm("options", [...v]);
-	});
+	)
+		.onChange((v) => {
+			updateForm("options", [...v]);
+		})
+		.renderItems();
 
 	new Setting(content)
 		.setHeading()

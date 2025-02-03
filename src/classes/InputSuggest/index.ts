@@ -38,10 +38,10 @@ export abstract class InputSuggest<T> extends AbstractInputSuggest<T> {
 	 */
 	protected abstract onRenderSuggestion(
 		value: T,
-		contentEl: HTMLDivElement,
-		titleEl: HTMLDivElement,
-		noteEl?: HTMLDivElement,
-		auxEl?: HTMLDivElement,
+		contentEl: HTMLElement,
+		titleEl: HTMLElement,
+		noteEl?: HTMLElement,
+		auxEl?: HTMLElement,
 		icon?: string
 	): void;
 
@@ -75,7 +75,9 @@ export abstract class InputSuggest<T> extends AbstractInputSuggest<T> {
 		const auxEl =
 			aux === undefined
 				? undefined
-				: el.createDiv({ cls: "suggestion-aux", text: aux });
+				: el
+						.createDiv({ cls: "suggestion-aux" })
+						.createSpan({ cls: "suggestion-flair", text: aux });
 		this.onRenderSuggestion(value, contentEl, titleEl, noteEl, auxEl);
 	}
 }

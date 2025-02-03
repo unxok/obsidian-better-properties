@@ -48,7 +48,7 @@ type LinkTextWikilinkSuggestion = BaseWikilinkSuggestion & {
 	type: "linktext";
 };
 
-type HeadingWikilinkSuggestion = BaseWikilinkSuggestion & {
+export type HeadingWikilinkSuggestion = BaseWikilinkSuggestion & {
 	type: "heading";
 	/**
 	 * The corresponding file for this suggestion
@@ -72,7 +72,7 @@ type HeadingWikilinkSuggestion = BaseWikilinkSuggestion & {
 
 type Position = { line: number; column: number; offset: number };
 
-type BlockWikilinkSuggestion = BaseWikilinkSuggestion & {
+export type BlockWikilinkSuggestion = BaseWikilinkSuggestion & {
 	type: "block";
 	display: string;
 	content: string;
@@ -99,11 +99,9 @@ type WikilinkSuggestion =
 	| HeadingWikilinkSuggestion
 	| BlockWikilinkSuggestion;
 
-const resolveWikilinkSuggestPrototype = (app: App) => {
+export const resolveWikilinkSuggestPrototype = (app: App) => {
 	const { editorSuggest } = app.workspace;
 	const wikilinkSuggest = editorSuggest.suggests[0];
-	// const proto = Object.getPrototypeOf(wikilinkSuggest);
-	// return proto as FileSuggest;
 	return wikilinkSuggest as FileEditorSuggest;
 };
 
@@ -115,7 +113,7 @@ export interface FileEditorSuggest extends EditorSuggest<WikilinkSuggestion> {
 		file: TFile;
 		query: string;
 		start: { line: number; ch: number };
-	};
+	} | null;
 	instructionsEl: HTMLElement;
 	isOpen: boolean;
 	limit: number;
@@ -133,6 +131,8 @@ export class FileSuggest extends AbstractInputSuggest<WikilinkSuggestion> {
 	suggestManager: FileSuggestManager;
 	instructionsEl: HTMLElement;
 	setInstructions: FileEditorSuggest["setInstructions"];
+	context: FileEditorSuggest["context"] = null;
+
 	constructor(app: App, component: TextComponent | SearchComponent) {
 		super(app, component.inputEl);
 		this.component = component;
@@ -146,6 +146,7 @@ export class FileSuggest extends AbstractInputSuggest<WikilinkSuggestion> {
 		this.suggestManager = proto.suggestManager;
 		this.instructionsEl = proto.instructionsEl;
 		this.setInstructions = proto.setInstructions;
+		this.context = proto.context;
 	}
 
 	onTrigger(

@@ -1,3 +1,7 @@
+import {
+	BlockWikilinkSuggestion,
+	HeadingWikilinkSuggestion,
+} from "@/classes/FileSuggest";
 import { App, getLinkpath, MetadataCache, TFile } from "obsidian";
 import { parseYaml } from "obsidian";
 
@@ -88,4 +92,30 @@ export const createInternalLinkEl = (
 		},
 	};
 	return parent ? parent.createEl("a", opts) : createEl("a", opts);
+};
+
+export const getGlobalBlockSuggestions = async (app: App) => {
+	// @ts-ignore TODO add proper typings
+	return (await app.workspace.editorSuggest.suggests[0].suggestManager.getGlobalBlockSuggestions(
+		{
+			cancelled: true,
+			onCancel: null,
+			onStart: null,
+			onStop: null,
+			running: false,
+		}
+	)) as BlockWikilinkSuggestion[];
+};
+
+export const getGlobalHeadingSuggestions = async (app: App) => {
+	// @ts-ignore TODO add proper typings
+	return (await app.workspace.editorSuggest.suggests[0].suggestManager.getGlobalHeadingSuggestions(
+		{
+			cancelled: true,
+			onCancel: null,
+			onStart: null,
+			onStop: null,
+			running: false,
+		}
+	)) as HeadingWikilinkSuggestion[];
 };

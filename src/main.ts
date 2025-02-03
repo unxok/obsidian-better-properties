@@ -2,6 +2,8 @@ import {
 	App,
 	CachedMetadata,
 	Component,
+	DropdownComponent,
+	ExtraButtonComponent,
 	getLinkpath,
 	MarkdownPostProcessorContext,
 	MarkdownRenderChild,
@@ -12,12 +14,14 @@ import {
 	SearchComponent,
 	setIcon,
 	Setting,
+	setTooltip,
+	stringifyYaml,
 	TextComponent,
 	TFile,
 	TFolder,
 	View,
 } from "obsidian";
-import { typeWidgetPrefix } from "./libs/constants";
+import { monkeyAroundKey, typeWidgetPrefix } from "./libs/constants";
 import {
 	addUsedBy,
 	addRename,
@@ -36,9 +40,12 @@ import { BetterPropertiesSettingTab } from "./classes/BetterPropertiesSettingTab
 import { z } from "zod";
 import { catchAndInfer } from "./libs/utils/zod";
 import {
+	arrayMove,
 	clampNumber,
 	findKeyInsensitive,
 	findKeyValueByDotNotation,
+	toNumberNotNaN,
+	tryEval,
 	unsafeEval,
 	updateNestedObject,
 } from "./libs/utils/pure";
@@ -50,10 +57,13 @@ import {
 } from "./classes/InlineCodeWidget";
 import { insertPropertyEditor, propertyCodeBlock } from "./PropertyRenderer";
 import { patchMetdataCache } from "./monkey-patches/MetadataCache";
-import { TextListComponent } from "./classes/ListComponent";
+import { ListComponent, TextListComponent } from "./classes/ListComponent";
 import { processDataviewWrapperBlock } from "./DataviewWrapper";
 import { SidebarModal } from "./classes/SidebarModal";
-import { PropertySuggestModal } from "./classes/PropertySuggest";
+import {
+	PropertySuggest,
+	PropertySuggestModal,
+} from "./classes/PropertySuggest";
 import { PropertySettingsModal } from "./augmentMedataMenu/addSettings";
 import { patchModal } from "./monkey-patches/Modal";
 import { InputSuggest, Suggestion } from "./classes/InputSuggest";
@@ -65,8 +75,18 @@ import {
 	PropertyEntryData,
 	PropertyRenderContext,
 } from "obsidian-typings";
-import { compareFunc, createInternalLinkEl } from "./libs/utils/obsidian";
+import {
+	compareFunc,
+	createInternalLinkEl,
+	getGlobalBlockSuggestions,
+	getGlobalHeadingSuggestions,
+	tryParseYaml,
+} from "./libs/utils/obsidian";
 import { obsidianText } from "./i18Next/defaultObsidian";
+import { createDragHandle } from "./libs/utils/drag";
+import { FileSuggest } from "./classes/FileSuggest";
+import { around, dedupe } from "monkey-around";
+import { FolderSuggest } from "./classes/FolderSuggest";
 
 const BetterPropertiesSettingsSchema = catchAndInfer(
 	z.object({
@@ -135,7 +155,6 @@ export default class BetterProperties extends Plugin {
 		this.registerMarkdownCodeBlockProcessor(
 			"metaview",
 			async (source, el, ctx) => {
-				el.empty();
 				const mdrc = new MarkdownRenderChild(el);
 				ctx.addChild(mdrc);
 				renderView({
@@ -301,54 +320,529 @@ export default class BetterProperties extends Plugin {
 
 //////////////////////////////////////////////////////////////
 
-type Filter = (file: TFile, metadata: CachedMetadata | null) => boolean;
 type FileItem = { file: TFile; metadata: CachedMetadata | null };
-type Sorter = (a: FileItem, b: FileItem) => number;
-type PropertyColumn = {
+
+// type Filter = (file: TFile, metadata: CachedMetadata | null) => boolean;
+type Filter = {
+	label: string;
+} & (
+	| (Pick<Field, "type" | "value"> & { operator: string })
+	| {
+			type: "custom";
+			func: string;
+	  }
+);
+// type Sorter = (a: FileItem, b: FileItem) => number;
+type Sorter = {
+	asc: boolean;
+	label: string;
+} & (
+	| Pick<Field, "type" | "value">
+	| {
+			type: "custom";
+			func: string;
+	  }
+);
+type PropertyField = {
 	type: "property";
 	alias: string;
 	colWidth?: number;
 	value: string;
 };
-type FileDataColumn = {
+
+const fileDataColumnValueOptions = [
+	"file-link",
+	"file-name",
+	"file-path",
+	"file-created",
+	"file-modified",
+	"file-size",
+] as const;
+
+type FileDataField = {
 	type: "fileData";
 	alias: string;
 	colWidth?: number;
-	value:
-		| "file-link"
-		| "file-name"
-		| "file-path"
-		| "file-created"
-		| "file-modified"
-		| "file-size";
+	value: (typeof fileDataColumnValueOptions)[number];
 };
-type TagsColumn = {
+type TagsField = {
 	type: "tags";
 	alias: string;
 	colWidth?: number;
 	value: string;
 };
-type EmbedColumn = {
+type EmbedField = {
 	type: "embed";
 	alias: string;
 	colWidth?: number;
 	value: string;
 	embedType: "heading" | "block";
 };
-type ColumnAccessor =
-	| PropertyColumn
-	| FileDataColumn
-	| TagsColumn
-	| EmbedColumn;
+type Field = PropertyField | FileDataField | TagsField | EmbedField;
 
 type BlockConfig = {
-	columnAccessors: ColumnAccessor[];
+	fields: Field[];
 	filters: Filter[];
 	folder: string;
 	excludedFolders: string[];
 	sorter: Sorter;
 	pageNumber: number;
 	pageSize: number;
+};
+
+type SaveBlockConfig = (b: BlockConfig) => Promise<void>;
+
+const openConfigurationModal = ({
+	plugin,
+	blockConfig,
+	saveBlockConfig,
+}: {
+	plugin: BetterProperties;
+	blockConfig: BlockConfig;
+	saveBlockConfig: SaveBlockConfig;
+}) => {
+	const modal = new ConfirmationModal(plugin.app);
+	const form = { ...blockConfig };
+
+	modal.onClose = async () => {
+		await saveBlockConfig(form);
+	};
+
+	modal.onOpen = () => {
+		const { contentEl } = modal;
+		contentEl.empty();
+		modal.setTitle("MetaView Configuration");
+
+		new Setting(contentEl)
+			.setName("Fields")
+			.setDesc(
+				"The fields of data that will be displayed for each queried note. Only property and embed fields are editable!"
+			);
+		const fieldsContainer = contentEl.createDiv();
+		new FieldListComponent(
+			plugin.app,
+			fieldsContainer,
+			{ type: "fileData", alias: "", value: "" as FileDataField["value"] },
+			form.fields
+		)
+			.renderItems()
+			.createNewItemButton()
+			.createSortAlphabetical()
+			.onChange((arr) => (form.fields = [...arr]));
+
+		new Setting(contentEl)
+			.setName("Folder")
+			.setDesc(
+				"Choose a folder to query notes from. If blank, all folders will be searched. Subfolders are included!"
+			)
+			.addSearch((cmp) => {
+				cmp.setValue(form.folder);
+				cmp.onChange((v) => (form.folder = v));
+				new FolderSuggest(plugin.app, cmp);
+			});
+
+		new Setting(contentEl)
+			.setName("Excluded Folders")
+			.setDesc(
+				"Set specific folders to exclude notes within them from the query. Includes Subfolders!"
+			);
+		const excludedFoldersContainer = contentEl.createDiv();
+		new FolderListComponent(
+			plugin.app,
+			excludedFoldersContainer,
+			"",
+			form.excludedFolders
+		)
+			.renderItems()
+			.createNewItemButton()
+			.createSortAlphabetical()
+			.onChange((arr) => (form.excludedFolders = [...arr]));
+
+		new Setting(contentEl)
+			.setName("Page size")
+			.setDesc(
+				"The number of results to show at a time. Set to 0 for no limit."
+			)
+			.addText((cmp) =>
+				cmp
+					.setValue(form.pageSize.toString())
+					.onChange((v) => (form.pageSize = toNumberNotNaN(v)))
+			);
+
+		modal.createFooterButton((cmp) =>
+			cmp.setButtonText("close").onClick(() => modal.close())
+		);
+		modal.createFooterButton((cmp) =>
+			cmp.setButtonText("form data").onClick(() => {
+				const m = new Modal(modal.app);
+				m.onOpen = () => {
+					m.contentEl.empty();
+					m.contentEl
+						.createEl("pre")
+						.createEl("code", { text: JSON.stringify(form, undefined, 2) });
+				};
+				m.open();
+			})
+		);
+	};
+
+	modal.open();
+};
+
+class FieldListComponent extends ListComponent<Field> {
+	constructor(
+		private app: App,
+		containerEl: HTMLElement,
+		defaultItemValue: Field,
+		items?: Field[]
+	) {
+		super(containerEl, defaultItemValue, items);
+	}
+
+	renderItem(
+		fieldValue: Field,
+		setting: Setting,
+		index: number,
+		shouldFocus: boolean
+	): void {
+		const { app } = this;
+		const { controlEl } = setting;
+		const { type, value, alias } = fieldValue;
+		controlEl.classList.add(
+			"better-properties-metaview-configuration-fields-item"
+		);
+		controlEl.appendChild(
+			createDragHandle({
+				containerEl: setting.settingEl,
+				index,
+				items: this.items,
+				itemsContainerEl: this.itemsContainerEl,
+				onDragEnd: (items, from, to) =>
+					this.setValueHighlight(arrayMove(items, from, to), to),
+				dragStyle: "indicator",
+			})
+		);
+		const fieldTypeOptions: Record<Field["type"], string> = {
+			fileData: "File data",
+			property: "Property",
+			tags: "Tags",
+			embed: "Embed",
+		};
+
+		const renderFieldValueText = (fieldType: Field["type"]) => {
+			const onChange = (v: string) =>
+				this.updateItemValue(
+					(oldValue) => ({ ...oldValue, value: v } as Field),
+					index
+				);
+			const cmp = new TextComponent(setting.controlEl)
+				.setValue(value)
+				.onChange(onChange)
+				.then((cmp) => {
+					setTooltip(cmp.inputEl, "Field value");
+					if (fieldType === "fileData") {
+						new FileDataSuggest(app, cmp);
+						cmp.setPlaceholder("");
+					} else if (fieldType === "property") {
+						new PropertySuggest(app, cmp);
+						cmp.setPlaceholder("");
+					} else if (fieldType === "embed") {
+						new EmbedSuggest(app, cmp);
+						cmp.setPlaceholder("#Some heading *or* ^some-block-id");
+					} else {
+						// tags doesn't use value
+						cmp.setPlaceholder("").setDisabled(true);
+						cmp.inputEl.classList.add("better-properties-mod-disabled");
+						setTooltip(
+							cmp.inputEl,
+							'The "Tags" field doesn\'t use a field value'
+						);
+					}
+
+					cmp.inputEl.classList.add(
+						"better-properties-text-list-component-input"
+					);
+					if (!shouldFocus) return;
+					cmp.inputEl.focus();
+				});
+			return cmp;
+		};
+
+		let fieldValueText: TextComponent;
+		new DropdownComponent(controlEl)
+			.addOptions(fieldTypeOptions)
+			.setValue(type)
+			.onChange((v) => {
+				const newValue = v as Field["type"];
+				this.updateItemValue(
+					(oldValue) => ({ ...oldValue, type: newValue } as Field),
+					index
+				);
+				const cmp = renderFieldValueText(newValue);
+				cmp.setValue("");
+				fieldValueText.inputEl.replaceWith(cmp.inputEl);
+				fieldValueText = cmp;
+			})
+			.then((cmp) => setTooltip(cmp.selectEl, "Field type"));
+
+		fieldValueText = renderFieldValueText(type);
+
+		new TextComponent(controlEl)
+			.setValue(alias)
+			.onChange((v) =>
+				this.updateItemValue((old) => ({ ...old, alias: v }), index)
+			)
+			.then((cmp) => {
+				setTooltip(cmp.inputEl, "Field alias");
+			});
+
+		// TODO set up additional options
+		// new ExtraButtonComponent(controlEl)
+		// 	.setIcon('settings')
+		// 	.setTooltip("Additional options")
+		// 	.onClick(() => {
+		// 		const modal = new Modal(app);
+		// 		modal.onOpen = () => {
+		// 			const {contentEl} = modal;
+		// 			contentEl.empty();
+		// 			new Setting(contentEl)
+		// 				.setName("")
+		// 		}
+		// 	})
+
+		// this.addMoveUpButton(setting, index);
+		// this.addMoveDownButton(setting, index);
+		this.addDeleteButton(setting, index);
+	}
+
+	public createSortAlphabetical(): this {
+		this.toolbarSetting.addButton((cmp) =>
+			cmp
+				.setIcon("sort-asc")
+				.setClass("clickable-icon")
+				.setTooltip(obsidianText("plugins.file-explorer.action-change-sort"))
+				.onClick((e) => {
+					new Menu()
+						.addItem((item) =>
+							item
+								.setTitle("Field value (A to Z)")
+								.onClick(() =>
+									this.setValue(
+										this.items.toSorted((a, b) => compareFunc(a.value, b.value))
+									)
+								)
+						)
+						.addItem((item) =>
+							item
+								.setTitle("Field value (Z to A)")
+								.onClick(() =>
+									this.setValue(
+										this.items.toSorted((a, b) => compareFunc(b.value, a.value))
+									)
+								)
+						)
+						.showAtMouseEvent(e);
+				})
+		);
+		return this;
+	}
+}
+
+class FolderListComponent extends ListComponent<string> {
+	constructor(
+		private app: App,
+		containerEl: HTMLElement,
+		defaultItemValue: string,
+		items?: string[]
+	) {
+		super(containerEl, defaultItemValue, items);
+	}
+
+	renderItem(
+		value: string,
+		setting: Setting,
+		index: number,
+		shouldFocus: boolean
+	): void {
+		setting.controlEl.appendChild(
+			createDragHandle({
+				containerEl: setting.settingEl,
+				index,
+				items: this.items,
+				itemsContainerEl: this.itemsContainerEl,
+				onDragEnd: (items, from, to) =>
+					this.setValueHighlight(arrayMove(items, from, to), to),
+				dragStyle: "indicator",
+			})
+		);
+		new SearchComponent(setting.controlEl)
+			.setValue(value)
+			.onChange((v) => this.updateItemValue(v, index))
+			.then((cmp) => {
+				new FolderSuggest(this.app, cmp);
+				cmp.inputEl.classList.add(
+					"better-properties-text-list-component-input"
+				);
+				if (!shouldFocus) return;
+				cmp.inputEl.focus();
+			});
+		// this.addMoveUpButton(setting, index);
+		// this.addMoveDownButton(setting, index);
+		this.addDeleteButton(setting, index);
+	}
+
+	public createSortAlphabetical(): this {
+		this.toolbarSetting.addButton((cmp) =>
+			cmp
+				.setIcon("sort-asc")
+				.setClass("clickable-icon")
+				.setTooltip(obsidianText("plugins.file-explorer.action-change-sort"))
+				.onClick((e) => {
+					new Menu()
+						.addItem((item) =>
+							item
+								.setTitle("Folder name (A to Z)")
+								.onClick(() =>
+									this.setValue(
+										this.items.toSorted((a, b) => compareFunc(a, b))
+									)
+								)
+						)
+						.addItem((item) =>
+							item
+								.setTitle("Folder name (Z to A)")
+								.onClick(() =>
+									this.setValue(
+										this.items.toSorted((a, b) => compareFunc(b, a))
+									)
+								)
+						)
+						.showAtMouseEvent(e);
+				})
+		);
+		return this;
+	}
+}
+
+class EmbedSuggest extends InputSuggest<{ subpath: string; level?: number }> {
+	getHeadings(query: string): { subpath: string; level?: number }[] {
+		const lowerQuery = query.toLowerCase();
+		const discarded = new Set<string>();
+		const included = new Map<string, { subpath: string; level?: number }>();
+
+		Object.values(this.app.metadataCache.metadataCache).forEach((meta) => {
+			meta.headings?.forEach(({ heading, level }) => {
+				if (discarded.has(heading) || included.has(heading)) return;
+				// NOT case sensitive
+				if (!heading.toLowerCase().includes(lowerQuery)) {
+					discarded.add(heading);
+					return;
+				}
+				included.set(heading, { subpath: heading, level });
+			});
+		});
+
+		return Array.from(included.values());
+	}
+
+	getBlocks(query: string): { subpath: string; level?: number }[] {
+		const discarded = new Set<string>();
+		const included = new Map<string, { subpath: string; level?: number }>();
+
+		Object.values(this.app.metadataCache.metadataCache).forEach((meta) => {
+			if (!meta.blocks) return;
+			Object.keys(meta.blocks).forEach((id) => {
+				if (discarded.has(id) || included.has(id)) return;
+				// IS case sensitive
+				if (!id.includes(query)) {
+					discarded.add(id);
+					return;
+				}
+				included.set(id, { subpath: id });
+			});
+		});
+
+		return Array.from(included.values());
+	}
+
+	protected getSuggestions(
+		query: string
+	): { subpath: string; level?: number }[] {
+		if (!query) return [];
+		const char = query.charAt(0);
+		const trueQuery = query.slice(1);
+		if (!(char === "#" || char === "^")) return [];
+		const arr =
+			char === "#" ? this.getHeadings(trueQuery) : this.getBlocks(trueQuery);
+		return arr;
+	}
+
+	protected parseSuggestion(value: {
+		subpath: string;
+		level?: number;
+	}): Suggestion {
+		return {
+			title: value.subpath,
+			aux: value.level !== undefined ? "H" + value.level : undefined,
+		};
+	}
+
+	protected onRenderSuggestion(): void {}
+
+	selectSuggestion(
+		value: { subpath: string; level?: number },
+		evt: MouseEvent | KeyboardEvent
+	): void {
+		const prefix = value.level === undefined ? "^" : "#";
+		this.component.setValue(prefix + value.subpath);
+		this.component.onChanged();
+	}
+}
+
+class FileDataSuggest extends InputSuggest<string> {
+	protected getSuggestions(query: string): string[] | Promise<string[]> {
+		const suggestions = [...fileDataColumnValueOptions];
+		if (!query) return suggestions;
+		return suggestions.filter((s) => s.includes(query));
+	}
+
+	protected parseSuggestion(value: string): Suggestion {
+		return {
+			title: value,
+		};
+	}
+
+	protected onRenderSuggestion(): void {}
+
+	selectSuggestion(value: string, _evt: MouseEvent | KeyboardEvent): void {
+		this.component.setValue(value);
+		this.component.onChanged();
+	}
+}
+
+type ParseBlockConfig = (source: string) => BlockConfig;
+const parseBlockConfig: ParseBlockConfig = (source) => {
+	const defaultConfig: BlockConfig = {
+		fields: [],
+		filters: [],
+		folder: "",
+		excludedFolders: [],
+		sorter: {
+			asc: true,
+			type: "fileData",
+			value: "file-name" as FileDataField["value"],
+			label: "By file name (A to Z)",
+		},
+		pageNumber: 1,
+		pageSize: 10,
+	};
+
+	const parsed = tryParseYaml(source);
+	if (!parsed.success) {
+		console.log("Failed to parse YAML block config... reverting to default");
+		return { ...defaultConfig };
+	}
+	return { ...defaultConfig, ...(parsed.data as BlockConfig) };
 };
 
 const renderView = ({
@@ -364,27 +858,62 @@ const renderView = ({
 	el: HTMLElement;
 	ctx: MarkdownPostProcessorContext;
 }) => {
-	replaceEditBlockButton(el.parentElement!);
+	const saveBlockConfig = async (newConfig: BlockConfig) => {
+		const file = plugin.app.vault.getFileByPath(ctx.sourcePath);
+		if (!file) {
+			console.error(
+				"Failed to update block. File not found at: ",
+				ctx.sourcePath
+			);
+			return;
+		}
+		const stringified = stringifyYaml(newConfig);
+		const chars = stringified.split("");
+		// stringifyYaml adds an extra new line character at the end of the string
+		chars.pop();
+		const finalStr = chars.join("");
+		await plugin.app.vault.process(file, (content) => {
+			const lines = content.split("\n");
+			const info = ctx.getSectionInfo(el);
+			if (!info) {
+				console.error(
+					`Failed to update block. Section info returned null.\nctx: ${ctx}\nel: ${el}`
+				);
+				return content;
+			}
+			const { lineStart, lineEnd } = info;
+			const start = lineStart + 1;
+			lines.splice(start, lineEnd - start, finalStr);
+			const newContent = lines.join("\n");
+			return newContent;
+		});
+	};
+
+	replaceEditBlockButton(el.parentElement!, (e, existingButton) => {
+		const menu = new Menu()
+			.addItem((item) =>
+				item
+					.setIcon("code-2")
+					.setTitle(obsidianText("interface.menu.edit"))
+					.onClick(() => existingButton.click())
+			)
+			.addItem((item) =>
+				item
+					.setIcon("settings")
+					.setTitle("Configure")
+					.onClick(() =>
+						openConfigurationModal({ plugin, blockConfig, saveBlockConfig })
+					)
+			);
+
+		menu.showAtMouseEvent(e);
+	});
 
 	const items: FileItem[] = [];
 
-	// TODO parse from source
-	const blockConfig: BlockConfig = {
-		columnAccessors: [
-			{ type: "fileData", alias: "", value: "file-link" },
-			{ type: "tags", alias: "Body tags", value: "" },
-			{ type: "property", alias: "Property tags", value: "tags" },
-		],
-		filters: [],
-		folder: "02 Projects",
-		excludedFolders: [],
-		sorter: (a, b) => compareFunc(a.file.basename, b.file.basename),
-		pageNumber: 1,
-		pageSize: 10,
-	};
-
+	const blockConfig = parseBlockConfig(source);
 	const {
-		columnAccessors,
+		fields,
 		filters,
 		folder,
 		excludedFolders,
@@ -393,13 +922,20 @@ const renderView = ({
 		pageSize,
 	} = blockConfig;
 
+	if (!fields.length) {
+		return renderBlankView(el, () =>
+			openConfigurationModal({ plugin, blockConfig, saveBlockConfig })
+		);
+	}
+
 	const {
 		app: { vault, metadataCache },
 	} = plugin;
 	const allFiles = vault.getMarkdownFiles();
 
-	const { tableHeadRowEl, tableBodyEl, containerEl } = createInitialEls();
-	renderHeaders(plugin, columnAccessors, tableHeadRowEl);
+	const { tableHeadRowEl, tableBodyEl, containerEl, bottomToolbarEl } =
+		createInitialEls();
+	renderHeaders({ plugin, tableHeadRowEl, blockConfig, saveBlockConfig });
 	addMatchingItems({
 		items,
 		allFiles,
@@ -408,22 +944,165 @@ const renderView = ({
 		folder,
 		excludedFolders,
 	});
-	items.sort(sorter);
-	console.log("filtered and sorted: ", items);
+	items.sort(parseSorter(sorter));
 	const paginatedItems = getPaginatedItems(items, pageNumber, pageSize);
-	console.log("paginated: ", paginatedItems);
 	renderRows({
 		plugin,
 		mdrc,
 		ctx,
 		paginatedItems,
 		tableBodyEl,
-		columnAccessors,
+		fields,
 	});
+
+	const getTotalPages = (pageSize: number, totalItems: number) => {
+		if (pageSize <= 0) return 1;
+		return Math.ceil(totalItems / pageSize);
+	};
+
+	const createToolbar = (
+		toolbarEl: HTMLElement,
+		pageNumber: number,
+		pageSize: number,
+		totalItems: number
+	) => {
+		const totalPages = getTotalPages(pageSize, totalItems);
+		const getResultsText = () => {
+			if (pageSize <= 0) return totalItems + " results";
+			const start = (pageNumber - 1) * pageSize;
+			const end = Math.min(totalItems, pageNumber * pageSize);
+			return `${start + 1} - ${end} of ${totalItems} results`;
+		};
+
+		const navigate = async (page: number) => {
+			blockConfig.pageNumber = page;
+			await saveBlockConfig(blockConfig);
+		};
+
+		toolbarEl.createSpan({ text: getResultsText(), cls: "clickable-icon" });
+		const paginationContainer = toolbarEl.createDiv({
+			cls: "better-properties-metaview-pagination-container",
+		});
+		paginationContainer.createSpan(
+			{
+				cls: "clickable-icon",
+			},
+			(el) => {
+				setIcon(el, "chevron-first");
+				setTooltip(el, "First");
+				el.addEventListener("click", async () => await navigate(1));
+			}
+		);
+		paginationContainer.createSpan(
+			{
+				cls: "clickable-icon",
+			},
+			(el) => {
+				setIcon(el, "chevron-left");
+				setTooltip(el, "Previous");
+				el.addEventListener(
+					"click",
+					async () => await navigate(Math.max(1, pageNumber - 1))
+				);
+			}
+		);
+		paginationContainer.createSpan({
+			text: pageNumber.toString(),
+			cls: "clickable-icon",
+		});
+		paginationContainer.createSpan({
+			text: "of",
+			cls: "clickable-icon mod-non-interactive",
+		});
+		paginationContainer.createSpan({
+			text: totalPages.toString(),
+			cls: "clickable-icon mod-non-interactive",
+		});
+		paginationContainer.createSpan({ cls: "clickable-icon" }, (el) => {
+			setIcon(el, "chevron-right");
+			setTooltip(el, "Next");
+			el.addEventListener(
+				"click",
+				async () => await navigate(Math.min(totalPages, pageNumber + 1))
+			);
+		});
+		paginationContainer.createSpan({ cls: "clickable-icon" }, (el) => {
+			setIcon(el, "chevron-last");
+			setTooltip(el, "Last");
+			el.addEventListener("click", async () => await navigate(totalPages));
+		});
+	};
+
+	createToolbar(bottomToolbarEl, pageNumber, pageSize, items.length);
 
 	el.empty();
 	el.appendChild(containerEl);
-	console.log("container: ", containerEl);
+};
+
+type ParseSorter = (sorter: Sorter) => (a: FileItem, b: FileItem) => number;
+const parseSorter: ParseSorter = (sorter) => {
+	if (sorter.type === "custom") {
+		const parsed = tryEval(sorter.func);
+		if (parsed.success) {
+			console.log("eval result: ", parsed.result);
+			return parsed.result as () => number;
+		}
+		console.error(parsed.error);
+		return () => 0;
+	}
+
+	// TODO parse for other types
+	return () => 0;
+};
+
+type ParseFilter = (
+	filter: Filter
+) => (file: TFile, metadata: CachedMetadata | null) => boolean;
+const parseFilter: ParseFilter = (filter) => {
+	if (filter.type === "custom") {
+		const parsed = tryEval(filter.func);
+		if (parsed.success) {
+			return parsed.result as () => boolean;
+		}
+		console.error(parsed.error);
+		return () => true;
+	}
+
+	// TODO parse for other types
+	return () => true;
+};
+
+const renderBlankView = (el: HTMLElement, btnCallback: () => void) => {
+	const container = el.createDiv({
+		cls: "better-properties-metaview-blank-container",
+	});
+	container.createEl("h4", {
+		text: "MetaView",
+		cls: "better-properties-metaview-blank-container-title",
+	});
+	const descEl = container.createDiv({
+		cls: "better-properties-metaview-blank-container-desc",
+	});
+	descEl.createDiv({ text: "Click the button below to get started!" });
+	descEl.createDiv({
+		text: 'Click the "settings" button for this block for more options.',
+	});
+	container
+		.createDiv({
+			cls: "better-properties-metaview-blank-container-btn-container",
+		})
+		.createEl("button", {
+			text: "Configure view",
+			cls: "better-properties-metaview-blank-container-btn",
+		})
+		.addEventListener("click", btnCallback);
+
+	container.createEl("a", {
+		text: "docs",
+		// TODO link to specific section
+		href: "https://github.com/unxok/obsidian-better-properties",
+	});
+	container.createEl("br");
 };
 
 const createInitialEls = () => {
@@ -432,6 +1111,9 @@ const createInitialEls = () => {
 	});
 	const contentEl = containerEl.createDiv({
 		cls: "better-properties-metaview-content",
+	});
+	const bottomToolbarEl = containerEl.createDiv({
+		cls: "better-properties-metaview-toolbar",
 	});
 	const tableEl = contentEl.createEl("table", {
 		cls: "better-properties-metaview-table",
@@ -448,6 +1130,7 @@ const createInitialEls = () => {
 	return {
 		containerEl,
 		contentEl,
+		bottomToolbarEl,
 		tableEl,
 		tableHeadEl,
 		tableHeadRowEl,
@@ -455,28 +1138,78 @@ const createInitialEls = () => {
 	};
 };
 
-const renderHeaders = (
-	plugin: BetterProperties,
-	columnAccessors: ColumnAccessor[],
-	tableHeadRowEl: HTMLElement
-) => {
-	for (let i = 0; i < columnAccessors.length; i++) {
-		const col = columnAccessors[i];
-		const display = col.alias
-			? col.alias
-			: col.type === "tags"
+const renderHeaders = ({
+	plugin,
+	tableHeadRowEl,
+	blockConfig,
+	saveBlockConfig,
+}: {
+	plugin: BetterProperties;
+	tableHeadRowEl: HTMLElement;
+	blockConfig: BlockConfig;
+	saveBlockConfig: SaveBlockConfig;
+}) => {
+	const { fields } = blockConfig;
+	for (let i = 0; i < fields.length; i++) {
+		const field = fields[i];
+		const display = field.alias
+			? field.alias
+			: field.type === "tags"
 			? "tags"
-			: col.value;
+			: field.value;
 		const th = tableHeadRowEl.createEl("th", {
 			cls: "better-properties-metaview-table-header",
 		});
+
+		const setColWidthVar = (n: number) => {
+			th.style.setProperty("--col-width", n + "px");
+		};
+
+		if (field.colWidth) {
+			const n = toNumberNotNaN(field.colWidth, 1);
+			setColWidthVar(n < 0 ? 0 : n);
+		}
+
+		th.createDiv(
+			{
+				cls: "better-properties-metaview-table-resizer",
+			},
+			(el) => {
+				el.addEventListener("dblclick", () => {
+					delete field.colWidth;
+					saveBlockConfig(blockConfig);
+				});
+
+				el.addEventListener("mousedown", (e) => {
+					el.classList.add("better-properties-mod-is-dragging");
+					let lastPos = e.clientX;
+					let lastWidth = field.colWidth ?? th.getBoundingClientRect().width;
+					const onMouseMove = (e: MouseEvent) => {
+						const diff = e.clientX - lastPos;
+						lastWidth += diff;
+						setColWidthVar(lastWidth < 0 ? 0 : lastWidth);
+						lastPos = e.clientX;
+					};
+					const onMouseUp = async (e: MouseEvent) => {
+						el.classList.remove("better-properties-mod-is-dragging");
+						field.colWidth = lastWidth;
+						await saveBlockConfig(blockConfig);
+						document.removeEventListener("mousemove", onMouseMove);
+						document.removeEventListener("mouseup", onMouseUp);
+					};
+
+					document.addEventListener("mousemove", onMouseMove);
+					document.addEventListener("mouseup", onMouseUp);
+				});
+			}
+		);
 		const wrapper = th.createDiv({
 			cls: "better-properties-metaview-table-header-wrapper",
 		});
 		const iconEl = wrapper.createSpan({
 			cls: "better-properties-metaview-table-header-icon",
 		});
-		setIcon(iconEl, getIconName(plugin, col));
+		setIcon(iconEl, getIconName(plugin, field));
 		wrapper.createSpan({
 			text: display,
 			cls: "better-properties-metaview-table-header-name",
@@ -484,7 +1217,7 @@ const renderHeaders = (
 	}
 };
 
-const getIconName = (plugin: BetterProperties, col: ColumnAccessor) => {
+const getIconName = (plugin: BetterProperties, col: Field) => {
 	if (col.type === "fileData") return "file";
 	if (col.type === "property") {
 		const customIcon = plugin.getPropertySetting(col.value)?.general
@@ -531,7 +1264,9 @@ const addMatchingItems = ({
 		}
 
 		const metadata = metadataCache.getFileCache(file);
-		const hasFailedFilter = filters.some((filter) => !filter(file, metadata));
+		const hasFailedFilter = filters.some(
+			(filter) => !parseFilter(filter)(file, metadata)
+		);
 		// don't add if one of the filters returns false
 		if (hasFailedFilter) continue;
 
@@ -547,6 +1282,7 @@ const getPaginatedItems = (
 	pageNumber: number,
 	pageSize: number
 ) => {
+	if (pageSize <= 0) return items;
 	const truePageSize = Math.floor(pageSize);
 	// unneccessary +/- 1's are for sake of readability
 	const pageIndex = clampNumber(pageNumber - 1, 0, Number.MAX_SAFE_INTEGER);
@@ -561,21 +1297,21 @@ const renderRows = ({
 	ctx,
 	paginatedItems,
 	tableBodyEl,
-	columnAccessors,
+	fields,
 }: {
 	plugin: BetterProperties;
 	mdrc: MarkdownRenderChild;
 	ctx: MarkdownPostProcessorContext;
 	paginatedItems: FileItem[];
 	tableBodyEl: HTMLElement;
-	columnAccessors: ColumnAccessor[];
+	fields: Field[];
 }) => {
 	for (let i = 0; i < paginatedItems.length; i++) {
 		const item = paginatedItems[i];
 		const tr = tableBodyEl.createEl("tr", {
 			cls: "better-properties-metaview-table-row",
 		});
-		columnAccessors.forEach((col) => {
+		fields.forEach((col) => {
 			const td = tr.createEl("td", {
 				cls: "better-properties-metaview-table-cell",
 			});
@@ -594,7 +1330,7 @@ const renderRows = ({
 	}
 };
 
-type RenderCellArgs<T extends ColumnAccessor = ColumnAccessor> = {
+type RenderCellArgs<T extends Field = Field> = {
 	plugin: BetterProperties;
 	mdrc: MarkdownRenderChild;
 	ctx: MarkdownPostProcessorContext;
@@ -605,11 +1341,11 @@ type RenderCellArgs<T extends ColumnAccessor = ColumnAccessor> = {
 const renderCell = (args: RenderCellArgs) => {
 	switch (args.col.type) {
 		case "fileData":
-			return renderFileDataCell(args as RenderCellArgs<FileDataColumn>);
+			return renderFileDataCell(args as RenderCellArgs<FileDataField>);
 		case "property":
-			return renderPropertyCell(args as RenderCellArgs<PropertyColumn>);
+			return renderPropertyCell(args as RenderCellArgs<PropertyField>);
 		case "tags":
-			return renderTagsCell(args as RenderCellArgs<TagsColumn>);
+			return renderTagsCell(args as RenderCellArgs<TagsField>);
 	}
 };
 
@@ -617,7 +1353,7 @@ const renderFileDataCell = ({
 	wrapperEl,
 	item: { file },
 	col,
-}: RenderCellArgs<FileDataColumn>) => {
+}: RenderCellArgs<FileDataField>) => {
 	wrapperEl.classList.add("mod-filedata");
 	switch (col.value) {
 		case "file-link":
@@ -646,7 +1382,7 @@ const renderPropertyCell = ({
 	col,
 	item: { file, metadata },
 	wrapperEl,
-}: RenderCellArgs<PropertyColumn>) => {
+}: RenderCellArgs<PropertyField>) => {
 	const {
 		app: { metadataTypeManager, fileManager },
 	} = plugin;
@@ -697,7 +1433,7 @@ const renderTagsCell = ({
 	col,
 	item: { metadata },
 	wrapperEl,
-}: RenderCellArgs<TagsColumn>) => {
+}: RenderCellArgs<TagsField>) => {
 	const tagContainer = wrapperEl.createDiv({
 		cls: "better-properties-metaview-tags-container",
 	});
@@ -716,7 +1452,10 @@ const renderTagsCell = ({
 	});
 };
 
-const replaceEditBlockButton = (el: HTMLElement) => {
+const replaceEditBlockButton = (
+	el: HTMLElement,
+	openMenu: (e: MouseEvent, existingButton: HTMLElement) => void
+) => {
 	window.setTimeout(() => {
 		const newButton = createDiv({
 			cls: "edit-block-button",
@@ -730,16 +1469,7 @@ const replaceEditBlockButton = (el: HTMLElement) => {
 		if (!existingButton) {
 			throw new Error("Could not find 'edit block button' div");
 		}
-		newButton.addEventListener("click", (e) => {
-			const menu = new Menu().addItem((item) =>
-				item
-					.setIcon("code-2")
-					.setTitle(obsidianText("plugins.properties.action-edit"))
-					.onClick(() => existingButton.click())
-			);
-
-			menu.showAtMouseEvent(e);
-		});
+		newButton.addEventListener("click", (e) => openMenu(e, existingButton));
 
 		setIcon(newButton, "settings");
 

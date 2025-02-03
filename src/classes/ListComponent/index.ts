@@ -23,7 +23,8 @@ export abstract class ListComponent<T> extends ValueComponent<T[]> {
 		super();
 		this.itemsContainerEl = containerEl.createDiv();
 		this.toolbarSetting = new Setting(containerEl.createDiv());
-		this.renderItems();
+		// if additional properties are added in the constructor than this will run before those are attached to the instance
+		// this.renderItems();
 	}
 
 	abstract renderItem(
@@ -72,7 +73,7 @@ export abstract class ListComponent<T> extends ValueComponent<T[]> {
 		return this;
 	}
 
-	protected renderItems(movedIndex?: number): this {
+	public renderItems(movedIndex?: number): this {
 		this.itemsContainerEl.empty();
 		this.items.forEach((value, index) => {
 			const setting = new Setting(this.itemsContainerEl).then((s) =>

@@ -1,4 +1,5 @@
 import { PropertySettings } from "@/PropertySettings";
+import { unknown } from "zod";
 
 /**
  * Move an item in an array from one index to another
@@ -138,3 +139,32 @@ export const toFirstUpperCase = (s: string) => {
 };
 
 export const unsafeEval = eval;
+
+export function tryEval<T = unknown>(
+	x: string
+): { success: true; result: T } | { success: false; error: string } {
+	try {
+		const result = eval(x) as T;
+		return {
+			success: true,
+			result,
+		};
+	} catch (e) {
+		const error =
+			typeof e === "string"
+				? e
+				: e instanceof Error
+				? e.message
+				: "unknown error";
+		return {
+			success: false,
+			error,
+		};
+	}
+}
+
+export const toNumberNotNaN = (s: unknown, fallback?: number) => {
+	const n = Number(s);
+	if (Number.isNaN(n)) return fallback ?? 0;
+	return n;
+};
