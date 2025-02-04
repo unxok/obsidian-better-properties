@@ -1,5 +1,4 @@
 import { PropertySettings } from "@/PropertySettings";
-import { unknown } from "zod";
 
 /**
  * Move an item in an array from one index to another
