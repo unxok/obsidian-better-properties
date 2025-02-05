@@ -109,6 +109,7 @@ export const renderMetaView = ({
 		totalItems: items.length,
 		blockConfig,
 		saveBlockConfig,
+		plugin,
 	});
 
 	// elements are attched to the codeblock element once they are *all* finished
