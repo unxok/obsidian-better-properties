@@ -1,7 +1,6 @@
 import {
 	AbstractInputSuggest,
 	App,
-	ColorComponent,
 	DropdownComponent,
 	Keymap,
 	Menu,
@@ -14,7 +13,6 @@ import {
 } from "obsidian";
 import {
 	CreatePropertySettings,
-	defaultPropertySettings,
 	PropertySettings,
 	PropertySettingsSchema,
 } from "@/PropertySettings";
@@ -37,18 +35,9 @@ export const widget: CustomTypeWidget = {
 	name: () => text("typeWidgets.dropdown.name"),
 	validate: (v) => typeof v?.toString() === "string",
 	render: (plugin, el, data, ctx) => {
-		// const { options, dynamicFileJs, dynamicInlineJs } = plugin.settings
-		// 	.propertySettings[data.key.toLowerCase()]?.[typeKey] ?? {
-		// 	...defaultPropertySettings[typeKey],
-		// };
+		const { options, dynamicFileJs, dynamicInlineJs } =
+			plugin.getPropertySetting(data.key)[typeKey];
 
-		const config = plugin.getPropertySetting(data.key)[typeKey];
-		console.log(`${data.key} ${typeKey} config: `, config);
-
-		const { options, dynamicFileJs, dynamicInlineJs } = config;
-		// const container = el.createDiv({
-		// 	cls: "metadata-input-longtext better-properties-dropdown-container",
-		// });
 		const container = el;
 
 		const dropdown = new DropdownComponent(container);
@@ -518,7 +507,7 @@ class OptionList extends ListComponent<Option> {
 				index,
 				items: this.items,
 				itemsContainerEl: this.itemsContainerEl,
-				onDragEnd: (value, config, indexTo) => {
+				onDragEnd: (value, _config, indexTo) => {
 					this.setValueHighlight(arrayMove(value, index, indexTo), indexTo);
 				},
 			})

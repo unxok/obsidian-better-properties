@@ -1,16 +1,5 @@
-import {
-	Menu,
-	ProgressBarComponent,
-	setIcon,
-	Setting,
-	stringifyYaml,
-	TextComponent,
-} from "obsidian";
-import {
-	CreatePropertySettings,
-	defaultPropertySettings,
-	PropertySettings,
-} from "@/PropertySettings";
+import { Menu, setIcon, Setting, stringifyYaml, TextComponent } from "obsidian";
+import { CreatePropertySettings } from "@/PropertySettings";
 import { CustomTypeWidget, WidgetAndSettings } from "..";
 import { createSection } from "@/libs/utils/setting";
 import { text } from "@/i18Next";
@@ -19,10 +8,7 @@ import { obsidianText } from "@/i18Next/defaultObsidian";
 import { tryParseYaml } from "@/libs/utils/obsidian";
 import { createDragHandle } from "@/libs/utils/drag";
 import { arrayMove } from "@/libs/utils/pure";
-import {
-	NestedPropertySuggest,
-	PropertySuggest,
-} from "@/classes/PropertySuggest";
+import { NestedPropertySuggest } from "@/classes/PropertySuggest";
 
 // TODO Allow selecting nested properties to do clipboard actions like obsidian allows
 
@@ -35,10 +21,8 @@ export const widget: CustomTypeWidget = {
 	name: () => text("typeWidgets.group.name"),
 	validate: (v) => typeof v === "object",
 	render: (plugin, el, data, ctx) => {
-		const { headerText, showIndentationLines, showAddButton } = plugin.settings
-			.propertySettings[data.key.toLowerCase()]?.[typeKey] ?? {
-			...defaultPropertySettings[typeKey],
-		};
+		const { headerText, showIndentationLines, showAddButton } =
+			plugin.getPropertySetting(data.key)[typeKey];
 
 		el.style.setProperty("--metadata-input-background-active", "transparent");
 

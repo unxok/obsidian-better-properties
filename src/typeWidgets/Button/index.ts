@@ -4,12 +4,8 @@ import { dangerousEval, getButtonStyledClass } from "@/libs/utils/pure";
 import { IconSuggest } from "@/classes/IconSuggest";
 import { TextColorComponent } from "@/classes/TextColorComponent";
 import { createSection } from "@/libs/utils/setting";
-import BetterProperties from "@/main";
-import {
-	CreatePropertySettings,
-	defaultPropertySettings,
-	PropertySettings,
-} from "@/PropertySettings";
+
+import { CreatePropertySettings } from "@/PropertySettings";
 import { text } from "@/i18Next";
 
 const typeKey: CustomTypeWidget["type"] = "button";
@@ -29,9 +25,7 @@ export const widget: CustomTypeWidget = {
 			textColor,
 			callbackType,
 			cssClass,
-		} = plugin.settings.propertySettings[data.key.toLowerCase()]?.[typeKey] ?? {
-			...defaultPropertySettings[typeKey],
-		};
+		} = plugin.getPropertySetting(data.key)[typeKey];
 
 		const container = el.createDiv({
 			cls: "metadata-input-longtext",

@@ -40,11 +40,7 @@ export const widget: CustomTypeWidget<string> = {
 	name: () => text("typeWidgets.relation.name"),
 	validate: (v) => typeof v === "string",
 	render: (plugin, el, data, ctx) => {
-		const { relatedProperty } = plugin.settings.propertySettings[
-			data.key.toLowerCase()
-		]?.[typeKey] ?? {
-			...defaultPropertySettings[typeKey],
-		};
+		const { relatedProperty } = plugin.getPropertySetting(data.key)[typeKey];
 		// const container = el.createDiv({
 		// 	cls: "better-properties-relation-container",
 		// });

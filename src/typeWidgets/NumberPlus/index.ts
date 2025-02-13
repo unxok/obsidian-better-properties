@@ -18,11 +18,9 @@ export const widget: CustomTypeWidget = {
 	name: () => text("typeWidgets.numberPlus.name"),
 	validate: (v) => !Number.isNaN(Number(v)),
 	render: (plugin, el, data, ctx) => {
-		const { min, max, step, validate } = plugin.settings.propertySettings[
-			data.key.toLowerCase()
-		]?.[typeKey] ?? {
-			...defaultPropertySettings[typeKey],
-		};
+		const { min, max, step, validate } = plugin.getPropertySetting(data.key)[
+			typeKey
+		];
 		const doValidation = (num: number) => {
 			if (!validate) return num;
 			if (num < min) return min;

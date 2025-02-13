@@ -20,11 +20,7 @@ export const widget: CustomTypeWidget = {
 	name: () => text("typeWidgets.stars.name"),
 	validate: (v) => !Number.isNaN(Number(v)),
 	render: (plugin, el, data, ctx) => {
-		const { customIcon, max } = plugin.settings.propertySettings[
-			data.key.toLowerCase()
-		]?.[typeKey] ?? {
-			...defaultPropertySettings[typeKey],
-		};
+		const { customIcon, max } = plugin.getPropertySetting(data.key)[typeKey];
 
 		const container = el.createDiv({
 			cls: "metadata-input-longtext",

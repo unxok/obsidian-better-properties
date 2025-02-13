@@ -7,11 +7,11 @@ import { findKeyInsensitive } from "@/libs/utils/pure";
 export const addRename = ({
 	plugin,
 	menu,
-	files,
+	files: _files,
 	key,
 }: MetadataAddItemProps) => {
 	const { app } = plugin;
-	const { metadataTypeManager, fileManager, vault } = app;
+	const { metadataTypeManager } = app;
 	menu.addItem((item) =>
 		item
 			.setSection(metdataSectionId)

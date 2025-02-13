@@ -17,11 +17,9 @@ export const widget: CustomTypeWidget = {
 	name: () => text("typeWidgets.slider.name"),
 	validate: (v) => !Number.isNaN(Number(v)),
 	render: (plugin, el, data, ctx) => {
-		const { min, max, step, showLabels } = plugin.settings.propertySettings[
-			data.key.toLowerCase()
-		]?.[typeKey] ?? {
-			...defaultPropertySettings[typeKey],
-		};
+		const { min, max, step, showLabels } = plugin.getPropertySetting(data.key)[
+			typeKey
+		];
 		const container = el
 			.createDiv({
 				// cls: "metadata-input-longtext",

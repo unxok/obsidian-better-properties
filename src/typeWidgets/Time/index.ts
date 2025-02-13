@@ -18,11 +18,7 @@ export const widget: CustomTypeWidget = {
 	name: () => text("typeWidgets.time.name"),
 	validate: (v) => !!moment(v?.toString() ?? "", true), // this doesn't work I think
 	render: (plugin, el, data, ctx) => {
-		const {} = plugin.settings.propertySettings[data.key.toLowerCase()]?.[
-			typeKey
-		] ?? {
-			...defaultPropertySettings[typeKey],
-		};
+		const {} = plugin.getPropertySetting(data.key)[typeKey];
 		const container = el.createDiv({
 			cls: "better-properties-time-container",
 		});
