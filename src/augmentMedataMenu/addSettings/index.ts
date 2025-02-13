@@ -1,13 +1,8 @@
-import {
-	metdataSectionId,
-	typeKeySuffixes,
-	typeWidgetPrefix,
-} from "@/libs/constants";
+import { metdataSectionId, typeWidgetPrefix } from "@/libs/constants";
 import { MetadataAddItemProps } from "..";
-import { App, Modal, SearchComponent, Setting, TextComponent } from "obsidian";
+import { App, SearchComponent, Setting } from "obsidian";
 import BetterProperties from "@/main";
-import { IconSuggest } from "@/classes/IconSuggest";
-import { TextColorComponent } from "@/classes/TextColorComponent";
+
 import {
 	defaultPropertySettings,
 	PropertySettings,
@@ -15,9 +10,7 @@ import {
 } from "@/PropertySettings";
 import { ConfirmationModal } from "@/classes/ConfirmationModal";
 import { text } from "@/i18Next";
-import { createSection, searchSettings } from "@/libs/utils/setting";
-import { ListComponent, TextListComponent } from "@/classes/ListComponent";
-import { obsidianText } from "@/i18Next/defaultObsidian";
+
 import { SidebarModal } from "@/classes/SidebarModal";
 import { allWidgetsAndSettings } from "@/typeWidgets";
 
@@ -492,6 +485,10 @@ export class PropertySettingsModal extends SidebarModal {
 				[key]: value,
 			},
 		}));
+	}
+
+	onClose(): void {
+		this.plugin.refreshPropertyEditor(this.property);
 	}
 
 	onOpen(): void {

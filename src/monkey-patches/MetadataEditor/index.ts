@@ -3,7 +3,14 @@ import { monkeyAroundKey } from "@/libs/constants";
 import { text } from "@/i18Next";
 import BetterProperties from "@/main";
 import { around, dedupe } from "monkey-around";
-import { WorkspaceLeaf, setIcon, Menu, Plugin, TFile } from "obsidian";
+import {
+	WorkspaceLeaf,
+	setIcon,
+	Menu,
+	Plugin,
+	TFile,
+	MarkdownView,
+} from "obsidian";
 import { MetadataEditor } from "obsidian-typings";
 import { SynchronizeModal } from "@/classes/SyncProperties";
 
@@ -246,93 +253,62 @@ const patchLoad = (
 	});
 };
 
-// Might be useful later but not needed right now
-// export const getMetdataEditorPrototype = (plugin: Plugin) => {
-// 	const { app } = plugin;
-// 	app.workspace.onLayoutReady(() => {
-// 		const leaf = app.workspace.getLeaf("tab");
-// 		// const view = app.viewRegistry.viewByType["markdown"]({
-// 		// 	containerEl: createDiv(),
-// 		// 	app: app,
-// 		// } as unknown as WorkspaceLeaf);
-// 		const view = app.viewRegistry.viewByType["markdown"](leaf);
-// 		// const properties = app.viewRegistry.viewByType["file-properties"](leaf);
-// 		const protoTrue = Object.getPrototypeOf(
-// 			// @ts-ignore
-// 			view.metadataEditor
-// 		) as MetadataEditor;
-// 		// @ts-ignore
-// 		const proto: MetadataEditor = { ...protoTrue };
-// 		Object.setPrototypeOf(proto, protoTrue);
-// 		proto._children = [];
-// 		proto._events = [];
-// 		proto.owner = {
-// 			getFile: () => {},
-// 		} as MarkdownView;
-// 		proto.addPropertyButtonEl;
-// 		proto.propertyListEl = createDiv();
-// 		proto.containerEl = createDiv();
-// 		proto.app = app;
-// 		proto.save = () => {
-// 			console.log("save called");
-// 		};
-// 		// proto.properties = [{ key: "fizz", type: "text", value: "bar" }];
-// 		proto.properties = [];
-// 		proto.rendered = [];
-// 		// proto.insertProperties({ foo: "bar" });
-// 		proto.load();
-// 		proto.synchronize({ foo: "bar" });
-// 		const metadataEditorRow = Object.getPrototypeOf(
-// 			proto.rendered[0]
-// 		) as (typeof proto.rendered)[0];
-// 		console.log("row proto: ", metadataEditorRow);
+export const patchMetadataEditorProperty = (plugin: BetterProperties) => {
+	const { app } = plugin;
+	app.workspace.onLayoutReady(() => {
+		const leaf = app.workspace.getLeaf("tab");
+		const view = app.viewRegistry.viewByType["markdown"](leaf);
+		// const properties = app.viewRegistry.viewByType["file-properties"](leaf);
+		const protoTrue = Object.getPrototypeOf(
+			// @ts-ignore
+			view.metadataEditor
+		) as MetadataEditor;
+		// @ts-ignore
+		const proto: MetadataEditor = { ...protoTrue };
+		Object.setPrototypeOf(proto, protoTrue);
+		proto._children = [];
+		proto._events = [];
+		proto.owner = {
+			getFile: () => {},
+		} as MarkdownView;
+		proto.addPropertyButtonEl;
+		proto.propertyListEl = createDiv();
+		proto.containerEl = createDiv();
+		proto.app = app;
+		proto.save = () => {
+			console.log("save called");
+		};
+		proto.properties = [];
+		proto.rendered = [];
+		proto.headingEl = createDiv();
+		proto.addPropertyButtonEl = createEl("button");
+		// @ts-ignore
+		proto.errorEl = createDiv();
+		proto.load();
+		proto.synchronize({ foo: "bar" });
+		const MetadataEditorProperty = Object.getPrototypeOf(
+			proto.rendered[0]
+		) as (typeof proto.rendered)[0];
+		console.log("row proto: ", MetadataEditorProperty);
 
-// 		const removePatch = around(metadataEditorRow, {
-// 			renderProperty(old) {
-// 				return dedupe(monkeyAroundKey, old, function (...args) {
-// 					// @ts-ignore
-// 					const that = this as MetadataEditorProperty;
+		const removePatch = around(MetadataEditorProperty, {
+			handleUpdateKey(old) {
+				return dedupe(monkeyAroundKey, old, function (newKey) {
+					// @ts-ignore
+					const that = this as MetadataEditorProperty;
 
-// 					console.log("render property: ", that.entry);
+					const returnValue = old.call(that, newKey);
+					plugin.refreshPropertyEditor(newKey);
+					return returnValue;
+				});
+			},
+		});
 
-// 					if (that.valueEl.children.length === 0) {
-// 						console.log("is empty");
-// 						return old.call(that, ...args);
-// 					}
+		plugin.register(removePatch);
 
-// 					const [newEntry] = args;
-
-// 					const cmp = that.rendered as { value: unknown };
-// 					if (cmp) {
-// 						// console.log("cmp: ", cmp);
-// 						const isSame = compareValues(cmp.value, newEntry.value);
-// 						if (!isSame) {
-// 							console.log(
-// 								`Compared ${that.entry.value} and ${newEntry.value}: `,
-// 								isSame
-// 							);
-// 						}
-// 					}
-
-// 					return old.call(that, ...args);
-// 				});
-// 			},
-// 		});
-
-// 		plugin.register(removePatch);
-
-// 		leaf.detach();
-// 	});
-// };
-
-// const compareValues = (a: unknown, b: unknown) => {
-// 	const aType = typeof a;
-// 	const bType = typeof b;
-// 	if (aType !== bType) return false;
-
-// 	if (aType !== "object") return a === b;
-// 	return JSON.stringify(a) === JSON.stringify(b);
-// };
+		leaf.detach();
+	});
+};
 
 type ReorderKeysStrategy =
 	| "propertyAZ"

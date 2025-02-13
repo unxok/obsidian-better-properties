@@ -2,6 +2,7 @@ import { Modal, TextComponent, Setting } from "obsidian";
 import { metdataSectionId } from "@/libs/constants";
 import { MetadataAddItemProps } from "..";
 import { text } from "@/i18Next";
+import { findKeyInsensitive } from "@/libs/utils/pure";
 
 export const addRename = ({
 	plugin,
@@ -17,21 +18,16 @@ export const addRename = ({
 			.setIcon("pencil")
 			.setTitle("Rename")
 			.onClick(() => {
-				const modal = new Modal(app).setTitle(
-					text(
-						"augmentedPropertyMenu.rename.confirmationModal.title",
-						{ key }
-					)
+				const modal = new Modal(app);
+
+				modal.setTitle(
+					text("augmentedPropertyMenu.rename.confirmationModal.title", { key })
 				);
 				modal.contentEl.createEl("p", {
-					text: text(
-						"augmentedPropertyMenu.rename.confirmationModal.desc"
-					),
+					text: text("augmentedPropertyMenu.rename.confirmationModal.desc"),
 				});
 				modal.contentEl.createEl("p", {
-					text: text(
-						"augmentedPropertyMenu.rename.confirmationModal.warning"
-					),
+					text: text("augmentedPropertyMenu.rename.confirmationModal.warning"),
 					cls: "better-properties-text-error",
 				});
 				let nameCmp: TextComponent;
@@ -60,8 +56,7 @@ export const addRename = ({
 						.onChange((v) => {
 							// obsidian will trim any white space normally
 							const value = v.trim();
-							const isExist =
-								!!metadataTypeManager.getPropertyInfo(value);
+							const isExist = !!metadataTypeManager.getPropertyInfo(value);
 							if (isExist) {
 								errorEl.style.display = "block";
 								return;
@@ -78,14 +73,34 @@ export const addRename = ({
 						.setButtonText(text("buttonText.rename"))
 						.setCta()
 						.onClick(async () => {
-							const value = nameCmp.getValue().trim();
+							const newKey = nameCmp.getValue().trim();
+							const lowerNewKey = newKey.toLowerCase();
+
+							await plugin.updateSettings((prev) => {
+								const matchedKey = findKeyInsensitive(
+									key,
+									prev.propertySettings
+								);
+								if (!matchedKey) return prev;
+								const propertyType =
+									plugin.app.metadataTypeManager.properties[key.toLowerCase()]
+										?.type ?? "text";
+								plugin.app.metadataTypeManager.setType(
+									lowerNewKey,
+									propertyType
+								);
+								const config = { ...prev.propertySettings[matchedKey] };
+								delete prev.propertySettings[matchedKey];
+								prev.propertySettings[lowerNewKey] = config;
+								return prev;
+							});
 
 							// @ts-ignore
-							await app.fileManager.renameProperty(key, value); // doesn't account for different letter case :(
+							await app.fileManager.renameProperty(key, newKey); // doesn't account for different letter case :(
 							/*
 								TODO `fileManager.renameProperty` is case sensitive, so I should do my own implementation
 								- Need to retain property type in new value
-								- Need to find true case-insensitive key 
+								- Need to find true case-insensitive key
 							*/
 							// await Promise.all(
 							// 	files.map(async ({ path }) => {

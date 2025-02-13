@@ -1,4 +1,4 @@
-import { Menu, Modal, setIcon, Setting, setTooltip } from "obsidian";
+import { Menu, setIcon, Setting, setTooltip } from "obsidian";
 import { BlockConfig, SaveBlockConfig } from "../shared";
 import { clampNumber } from "@/libs/utils/pure";
 import BetterProperties from "@/main";

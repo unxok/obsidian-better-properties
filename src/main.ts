@@ -49,7 +49,10 @@ import {
 	unsafeEval,
 	updateNestedObject,
 } from "./libs/utils/pure";
-import { patchMetdataEditor } from "./monkey-patches/MetadataEditor";
+import {
+	patchMetadataEditorProperty,
+	patchMetdataEditor,
+} from "./monkey-patches/MetadataEditor";
 import { patchMenu } from "./monkey-patches/Menu";
 import {
 	createInlineCodePlugin,
@@ -121,6 +124,7 @@ export default class BetterProperties extends Plugin {
 		patchMenu(this);
 		patchMetdataEditor(this);
 		patchMetdataCache(this);
+		patchMetadataEditorProperty(this);
 		// patchMarkdownPreviewRenderer(this);
 		// patchAbstractInputSuggest(this);
 		this.listenPropertyMenu();

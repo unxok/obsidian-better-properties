@@ -37,11 +37,15 @@ export const widget: CustomTypeWidget = {
 	name: () => text("typeWidgets.dropdown.name"),
 	validate: (v) => typeof v?.toString() === "string",
 	render: (plugin, el, data, ctx) => {
-		const { options, dynamicFileJs, dynamicInlineJs } = plugin.settings
-			.propertySettings[data.key.toLowerCase()]?.[typeKey] ?? {
-			...defaultPropertySettings[typeKey],
-		};
+		// const { options, dynamicFileJs, dynamicInlineJs } = plugin.settings
+		// 	.propertySettings[data.key.toLowerCase()]?.[typeKey] ?? {
+		// 	...defaultPropertySettings[typeKey],
+		// };
 
+		const config = plugin.getPropertySetting(data.key)[typeKey];
+		console.log(`${data.key} ${typeKey} config: `, config);
+
+		const { options, dynamicFileJs, dynamicInlineJs } = config;
 		// const container = el.createDiv({
 		// 	cls: "metadata-input-longtext better-properties-dropdown-container",
 		// });
