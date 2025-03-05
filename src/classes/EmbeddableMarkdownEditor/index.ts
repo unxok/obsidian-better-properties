@@ -164,37 +164,10 @@ export class EmbeddableMarkdownEditor
 		this.owner.editor = this.editor;
 
 		const f = this.app.vault.getFileByPath(filePath ?? "");
-		// @ts-ignore read-only property. This is needed because otherwise `file` is undefined and rendering links breaks.
+		// @ts-expect-error read-only property. This is needed because otherwise `file` is undefined and rendering links breaks.
 		this.owner.file = f;
 
 		this.set(options.value || "", true);
-		this.register(
-			around(this.app.workspace, {
-				// @ts-expect-error (Incorrectly matches the deprecated setActiveLeaf method)
-				setActiveLeaf:
-					(
-						oldMethod: (
-							leaf: WorkspaceLeaf,
-							params?: { focus?: boolean }
-						) => void
-					) =>
-					(leaf: WorkspaceLeaf, params: { focus?: boolean }) => {
-						// If the editor is currently focused, prevent the workspace setting the focus to a workspaceLeaf instead
-						if (!this.activeCM.hasFocus) {
-							const { setActiveLeafCalls } = this;
-							// this can cause an infinite loop of calling the old method
-							// so this check prevents a max callstack error
-							// 5 is completely arbitrary, but seems to work
-							if (setActiveLeafCalls > 5) return;
-							this.setActiveLeafCalls += 1;
-							oldMethod.call(this.app.workspace, leaf, params);
-							return;
-						} else {
-							this.setActiveLeafCalls = 0;
-						}
-					},
-			})
-		);
 
 		// Execute onBlur when the editor loses focus
 		// NOTE: Apparently Chrome does a weird thing where removing an element from the DOM triggers a blur event
