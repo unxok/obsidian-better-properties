@@ -1,4 +1,3 @@
-// TRANSLATIONS done
 /**
  * All credits go to mgmeyers for figuring out how to grab the proper editor prototype
  * 	 and making it easily deployable
@@ -16,24 +15,19 @@
 
 /**
  * Fevol's Implementation is licensed under MIT, as is this project.
- * I have made modifications to implement in SolidJs as well as some other miscellaneous things:
+ * Changes made to the original code:
  * - Removed check for now-fixed chrome bug for onBlur()
  * - Added some typescript assertions for editor being existent (ts error if not asserted)
- * - setActiveLeaf() can cause a callstack max range error, so I added a guard to prevent over 5 iterations
- *  - TODO I actually can't reproduce this issue even without the guard...
+ * - Removed monkey patch for setActiveLeaf() as it caused a bug with a leaf's editor permanently stealing workspace.activeEditor
  * - Add `filePath` param to constructor. Without it, rendering links (and possibly other things) breaks and causes issues.
  *
  * - @author Unxok
  */
 
-import { App, Constructor, Scope, TFile, WorkspaceLeaf } from "obsidian";
-
+import { App, Constructor, Scope, TFile } from "obsidian";
 import { MarkdownScrollableEditView, WidgetEditorView } from "obsidian-typings";
-
 import { EditorSelection, Extension, Prec } from "@codemirror/state";
 import { EditorView, keymap, placeholder, ViewUpdate } from "@codemirror/view";
-
-import { around } from "monkey-around";
 
 function resolveEditorPrototype(app: App) {
 	// Create a temporary editor to resolve the prototype of ScrollableMarkdownEditor
@@ -93,7 +87,6 @@ const defaultProperties: MarkdownEditorProps = {
 
 	onEditorClick: () => {},
 	onEnter: (editor, mod, _) => {
-		// if (mod) editor.options.onSubmit(editor);
 		editor.options.onSubmit(editor);
 		return mod;
 	},
@@ -170,12 +163,8 @@ export class EmbeddableMarkdownEditor
 		this.set(options.value || "", true);
 
 		// Execute onBlur when the editor loses focus
-		// NOTE: Apparently Chrome does a weird thing where removing an element from the DOM triggers a blur event
-		//		 (Hence why the ._loaded check is necessary)
 		if (this.options.onBlur !== defaultProperties.onBlur) {
 			this.editor!.cm.contentDOM.addEventListener("blur", () => {
-				// Seems Chrome fixed this -Unxok
-				// if (this._loaded) this.options.onBlur(this);
 				this.options.onBlur(this);
 			});
 		}
