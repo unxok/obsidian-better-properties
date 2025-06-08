@@ -11,11 +11,10 @@ export const widget: CustomTypeWidget = {
 	default: () => "",
 	name: () => text("typeWidgets.markdown.name"),
 	validate: (v) => typeof v?.toString() === "string",
-	render: (plugin, el, data, ctx) => {
+	render: (plugin, el, value, ctx) => {
 		const container = el.createDiv({
 			cls: "metadata-input-longtext better-properties-metadata-property-markdown-div",
 		});
-		const { value } = data;
 		const str = value?.toString() ?? "";
 		const emde = new EmbeddableMarkdownEditor(
 			plugin.app,

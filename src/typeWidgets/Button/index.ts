@@ -1,4 +1,4 @@
-import { ButtonComponent, DropdownComponent, Setting } from "obsidian";
+import { ButtonComponent, DropdownComponent, Notice, Setting } from "obsidian";
 import { CustomTypeWidget, WidgetAndSettings } from "..";
 import { dangerousEval, getButtonStyledClass } from "@/libs/utils/pure";
 import { IconSuggest } from "@/classes/IconSuggest";
@@ -16,7 +16,7 @@ export const widget: CustomTypeWidget = {
 	default: () => "new Notice('Hello there')",
 	name: () => text("typeWidgets.button.name"),
 	validate: (v) => typeof v?.toString() === "string",
-	render: (plugin, el, data, ctx) => {
+	render: (plugin, el, value, ctx) => {
 		const {
 			displayText,
 			icon,
@@ -25,7 +25,7 @@ export const widget: CustomTypeWidget = {
 			textColor,
 			callbackType,
 			cssClass,
-		} = plugin.getPropertySetting(data.key)[typeKey];
+		} = plugin.getPropertySetting(ctx.key)[typeKey];
 
 		const container = el.createDiv({
 			cls: "metadata-input-longtext",
@@ -53,19 +53,19 @@ export const widget: CustomTypeWidget = {
 			btn.setIcon(icon);
 		}
 
-		const value = data.value?.toString() ?? "";
+		const normalizeValue = value?.toString() ?? "";
 		if (!value) return;
 
 		btn.onClick(async () => {
 			if (callbackType === "Command") {
-				plugin.app.commands.executeCommandById(value);
+				plugin.app.commands.executeCommandById(normalizeValue);
 				return;
 			}
 
 			const tryEval = async (str: string) => {
 				try {
 					const func = dangerousEval(`async (args) => {${str}}`);
-					await func({ el, data, ctx });
+					await func({ el, value, ctx });
 				} catch (e) {
 					new Notice(
 						"Better Properties: Button callback failed. Check dev console for more details."
@@ -75,12 +75,12 @@ export const widget: CustomTypeWidget = {
 			};
 
 			if (callbackType === "inlineJs") {
-				await tryEval(value);
+				await tryEval(normalizeValue);
 				return;
 			}
 
 			if (callbackType === "fileJs") {
-				const file = plugin.app.vault.getFileByPath(value);
+				const file = plugin.app.vault.getFileByPath(normalizeValue);
 				if (!file) {
 					new Notice(
 						"Better Properties: Button could find file from file path"

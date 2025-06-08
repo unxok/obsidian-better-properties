@@ -11,7 +11,7 @@ export const widget: CustomTypeWidget = {
 	default: () => "#000000",
 	name: () => text("typeWidgets.color.name"),
 	validate: (v: unknown) => typeof v === "string",
-	render: (_, el, data, ctx) => {
+	render: (_, el, value, ctx) => {
 		const container = el
 			.createDiv({
 				cls: "metadata-input-longtext",
@@ -19,7 +19,6 @@ export const widget: CustomTypeWidget = {
 			.createDiv({
 				cls: "better-properties-flex-center better-properties-w-fit",
 			});
-		const { value } = data;
 		new ColorComponent(container)
 			.setValue(value?.toString() ?? "")
 			.onChange((b) => {

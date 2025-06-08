@@ -17,8 +17,8 @@ export const widget: CustomTypeWidget = {
 	default: () => 0,
 	name: () => text("typeWidgets.numberPlus.name"),
 	validate: (v) => !Number.isNaN(Number(v)),
-	render: (plugin, el, data, ctx) => {
-		const { min, max, step, validate } = plugin.getPropertySetting(data.key)[
+	render: (plugin, el, value, ctx) => {
+		const { min, max, step, validate } = plugin.getPropertySetting(ctx.key)[
 			typeKey
 		];
 		const doValidation = (num: number) => {
@@ -36,7 +36,6 @@ export const widget: CustomTypeWidget = {
 		const container = el.createDiv({
 			cls: "better-properties-number-plus-plus",
 		});
-		const { value } = data;
 		const inp = container.createEl("input", {
 			attr: {
 				type: "number",

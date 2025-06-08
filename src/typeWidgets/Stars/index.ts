@@ -3,12 +3,7 @@ import { CustomTypeWidget, WidgetAndSettings } from "..";
 import { clampNumber } from "@/libs/utils/pure";
 import { IconSuggest } from "@/classes/IconSuggest";
 import { createSection } from "@/libs/utils/setting";
-import BetterProperties from "@/main";
-import {
-	CreatePropertySettings,
-	defaultPropertySettings,
-	PropertySettings,
-} from "@/PropertySettings";
+import { CreatePropertySettings } from "@/PropertySettings";
 import { text } from "@/i18Next";
 
 const typeKey: CustomTypeWidget["type"] = "stars";
@@ -19,18 +14,18 @@ export const widget: CustomTypeWidget = {
 	default: () => 0,
 	name: () => text("typeWidgets.stars.name"),
 	validate: (v) => !Number.isNaN(Number(v)),
-	render: (plugin, el, data, ctx) => {
-		const { customIcon, max } = plugin.getPropertySetting(data.key)[typeKey];
+	render: (plugin, el, value, ctx) => {
+		const { customIcon, max } = plugin.getPropertySetting(ctx.key)[typeKey];
 
 		const container = el.createDiv({
 			cls: "metadata-input-longtext",
 			attr: {
-				"data-count": data.value?.toString() ?? "1",
+				"data-count": value?.toString() ?? "1",
 			},
 		});
 
 		const min = 0;
-		const count = clampNumber(Number(data.value), min, max);
+		const count = clampNumber(Number(value), min, max);
 		const starEls: HTMLElement[] = [];
 
 		const updateCount = (index: number) => {

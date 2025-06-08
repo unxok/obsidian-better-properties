@@ -17,12 +17,12 @@ export const widget: CustomTypeWidget = {
 	default: () => 0,
 	name: () => text("typeWidgets.progress.name"),
 	validate: (v) => !Number.isNaN(Number(v)),
-	render: (plugin, el, data, ctx) => {
-		const {} = plugin.getPropertySetting(data.key)[typeKey];
+	render: (plugin, el, value, ctx) => {
+		const {} = plugin.getPropertySetting(ctx.key)[typeKey];
 		const container = el.createDiv({
 			cls: "better-properties-progress-container",
 		});
-		const { value } = data;
+
 		// showLabels &&
 		// 	container.createSpan({
 		// 		text: min.toString(),

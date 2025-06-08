@@ -5,6 +5,7 @@ import {
 	Keymap,
 	Menu,
 	Modal,
+	Notice,
 	SearchComponent,
 	setIcon,
 	Setting,
@@ -34,9 +35,11 @@ export const widget: CustomTypeWidget = {
 	default: () => "",
 	name: () => text("typeWidgets.dropdown.name"),
 	validate: (v) => typeof v?.toString() === "string",
-	render: (plugin, el, data, ctx) => {
+	render: (plugin, el, value, ctx) => {
 		const { options, dynamicFileJs, dynamicInlineJs } =
-			plugin.getPropertySetting(data.key)[typeKey];
+			plugin.getPropertySetting(ctx.key)[typeKey];
+
+		const normalValue = value?.toString() ?? "";
 
 		const container = el;
 
@@ -72,7 +75,7 @@ export const widget: CustomTypeWidget = {
 		};
 
 		setIcon(linkButton, "link");
-		updateLinkButton(data.value?.toString() ?? "");
+		updateLinkButton(normalValue);
 
 		const optionMap = new Map<string, (typeof options)[0]>();
 
@@ -126,9 +129,9 @@ export const widget: CustomTypeWidget = {
 				plugin
 			);
 
-			dropdown.addOptions(optionsObj).setValue(data.value?.toString() ?? "");
+			dropdown.addOptions(optionsObj).setValue(normalValue);
 
-			applyConfig(data.value?.toString() ?? "");
+			applyConfig(normalValue);
 		})();
 	},
 };

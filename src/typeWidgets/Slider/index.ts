@@ -1,9 +1,5 @@
 import { Setting, SliderComponent } from "obsidian";
-import {
-	CreatePropertySettings,
-	defaultPropertySettings,
-	PropertySettings,
-} from "@/PropertySettings";
+import { CreatePropertySettings } from "@/PropertySettings";
 import { CustomTypeWidget, WidgetAndSettings } from "..";
 import { createSection } from "@/libs/utils/setting";
 import { text } from "@/i18Next";
@@ -16,8 +12,8 @@ export const widget: CustomTypeWidget = {
 	default: () => 0,
 	name: () => text("typeWidgets.slider.name"),
 	validate: (v) => !Number.isNaN(Number(v)),
-	render: (plugin, el, data, ctx) => {
-		const { min, max, step, showLabels } = plugin.getPropertySetting(data.key)[
+	render: (plugin, el, value, ctx) => {
+		const { min, max, step, showLabels } = plugin.getPropertySetting(ctx.key)[
 			typeKey
 		];
 		const container = el
@@ -27,7 +23,7 @@ export const widget: CustomTypeWidget = {
 			.createDiv({
 				cls: "better-properties-slider-container metadata-input-longtext",
 			});
-		const { value } = data;
+
 		showLabels &&
 			container.createSpan({
 				text: min.toString(),

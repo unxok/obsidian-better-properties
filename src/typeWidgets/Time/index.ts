@@ -1,11 +1,5 @@
-import { ProgressBarComponent, Setting, SliderComponent } from "obsidian";
-import {
-	CreatePropertySettings,
-	defaultPropertySettings,
-	PropertySettings,
-} from "@/PropertySettings";
+import { CreatePropertySettings } from "@/PropertySettings";
 import { CustomTypeWidget, WidgetAndSettings } from "..";
-import { createSection } from "@/libs/utils/setting";
 import { text } from "@/i18Next";
 import moment from "moment";
 
@@ -17,12 +11,11 @@ export const widget: CustomTypeWidget = {
 	default: () => 0,
 	name: () => text("typeWidgets.time.name"),
 	validate: (v) => !!moment(v?.toString() ?? "", true), // this doesn't work I think
-	render: (plugin, el, data, ctx) => {
-		const {} = plugin.getPropertySetting(data.key)[typeKey];
+	render: (plugin, el, value, ctx) => {
+		const {} = plugin.getPropertySetting(ctx.key)[typeKey];
 		const container = el.createDiv({
 			cls: "better-properties-time-container",
 		});
-		const { value } = data;
 
 		const toTime = (val: unknown) => {
 			const str = val?.toString() ?? "";

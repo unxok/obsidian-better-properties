@@ -11,7 +11,7 @@ export const widget: CustomTypeWidget = {
 	default: () => false,
 	name: () => text("typeWidgets.toggle.name"),
 	validate: (v) => typeof v === "boolean",
-	render: (_plugin, el, data, ctx) => {
+	render: (_plugin, el, value, ctx) => {
 		const container = el
 			.createDiv({
 				cls: "metadata-input-longtext",
@@ -19,7 +19,6 @@ export const widget: CustomTypeWidget = {
 			.createDiv({
 				cls: "better-properties-flex-center better-properties-w-fit",
 			});
-		const { value } = data;
 		new ToggleComponent(container).setValue(!!value).onChange((b) => {
 			ctx.onChange(b);
 		});

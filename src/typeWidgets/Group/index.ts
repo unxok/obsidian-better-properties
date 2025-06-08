@@ -1,9 +1,15 @@
-import { Menu, setIcon, Setting, stringifyYaml, TextComponent } from "obsidian";
+import {
+	Menu,
+	Notice,
+	setIcon,
+	Setting,
+	stringifyYaml,
+	TextComponent,
+} from "obsidian";
 import { CreatePropertySettings } from "@/PropertySettings";
 import { CustomTypeWidget, WidgetAndSettings } from "..";
 import { createSection } from "@/libs/utils/setting";
 import { text } from "@/i18Next";
-import { PropertyEntryData } from "obsidian-typings";
 import { obsidianText } from "@/i18Next/defaultObsidian";
 import { tryParseYaml } from "@/libs/utils/obsidian";
 import { createDragHandle } from "@/libs/utils/drag";
@@ -20,25 +26,20 @@ export const widget: CustomTypeWidget = {
 	default: () => ({}),
 	name: () => text("typeWidgets.group.name"),
 	validate: (v) => typeof v === "object",
-	render: (plugin, el, data, ctx) => {
+	render: (plugin, el, value, ctx) => {
 		const { headerText, showIndentationLines, showAddButton } =
-			plugin.getPropertySetting(data.key)[typeKey];
+			plugin.getPropertySetting(ctx.key)[typeKey];
 
 		el.style.setProperty("--metadata-input-background-active", "transparent");
 
 		const container = createDiv({
 			cls: "better-properties-group-container",
 		});
-		const { value: initialValue } = data;
 
 		let valueObj: Record<string, unknown> = {};
 
-		if (
-			initialValue &&
-			typeof initialValue === "object" &&
-			!Array.isArray(initialValue)
-		) {
-			valueObj = { ...initialValue };
+		if (value && typeof value === "object" && !Array.isArray(value)) {
+			valueObj = { ...value };
 		}
 
 		const keys = Object.keys(valueObj);
@@ -76,7 +77,7 @@ export const widget: CustomTypeWidget = {
 				await navigator.clipboard.writeText(yaml);
 			};
 
-			const dotKey = data.key + "." + key;
+			const dotKey = ctx.key + "." + key;
 			// const assignedType =
 			// 	plugin.app.metadataTypeManager.getAssignedType(dotKey);
 
@@ -225,7 +226,7 @@ export const widget: CustomTypeWidget = {
 				});
 
 			const suggester = new NestedPropertySuggest(
-				data.key,
+				ctx.key,
 				plugin.app,
 				keyInputCmp
 			);
@@ -272,22 +273,17 @@ export const widget: CustomTypeWidget = {
 				cls: "metadata-property-value",
 			});
 
-			widget.render(
-				valueDiv,
-				{
-					key: dotKey,
-					type,
-					value: val,
-					dotKey,
-				} as PropertyEntryData<unknown>,
-				{
-					...ctx,
-					onChange: (v) => {
-						valueObj[key] = v;
-						ctx.onChange({ ...valueObj });
-					},
-				}
-			);
+			plugin.app.metadataTypeManager.registeredTypeWidgets;
+
+			widget.render(valueDiv, val, {
+				...ctx,
+				key: dotKey,
+				dotKey,
+				onChange: (v: unknown) => {
+					valueObj[key] = v;
+					ctx.onChange({ ...valueObj });
+				},
+			});
 
 			propertiesDiv.appendChild(wrapper);
 			return wrapper;

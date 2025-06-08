@@ -1,4 +1,8 @@
 import { Events } from "obsidian";
+import {
+	MetadataTypeManager as BaseMetadataTypeManager,
+	PropertyWidget as BasePropertyWidget,
+} from "obsidian-typings";
 
 declare module "obsidian" {
 	interface Workspace extends Events {
@@ -18,5 +22,17 @@ declare module "obsidian" {
 
 	interface MarkdownPreviewRenderer {
 		onHeadingCollapseClick(e: MouseEvent, el: HTMLElement): void;
+	}
+
+	interface MetadataTypeManager extends BaseMetadataTypeManager {
+		registeredTypeWidgets: Record<string, PropertyWidget<unknown>>;
+	}
+
+	interface PropertyWidget<T> extends BasePropertyWidget<T> {
+		render(
+			containerEl: HTMLElement,
+			value: T,
+			context: PropertyRenderContext
+		): Component | void;
 	}
 }

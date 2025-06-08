@@ -1,27 +1,5 @@
-import {
-	App,
-	CachedMetadata,
-	Component,
-	DropdownComponent,
-	ExtraButtonComponent,
-	getLinkpath,
-	MarkdownPostProcessorContext,
-	MarkdownRenderChild,
-	Menu,
-	MetadataCache,
-	Modal,
-	Plugin,
-	SearchComponent,
-	setIcon,
-	Setting,
-	setTooltip,
-	stringifyYaml,
-	TextComponent,
-	TFile,
-	TFolder,
-	View,
-} from "obsidian";
-import { monkeyAroundKey, typeWidgetPrefix } from "./libs/constants";
+import { MarkdownRenderChild, Menu, Plugin, Setting, View } from "obsidian";
+import { typeWidgetPrefix } from "./libs/constants";
 import {
 	addUsedBy,
 	addRename,
@@ -40,14 +18,8 @@ import { BetterPropertiesSettingTab } from "./classes/BetterPropertiesSettingTab
 import { z } from "zod";
 import { catchAndInfer } from "./libs/utils/zod";
 import {
-	arrayMove,
-	clampNumber,
 	findKeyInsensitive,
 	findKeyValueByDotNotation,
-	toNumberNotNaN,
-	tryEval,
-	unsafeEval,
-	updateNestedObject,
 } from "./libs/utils/pure";
 import {
 	patchMetadataEditorProperty,
@@ -60,36 +32,11 @@ import {
 } from "./classes/InlineCodeWidget";
 import { insertPropertyEditor, propertyCodeBlock } from "./PropertyRenderer";
 import { patchMetdataCache } from "./monkey-patches/MetadataCache";
-import { ListComponent, TextListComponent } from "./classes/ListComponent";
+import { TextListComponent } from "./classes/ListComponent";
 import { processDataviewWrapperBlock } from "./DataviewWrapper";
-import { SidebarModal } from "./classes/SidebarModal";
-import {
-	PropertySuggest,
-	PropertySuggestModal,
-} from "./classes/PropertySuggest";
+import { PropertySuggestModal } from "./classes/PropertySuggest";
 import { PropertySettingsModal } from "./augmentMedataMenu/addSettings";
 import { patchModal } from "./monkey-patches/Modal";
-import { InputSuggest, Suggestion } from "./classes/InputSuggest";
-import { getDataviewLocalApi } from "./libs/utils/dataview";
-import { ConfirmationModal } from "./classes/ConfirmationModal";
-import {
-	MetadataCacheMetadataCacheRecord,
-	MetadataEditor,
-	PropertyEntryData,
-	PropertyRenderContext,
-} from "obsidian-typings";
-import {
-	compareFunc,
-	createInternalLinkEl,
-	getGlobalBlockSuggestions,
-	getGlobalHeadingSuggestions,
-	tryParseYaml,
-} from "./libs/utils/obsidian";
-import { obsidianText } from "./i18Next/defaultObsidian";
-import { createDragHandle } from "./libs/utils/drag";
-import { FileSuggest } from "./classes/FileSuggest";
-import { around, dedupe } from "monkey-around";
-import { FolderSuggest } from "./classes/FolderSuggest";
 import { renderMetaView } from "./MetaView";
 
 const BetterPropertiesSettingsSchema = catchAndInfer(
@@ -210,7 +157,9 @@ export default class BetterProperties extends Plugin {
 		const { metadataCache: mdc, fileCache: fc } = metadataCache;
 		const fcKeys = Object.keys(fc);
 		const preFiles = Object.keys(mdc).map((hash) => {
-			const fm = mdc[hash].frontmatter ?? {};
+			const fm: Record<string, unknown> = mdc[hash].frontmatter ?? {};
+			// TODO
+			console.log("fm: ", fm);
 			if (fm?.hasOwnProperty(key)) return { hash, value: fm[key] };
 			const found = findKeyInsensitive(key, fm);
 			if (found) {

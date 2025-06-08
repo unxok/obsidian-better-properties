@@ -2,11 +2,7 @@ import BetterProperties from "@/main";
 // import { ToggleWidget } from "./Toggle";
 // import { widget } from "./Dropdown";
 import { typeWidgetPrefix } from "@/libs/constants";
-import {
-	PropertyEntryData,
-	PropertyRenderContext,
-	PropertyWidget,
-} from "obsidian-typings";
+import { PropertyRenderContext, PropertyWidget } from "obsidian-typings";
 // import { ButtonWidget } from "./Button";
 // import { SliderWidget } from "./Slider";
 // import { ColorWidget } from "./Color";
@@ -22,7 +18,6 @@ import {
 // import { ProgressWidget } from "./Progress";
 // import { TimeWidget } from "./Time";
 // import { createSettings, Group, widget } from "./Group";
-import { tryParseYaml } from "@/libs/utils/obsidian";
 import { Group } from "./Group";
 import { Dropdown } from "./Dropdown";
 import { Color } from "./Color";
@@ -31,7 +26,6 @@ import { Js } from "./Js";
 import { Markdown } from "./Markdown";
 import { NumberPlus } from "./NumberPlus";
 import { Progress } from "./Progress";
-import { Relation } from "./Relation";
 import { Slider } from "./Slider";
 import { Stars } from "./Stars";
 import { Time } from "./Time";
@@ -48,7 +42,8 @@ export type CustomTypeWidget<T = unknown> = {
 	render: (
 		plugin: BetterProperties,
 		el: HTMLElement,
-		data: PropertyEntryData<T>,
+		// data: PropertyEntryData<T>,
+		value: T,
 		ctx: PropertyRenderContext
 	) => void;
 };
@@ -66,27 +61,11 @@ export const allWidgetsAndSettings: WidgetAndSettings[] = [
 	Markdown,
 	NumberPlus,
 	Progress,
-	Relation,
 	Slider,
 	Stars,
 	Time,
 	Toggle,
 ];
-
-// const widgets: CustomTypeWidget<any>[] = [
-// 	ToggleWidget,
-// 	DropdownWidget,
-// 	ButtonWidget,
-// 	SliderWidget,
-// 	ColorWidget,
-// 	MarkdownWidget,
-// 	NumberPlusWidget,
-// 	StarsWidget,
-// 	ProgressWidget,
-// 	TimeWidget,
-// 	GroupWidget,
-// 	RelationWidget,
-// ];
 
 export const registerCustomWidgets = (plugin: BetterProperties) => {
 	allWidgetsAndSettings.forEach(([w]) => {
@@ -133,23 +112,31 @@ const getWidgetRender = (
 	customRender: (
 		plugin: BetterProperties,
 		el: HTMLElement,
-		data: PropertyEntryData<unknown>,
+		// data: PropertyEntryData<unknown>,
+		value: unknown,
 		ctx: PropertyRenderContext
 	) => void | Component
 ) => {
 	return (
 		el: HTMLElement,
-		data: PropertyEntryData<unknown>,
-		ctx: PropertyRenderContext
+		// data: PropertyEntryData<unknown>,
+		value: unknown,
+		ctx: PropertyRenderContext,
+		...args: unknown[]
 	) => {
-		// data.value = normalizeValue(data.value);
+		// const key =
+		// 	(data as PropertyEntryData<unknown> & { dotKey?: string })?.dotKey ??
+		// 	data.key;
 
-		// console.log("widget rendered: ", data.key);
-		const key =
-			(data as PropertyEntryData<unknown> & { dotKey?: string })?.dotKey ??
-			data.key;
+		// console.log('el: ', el)
+		// console.log('value: ', value);
+		// console.log('ctx: ', ctx);
+		// console.log('args: ', ...args)
+
+		// TODO get dotKey from ctx
+		const key = ctx.key;
 		const general =
-			plugin.settings.propertySettings[key.toLowerCase()]?.general ?? {};
+			plugin.settings.propertySettings[key?.toLowerCase()]?.general ?? {};
 
 		const {
 			hidden,
@@ -160,7 +147,7 @@ const getWidgetRender = (
 			labelColor,
 		} = { ...defaultPropertySettings.general, ...general };
 
-		const exit = () => customRender(plugin, el, data, ctx);
+		const exit = () => customRender(plugin, el, value, ctx);
 
 		const parent = el.parentElement;
 		if (!parent) return exit();

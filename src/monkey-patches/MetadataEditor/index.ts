@@ -10,6 +10,7 @@ import {
 	Plugin,
 	TFile,
 	MarkdownView,
+	Notice,
 } from "obsidian";
 import { MetadataEditor } from "obsidian-typings";
 import { SynchronizeModal } from "@/classes/SyncProperties";
@@ -282,8 +283,9 @@ export const patchMetadataEditorProperty = (plugin: BetterProperties) => {
 		proto.rendered = [];
 		proto.headingEl = createDiv();
 		proto.addPropertyButtonEl = createEl("button");
-		// @ts-ignore
+		// @ts-ignore TODO
 		proto.errorEl = createDiv();
+		proto.owner.getHoverSource = () => "source";
 		proto.load();
 		proto.synchronize({ foo: "bar" });
 		const MetadataEditorProperty = Object.getPrototypeOf(
