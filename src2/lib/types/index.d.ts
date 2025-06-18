@@ -2,6 +2,7 @@ import { Events } from "obsidian";
 import {
 	MetadataTypeManager as BaseMetadataTypeManager,
 	PropertyWidget as BasePropertyWidget,
+	PropertyEntryData,
 } from "obsidian-typings";
 
 declare module "obsidian" {
@@ -28,11 +29,8 @@ declare module "obsidian" {
 		registeredTypeWidgets: Record<string, PropertyWidget<unknown>>;
 	}
 
-	// interface PropertyWidget<T> extends BasePropertyWidget<T> {
-	// 	render(
-	// 		containerEl: HTMLElement,
-	// 		value: T,
-	// 		context: PropertyRenderContext
-	// 	): Component | void;
-	// }
+	interface PropertyValueComponent {
+		containerEl: HTMLElement;
+		focus(_: unknown): void;
+	}
 }

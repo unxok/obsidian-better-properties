@@ -1,6 +1,6 @@
-import { App, SearchComponent, TextComponent, TFile, TFolder } from "obsidian";
-import { InputSuggest, Suggestion } from "../InputSuggest";
+import { App, SearchComponent, TextComponent, TFolder } from "obsidian";
 import { compareFunc } from "@/libs/utils/obsidian";
+import { InputSuggest, Suggestion } from "..";
 
 export class FolderSuggest extends InputSuggest<TFolder> {
 	constructor(app: App, component: SearchComponent | TextComponent) {
@@ -17,23 +17,11 @@ export class FolderSuggest extends InputSuggest<TFolder> {
 		return allFolders.filter(({ path }) => path.toLowerCase().includes(lower));
 	}
 
-	protected parseSuggestion({ path, name, children }: TFolder): Suggestion {
+	protected parseSuggestion({ path, name }: TFolder): Suggestion {
 		return {
 			title: name,
 			note: path,
-			aux: children.filter((t) => t instanceof TFile).length.toString(),
 		};
-	}
-
-	protected onRenderSuggestion(
-		_value: TFolder,
-		_contentEl: HTMLDivElement,
-		_titleEl: HTMLDivElement,
-		_noteEl?: HTMLDivElement,
-		_auxEl?: HTMLDivElement,
-		_icon?: string
-	): void {
-		return;
 	}
 
 	selectSuggestion({ path }: TFolder, _evt: MouseEvent | KeyboardEvent): void {

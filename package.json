@@ -5,6 +5,7 @@
 	"main": "main.js",
 	"scripts": {
 		"dev": "vite build --watch --mode=development",
+		"tsc": "tsc",
 		"build": "vite build",
 		"version": "node version-bump.mjs && git add manifest.json versions.json",
 		"release": "git tag -a %npm_config_tag% -m '%npm_config_tag%' && git push origin %npm_config_tag%"
