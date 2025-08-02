@@ -1,10 +1,4 @@
-import {
-	AbstractInputSuggest,
-	App,
-	SearchComponent,
-	setIcon,
-	TextComponent,
-} from "obsidian";
+import { AbstractInputSuggest, setIcon } from "obsidian";
 
 export type Suggestion = {
 	title: string;
@@ -14,15 +8,9 @@ export type Suggestion = {
 };
 
 export abstract class InputSuggest<T> extends AbstractInputSuggest<T> {
-	component: SearchComponent | TextComponent;
-
-	constructor(app: App, component: SearchComponent | TextComponent) {
-		super(app, component.inputEl);
-		this.component = component;
-	}
-
 	/**
 	 * Get the suggestions for the popover
+	 * @note Make sure to utilize `this.setFilterCallback`
 	 */
 	protected abstract getSuggestions(query: string): T[] | Promise<T[]>;
 
@@ -31,10 +19,12 @@ export abstract class InputSuggest<T> extends AbstractInputSuggest<T> {
 	 */
 	protected abstract parseSuggestion(value: T): Suggestion;
 
-	/**
-	 * What to do when a suggestion is clicked with the mouse or keyboard
-	 */
-	abstract selectSuggestion(value: T, evt: MouseEvent | KeyboardEvent): void;
+	setFilterCallback: (suggestion: T) => boolean = () => true;
+
+	setFilter(cb: this["setFilterCallback"]): this {
+		this.setFilterCallback = cb;
+		return this;
+	}
 
 	/**
 	 * Renders suggestions

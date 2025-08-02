@@ -1,24 +1,7 @@
 import BetterProperties from "~/main";
 import { CustomTypeKey, PropertySettings } from "./types";
 import { typeWidgetPrefix } from "@/libs/constants";
-
-export const getDefaultPropertySettings = (): PropertySettings => ({
-	general: {
-		icon: "",
-	},
-	dropdown: {
-		optionsType: "manual",
-		manualOptions: [],
-		dynamicOptionsType: "filesInFolder",
-		folderOptionsPath: "",
-		folderOptionsIsSubsIncluded: false,
-		folderOptionsExcludeFolderNote: false,
-		tagOptionsTags: [],
-		scriptOptionsExternalFile: "",
-		scriptOptionsType: "inline",
-		scriptOptionsInlineCode: "",
-	},
-});
+import { getDefaultPropertySettings } from "./schema";
 
 export const getPropertySettings = ({
 	plugin,

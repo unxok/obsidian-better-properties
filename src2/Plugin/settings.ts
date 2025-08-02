@@ -5,6 +5,8 @@ import { propertySettingsSchema } from "~/CustomPropertyTypes";
 const betterPropertiesSettingsSchema = z.object({
 	propertySettings: z.record(propertySettingsSchema).optional(),
 	confirmPropertySettingsReset: z.boolean().optional(),
+	confirmPropertyDelete: z.boolean().optional(),
+	propertyLabelWidth: z.number().optional(),
 });
 
 type BetterPropertiesSettings = Prettify<
@@ -14,6 +16,8 @@ type BetterPropertiesSettings = Prettify<
 const getDefaultSettings = (): BetterPropertiesSettings => ({
 	propertySettings: {},
 	confirmPropertySettingsReset: true,
+	confirmPropertyDelete: true,
+	propertyLabelWidth: undefined,
 });
 
 export {

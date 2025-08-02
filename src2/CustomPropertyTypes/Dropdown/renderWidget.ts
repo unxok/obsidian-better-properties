@@ -6,11 +6,16 @@ import {
 	TFile,
 } from "obsidian";
 import { typeKey } from ".";
-import { CustomPropertyType } from "../types";
+import { CustomPropertyType, PropertySettings } from "../types";
 import { getPropertyTypeSettings, PropertyValueComponent } from "../utils";
-import { getFirstLinkPathDest } from "~/lib/utils";
+import {
+	getAllTags,
+	getFirstLinkPathDest,
+	iterateFileMetadata,
+} from "~/lib/utils";
 import { Icon } from "~/lib/types/icons";
 import BetterProperties from "~/main";
+import { PropertyRenderContext } from "obsidian-typings";
 
 export const renderWidget: CustomPropertyType<string>["renderWidget"] = ({
 	plugin,
@@ -41,38 +46,8 @@ export const renderWidget: CustomPropertyType<string>["renderWidget"] = ({
 		);
 	}
 	if (settings.optionsType === "dynamic") {
-		if (settings.dynamicOptionsType === "filesInFolder") {
-			const folderPath =
-				settings.folderOptionsPath === "" ||
-				settings.folderOptionsPath === undefined
-					? "/"
-					: settings.folderOptionsPath;
-			const folder = plugin.app.vault.getFolderByPath(folderPath);
-			if (!folder) {
-				const err = `Better Properties: The provided folder "${folderPath}" could not be found in the vault. This was set in the Dropdown settings for property name "${ctx.key}"`;
-				new Notice(err, 0);
-				console.error(err);
-			}
-			if (folder) {
-				const options = folder.children.reduce((acc, cur) => {
-					if (!(cur instanceof TFile) || cur.extension.toLowerCase() !== "md")
-						return acc;
-					if (
-						settings.folderOptionsExcludeFolderNote &&
-						folder.name === cur.basename
-					) {
-						return acc;
-					}
-					const link = plugin.app.fileManager.generateMarkdownLink(
-						cur,
-						ctx.sourcePath
-					);
-					acc[link] = cur.basename;
-					return acc;
-				}, {} as Record<string, string>);
-				dropdown.addOptions(options);
-			}
-		}
+		const options = getDynamicOptions({ plugin, settings, ctx });
+		dropdown.addOptions(options);
 	}
 
 	createLinkEl({
@@ -140,4 +115,113 @@ const createLinkEl = ({
 				});
 			});
 	}
+};
+
+const getDynamicOptions = ({
+	plugin,
+	settings,
+	ctx,
+}: {
+	plugin: BetterProperties;
+	settings: PropertySettings["dropdown"];
+	ctx: PropertyRenderContext;
+}): Record<string, string> => {
+	if (settings.dynamicOptionsType === "filesInFolder") {
+		return getFolderFilesOptions({
+			plugin,
+			excludeFolderNote: !!settings.folderOptionsExcludeFolderNote,
+			sourcePath: ctx.sourcePath,
+			propertyName: ctx.key,
+			folderOptionsPaths: settings.folderOptionsPaths ?? [],
+		});
+	}
+	if (settings.dynamicOptionsType === "filesFromTag") {
+		return getTagOptions({
+			plugin,
+			tags: settings.tagOptionsTags ?? [],
+			includeNested: settings.tagOptionsIncludeNested ?? false,
+			sourcePath: ctx.sourcePath,
+		});
+	}
+
+	return {};
+};
+
+const getFolderFilesOptions = ({
+	plugin,
+	excludeFolderNote,
+	sourcePath,
+	propertyName,
+	folderOptionsPaths,
+}: {
+	plugin: BetterProperties;
+	excludeFolderNote: boolean;
+	sourcePath: string;
+	propertyName: string;
+	folderOptionsPaths: string[];
+}): Record<string, string> => {
+	return (folderOptionsPaths ?? []).reduce((acc, path) => {
+		const folderPath = path === "" || path === undefined ? "/" : path;
+		const folder = plugin.app.vault.getFolderByPath(folderPath);
+		if (!folder) {
+			const err = `Better Properties: The provided folder "${folderPath}" could not be found in the vault. This was set in the Dropdown settings for property name "${propertyName}"`;
+			new Notice(err, 0);
+			console.error(err);
+			return {};
+		}
+		const options = folder.children.reduce((acc, cur) => {
+			if (!(cur instanceof TFile) || cur.extension.toLowerCase() !== "md")
+				return acc;
+			if (excludeFolderNote && folder.name === cur.basename) {
+				return acc;
+			}
+			const link = plugin.app.fileManager.generateMarkdownLink(cur, sourcePath);
+			acc[link] = cur.basename;
+			return acc;
+		}, {} as Record<string, string>);
+		return { ...acc, ...options };
+	}, {} as Record<string, string>);
+};
+
+const getTagOptions = ({
+	plugin,
+	tags,
+	includeNested,
+	sourcePath,
+}: {
+	plugin: BetterProperties;
+	tags: string[];
+	includeNested: boolean;
+	sourcePath: string;
+}): Record<string, string> => {
+	const options: Record<string, string> = {};
+
+	const addOption = (file: TFile) => {
+		options[plugin.app.fileManager.generateMarkdownLink(file, sourcePath)] =
+			file.basename;
+	};
+
+	iterateFileMetadata({
+		vault: plugin.app.vault,
+		metadataCache: plugin.app.metadataCache,
+		callback: ({ file, metadata }) => {
+			if (!metadata) return;
+			const fileTags = getAllTags(metadata, false);
+			if (!fileTags) return;
+			if (!includeNested) {
+				const fileTagsSet = new Set(fileTags);
+				const isMatch = tags.some((t) => fileTagsSet.has(t));
+				if (!isMatch) return;
+				addOption(file);
+				return;
+			}
+			const isMatch = fileTags.some((fTag) =>
+				tags.some((tag) => tag === fTag || fTag.startsWith(`${tag}/`))
+			);
+			if (!isMatch) return;
+			addOption(file);
+		},
+	});
+
+	return options;
 };

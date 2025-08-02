@@ -1,4 +1,4 @@
-import { Notice, Modal, ButtonComponent, Plugin, getIconIds } from "obsidian";
+import { Modal, ButtonComponent, Plugin } from "obsidian";
 import {
 	BetterPropertiesSettings,
 	betterPropertiesSettingsSchema,
@@ -7,8 +7,14 @@ import {
 import {
 	registerCustomPropertyTypeWidgets,
 	sortRegisteredTypeWidgets,
+	unregisterCustomPropertyTypeWidgets,
+	wrapAllPropertyTypeWidgets,
 } from "~/CustomPropertyTypes/register";
-import { customizePropertyEditorMenu } from "~/MetadataEditor";
+import {
+	customizePropertyEditorMenu,
+	patchMetadataEditor,
+	refreshPropertyEditor,
+} from "~/MetadataEditor";
 
 export class BetterProperties extends Plugin {
 	settings: BetterPropertiesSettings = getDefaultSettings();
@@ -20,23 +26,58 @@ export class BetterProperties extends Plugin {
 		});
 	}
 
-	copyIcons(): void {
-		const icons = getIconIds();
-		const str = icons.reduce((acc, cur) => {
-			const quoted = `"${cur}"`;
-			if (!acc) return quoted;
-			return acc + " | " + quoted;
-		}, "");
-		navigator.clipboard.writeText(str);
+	setupCommands(): void {
+		this.addCommand({
+			id: "refresh-property-editors",
+			name: "Refresh Property Editors",
+			callback: () => {
+				Object.values(this.app.metadataTypeManager.properties).forEach(
+					({ name }) => {
+						refreshPropertyEditor(this, name);
+					}
+				);
+			},
+		});
 	}
 
 	async onload(): Promise<void> {
-		this.rebuildLeaves();
 		await this.loadSettings();
 		registerCustomPropertyTypeWidgets(this);
+		wrapAllPropertyTypeWidgets(this);
 		sortRegisteredTypeWidgets(this);
-		customizePropertyEditorMenu(this);
-		new Notice("Loaded...");
+		this.setupCommands();
+		this.app.workspace.onLayoutReady(async () => {
+			customizePropertyEditorMenu(this);
+			patchMetadataEditor(this);
+
+			this.rebuildLeaves();
+		});
+		this.handlePropertyLabelWidth();
+	}
+
+	handlePropertyLabelWidth(): void {
+		this.updateSettings((prev) => ({
+			...prev,
+			defaultPropertyLabelWidth: document.body.style.getPropertyValue(
+				"---metadata-label-width"
+			),
+		}));
+		this.app.workspace.on(
+			"better-properties:property-label-width-change",
+			(propertyLabelWidth) => {
+				this.updateSettings((prev) => ({ ...prev, propertyLabelWidth }));
+			}
+		);
+		if (this.settings.propertyLabelWidth !== undefined) {
+			document.body.style.setProperty(
+				"--metadata-label-width",
+				this.settings.propertyLabelWidth + "px"
+			);
+		}
+	}
+
+	onunload(): void {
+		unregisterCustomPropertyTypeWidgets(this);
 	}
 
 	async onExternalSettingsChange() {

@@ -86,6 +86,11 @@ export class ListSetting<T> extends Setting {
 		return this;
 	}
 
+	setItemValue(index: number, value: T): void {
+		this.value[index] = value;
+		this.onChangeCallback(this.value);
+	}
+
 	addItem(value: T): this {
 		this.value.push(value);
 		this.onChangeCallback(this.value);
@@ -115,6 +120,16 @@ export class ListSetting<T> extends Setting {
 	onCreateItem(cb: (value: T, item: Item<T>) => void): this {
 		this.onCreateItemCallback = cb;
 		return this;
+	}
+
+	setItemWidth(cssWidthUnits: string): this {
+		this.settingEl.style.setProperty("--item-width", cssWidthUnits);
+		return this;
+	}
+
+	sort(cb: (a: T, b: T) => number): void {
+		this.setValue(this.value.toSorted(cb));
+		this.renderAllItems();
 	}
 }
 

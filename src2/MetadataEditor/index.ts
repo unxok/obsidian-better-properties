@@ -1,21 +1,20 @@
 import BetterProperties from "~/main";
-import { patchMenu } from "./patchMenu";
-import { showPropertySettingsModal } from "~/CustomPropertyTypes/settings";
 import { View } from "obsidian";
+import { patchMenu } from "./patchMenu";
+import { onFilePropertyMenu } from "./propertyEditorMenu";
+
+export { patchMetadataEditor } from "./patchMetadataEditor";
 
 export const customizePropertyEditorMenu = (plugin: BetterProperties) => {
 	patchMenu(plugin);
 
 	plugin.registerEvent(
-		plugin.app.workspace.on("file-property-menu", (menu, property) => {
-			menu.addItem((item) =>
-				item
-					.setSection("settings")
-					.setTitle("Settings")
-					.setIcon("lucide-settings")
-					.onClick(() => showPropertySettingsModal({ plugin, property }))
-			);
-		})
+		plugin.app.workspace.on(
+			"better-properties:file-property-menu",
+			(menu, property) => {
+				onFilePropertyMenu(plugin, menu, property);
+			}
+		)
 	);
 };
 

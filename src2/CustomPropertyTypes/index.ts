@@ -6,12 +6,8 @@ import {
 	PropertySettings,
 	CustomTypeWidget,
 } from "./types";
-import { propertySettingsSchema } from "./schema";
-import {
-	getDefaultPropertySettings,
-	getPropertySettings,
-	getPropertyTypeSettings,
-} from "./utils";
+import { getDefaultPropertySettings, propertySettingsSchema } from "./schema";
+import { getPropertySettings, getPropertyTypeSettings } from "./utils";
 
 export {
 	propertySettingsSchema,

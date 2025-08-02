@@ -4,6 +4,7 @@ import {
 	PropertyWidget as BasePropertyWidget,
 	MetadataTypeManager as BaseMetadataTypeManager,
 	PropertyInfo as BasePropertyInfo,
+	PropertyRenderContext,
 } from "obsidian-typings";
 import { Scope as BaseScope } from "obsidian";
 
@@ -42,6 +43,7 @@ declare module "obsidian-typings" {
 
 		/**
 		 * The number of notes that contain this property
+		 * @remark used to be named `count`
 		 */
 		occurrences: number;
 
@@ -53,6 +55,7 @@ declare module "obsidian-typings" {
 
 		/**
 		 * The type name of the corresponding type widget
+		 * @remark used to be named `type`
 		 */
 		widget: string;
 	}

@@ -3,11 +3,10 @@ import { VerticalTabModal } from "~/Classes/VerticalTabModal";
 import BetterProperties from "~/main";
 import {
 	deletePropertySettings,
-	getDefaultPropertySettings,
 	getPropertySettings,
 	getPropertyTypeSettings,
 	setPropertySettings,
-	updatePropertyTypeSettings,
+	setPropertyTypeSettings,
 	withoutTypeWidgetPrefix,
 } from "./utils";
 import { CustomPropertyType, CustomTypeKey, PropertySettings } from "./types";
@@ -17,6 +16,7 @@ import { refreshPropertyEditor } from "~/MetadataEditor";
 import { Icon } from "~/lib/types/icons";
 import { ConfirmationModal } from "~/Classes/ConfirmationModal";
 import { propertySettingsSchema } from "./schema";
+import { IconSuggest } from "~/Classes/InputSuggest/IconSuggest";
 
 export class PropertySettingsModal extends VerticalTabModal {
 	public propertyType: string = "unset";
@@ -106,27 +106,36 @@ const renderGeneralSettings = (modal: PropertySettingsModal) => {
 		property,
 		type: "general",
 	});
-	type GeneralSettings = NonNullable<PropertySettings["general"]>;
-	const update = <K extends keyof GeneralSettings>(
-		key: K,
-		value: GeneralSettings[K]
-	) => {
-		updatePropertyTypeSettings({
+
+	modal.onTabChange(() => {
+		setPropertyTypeSettings({
 			plugin,
 			property,
 			type: "general",
-			cb: (prev) => {
-				const obj = prev ?? getDefaultPropertySettings().general;
-				return { ...obj, [key]: value };
-			},
+			typeSettings: settings,
 		});
-	};
+	});
 
 	new Setting(tabContentEl)
 		.setName("Icon")
 		.setDesc("Set a custom icon to show for this property")
-		.addSearch((cmp) =>
-			cmp.setValue(settings?.icon ?? "").onChange((v) => update("icon", v))
+		.addSearch((search) => {
+			search.setValue(settings?.icon ?? "").onChange((v) => {
+				settings.icon = v;
+			});
+			new IconSuggest(plugin.app, search.inputEl).onSelect((v) => {
+				search.setValue(v);
+				search.onChanged();
+			});
+		});
+
+	new Setting(tabContentEl)
+		.setName("Hidden")
+		.setDesc("Whether to hide this property from view by default")
+		.addToggle((toggle) =>
+			toggle.setValue(settings.hidden ?? false).onChange((b) => {
+				settings.hidden = b;
+			})
 		);
 };
 
@@ -173,7 +182,11 @@ const handleActionsTab = ({
 				btn
 					.setWarning()
 					.setIcon("lucide-archive" satisfies Icon)
-					.onClick(() => showResetModal(modal))
+					.onClick(() => {
+						if (plugin.settings.confirmPropertySettingsReset ?? true) {
+							showResetModal(modal);
+						}
+					})
 			);
 	});
 };

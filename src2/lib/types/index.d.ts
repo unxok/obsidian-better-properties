@@ -1,20 +1,28 @@
-import { Events } from "obsidian";
+import { Events, Workspace as BaseWorkspace } from "obsidian";
 import {
 	MetadataTypeManager as BaseMetadataTypeManager,
 	PropertyWidget as BasePropertyWidget,
+	MetadataEditor as BaseMetadataEditor,
 	PropertyEntryData,
 } from "obsidian-typings";
 
 declare module "obsidian" {
-	interface Workspace extends Events {
-		/** @internal Triggers when user right-clicks on external URL in editor */
+	interface Workspace extends BaseWorkspace {
 		on(
-			name: "file-property-menu",
+			name: "better-properties:file-property-menu",
 			callback: (menu: Menu, property: string) => void,
 			ctx?: unknown
 		): EventRef;
 
-		randomTest(): void;
+		on(
+			name: "better-properties:property-label-width-change",
+			callback: (newWidth: number | undefined) => void
+		): EventRef;
+
+		// trigger(
+		// 	name: "better-properties:property-label-width-change",
+		// 	width: number | undefined
+		// ): void;
 	}
 
 	interface AbstractInputSuggest<T> extends PopoverSuggest<T> {
@@ -33,4 +41,8 @@ declare module "obsidian" {
 		containerEl: HTMLElement;
 		focus(_: unknown): void;
 	}
+
+	// interface MetadataEditor extends BaseMetadataEditor {
+	// 	constructor(app: App, owner: Editor);
+	// }
 }

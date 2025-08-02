@@ -28,6 +28,8 @@ export type CustomPropertyType<Value> = {
 		ctx: PropertyRenderContext;
 	}): PropertyValueComponent;
 
+	registerListeners: (plugin: BetterProperties) => void;
+
 	renderSettings(args: {
 		plugin: BetterProperties;
 		modal: PropertySettingsModal;

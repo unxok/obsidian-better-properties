@@ -1,9 +1,9 @@
 import BetterProperties from "~/main";
-import { CustomPropertyType, CustomTypeKey } from ".";
+import { CustomPropertyType, CustomTypeKey, getPropertyTypeSettings } from ".";
 import { dropdownPropertyType } from "./Dropdown";
-import { PropertyWidget } from "obsidian";
-import { customPropertyTypePrefix } from "~/lib/constants";
-import { PropertyEntryData } from "obsidian-typings";
+import { PropertyWidget, setIcon } from "obsidian";
+import { customPropertyTypePrefix, monkeyAroundKey } from "~/lib/constants";
+import { around, dedupe } from "monkey-around";
 
 export const customPropertyTypesArr: CustomPropertyType<any>[] = [
 	dropdownPropertyType,
@@ -28,6 +28,57 @@ export const registerCustomPropertyTypeWidgets = (plugin: BetterProperties) => {
 			type,
 			render,
 		};
+
+		customPropertyType.registerListeners(plugin);
+	});
+};
+
+export const wrapAllPropertyTypeWidgets = (plugin: BetterProperties) => {
+	const { registeredTypeWidgets } = plugin.app.metadataTypeManager;
+	Object.values(registeredTypeWidgets).forEach((widget) => {
+		const removePatch = around(widget, {
+			render(old) {
+				return dedupe(monkeyAroundKey, old, (containerEl, value, ctx) => {
+					const toReturn = old(containerEl, value, ctx);
+
+					const { icon, hidden } = getPropertyTypeSettings({
+						plugin,
+						property: ctx.key,
+						type: "general",
+					});
+
+					if (icon) {
+						const iconEl = containerEl.parentElement?.querySelector(
+							".metadata-property-icon"
+						);
+						if (iconEl instanceof HTMLElement) {
+							setIcon(iconEl, icon);
+						}
+					}
+
+					if (hidden) {
+						containerEl.parentElement?.setAttribute(
+							"data-better-properties-hidden",
+							"true"
+						);
+					}
+
+					return toReturn;
+				});
+			},
+		});
+
+		plugin.register(removePatch);
+	});
+};
+
+export const unregisterCustomPropertyTypeWidgets = (
+	plugin: BetterProperties
+) => {
+	const { registeredTypeWidgets } = plugin.app.metadataTypeManager;
+	Object.keys(registeredTypeWidgets).forEach((key) => {
+		if (!key.startsWith(customPropertyTypePrefix)) return;
+		delete registeredTypeWidgets[key];
 	});
 };
 

@@ -1,9 +1,15 @@
-import { App, SearchComponent, TextComponent, TFolder } from "obsidian";
+import { App, TFile, TFolder } from "obsidian";
 import { compareFunc } from "@/libs/utils/obsidian";
 import { InputSuggest, Suggestion } from "..";
 
 export class FolderSuggest extends InputSuggest<TFolder> {
-	constructor(app: App, component: SearchComponent | TextComponent) {
+	constructor(
+		app: App,
+		component: HTMLDivElement | HTMLInputElement,
+		public options?: {
+			showFileCountAux: boolean;
+		}
+	) {
 		super(app, component);
 	}
 
@@ -12,20 +18,20 @@ export class FolderSuggest extends InputSuggest<TFolder> {
 		const allFolders = app.vault
 			.getAllFolders(true)
 			.toSorted((a, b) => compareFunc(a.path, b.path));
-		if (!query) return allFolders;
+		if (!query) return allFolders.filter(this.setFilterCallback);
 		const lower = query.toLowerCase();
-		return allFolders.filter(({ path }) => path.toLowerCase().includes(lower));
+		return allFolders.filter(
+			(v) => v.path.toLowerCase().includes(lower) && this.setFilterCallback(v)
+		);
 	}
 
-	protected parseSuggestion({ path, name }: TFolder): Suggestion {
+	protected parseSuggestion({ path, name, children }: TFolder): Suggestion {
 		return {
 			title: name,
 			note: path,
+			aux: this.options?.showFileCountAux
+				? children.filter((t) => t instanceof TFile).length.toString()
+				: undefined,
 		};
-	}
-
-	selectSuggestion({ path }: TFolder, _evt: MouseEvent | KeyboardEvent): void {
-		this.component.setValue(path);
-		this.component.onChanged();
 	}
 }
