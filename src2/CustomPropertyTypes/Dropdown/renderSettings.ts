@@ -13,7 +13,7 @@ import {
 	SettingsGroup,
 } from "~/Classes/ConditionalSettings";
 
-type Settings = PropertySettings["dropdown"];
+type Settings = NonNullable<PropertySettings["dropdown"]>;
 type OptionsType = NonNullable<Settings["optionsType"]>;
 type DynamicOptionsType = NonNullable<Settings["dynamicOptionsType"]>;
 type Option = NonNullable<Settings["manualOptions"]>[number];
@@ -56,8 +56,8 @@ export const renderSettings: CustomPropertyType<string>["renderSettings"] = ({
 				.addOptions({
 					manual: "Manual",
 					dynamic: "Dynamic",
-				} satisfies Record<Exclude<PropertySettings["dropdown"]["optionsType"], undefined>, string>)
-				.setValue(settings.optionsType ?? "")
+				} satisfies Record<Exclude<OptionsType, undefined>, string>)
+				.setValue(settings?.optionsType ?? "")
 				.onChange((v) => {
 					const opt = v as OptionsType;
 					optionsTypeSettings.showGroup(opt);
@@ -105,6 +105,12 @@ export const renderSettings: CustomPropertyType<string>["renderSettings"] = ({
 								dynamicOptionsTypeSettings.showGroup(opt);
 								settings.dynamicOptionsType = opt;
 							});
+						dynamicOptionsTypeSettings.showGroup(
+							settings.dynamicOptionsType ??
+								("filesInFolder" satisfies NonNullable<
+									Settings["dynamicOptionsType"]
+								>)
+						);
 					})
 			);
 
@@ -119,13 +125,6 @@ export const renderSettings: CustomPropertyType<string>["renderSettings"] = ({
 					.addGroup("filesFromTag", (group) =>
 						renderFilesFromTagGroup({ group, plugin, settings })
 					);
-
-			// TODO I feel like setImmediate shouldn't be necessary
-			window.setImmediate(() => {
-				dynamicOptionsTypeSettings.showGroup(
-					settings.dynamicOptionsType ?? "filesInFolder"
-				);
-			});
 		});
 
 	optionsTypeSettings.showGroup(settings.optionsType ?? "manual");
