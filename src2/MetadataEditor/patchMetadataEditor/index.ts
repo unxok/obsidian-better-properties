@@ -186,11 +186,14 @@ const createLabelWidthResizerEl = (that: PatchedMetadataEditor) => {
 		cls: "better-properties-label-width-resizer",
 	});
 
-	that.labelWidthResizerEl.draggable = true;
+	const { app, labelWidthResizerEl, containerEl } = that;
+
+	labelWidthResizerEl.draggable = true;
 
 	let initialX = 0;
 
-	that.labelWidthResizerEl.addEventListener("dragstart", (e) => {
+	labelWidthResizerEl.addEventListener("dragstart", (e) => {
+		labelWidthResizerEl.setAttribute("data-is-dragging", "true");
 		initialX = e.pageX;
 		if (!e.dataTransfer) return;
 		e.dataTransfer.effectAllowed = "move";
@@ -203,6 +206,7 @@ const createLabelWidthResizerEl = (that: PatchedMetadataEditor) => {
 
 		overlayEl.addEventListener("dragover", (e) => {
 			e.preventDefault();
+			// e.dataTransfer && (e.dataTransfer.dropEffect = "copy");
 		});
 
 		window.setTimeout(() => {
@@ -211,9 +215,8 @@ const createLabelWidthResizerEl = (that: PatchedMetadataEditor) => {
 	});
 
 	const getInitialWidth = () =>
-		that.containerEl
-			.querySelector(".metadata-property-key")
-			?.getBoundingClientRect()?.width ?? 0;
+		containerEl.querySelector(".metadata-property-key")?.getBoundingClientRect()
+			?.width ?? 0;
 
 	let initialWidth: number | undefined = undefined;
 
@@ -224,10 +227,7 @@ const createLabelWidthResizerEl = (that: PatchedMetadataEditor) => {
 				initialWidth = getInitialWidth();
 			}
 			const newWidth = initialWidth + diff;
-			that.containerEl.style.setProperty(
-				"--metadata-label-width",
-				newWidth + "px"
-			);
+			containerEl.style.setProperty("--metadata-label-width", newWidth + "px");
 			initialX = e.pageX;
 			initialWidth = newWidth;
 		},
@@ -235,10 +235,11 @@ const createLabelWidthResizerEl = (that: PatchedMetadataEditor) => {
 		false
 	);
 
-	that.labelWidthResizerEl.addEventListener("drag", onDrag);
+	labelWidthResizerEl.addEventListener("drag", onDrag);
 
-	that.labelWidthResizerEl.addEventListener("dragend", () => {
-		const labelWidth = that.containerEl
+	labelWidthResizerEl.addEventListener("dragend", () => {
+		labelWidthResizerEl.removeAttribute("data-is-dragging");
+		const labelWidth = containerEl
 			.querySelector(".metadata-property-key")
 			?.getBoundingClientRect()?.width;
 		if (labelWidth === undefined) return;
@@ -247,18 +248,18 @@ const createLabelWidthResizerEl = (that: PatchedMetadataEditor) => {
 			labelWidth + "px"
 		);
 
-		that.app.workspace.trigger(
+		app.workspace.trigger(
 			"better-properties:property-label-width-change",
 			labelWidth
 		);
 
-		that.containerEl.style.removeProperty("--metadata-label-width");
+		containerEl.style.removeProperty("--metadata-label-width");
 		document.getElementById("better-properties-drag-overlay")?.remove();
 	});
 
-	that.labelWidthResizerEl.addEventListener("dblclick", () => {
+	labelWidthResizerEl.addEventListener("dblclick", () => {
 		document.body.style.removeProperty("--metadata-label-width");
-		that.app.workspace.trigger(
+		app.workspace.trigger(
 			"better-properties:property-label-width-change",
 			undefined
 		);

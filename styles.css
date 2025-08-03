@@ -131,13 +131,15 @@ div.metadata-content {
 		& > .better-properties-label-width-resizer {
 			position: absolute;
 			height: 100%;
-			width: 4px;
+			width: 6px;
 			background-color: transparent;
 			top: 0;
-			left: 0;
+			left: -5px;
 			transform: translateX(var(--metadata-label-width));
+			cursor: col-resize;
 
-			&:hover::after {
+			&:hover::after,
+			&[data-is-dragging]::after {
 				background-color: hsl(var(--accent-h) var(--accent-s) var(--accent-l));
 			}
 
