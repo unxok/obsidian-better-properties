@@ -7,7 +7,7 @@ import { around, dedupe } from "monkey-around";
 
 export const customPropertyTypesArr: CustomPropertyType<any>[] = [
 	dropdownPropertyType,
-].sort((a, b) => a.name().localeCompare(b.name()));
+];
 
 export const customPropertyTypesRecord: Record<
 	CustomTypeKey,

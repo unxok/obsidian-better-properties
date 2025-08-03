@@ -75,9 +75,9 @@ export const getPropertyTypeSettings = <T extends CustomTypeKey>({
 	plugin: BetterProperties;
 	property: string;
 	type: T;
-}): PropertySettings[T] => {
+}): NonNullable<PropertySettings[T]> => {
 	const settings = getPropertySettings(args);
-	return settings[type];
+	return settings[type] ?? {};
 };
 
 export const setPropertyTypeSettings = <T extends CustomTypeKey>({

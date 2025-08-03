@@ -1,0 +1,15 @@
+import { CustomPropertyType } from "../types";
+import { registerListeners } from "./registerListeners";
+import { renderSettings } from "./renderSettings";
+import { renderWidget } from "./renderWidget";
+
+export const togglePropertyType: CustomPropertyType<boolean> = {
+	type: "toggle",
+	name: () => "Toggle",
+	default: () => false,
+	icon: "lucide-toggle-left",
+	validate: (v) => typeof v === "boolean",
+	registerListeners,
+	renderSettings,
+	renderWidget,
+};

@@ -36,7 +36,7 @@ export const renderWidget: CustomPropertyType<string>["renderWidget"] = ({
 	});
 
 	const dropdown = new DropdownComponent(container);
-	if (settings.optionsType === "manual") {
+	if (settings.optionsType === "manual" && settings.manualOptions) {
 		dropdown.addOptions(
 			settings.manualOptions.reduce((acc, cur) => {
 				if (cur === undefined) return acc;
@@ -126,7 +126,7 @@ const getDynamicOptions = ({
 	settings: PropertySettings["dropdown"];
 	ctx: PropertyRenderContext;
 }): Record<string, string> => {
-	if (settings.dynamicOptionsType === "filesInFolder") {
+	if (settings?.dynamicOptionsType === "filesInFolder") {
 		return getFolderFilesOptions({
 			plugin,
 			excludeFolderNote: !!settings.folderOptionsExcludeFolderNote,
@@ -135,7 +135,7 @@ const getDynamicOptions = ({
 			folderOptionsPaths: settings.folderOptionsPaths ?? [],
 		});
 	}
-	if (settings.dynamicOptionsType === "filesFromTag") {
+	if (settings?.dynamicOptionsType === "filesFromTag") {
 		return getTagOptions({
 			plugin,
 			tags: settings.tagOptionsTags ?? [],

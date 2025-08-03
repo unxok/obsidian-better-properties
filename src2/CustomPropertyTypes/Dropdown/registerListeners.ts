@@ -23,7 +23,7 @@ const vaultEventHandlerFactory = (plugin: BetterProperties): (() => void) => {
 			if (!propertySettings) return;
 
 			Object.entries(propertySettings).forEach(([property, settings]) => {
-				const { optionsType, dynamicOptionsType } = settings.dropdown;
+				const { optionsType, dynamicOptionsType } = settings.dropdown ?? {};
 				if (optionsType !== "dynamic") return;
 				if (dynamicOptionsType !== "filesInFolder") return;
 				refreshPropertyEditor(plugin, property);
@@ -43,7 +43,7 @@ const metadataCacheEventHandlerFactory = (
 			if (!propertySettings) return;
 
 			Object.entries(propertySettings).forEach(([property, settings]) => {
-				const { optionsType, dynamicOptionsType } = settings.dropdown;
+				const { optionsType, dynamicOptionsType } = settings.dropdown ?? {};
 				if (optionsType !== "dynamic") return;
 				if (dynamicOptionsType !== "filesFromTag") return;
 				refreshPropertyEditor(plugin, property);
