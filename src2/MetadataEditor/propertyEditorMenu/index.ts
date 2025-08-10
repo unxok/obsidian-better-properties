@@ -5,6 +5,7 @@ import { deleteProperty } from "~/lib/utils";
 import { openDeleteModal } from "./delete";
 import { openRenameModal } from "./rename";
 import { Menu } from "obsidian";
+import { openChangeIconModal } from "./icon";
 
 export const onFilePropertyMenu = (
 	plugin: BetterProperties,
@@ -32,6 +33,15 @@ export const onFilePropertyMenu = (
 				.setIcon("lucide-pen" satisfies Icon)
 				.onClick(async () => {
 					openRenameModal({ plugin, property });
+				})
+		)
+		.addItem((item) =>
+			item
+				.setSection("action")
+				.setTitle("Icon")
+				.setIcon("lucide-badge-info" satisfies Icon)
+				.onClick(async () => {
+					openChangeIconModal({ plugin, property });
 				})
 		)
 		.addItem((item) =>
