@@ -14,4 +14,5 @@ export const dropdownPropertyType: CustomPropertyType<string> = {
 	renderWidget,
 	registerListeners,
 	renderSettings,
+	onStartup: () => {},
 };

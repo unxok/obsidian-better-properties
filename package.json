@@ -26,7 +26,8 @@
 		"obsidian-typings": "^3.9.5",
 		"tslib": "^2.7.0",
 		"typescript": "^5.8.3",
-		"vite": "^6.3.5"
+		"vite": "^6.3.5",
+		"vite-bundle-analyzer": "^1.2.1"
 	},
 	"dependencies": {
 		"monkey-around": "^3.0.0",

@@ -27,14 +27,17 @@ export type CustomPropertyType<Value> = {
 		value: Value | null;
 		ctx: PropertyRenderContext;
 	}): PropertyValueComponent;
+	reservedKeys?: string[];
 
 	registerListeners: (plugin: BetterProperties) => void;
 
-	renderSettings(args: {
+	renderSettings: (args: {
 		plugin: BetterProperties;
 		modal: PropertySettingsModal;
 		property: string;
-	}): void;
+	}) => void;
+
+	onStartup: (plugin: BetterProperties) => void;
 };
 
 export type CustomTypeWidget<Value> = {

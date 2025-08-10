@@ -5,6 +5,14 @@
 		justify-content: center;
 		align-items: center;
 		gap: var(--size-4-1);
+		padding: var(--input-padding);
+	}
+
+	&.better-properties-mod-toggle {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		padding: var(--input-padding);
 	}
 }
 

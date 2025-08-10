@@ -4,9 +4,11 @@ import { dropdownPropertyType } from "./Dropdown";
 import { PropertyWidget, setIcon } from "obsidian";
 import { customPropertyTypePrefix, monkeyAroundKey } from "~/lib/constants";
 import { around, dedupe } from "monkey-around";
+import { togglePropertyType } from "./Toggle";
 
 export const customPropertyTypesArr: CustomPropertyType<any>[] = [
 	dropdownPropertyType,
+	togglePropertyType,
 ];
 
 export const customPropertyTypesRecord: Record<
@@ -30,6 +32,7 @@ export const registerCustomPropertyTypeWidgets = (plugin: BetterProperties) => {
 		};
 
 		customPropertyType.registerListeners(plugin);
+		customPropertyType.onStartup(plugin);
 	});
 };
 
