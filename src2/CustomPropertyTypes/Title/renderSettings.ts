@@ -1,7 +1,7 @@
 import { Setting } from "obsidian";
 import { CustomPropertyType } from "../types";
 
-export const renderSettings: CustomPropertyType<boolean>["renderSettings"] = ({
+export const renderSettings: CustomPropertyType<string>["renderSettings"] = ({
 	modal,
 }) => {
 	const { tabContentEl } = modal;
