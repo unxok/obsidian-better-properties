@@ -16,6 +16,18 @@ export const onFilePropertyMenu = (
 		return !!item.submenu;
 	});
 	found?.setSection("action");
+
+	const isReserved = Object.values(
+		plugin.app.metadataTypeManager.registeredTypeWidgets
+	).some(({ reservedKeys }) => {
+		return reservedKeys?.includes(property);
+	});
+	if (found && isReserved) {
+		found.submenu?.items?.forEach((item) => {
+			item.setDisabled(true);
+		});
+	}
+
 	menu
 		.addItem((item) =>
 			item

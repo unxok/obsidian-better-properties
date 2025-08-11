@@ -5,10 +5,12 @@ import { PropertyWidget, setIcon } from "obsidian";
 import { customPropertyTypePrefix, monkeyAroundKey } from "~/lib/constants";
 import { around, dedupe } from "monkey-around";
 import { togglePropertyType } from "./Toggle";
+import { titlePropertyType } from "./Title";
 
 export const customPropertyTypesArr: CustomPropertyType<any>[] = [
 	dropdownPropertyType,
 	togglePropertyType,
+	titlePropertyType,
 ];
 
 export const customPropertyTypesRecord: Record<
@@ -33,6 +35,12 @@ export const registerCustomPropertyTypeWidgets = (plugin: BetterProperties) => {
 
 		customPropertyType.registerListeners(plugin);
 		customPropertyType.onStartup(plugin);
+
+		if (customPropertyType.reservedKeys?.length) {
+			customPropertyType.reservedKeys.forEach((key) => {
+				plugin.app.metadataTypeManager.setType(key, type);
+			});
+		}
 	});
 };
 

@@ -4,6 +4,7 @@ import { IconSuggest } from "~/Classes/InputSuggest/IconSuggest";
 import { getPropertyTypeSettings } from "~/CustomPropertyTypes";
 import { updatePropertyTypeSettings } from "~/CustomPropertyTypes/utils";
 import BetterProperties from "~/main";
+import { refreshPropertyEditor } from "..";
 
 export const openChangeIconModal = ({
 	plugin,
@@ -48,6 +49,7 @@ export const openChangeIconModal = ({
 						type: "general",
 						cb: (s) => ({ ...s, icon }),
 					});
+					refreshPropertyEditor(plugin, property);
 					modal.close();
 				})
 		);

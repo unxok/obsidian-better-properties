@@ -14,6 +14,14 @@
 		align-items: center;
 		padding: var(--input-padding);
 	}
+
+	&.better-properties-mod-title {
+		width: 100%;
+		& > input {
+			background-color: transparent;
+			width: 100%;
+		}
+	}
 }
 
 .metadata-property:has(.dropdown) {
