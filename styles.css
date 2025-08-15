@@ -22,6 +22,55 @@
 			width: 100%;
 		}
 	}
+
+	&.better-properties-mod-markdown {
+		padding: var(--input-padding);
+		&:has(.collapse-indicator.collapse-icon) {
+			padding: 0 16px; /* 10px is width of svg-icon and 5px is padding-inline-end of .collapse-indicator plus an extra 1px for space... unfortunately these are manually defined in default stylesheet */
+		}
+		width: 100%;
+		font-family: var(--font-text) !important;
+		line-height: var(--line-height-normal) I !important;
+
+		& .markdown-source-view.mod-cm6.is-readable-line-width .cm-content,
+		& .mod-cm6.is-readable-line-width .cm-content {
+			width: unset !important;
+		}
+
+		& div.cm-gutters {
+			display: none !important;
+		}
+		& div.cm-scroller {
+			overflow: visible;
+
+			.ͼ1 & {
+				font-family: var(--font-text);
+				line-height: var(--line-height-normal);
+			}
+		}
+
+		& .cm-line:not(.HyperMD-codeblock),
+		& .cm-content,
+		& .cm-sizer {
+			max-width: none !important;
+			/* width: fit-content !important; */
+			width: 100% !important;
+			line-height: inherit !important;
+			display: inline-block;
+		}
+		& div[role="textbox"] {
+			/* width: fit-content; */
+			/* width: 100% !important; */
+			text-wrap: wrap;
+			white-space: pre-line;
+			display: inline-flex;
+			flex-direction: column;
+		}
+		& * {
+			text-align: inherit;
+			/* width: 100% !important; */
+		}
+	}
 }
 
 .metadata-property:has(.dropdown) {

@@ -1,4 +1,10 @@
-import { Modal, ButtonComponent, Plugin } from "obsidian";
+import {
+	Modal,
+	ButtonComponent,
+	Plugin,
+	Workspace,
+	WorkspaceLeaf,
+} from "obsidian";
 import {
 	BetterPropertiesSettings,
 	betterPropertiesSettingsSchema,
@@ -15,13 +21,14 @@ import {
 	patchMetadataEditor,
 	refreshPropertyEditor,
 } from "~/MetadataEditor";
+import { around, dedupe } from "monkey-around";
+import { monkeyAroundKey } from "~/lib/constants";
 
 export class BetterProperties extends Plugin {
 	settings: BetterPropertiesSettings = getDefaultSettings();
 
 	rebuildLeaves(): void {
 		this.app.workspace.iterateAllLeaves((leaf) => {
-			// @ts-expect-error Private API not documented in obsidian-typings
 			leaf.rebuildView && leaf.rebuildView();
 		});
 	}
@@ -53,6 +60,26 @@ export class BetterProperties extends Plugin {
 			this.rebuildLeaves();
 		});
 		this.handlePropertyLabelWidth();
+
+		// this.test();
+	}
+
+	test() {
+		const { workspace } = this.app;
+		const remove = around(workspace, {
+			setActiveLeaf(old) {
+				return dedupe(
+					monkeyAroundKey,
+					old,
+					function (leaf: WorkspaceLeaf, ...rest: unknown[]) {
+						console.log("set leaf: ", leaf);
+						// @ts-expect-error
+						const exit = () => old.call(workspace, ...rest);
+					}
+				);
+			},
+		});
+		this.register(remove);
 	}
 
 	handlePropertyLabelWidth(): void {

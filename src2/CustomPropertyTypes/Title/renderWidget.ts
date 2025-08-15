@@ -12,7 +12,6 @@ export const renderWidget: CustomPropertyType<string>["renderWidget"] = ({
 	ctx,
 	value,
 }) => {
-	console.log("render");
 	// const settings = getPropertyTypeSettings({
 	// 	plugin,
 	// 	property: ctx.key,

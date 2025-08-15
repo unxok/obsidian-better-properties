@@ -46,6 +46,7 @@ export const propertySettingsSchema = z.object({
 		.optional(),
 	toggle: z.object({}).optional(),
 	title: z.object({}).optional(),
+	markdown: z.object({}).optional(),
 }) satisfies ZodObject<
 	Record<
 		string,

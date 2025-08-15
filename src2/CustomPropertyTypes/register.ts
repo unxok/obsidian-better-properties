@@ -6,11 +6,13 @@ import { customPropertyTypePrefix, monkeyAroundKey } from "~/lib/constants";
 import { around, dedupe } from "monkey-around";
 import { togglePropertyType } from "./Toggle";
 import { titlePropertyType } from "./Title";
+import { markdownPropertyType } from "./Markdown";
 
 export const customPropertyTypesArr: CustomPropertyType<any>[] = [
 	dropdownPropertyType,
 	togglePropertyType,
 	titlePropertyType,
+	markdownPropertyType,
 ];
 
 export const customPropertyTypesRecord: Record<

@@ -2,6 +2,7 @@ import BetterProperties from "~/main";
 import { CustomTypeKey, PropertySettings } from "./types";
 import { typeWidgetPrefix } from "@/libs/constants";
 import { getDefaultPropertySettings } from "./schema";
+import { ValueComponent } from "obsidian";
 
 export const getPropertySettings = ({
 	plugin,
@@ -112,10 +113,23 @@ export const updatePropertyTypeSettings = <T extends CustomTypeKey>({
 	setPropertySettings({ plugin, property, settings });
 };
 
-export class PropertyValueComponent {
-	constructor(public containerEl: HTMLElement) {}
+export class PropertyValueComponent<T> extends ValueComponent<T> {
+	constructor(public containerEl: HTMLElement) {
+		super();
+	}
 
-	public focus(): void {}
+	getValue(): T {
+		throw new Error("Method not implemented");
+	}
+
+	setValue(value: T): this {
+		throw new Error("Method not implemented");
+		value;
+	}
+
+	focus(): void {
+		throw new Error("Method not implemented");
+	}
 }
 
 export const withoutTypeWidgetPrefix = (str: string) => {

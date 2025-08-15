@@ -4,7 +4,7 @@ import {
 	PropertyWidget as BasePropertyWidget,
 	MetadataTypeManager as BaseMetadataTypeManager,
 	PropertyInfo as BasePropertyInfo,
-	PropertyRenderContext,
+	PropertyRenderContext as BasePropertyRenderContext,
 } from "obsidian-typings";
 import { Scope as BaseScope } from "obsidian";
 
@@ -58,5 +58,12 @@ declare module "obsidian-typings" {
 		 * @remark used to be named `type`
 		 */
 		widget: string;
+	}
+
+	interface PropertyRenderContext extends BasePropertyRenderContext {
+		/**
+		 * @deprecated
+		 */
+		metadataEditor: never;
 	}
 }
