@@ -23,6 +23,6 @@
 				"./node_modules/obsidian-typings/dist/implementations.cjs"
 			]
 		},
-		"types": ["obsidian-typings", "./src/libs/types"]
+		"types": ["obsidian-typings", "./src2/libs/types"]
 	}
 }

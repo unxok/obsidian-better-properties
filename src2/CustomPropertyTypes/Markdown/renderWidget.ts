@@ -39,8 +39,15 @@ export const renderWidget: CustomPropertyType<string>["renderWidget"] = ({
 		ctx.sourcePath
 	);
 
-	const cmp = new PropertyValueComponent(container);
-	cmp.focus = () => emde.focus();
+	const cmp = new PropertyValueComponent(
+		container,
+		(v) => {
+			emde.set(v?.toString() ?? "", true);
+		},
+		() => {
+			emde.focus();
+		}
+	);
 
 	window.setTimeout(() => {
 		plugin.app.workspace.iterateAllLeaves((leaf) => {

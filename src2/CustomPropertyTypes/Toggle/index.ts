@@ -12,5 +12,4 @@ export const togglePropertyType: CustomPropertyType<boolean> = {
 	registerListeners,
 	renderSettings,
 	renderWidget,
-	onStartup: () => {},
 };

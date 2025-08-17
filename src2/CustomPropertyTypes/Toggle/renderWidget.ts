@@ -29,7 +29,13 @@ export const renderWidget: CustomPropertyType<boolean>["renderWidget"] = ({
 			ctx.onChange(b);
 		});
 
-	const cmp = new PropertyValueComponent(container);
-	cmp.focus = () => toggle.toggleEl.focus();
-	return cmp;
+	return new PropertyValueComponent(
+		container,
+		(v) => {
+			toggle.setValue(!!v);
+		},
+		() => {
+			toggle.toggleEl.focus();
+		}
+	);
 };

@@ -1,12 +1,13 @@
 import BetterProperties from "~/main";
 import { CustomPropertyType, CustomTypeKey, getPropertyTypeSettings } from ".";
 import { dropdownPropertyType } from "./Dropdown";
-import { PropertyWidget, setIcon } from "obsidian";
+import { setIcon } from "obsidian";
 import { customPropertyTypePrefix, monkeyAroundKey } from "~/lib/constants";
 import { around, dedupe } from "monkey-around";
 import { togglePropertyType } from "./Toggle";
 import { titlePropertyType } from "./Title";
 import { markdownPropertyType } from "./Markdown";
+import { PropertyWidget } from "obsidian-typings";
 
 export const customPropertyTypesArr: CustomPropertyType<any>[] = [
 	dropdownPropertyType,
@@ -25,7 +26,8 @@ export const customPropertyTypesRecord: Record<
 
 export const registerCustomPropertyTypeWidgets = (plugin: BetterProperties) => {
 	customPropertyTypesArr.forEach((customPropertyType) => {
-		const render: PropertyWidget<unknown>["render"] = (el, value, ctx) => {
+		// @ts-expect-error TODO obsidian-typings has incorrect return type for render()
+		const render: PropertyWidget["render"] = (el, value, ctx) => {
 			return customPropertyType.renderWidget({ plugin, el, value, ctx });
 		};
 		const type = customPropertyTypePrefix + customPropertyType.type;
@@ -36,7 +38,6 @@ export const registerCustomPropertyTypeWidgets = (plugin: BetterProperties) => {
 		};
 
 		customPropertyType.registerListeners(plugin);
-		customPropertyType.onStartup(plugin);
 
 		if (customPropertyType.reservedKeys?.length) {
 			customPropertyType.reservedKeys.forEach((key) => {

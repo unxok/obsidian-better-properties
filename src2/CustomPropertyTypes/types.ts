@@ -36,8 +36,6 @@ export type CustomPropertyType<Value> = {
 		modal: PropertySettingsModal;
 		property: string;
 	}) => void;
-
-	onStartup: (plugin: BetterProperties) => void;
 };
 
 export type CustomTypeWidget<Value> = {

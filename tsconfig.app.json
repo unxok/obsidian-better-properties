@@ -27,5 +27,8 @@
 			"~/*": ["./src2/*"]
 		}
 	},
-	"include": ["src", "src2"]
+	"include": [
+		// "src",
+		"src2"
+	]
 }

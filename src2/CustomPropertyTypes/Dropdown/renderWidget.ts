@@ -74,9 +74,15 @@ export const renderWidget: CustomPropertyType<string>["renderWidget"] = ({
 		}
 	}
 
-	const cmp = new PropertyValueComponent(container);
-	cmp.focus = () => dropdown.selectEl.focus();
-	return cmp;
+	return new PropertyValueComponent(
+		container,
+		(v) => {
+			dropdown.setValue(v?.toString() ?? "");
+		},
+		() => {
+			dropdown.selectEl.focus();
+		}
+	);
 };
 
 const createLinkEl = ({

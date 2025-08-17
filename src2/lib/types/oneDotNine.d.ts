@@ -9,17 +9,6 @@ import {
 import { Scope as BaseScope } from "obsidian";
 
 declare module "obsidian" {
-	interface PropertyWidget<T> extends BasePropertyWidget<T> {
-		render(
-			containerEl: HTMLElement,
-			/**
-			 * 1.9+ changed to `T`
-			 */
-			value: T,
-			context: PropertyRenderContext
-		): PropertyValueComponent;
-	}
-
 	interface Scope extends BaseScope {
 		/**
 		 * Not sure if it was actually 1.9 or earlier
@@ -65,5 +54,16 @@ declare module "obsidian-typings" {
 		 * @deprecated
 		 */
 		metadataEditor: never;
+	}
+
+	interface PropertyWidget extends BasePropertyWidget {
+		render(
+			containerEl: HTMLElement,
+			/**
+			 * 1.9+ changed to `T`
+			 */
+			value: unknown,
+			context: PropertyRenderContext
+		): PropertyValueComponent;
 	}
 }

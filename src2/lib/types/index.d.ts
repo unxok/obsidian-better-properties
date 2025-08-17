@@ -1,9 +1,9 @@
 import { Events, Workspace as BaseWorkspace } from "obsidian";
 import {
 	MetadataTypeManager as BaseMetadataTypeManager,
-	PropertyWidget as BasePropertyWidget,
 	MetadataEditor as BaseMetadataEditor,
 	PropertyEntryData,
+	PropertyWidget,
 } from "obsidian-typings";
 
 declare module "obsidian" {
@@ -34,12 +34,13 @@ declare module "obsidian" {
 	}
 
 	interface MetadataTypeManager extends BaseMetadataTypeManager {
-		registeredTypeWidgets: Record<string, PropertyWidget<unknown>>;
+		registeredTypeWidgets: Record<string, PropertyWidget>;
 	}
 
 	interface PropertyValueComponent {
 		containerEl: HTMLElement;
-		focus(_: unknown): void;
+		private focus(_: unknown): void;
+		onFocus(): void;
 	}
 
 	// interface MetadataEditor extends BaseMetadataEditor {

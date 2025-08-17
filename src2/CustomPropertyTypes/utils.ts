@@ -1,8 +1,8 @@
 import BetterProperties from "~/main";
 import { CustomTypeKey, PropertySettings } from "./types";
-import { typeWidgetPrefix } from "@/libs/constants";
 import { getDefaultPropertySettings } from "./schema";
-import { ValueComponent } from "obsidian";
+import { PropertyValueComponent as IPropertyValueComponent } from "obsidian";
+import { customPropertyTypePrefix } from "~/lib/constants";
 
 export const getPropertySettings = ({
 	plugin,
@@ -113,26 +113,19 @@ export const updatePropertyTypeSettings = <T extends CustomTypeKey>({
 	setPropertySettings({ plugin, property, settings });
 };
 
-export class PropertyValueComponent<T> extends ValueComponent<T> {
-	constructor(public containerEl: HTMLElement) {
-		super();
-	}
-
-	getValue(): T {
-		throw new Error("Method not implemented");
-	}
-
-	setValue(value: T): this {
-		throw new Error("Method not implemented");
-		value;
-	}
+export class PropertyValueComponent implements IPropertyValueComponent {
+	constructor(
+		public containerEl: HTMLElement,
+		public setValue: (value: unknown) => void,
+		public onFocus: () => void
+	) {}
 
 	focus(): void {
-		throw new Error("Method not implemented");
+		this.onFocus();
 	}
 }
 
 export const withoutTypeWidgetPrefix = (str: string) => {
-	if (!str.startsWith(typeWidgetPrefix)) return str;
-	return str.slice(typeWidgetPrefix.length);
+	if (!str.startsWith(customPropertyTypePrefix)) return str;
+	return str.slice(customPropertyTypePrefix.length);
 };

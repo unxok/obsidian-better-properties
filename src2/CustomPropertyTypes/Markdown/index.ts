@@ -12,5 +12,4 @@ export const markdownPropertyType: CustomPropertyType<string> = {
 	registerListeners,
 	renderSettings,
 	renderWidget,
-	onStartup: () => {},
 };

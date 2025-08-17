@@ -64,7 +64,15 @@ export const renderWidget: CustomPropertyType<string>["renderWidget"] = ({
 		}
 	});
 
-	const cmp = new PropertyValueComponent(container);
-	cmp.focus = () => text.inputEl.focus();
+	const cmp = new PropertyValueComponent(
+		container,
+		(v) => {
+			text.setValue(v?.toString() ?? "");
+			doRename();
+		},
+		() => {
+			text.inputEl.focus();
+		}
+	);
 	return cmp;
 };
