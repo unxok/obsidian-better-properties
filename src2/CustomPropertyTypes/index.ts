@@ -4,7 +4,6 @@ import {
 	RenderCustomTypeSettings,
 	RenderCustomTypeWidget,
 	PropertySettings,
-	CustomTypeWidget,
 } from "./types";
 import { getDefaultPropertySettings, propertySettingsSchema } from "./schema";
 import { getPropertySettings, getPropertyTypeSettings } from "./utils";
@@ -17,7 +16,6 @@ export {
 	type PropertySettings,
 	type CustomTypeKey,
 	type CustomPropertyType,
-	type CustomTypeWidget,
 	type RenderCustomTypeSettings,
 	type RenderCustomTypeWidget,
 };

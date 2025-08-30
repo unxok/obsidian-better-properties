@@ -6,7 +6,6 @@ import { renderWidget } from "./renderWidget";
 export const togglePropertyType: CustomPropertyType = {
 	type: "toggle",
 	name: () => "Toggle",
-	default: () => false,
 	icon: "lucide-toggle-left",
 	validate: (v) => typeof v === "boolean",
 	registerListeners,

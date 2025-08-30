@@ -38,10 +38,14 @@ export const registerCustomPropertyTypeWidgets = (plugin: BetterProperties) => {
 			return customPropertyType.renderWidget({ plugin, el, value, ctx });
 		};
 		const type = customPropertyTypePrefix + customPropertyType.type;
+		const { icon, name, validate, reservedKeys } = customPropertyType;
 		plugin.app.metadataTypeManager.registeredTypeWidgets[type] = {
-			...customPropertyType,
 			type,
 			render,
+			icon,
+			name,
+			validate,
+			reservedKeys,
 		};
 
 		customPropertyType.registerListeners(plugin);

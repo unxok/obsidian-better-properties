@@ -1,24 +1,13 @@
-import {
-	debounce,
-	displayTooltip,
-	Menu,
-	Modal,
-	setIcon,
-	setTooltip,
-	stringifyYaml,
-	TFile,
-} from "obsidian";
+import { displayTooltip, Menu, setIcon, stringifyYaml, TFile } from "obsidian";
 import { CustomPropertyType } from "../types";
 import {
 	findKeyValueByDotNotation,
 	flashElement,
-	// getPropertyTypeSettings,
 	PropertyValueComponent,
 	triggerPropertyTypeChange,
 	updateNestedObject,
 } from "../utils";
 import { Icon } from "~/lib/types/icons";
-import { number, unknown } from "zod";
 import BetterProperties from "~/main";
 import { obsidianText } from "~/i18next/obsidian";
 import { ConfirmationModal } from "~/Classes/ConfirmationModal";
@@ -103,7 +92,7 @@ export const renderWidget: CustomPropertyType["renderWidget"] = ({
 
 	return new PropertyValueComponent(
 		container,
-		(v) => {
+		() => {
 			// toggle.setValue(!!v);
 		},
 		() => {

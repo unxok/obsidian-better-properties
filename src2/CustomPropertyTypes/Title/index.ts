@@ -7,7 +7,6 @@ import { renderWidget } from "./renderWidget";
 export const titlePropertyType: CustomPropertyType = {
 	type: "title",
 	name: () => "Title",
-	default: () => "",
 	icon: "lucide-letter-text",
 	validate: (v) => typeof v === "string",
 	registerListeners,

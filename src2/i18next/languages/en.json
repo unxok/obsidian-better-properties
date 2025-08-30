@@ -1,4 +1,10 @@
 {
-	"foo": "bar",
-	"fizz": "buzz"
+	"customPropertyTypes": {
+		"created": {},
+		"dropdown": {},
+		"group": {},
+		"markdown": {},
+		"title": {},
+		"toggle": {}
+	}
 }

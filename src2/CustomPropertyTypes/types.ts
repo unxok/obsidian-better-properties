@@ -18,7 +18,6 @@ export type CustomTypeKey = keyof PropertySettings;
 export type CustomPropertyType = {
 	type: CustomTypeKey;
 	icon: Icon;
-	default(): unknown;
 	name(): string;
 	validate(value: unknown): boolean;
 	renderWidget(args: {
@@ -38,14 +37,14 @@ export type CustomPropertyType = {
 	}) => void;
 };
 
-export type CustomTypeWidget<Value> = {
-	type: CustomTypeKey;
-	icon: string;
-	default: () => Value;
-	name: () => string;
-	validate: (value: unknown) => boolean;
-	render: RenderCustomTypeWidget<Value>;
-};
+// export type CustomTypeWidget<Value> = {
+// 	type: CustomTypeKey;
+// 	icon: string;
+// 	default: () => Value;
+// 	name: () => string;
+// 	validate: (value: unknown) => boolean;
+// 	render: RenderCustomTypeWidget<Value>;
+// };
 
 export type RenderCustomTypeSettings = (args: {
 	plugin: BetterProperties;

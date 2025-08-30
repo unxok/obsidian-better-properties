@@ -8,7 +8,6 @@ export const typeKey = "dropdown" satisfies CustomTypeKey;
 export const dropdownPropertyType: CustomPropertyType = {
 	type: typeKey,
 	icon: "lucide-circle-chevron-down",
-	default: () => "",
 	name: () => "Dropdown",
 	validate: (v) => typeof v?.toString() === "string",
 	renderWidget,

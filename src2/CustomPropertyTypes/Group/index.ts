@@ -6,7 +6,6 @@ import { renderWidget } from "./renderWidget";
 export const groupPropertyType: CustomPropertyType = {
 	type: "group",
 	name: () => "Group",
-	default: () => false,
 	icon: "lucide-braces",
 	validate: (v) =>
 		v === null ||

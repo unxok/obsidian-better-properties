@@ -6,7 +6,6 @@ import { renderWidget } from "./renderWidget";
 export const markdownPropertyType: CustomPropertyType = {
 	type: "markdown",
 	name: () => "Markdown",
-	default: () => "",
 	icon: "lucide-m-square",
 	validate: (v) => typeof v === "string",
 	registerListeners,
