@@ -3,7 +3,7 @@ import { registerListeners } from "./registerListeners";
 import { renderSettings } from "./renderSettings";
 import { renderWidget } from "./renderWidget";
 
-export const markdownPropertyType: CustomPropertyType<string> = {
+export const markdownPropertyType: CustomPropertyType = {
 	type: "markdown",
 	name: () => "Markdown",
 	default: () => "",

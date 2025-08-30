@@ -6,7 +6,7 @@ import {
 } from "../utils";
 import { tryCatch } from "~/lib/utils";
 
-export const renderWidget: CustomPropertyType<string>["renderWidget"] = ({
+export const renderWidget: CustomPropertyType["renderWidget"] = ({
 	plugin,
 	el,
 	ctx,

@@ -1,11 +1,12 @@
-import { ToggleComponent } from "obsidian";
+import { App, Component, ToggleComponent } from "obsidian";
 import { CustomPropertyType } from "../types";
 import {
 	// getPropertyTypeSettings,
 	PropertyValueComponent,
 } from "../utils";
+import { PropertyWidget } from "obsidian-typings";
 
-export const renderWidget: CustomPropertyType<boolean>["renderWidget"] = ({
+export const renderWidget: CustomPropertyType["renderWidget"] = ({
 	// plugin,
 	el,
 	ctx,
@@ -16,6 +17,8 @@ export const renderWidget: CustomPropertyType<boolean>["renderWidget"] = ({
 	// 	property: ctx.key,
 	// 	type: "toggle",
 	// });
+
+	console.log("value: ", initialValue);
 
 	const value = !!initialValue;
 

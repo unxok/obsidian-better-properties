@@ -18,7 +18,7 @@ type OptionsType = NonNullable<Settings["optionsType"]>;
 type DynamicOptionsType = NonNullable<Settings["dynamicOptionsType"]>;
 type Option = NonNullable<Settings["manualOptions"]>[number];
 
-export const renderSettings: CustomPropertyType<string>["renderSettings"] = ({
+export const renderSettings: CustomPropertyType["renderSettings"] = ({
 	plugin,
 	modal,
 	property,

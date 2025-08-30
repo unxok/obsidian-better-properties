@@ -15,16 +15,16 @@ export type CustomTypeKey = keyof PropertySettings;
 // 	widget: CustomTypeWidget<Value>;
 // };
 
-export type CustomPropertyType<Value> = {
+export type CustomPropertyType = {
 	type: CustomTypeKey;
 	icon: Icon;
-	default(): Value;
+	default(): unknown;
 	name(): string;
 	validate(value: unknown): boolean;
 	renderWidget(args: {
 		plugin: BetterProperties;
 		el: HTMLElement;
-		value: Value | null;
+		value: unknown;
 		ctx: PropertyRenderContext;
 	}): PropertyValueComponent;
 	reservedKeys?: string[];

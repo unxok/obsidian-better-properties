@@ -77,6 +77,57 @@
 	--input-radius: unset;
 }
 
+.metadata-property:has(.better-properties-mod-group) {
+	display: flex;
+	flex-direction: column;
+	position: relative;
+	--better-properties-indent-size: var(--list-indent-editing);
+	--better-properties-indent-size-2x: calc(var(--list-indent-editing) * 2);
+
+	/* .better-properties-properties-group-collapse-indicator {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		margin: auto 0;
+	} */
+
+	&::before {
+		content: "";
+		position: absolute;
+		left: calc(
+			var(--better-properties-indent-size) - 1px
+		); /* TODO idk why this needs to be offset by 1px */
+		top: var(--input-height);
+		width: var(--indentation-guide-width);
+		height: calc(100% - var(--input-height));
+		background-color: var(--indentation-guide-color);
+	}
+
+	.better-properties-property-value-inner.better-properties-mod-group.metadata-container {
+		display: flex;
+		flex-direction: column;
+		width: 100%;
+		margin-inline-start: var(--better-properties-indent-size-2x);
+		margin-block-end: 0px;
+
+		div.better-properties-property-group-add-property.metadata-add-button.text-icon-button {
+			width: fit-content;
+		}
+
+		/* TODO this still isn't quite matching the default... it's just not square */
+		div.clickable-icon.metadata-property-warning-icon {
+			--icon-size: var(--icon-s);
+			margin-inline-end: 0px;
+			margin-inline-start: 0px;
+
+			&:hover {
+				color: var(--text-warning);
+				background-color: rgba(var(--color-orange-rgb), 0.15);
+			}
+		}
+	}
+}
+
 div.setting-item.better-properties-list-setting {
 	flex-direction: column;
 	align-items: start;

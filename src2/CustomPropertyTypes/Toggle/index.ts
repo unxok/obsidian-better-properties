@@ -3,7 +3,7 @@ import { registerListeners } from "./registerListeners";
 import { renderSettings } from "./renderSettings";
 import { renderWidget } from "./renderWidget";
 
-export const togglePropertyType: CustomPropertyType<boolean> = {
+export const togglePropertyType: CustomPropertyType = {
 	type: "toggle",
 	name: () => "Toggle",
 	default: () => false,

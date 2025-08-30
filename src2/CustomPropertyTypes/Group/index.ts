@@ -1,17 +1,18 @@
-import { TITLE } from "~/lib/constants";
 import { CustomPropertyType } from "../types";
 import { registerListeners } from "./registerListeners";
 import { renderSettings } from "./renderSettings";
 import { renderWidget } from "./renderWidget";
 
-export const titlePropertyType: CustomPropertyType = {
-	type: "title",
-	name: () => "Title",
-	default: () => "",
-	icon: "lucide-letter-text",
-	validate: (v) => typeof v === "string",
+export const groupPropertyType: CustomPropertyType = {
+	type: "group",
+	name: () => "Group",
+	default: () => false,
+	icon: "lucide-braces",
+	validate: (v) =>
+		v === null ||
+		v === undefined ||
+		(typeof v === "object" && !Array.isArray(v)),
 	registerListeners,
 	renderSettings,
 	renderWidget,
-	reservedKeys: [TITLE],
 };

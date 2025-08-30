@@ -17,7 +17,7 @@ import { Icon } from "~/lib/types/icons";
 import BetterProperties from "~/main";
 import { PropertyRenderContext } from "obsidian-typings";
 
-export const renderWidget: CustomPropertyType<string>["renderWidget"] = ({
+export const renderWidget: CustomPropertyType["renderWidget"] = ({
 	plugin,
 	el,
 	value: initialValue,

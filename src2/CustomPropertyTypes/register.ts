@@ -7,26 +7,33 @@ import { around, dedupe } from "monkey-around";
 import { togglePropertyType } from "./Toggle";
 import { titlePropertyType } from "./Title";
 import { markdownPropertyType } from "./Markdown";
-import { PropertyWidget } from "obsidian-typings";
+import {
+	MetadataTypeManagerRegisteredTypeWidgetsRecord,
+	PropertyWidget,
+} from "obsidian-typings";
+import { createdPropertyType } from "./Created";
+import { groupPropertyType } from "./Group";
 
-export const customPropertyTypesArr: CustomPropertyType<any>[] = [
+export const customPropertyTypesArr: CustomPropertyType[] = [
 	dropdownPropertyType,
 	togglePropertyType,
 	titlePropertyType,
 	markdownPropertyType,
+	createdPropertyType,
+	groupPropertyType,
 ];
 
 export const customPropertyTypesRecord: Record<
 	CustomTypeKey,
-	CustomPropertyType<any>
+	CustomPropertyType
 > = customPropertyTypesArr.reduce((acc, cur) => {
 	acc[cur.type] = cur;
 	return acc;
-}, {} as Record<CustomTypeKey, CustomPropertyType<any>>);
+}, {} as Record<CustomTypeKey, CustomPropertyType>);
 
 export const registerCustomPropertyTypeWidgets = (plugin: BetterProperties) => {
 	customPropertyTypesArr.forEach((customPropertyType) => {
-		// @ts-expect-error TODO obsidian-typings has incorrect return type for render()
+		// @ts-expect-error TODO obsidian-typings issue I think
 		const render: PropertyWidget["render"] = (el, value, ctx) => {
 			return customPropertyType.renderWidget({ plugin, el, value, ctx });
 		};
@@ -50,6 +57,7 @@ export const registerCustomPropertyTypeWidgets = (plugin: BetterProperties) => {
 export const wrapAllPropertyTypeWidgets = (plugin: BetterProperties) => {
 	const { registeredTypeWidgets } = plugin.app.metadataTypeManager;
 	Object.values(registeredTypeWidgets).forEach((widget) => {
+		// console.log(widget.name(), widget.render);
 		const removePatch = around(widget, {
 			render(old) {
 				return dedupe(monkeyAroundKey, old, (containerEl, value, ctx) => {
@@ -106,7 +114,7 @@ export const sortRegisteredTypeWidgets = (plugin: BetterProperties) => {
 	const sortedWidgets = sortedKeys.reduce((acc, cur) => {
 		acc[cur] = registered[cur];
 		return acc;
-	}, {} as Record<string, PropertyWidget<unknown>>);
+	}, {} as MetadataTypeManagerRegisteredTypeWidgetsRecord);
 
 	plugin.app.metadataTypeManager.registeredTypeWidgets = sortedWidgets;
 	plugin.app.metadataTypeManager.trigger("changed");

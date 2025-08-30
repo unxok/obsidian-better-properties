@@ -23,7 +23,6 @@
 		"esbuild": "^0.25.5",
 		"luxon": "^3.5.0",
 		"obsidian": "latest",
-		"obsidian-typings": "^3.16.4",
 		"tslib": "^2.7.0",
 		"typescript": "^5.8.3",
 		"vite": "^6.3.5",
@@ -31,6 +30,7 @@
 	},
 	"dependencies": {
 		"monkey-around": "^3.0.0",
+		"obsidian-typings": "obsidian-public-latest",
 		"zod": "^3.23.8"
 	}
 }

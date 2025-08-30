@@ -2,8 +2,16 @@ import {
 	Modal,
 	ButtonComponent,
 	Plugin,
-	Workspace,
 	WorkspaceLeaf,
+	Constructor,
+	Notice,
+	MarkdownPostProcessorContext,
+	Component,
+	MarkdownRenderChild,
+	MarkdownPreviewRenderer,
+	MarkdownRenderer,
+	loadPrism,
+	App,
 } from "obsidian";
 import {
 	BetterPropertiesSettings,
@@ -61,25 +69,12 @@ export class BetterProperties extends Plugin {
 		});
 		this.handlePropertyLabelWidth();
 
-		// this.test();
-	}
-
-	test() {
-		const { workspace } = this.app;
-		const remove = around(workspace, {
-			setActiveLeaf(old) {
-				return dedupe(
-					monkeyAroundKey,
-					old,
-					function (leaf: WorkspaceLeaf, ...rest: unknown[]) {
-						console.log("set leaf: ", leaf);
-						// @ts-expect-error
-						const exit = () => old.call(workspace, ...rest);
-					}
-				);
-			},
+		this.registerMarkdownCodeBlockProcessor("script", (source, el, ctx) => {
+			new Script(this, el, source, ctx);
 		});
-		this.register(remove);
+		window.CodeMirror.defineMode("script", (config) =>
+			window.CodeMirror.getMode(config, "javascript")
+		);
 	}
 
 	handlePropertyLabelWidth(): void {
@@ -105,6 +100,9 @@ export class BetterProperties extends Plugin {
 
 	onunload(): void {
 		unregisterCustomPropertyTypeWidgets(this);
+		window.CodeMirror.defineMode("script", (config) =>
+			window.CodeMirror.getMode(config, "null")
+		);
 	}
 
 	async onExternalSettingsChange() {
@@ -163,5 +161,92 @@ export class BetterProperties extends Plugin {
 		const newSettings = cb(this.settings);
 		this.settings = { ...newSettings };
 		await this.saveSettings();
+	}
+}
+
+class Script {
+	public app: App;
+	public mdrc: MarkdownRenderChild;
+	public component: Component;
+	public containerEl: HTMLElement;
+	constructor(
+		public plugin: BetterProperties,
+		public el: HTMLElement,
+		public source: string,
+		public ctx: MarkdownPostProcessorContext
+	) {
+		this.app = plugin.app;
+		this.mdrc = new MarkdownRenderChild(el);
+		this.component = new Component();
+		this.containerEl = el.createDiv();
+		this.mdrc.addChild(this.component);
+		this.ctx.addChild(this.mdrc);
+
+		if (!source) {
+			this.renderHelp();
+			return;
+		}
+		this.runCode(source);
+	}
+
+	async renderHelp() {
+		const helpText = `## Usage\n - Enter \`console.log(script)\` to see what information is available to use in your script\n\n- To load external scripts: \`script.loadScript("path/to/main.js", "path/to/styles.css")\`\n\n## Typescript\n\`\`\`\ndeclare const script: {\n  app: App;\n  mdrc: MarkdownRenderChild;\n  component: Component;\n  plugin: Plugin;\n  el: HTMLElement;\n  source: string;\n  ctx: MarkdownPostProcessorContext;\n};\n\`\`\``;
+		const container = this.el.createDiv();
+
+		await MarkdownRenderer.render(
+			this.plugin.app,
+			helpText,
+			container,
+			this.ctx.sourcePath,
+			this.component
+		);
+	}
+
+	runCode(code: string) {
+		try {
+			const func = eval(`(script) => {${code}}`);
+			func(this);
+		} catch (e) {
+			const msg = e instanceof Error ? e.message : "Unknown Error";
+			const fullMsg =
+				"An error occurred when rendering script codeblock: " + msg;
+			console.error(fullMsg);
+			this.el.textContent = fullMsg;
+		}
+	}
+
+	async loadScript(pathToMainJs: string, pathToStylesCss?: string) {
+		const {
+			plugin: {
+				app: { vault },
+			},
+			el,
+		} = this;
+		const mainJsFile = vault.getFileByPath(pathToMainJs);
+		if (!mainJsFile) {
+			throw new Error("main.js file not found by path: " + pathToMainJs);
+		}
+
+		const stylesCssFile = pathToStylesCss
+			? vault.getFileByPath(pathToStylesCss)
+			: null;
+		if (pathToStylesCss && !stylesCssFile) {
+			throw new Error("styles.css file not found by path: " + pathToStylesCss);
+		}
+
+		if (stylesCssFile) {
+			const styleEl = el.createEl("style");
+			styleEl.innerHTML = await vault.read(stylesCssFile);
+		}
+
+		this.runCode(await vault.read(mainJsFile));
+	}
+
+	refresh() {
+		this.component.unload();
+		console.log(this.component);
+		this.el.empty();
+		this.containerEl = this.el.createDiv();
+		this.runCode(this.source);
 	}
 }

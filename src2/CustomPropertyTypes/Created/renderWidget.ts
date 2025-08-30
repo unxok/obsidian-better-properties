@@ -1,12 +1,11 @@
-import { displayTooltip, moment, TextComponent } from "obsidian";
+import { moment } from "obsidian";
 import { CustomPropertyType } from "../types";
 import {
 	// getPropertyTypeSettings,
 	PropertyValueComponent,
 } from "../utils";
-import { tryCatch } from "~/lib/utils";
 
-export const renderWidget: CustomPropertyType<number>["renderWidget"] = ({
+export const renderWidget: CustomPropertyType["renderWidget"] = ({
 	plugin,
 	el,
 	ctx,
@@ -29,12 +28,19 @@ export const renderWidget: CustomPropertyType<number>["renderWidget"] = ({
 
 	const ctime = file.stat.ctime;
 	const dateInput = container.createEl("input", {
-		type: "datetime",
+		type: "datetime-local",
 		cls: "metadata-input metadata-input-text mod-datetime",
 		attr: {
-			disabled: "true",
-			value: moment(ctime).format("yyyy-MM-DDTHH:mm"),
+			// disabled: "true",
+			"aria-disabled": "true",
 		},
+	});
+
+	const createdTime = moment(ctime).format("yyyy-MM-DDTHH:mm");
+
+	dateInput.value = createdTime;
+	dateInput.addEventListener("input", () => {
+		dateInput.value = createdTime;
 	});
 
 	// const doRename = async () => {

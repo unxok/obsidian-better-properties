@@ -1,4 +1,3 @@
-import { MarkdownView } from "obsidian";
 import { CustomPropertyType } from "../types";
 import {
 	// getPropertyTypeSettings,
@@ -7,7 +6,7 @@ import {
 // import { EmbeddableMarkdownEditor } from "~/Classes/EmbeddableMarkdownEditor/original";
 import { EmbeddableMarkdownEditor } from "~/Classes/EmbeddableMarkdownEditor";
 
-export const renderWidget: CustomPropertyType<string>["renderWidget"] = ({
+export const renderWidget: CustomPropertyType["renderWidget"] = ({
 	plugin,
 	el,
 	ctx,
@@ -19,7 +18,7 @@ export const renderWidget: CustomPropertyType<string>["renderWidget"] = ({
 	// 	type: "toggle",
 	// });
 
-	const value = initialValue ?? "";
+	const value = typeof initialValue === "string" ? initialValue : "";
 
 	const container = el.createDiv({
 		cls: "better-properties-property-value-inner better-properties-mod-markdown metadata-input-longtext",
@@ -49,15 +48,15 @@ export const renderWidget: CustomPropertyType<string>["renderWidget"] = ({
 		}
 	);
 
-	window.setTimeout(() => {
-		plugin.app.workspace.iterateAllLeaves((leaf) => {
-			if (!(leaf.view instanceof MarkdownView)) return;
-			if (!leaf.containerEl.contains(el)) return;
-			leaf.view.metadataEditor.register(() => {
-				emde.destroy();
-			});
-		});
-	}, 0);
+	// window.setTimeout(() => {
+	// 	plugin.app.workspace.iterateAllLeaves((leaf) => {
+	// 		if (!(leaf.view instanceof MarkdownView)) return;
+	// 		if (!leaf.containerEl.contains(el)) return;
+	// 		leaf.view.metadataEditor.register(() => {
+	// 			emde.destroy();
+	// 		});
+	// 	});
+	// }, 0);
 
 	return cmp;
 };

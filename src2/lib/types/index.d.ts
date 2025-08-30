@@ -33,9 +33,9 @@ declare module "obsidian" {
 		onHeadingCollapseClick(e: MouseEvent, el: HTMLElement): void;
 	}
 
-	interface MetadataTypeManager extends BaseMetadataTypeManager {
-		registeredTypeWidgets: Record<string, PropertyWidget>;
-	}
+	// interface MetadataTypeManager extends BaseMetadataTypeManager {
+	// 	registeredTypeWidgets: Record<string, PropertyWidget>;
+	// }
 
 	interface PropertyValueComponent {
 		containerEl: HTMLElement;

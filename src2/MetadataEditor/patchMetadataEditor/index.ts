@@ -5,11 +5,14 @@ import { monkeyAroundKey } from "~/lib/constants";
 import { Icon } from "~/lib/types/icons";
 import { getPropertyType } from "~/lib/utils";
 import BetterProperties from "~/main";
+import { patchMetadataEditorProperty } from "./patchMetadataEditorProperty";
 
 export const patchMetadataEditor = (plugin: BetterProperties) => {
 	const mdePrototype = resolveMetadataEditorPrototype(
 		plugin
 	) as PatchedMetadataEditor;
+
+	patchMetadataEditorProperty(plugin, mdePrototype);
 
 	mdePrototype.createMoreButtonEl = function () {
 		return createMoreButtonEl(this);
@@ -52,7 +55,7 @@ export const patchMetadataEditor = (plugin: BetterProperties) => {
 	plugin.register(removePatch);
 };
 
-interface PatchedMetadataEditor extends MetadataEditor {
+export interface PatchedMetadataEditor extends MetadataEditor {
 	moreButtonEl: HTMLDivElement;
 	showHidden: boolean;
 	labelWidthResizerEl: HTMLElement;
@@ -62,7 +65,12 @@ interface PatchedMetadataEditor extends MetadataEditor {
 	createLabelWidthResizerEl(): this;
 }
 
-const resolveMetadataEditorPrototype = (plugin: BetterProperties) => {
+export const resolveMetadataEditorPrototype = (plugin: BetterProperties) => {
+	if (!plugin.app.workspace.layoutReady)
+		throw new Error(
+			"resolveMetadataEditorPrototype can only be used when the app.workspace.layoutReady is true"
+		);
+
 	const { workspace, viewRegistry } = plugin.app;
 	const leaf = workspace.getLeaf("tab");
 	const view = viewRegistry.viewByType["markdown"](leaf);
@@ -72,10 +80,6 @@ const resolveMetadataEditorPrototype = (plugin: BetterProperties) => {
 	leaf.detach();
 	return metadataEditorPrototype;
 };
-
-const resolveMetadataEditorPropertyPrototype = (
-	metadataEditorPrototype: MetadataEditor
-) => {};
 
 const createMoreButtonEl = (that: PatchedMetadataEditor) => {
 	if (that.moreButtonEl) {

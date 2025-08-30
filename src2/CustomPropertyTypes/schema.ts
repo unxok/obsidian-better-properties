@@ -49,6 +49,7 @@ export const propertySettingsSchema = z.object({
 	markdown: z.object({}).optional(),
 	created: z.object({}).optional(),
 	modified: z.object({}).optional(),
+	group: z.object({}).optional(),
 }) satisfies ZodObject<
 	Record<
 		string,

@@ -1,4 +1,4 @@
-import { Notice, PropertyWidget, Setting, TextAreaComponent } from "obsidian";
+import { Notice, Setting, TextAreaComponent } from "obsidian";
 import { VerticalTabModal } from "~/Classes/VerticalTabModal";
 import BetterProperties from "~/main";
 import {
@@ -17,6 +17,7 @@ import { Icon } from "~/lib/types/icons";
 import { ConfirmationModal } from "~/Classes/ConfirmationModal";
 import { propertySettingsSchema } from "./schema";
 import { IconSuggest } from "~/Classes/InputSuggest/IconSuggest";
+import { PropertyWidget } from "obsidian-typings";
 
 export class PropertySettingsModal extends VerticalTabModal {
 	public propertyType: string = "unset";
