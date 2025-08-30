@@ -231,7 +231,7 @@ const renderSubProperty = ({
 			.showAtMouseEvent(e);
 	});
 
-	iconEl.addEventListener("mousedown", (mouseDownEvent) => {
+	iconEl.addEventListener("mousedown", () => {
 		const dragGhostHiddenClass = "drag-ghost-hidden";
 		const dragGhostEl = createDiv({ cls: "drag-reorder-ghost" });
 
@@ -245,7 +245,7 @@ const renderSubProperty = ({
 		}[] = [];
 		let originalIndex = -1;
 		let currentIndex = -1;
-		const onMouseMove = (mouseMoveEvent: MouseEvent) => {
+		const onMouseMove = (e: MouseEvent) => {
 			if (!isSetupDone) {
 				const propertyElClone = propertyEl.cloneNode(true);
 				propertyEl.classList.add(dragGhostHiddenClass);
@@ -273,15 +273,14 @@ const renderSubProperty = ({
 						otherPropertyElsPositions.push({ top, bottom, el });
 					});
 			}
-			dragGhostEl.style.transform = `translate(${
-				mouseMoveEvent.pageX - left
-			}px, ${mouseMoveEvent.pageY - top}px)`;
+			dragGhostEl.style.transform = `translate(${e.pageX - left}px, ${
+				e.pageY - top
+			}px)`;
 
 			otherPropertyElsPositions.forEach(({ top, bottom, el }, i) => {
 				const middle = (top + bottom) / 2;
-				const shouldSwapUp = i < currentIndex && mouseMoveEvent.pageY < middle;
-				const shouldSwapDown =
-					i > currentIndex && mouseMoveEvent.pageY > middle;
+				const shouldSwapUp = i < currentIndex && e.pageY < middle;
+				const shouldSwapDown = i > currentIndex && e.pageY > middle;
 				if (!shouldSwapUp && !shouldSwapDown) return;
 				el.insertAdjacentElement(
 					shouldSwapUp ? "beforebegin" : "afterend",

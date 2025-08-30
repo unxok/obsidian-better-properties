@@ -13,7 +13,7 @@
 		"noImplicitAny": true,
 		"strict": true,
 		"target": "ESNext",
-		"module": "ESNext",
+		"module": "nodenext",
 		"strictNullChecks": true,
 		"paths": {
 			"@/*": ["./src/*"],
@@ -23,6 +23,9 @@
 				"./node_modules/obsidian-typings/dist/implementations.cjs"
 			]
 		},
-		"types": ["obsidian-typings", "./src2/libs/types"]
+		"types": ["obsidian-typings", "./src2/libs/types"],
+		"resolveJsonModule": true,
+		"moduleResolution": "nodenext"
+		// "esModuleInterop": true
 	}
 }

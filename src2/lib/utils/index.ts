@@ -12,17 +12,25 @@ import {
 import BetterProperties from "~/main";
 import { BetterPropertiesSettings } from "~/Plugin/settings";
 
-type Satisfies<Constraint, Type> = Type extends Constraint ? Type : never;
+export type Satisfies<Constraint, Type> = Type extends Constraint
+	? Type
+	: never;
 
-type Prettify<T> = {
+export type Prettify<T> = {
 	[K in keyof T]: T[K];
 } & {};
 
-type NonNullishObject<T> = {
+export type NonNullishObject<T> = {
 	[K in keyof T]-?: NonNullable<T[K]>;
 };
 
-type TryCatchResult<T> = Promise<
+export type NestedPaths<T, Prefix extends string = ""> = {
+	[K in keyof T & string]: T[K] extends Record<string, any>
+		? `${Prefix}${K}` | NestedPaths<T[K], `${Prefix}${K}.`>
+		: `${Prefix}${K}`;
+}[keyof T & string];
+
+export type TryCatchResult<T> = Promise<
 	| {
 			success: true;
 			data: T;
@@ -35,7 +43,7 @@ type TryCatchResult<T> = Promise<
 	  }
 >;
 
-const tryCatch = async <T>(
+export const tryCatch = async <T>(
 	toTry: Promise<T> | (() => Promise<T> | T)
 ): TryCatchResult<T> => {
 	try {
@@ -54,15 +62,13 @@ const tryCatch = async <T>(
 	}
 };
 
-export { type Satisfies, type Prettify, type NonNullishObject, tryCatch };
-
-export const getPropertyType = (app: App, property: string): string => {
-	const lower = property.toLowerCase();
-	const found = Object.values(app.metadataTypeManager.properties).find(
-		({ name }) => lower === name.toLowerCase()
-	);
-	return found?.widget ?? "unset";
-};
+// export const getPropertyType = (app: App, property: string): string => {
+// 	const lower = property.toLowerCase();
+// 	const found = Object.values(app.metadataTypeManager.properties).find(
+// 		({ name }) => lower === name.toLowerCase()
+// 	);
+// 	return found?.widget ?? "unset";
+// };
 
 /**
  * Returns a number or the min or max if it's out of bounds.
@@ -301,7 +307,8 @@ export const renameProperty = async ({
 	property: string;
 	newProperty: string;
 }) => {
-	const assignedType = getPropertyType(plugin.app, property);
+	const assignedType =
+		plugin.app.metadataTypeManager.getAssignedWidget(property) ?? "text";
 	plugin.app.metadataTypeManager.setType(newProperty, assignedType);
 	plugin.app.metadataTypeManager.unsetType(property);
 	iterativelyProcessFrontmatter({

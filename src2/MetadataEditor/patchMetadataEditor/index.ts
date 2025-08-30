@@ -3,7 +3,6 @@ import { debounce, Menu, setIcon } from "obsidian";
 import { MetadataEditor } from "obsidian-typings";
 import { monkeyAroundKey } from "~/lib/constants";
 import { Icon } from "~/lib/types/icons";
-import { getPropertyType } from "~/lib/utils";
 import BetterProperties from "~/main";
 import { patchMetadataEditorProperty } from "./patchMetadataEditorProperty";
 
@@ -139,8 +138,10 @@ const createMoreButtonEl = (that: PatchedMetadataEditor) => {
 					.addItem((subItem) =>
 						subItem.setTitle("Type (A to Z)").onClick(() => {
 							sortProperties(([a], [b]) => {
-								const aType = getPropertyType(that.app, a);
-								const bType = getPropertyType(that.app, b);
+								const aType =
+									that.app.metadataTypeManager.getAssignedWidget(a) ?? "text";
+								const bType =
+									that.app.metadataTypeManager.getAssignedWidget(b) ?? "text";
 								const { registeredTypeWidgets } = that.app.metadataTypeManager;
 								const aName = registeredTypeWidgets[aType]?.name() ?? "";
 								const bName = registeredTypeWidgets[bType]?.name() ?? "";
@@ -151,8 +152,10 @@ const createMoreButtonEl = (that: PatchedMetadataEditor) => {
 					.addItem((subItem) =>
 						subItem.setTitle("Type (Z to A)").onClick(() => {
 							sortProperties(([a], [b]) => {
-								const aType = getPropertyType(that.app, a);
-								const bType = getPropertyType(that.app, b);
+								const aType =
+									that.app.metadataTypeManager.getAssignedWidget(a) ?? "text";
+								const bType =
+									that.app.metadataTypeManager.getAssignedWidget(b) ?? "text";
 								const { registeredTypeWidgets } = that.app.metadataTypeManager;
 								const aName = registeredTypeWidgets[aType]?.name() ?? "";
 								const bName = registeredTypeWidgets[bType]?.name() ?? "";

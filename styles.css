@@ -187,8 +187,21 @@ div.setting-item.better-properties-list-setting {
 	}
 
 	&.better-properties-mod-active {
-		text-decoration: underline;
-		text-underline-offset: 2px;
+		position: relative;
+		--better-properties-active-text: "active";
+		/* text-decoration: underline;
+		text-underline-offset: 2px; */
+	}
+
+	&.better-properties-mod-active::after {
+		content: var(--better-properties-active-text);
+		display: inline-block;
+		margin-inline-start: var(--size-4-2);
+		font-size: var(--font-smallest);
+		border: 1px solid var(--background-modifier-border);
+		border-radius: var(--radius-s);
+		padding: var(--size-2-1);
+		background-color: var(--background-primary);
 	}
 }
 
@@ -276,4 +289,10 @@ div.metadata-content {
 	position: fixed;
 	inset: 0;
 	background-color: transparent;
+}
+
+.better-properties-vertical-tab-modal-title {
+	font-size: var(--font-ui-medium);
+	text-overflow: ellipsis;
+	overflow-x: hidden;
 }

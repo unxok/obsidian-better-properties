@@ -1,4 +1,4 @@
-import { Notice, Setting, TextAreaComponent } from "obsidian";
+import { Notice, Setting, setTooltip, TextAreaComponent } from "obsidian";
 import { VerticalTabModal } from "~/Classes/VerticalTabModal";
 import BetterProperties from "~/main";
 import {
@@ -11,7 +11,7 @@ import {
 } from "./utils";
 import { CustomPropertyType, CustomTypeKey, PropertySettings } from "./types";
 import { customPropertyTypesRecord } from "./register";
-import { getPropertyType, tryCatch } from "~/lib/utils";
+import { tryCatch } from "~/lib/utils";
 import { refreshPropertyEditor } from "~/MetadataEditor";
 import { Icon } from "~/lib/types/icons";
 import { ConfirmationModal } from "~/Classes/ConfirmationModal";
@@ -31,7 +31,14 @@ export class PropertySettingsModal extends VerticalTabModal {
 	}
 
 	onOpen(): void {
-		this.propertyType = getPropertyType(this.plugin.app, this.property);
+		this.propertyType =
+			this.plugin.app.metadataTypeManager.getAssignedWidget(this.property) ??
+			"text";
+		this.addTabGroup((group) => {
+			group.setTitle(this.property);
+			group.titleEl.classList.add("better-properties-vertical-tab-modal-title");
+			setTooltip(group.titleEl, this.property);
+		});
 		this.addGeneralTabGroup();
 		this.addTypesTabGroup();
 	}
@@ -294,11 +301,11 @@ const handlePropertyTypeTab = ({
 	tab,
 }: {
 	modal: PropertySettingsModal;
-	widget: PropertyWidget<unknown>;
+	widget: PropertyWidget;
 	tab: PropertySettingsModal["tabGroups"][number]["tabs"][number];
 }) => {
 	const { tabContentEl, plugin, property, propertyType } = modal;
-	const customPropertyType: CustomPropertyType<any> | undefined =
+	const customPropertyType: CustomPropertyType | undefined =
 		customPropertyTypesRecord[
 			withoutTypeWidgetPrefix(widget.type) as CustomTypeKey
 		];

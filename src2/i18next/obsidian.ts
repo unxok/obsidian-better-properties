@@ -1,3 +1,5 @@
+import { NestedPaths } from "~/lib/utils";
+
 // This needs to be updated on every new update to Obsidian
 /**
  * 1. In obsidian dev console type: `JSON.stringify(window.i18next.store.data.en.default, null, 2)` and copy it
@@ -7,7 +9,7 @@
  * 5. Paste to replace current definition of `Type`
  */
 
-type Text = {
+export type ObsidianDefaultText = {
 	"setting": {
 		"options": "Options";
 		"plugin": "Plugin";
@@ -2683,14 +2685,8 @@ type Text = {
 	};
 };
 
-type NestedPaths<T, Prefix extends string = ""> = {
-	[K in keyof T & string]: T[K] extends Record<string, any>
-		? `${Prefix}${K}` | NestedPaths<T[K], `${Prefix}${K}.`>
-		: `${Prefix}${K}`;
-}[keyof T & string];
-
-const obsidianFixed = window.i18next.getFixedT("");
+export const obsidianFixed = window.i18next.getFixedT(null, "default");
 export const obsidianText = (
-	key: NestedPaths<Text>,
+	key: NestedPaths<ObsidianDefaultText>,
 	variables?: Record<string, string>
 ) => obsidianFixed(key, variables);
