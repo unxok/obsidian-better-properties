@@ -1,7 +1,8 @@
+import { obsidianText } from "~/i18next/obsidian";
 import { CustomPropertyType } from "../types";
 import {
 	// getPropertyTypeSettings,
-	PropertyValueComponent,
+	PropertyWidgetComponent,
 } from "../utils";
 // import { EmbeddableMarkdownEditor } from "~/Classes/EmbeddableMarkdownEditor/original";
 import { EmbeddableMarkdownEditor } from "~/Classes/EmbeddableMarkdownEditor";
@@ -33,12 +34,13 @@ export const renderWidget: CustomPropertyType["renderWidget"] = ({
 				const val = editor.editor?.getValue() ?? "";
 				ctx.onChange(val);
 			},
-			placeholder: "Empty",
+			placeholder: obsidianText("properties.label-no-value"),
 		},
 		ctx.sourcePath
 	);
 
-	const cmp = new PropertyValueComponent(
+	const cmp = new PropertyWidgetComponent(
+		"markdown",
 		container,
 		(v) => {
 			emde.set(v?.toString() ?? "", true);

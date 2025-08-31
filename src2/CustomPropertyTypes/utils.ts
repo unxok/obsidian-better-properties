@@ -1,7 +1,8 @@
 import BetterProperties from "~/main";
 import { CustomTypeKey, PropertySettings } from "./types";
 import { getDefaultPropertySettings } from "./schema";
-import { PropertyValueComponent as IPropertyValueComponent } from "obsidian";
+// import { PropertyValueComponent as IPropertyValueComponent } from "obsidian";
+import { PropertyWidgetComponentBase } from "obsidian-typings";
 import { customPropertyTypePrefix } from "~/lib/constants";
 import { MetadataTypeManager } from "obsidian-typings";
 
@@ -114,8 +115,9 @@ export const updatePropertyTypeSettings = <T extends CustomTypeKey>({
 	setPropertySettings({ plugin, property, settings });
 };
 
-export class PropertyValueComponent implements IPropertyValueComponent {
+export class PropertyWidgetComponent implements PropertyWidgetComponentBase {
 	constructor(
+		public type: CustomTypeKey | (string & {}),
 		public containerEl: HTMLElement,
 		public setValue: (value: unknown) => void,
 		public onFocus: () => void

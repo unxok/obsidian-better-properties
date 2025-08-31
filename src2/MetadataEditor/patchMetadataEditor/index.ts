@@ -5,6 +5,7 @@ import { monkeyAroundKey } from "~/lib/constants";
 import { Icon } from "~/lib/types/icons";
 import BetterProperties from "~/main";
 import { patchMetadataEditorProperty } from "./patchMetadataEditorProperty";
+import { text } from "~/i18next";
 
 export const patchMetadataEditor = (plugin: BetterProperties) => {
 	const mdePrototype = resolveMetadataEditorPrototype(
@@ -114,54 +115,64 @@ const createMoreButtonEl = (that: PatchedMetadataEditor) => {
 		const menu = new Menu()
 			.addItem((item) =>
 				item
-					.setTitle("Show hidden")
+					.setTitle(text("metadataEditor.moreButton.showHidden"))
 					.setChecked(that.showHidden)
 					.onClick(() => that.toggleShowHidden())
 					.setIcon("lucide-eye-off" satisfies Icon)
 			)
 			.addItem((item) =>
 				item
-					.setTitle("Sort")
+					.setTitle(text("metadataEditor.moreButton.sort"))
 					.setIcon("lucide-sort-asc" satisfies Icon)
 					.setSubmenu()
 					.setNoIcon()
 					.addItem((subItem) =>
-						subItem.setTitle("Name (A to Z)").onClick(() => {
-							sortProperties(([a], [b]) => a.localeCompare(b));
-						})
+						subItem
+							.setTitle(text("common.sort.nameAlphabetical"))
+							.onClick(() => {
+								sortProperties(([a], [b]) => a.localeCompare(b));
+							})
 					)
 					.addItem((subItem) =>
-						subItem.setTitle("Name (Z to A)").onClick(() => {
-							sortProperties(([a], [b]) => b.localeCompare(a));
-						})
+						subItem
+							.setTitle(text("common.sort.nameReverseAlphabetical"))
+							.onClick(() => {
+								sortProperties(([a], [b]) => b.localeCompare(a));
+							})
 					)
 					.addItem((subItem) =>
-						subItem.setTitle("Type (A to Z)").onClick(() => {
-							sortProperties(([a], [b]) => {
-								const aType =
-									that.app.metadataTypeManager.getAssignedWidget(a) ?? "text";
-								const bType =
-									that.app.metadataTypeManager.getAssignedWidget(b) ?? "text";
-								const { registeredTypeWidgets } = that.app.metadataTypeManager;
-								const aName = registeredTypeWidgets[aType]?.name() ?? "";
-								const bName = registeredTypeWidgets[bType]?.name() ?? "";
-								return aName.localeCompare(bName);
-							});
-						})
+						subItem
+							.setTitle(text("common.sort.typeAlphabetical"))
+							.onClick(() => {
+								sortProperties(([a], [b]) => {
+									const aType =
+										that.app.metadataTypeManager.getAssignedWidget(a) ?? "text";
+									const bType =
+										that.app.metadataTypeManager.getAssignedWidget(b) ?? "text";
+									const { registeredTypeWidgets } =
+										that.app.metadataTypeManager;
+									const aName = registeredTypeWidgets[aType]?.name() ?? "";
+									const bName = registeredTypeWidgets[bType]?.name() ?? "";
+									return aName.localeCompare(bName);
+								});
+							})
 					)
 					.addItem((subItem) =>
-						subItem.setTitle("Type (Z to A)").onClick(() => {
-							sortProperties(([a], [b]) => {
-								const aType =
-									that.app.metadataTypeManager.getAssignedWidget(a) ?? "text";
-								const bType =
-									that.app.metadataTypeManager.getAssignedWidget(b) ?? "text";
-								const { registeredTypeWidgets } = that.app.metadataTypeManager;
-								const aName = registeredTypeWidgets[aType]?.name() ?? "";
-								const bName = registeredTypeWidgets[bType]?.name() ?? "";
-								return bName.localeCompare(aName);
-							});
-						})
+						subItem
+							.setTitle(text("common.sort.typeReverseAlphabetical"))
+							.onClick(() => {
+								sortProperties(([a], [b]) => {
+									const aType =
+										that.app.metadataTypeManager.getAssignedWidget(a) ?? "text";
+									const bType =
+										that.app.metadataTypeManager.getAssignedWidget(b) ?? "text";
+									const { registeredTypeWidgets } =
+										that.app.metadataTypeManager;
+									const aName = registeredTypeWidgets[aType]?.name() ?? "";
+									const bName = registeredTypeWidgets[bType]?.name() ?? "";
+									return bName.localeCompare(aName);
+								});
+							})
 					)
 			);
 

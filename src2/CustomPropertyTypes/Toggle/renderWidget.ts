@@ -1,10 +1,9 @@
-import { App, Component, ToggleComponent } from "obsidian";
+import { ToggleComponent } from "obsidian";
 import { CustomPropertyType } from "../types";
 import {
 	// getPropertyTypeSettings,
-	PropertyValueComponent,
+	PropertyWidgetComponent,
 } from "../utils";
-import { PropertyWidget } from "obsidian-typings";
 
 export const renderWidget: CustomPropertyType["renderWidget"] = ({
 	// plugin,
@@ -32,7 +31,8 @@ export const renderWidget: CustomPropertyType["renderWidget"] = ({
 			ctx.onChange(b);
 		});
 
-	return new PropertyValueComponent(
+	return new PropertyWidgetComponent(
+		"toggle",
 		container,
 		(v) => {
 			toggle.setValue(!!v);

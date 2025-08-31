@@ -4,8 +4,10 @@ import { Icon } from "~/lib/types/icons";
 import { deleteProperty } from "~/lib/utils";
 import { openDeleteModal } from "./delete";
 import { openRenameModal } from "./rename";
-import { Menu } from "obsidian";
+import { Menu, MenuItem, MenuSeparator } from "obsidian";
 import { openChangeIconModal } from "./icon";
+import { obsidianText } from "~/i18next/obsidian";
+import { text } from "~/i18next";
 
 export const onFilePropertyMenu = (
 	plugin: BetterProperties,
@@ -13,8 +15,9 @@ export const onFilePropertyMenu = (
 	property: string
 ) => {
 	const found = menu.items.find((item) => {
+		if (item instanceof MenuSeparator) return false;
 		return !!item.submenu;
-	});
+	}) as MenuItem | undefined;
 	found?.setSection("action");
 
 	const isReserved = Object.values(
@@ -24,6 +27,7 @@ export const onFilePropertyMenu = (
 	});
 	if (found && isReserved) {
 		found.submenu?.items?.forEach((item) => {
+			if (item instanceof MenuSeparator) return;
 			item.setDisabled(true);
 		});
 	}
@@ -32,7 +36,7 @@ export const onFilePropertyMenu = (
 		.addItem((item) =>
 			item
 				.setSection("action")
-				.setTitle("Settings")
+				.setTitle(obsidianText("interface.settings"))
 				.setIcon("lucide-settings" satisfies Icon)
 				.onClick(() => {
 					showPropertySettingsModal({ plugin, property });
@@ -41,7 +45,7 @@ export const onFilePropertyMenu = (
 		.addItem((item) =>
 			item
 				.setSection("action")
-				.setTitle("Rename")
+				.setTitle(obsidianText("interface.menu.rename"))
 				.setIcon("lucide-pen" satisfies Icon)
 				.onClick(async () => {
 					openRenameModal({ plugin, property });
@@ -50,7 +54,7 @@ export const onFilePropertyMenu = (
 		.addItem((item) =>
 			item
 				.setSection("action")
-				.setTitle("Icon")
+				.setTitle(text("common.icon"))
 				.setIcon("lucide-badge-info" satisfies Icon)
 				.onClick(async () => {
 					openChangeIconModal({ plugin, property });
@@ -60,7 +64,7 @@ export const onFilePropertyMenu = (
 			item
 				.setSection("danger")
 				.setWarning(true)
-				.setTitle("Delete")
+				.setTitle(obsidianText("interface.delete-action-short-name"))
 				.setIcon("lucide-x-circle" satisfies Icon)
 				.onClick(async () => {
 					if (plugin.settings.confirmPropertyDelete ?? true) {

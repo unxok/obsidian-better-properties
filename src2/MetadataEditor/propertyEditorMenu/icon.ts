@@ -5,6 +5,8 @@ import { getPropertyTypeSettings } from "~/CustomPropertyTypes";
 import { updatePropertyTypeSettings } from "~/CustomPropertyTypes/utils";
 import BetterProperties from "~/main";
 import { refreshPropertyEditor } from "..";
+import { obsidianText } from "~/i18next/obsidian";
+import { text } from "~/i18next";
 
 export const openChangeIconModal = ({
 	plugin,
@@ -17,11 +19,13 @@ export const openChangeIconModal = ({
 	let icon: string =
 		getPropertyTypeSettings({ plugin, property, type: "general" })?.icon ?? "";
 
-	modal.setTitle(`Change icon for property "${property}"`);
+	modal.setTitle(
+		text("metadataEditor.propertyMenu.icon.modalTitle", { property })
+	);
 
 	new Setting(modal.contentEl)
-		.setName("Icon")
-		.setDesc("The icon to show for this property")
+		.setName(text("metadataEditor.propertyMenu.icon.iconSetting.title"))
+		.setDesc(text("metadataEditor.propertyMenu.icon.iconSetting.desc"))
 		.addSearch((cmp) => {
 			cmp.setValue(icon).onChange((v) => {
 				icon = v;
@@ -34,13 +38,13 @@ export const openChangeIconModal = ({
 
 	modal
 		.addFooterButton((btn) =>
-			btn.setButtonText("Cancel").onClick(() => {
+			btn.setButtonText(obsidianText("dialogue.button-cancel")).onClick(() => {
 				modal.close();
 			})
 		)
 		.addFooterButton((btn) =>
 			btn
-				.setButtonText("Change")
+				.setButtonText(obsidianText("dialogue.button-update"))
 				.setCta()
 				.onClick(() => {
 					updatePropertyTypeSettings({

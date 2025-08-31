@@ -3,7 +3,7 @@ import { CustomPropertyType } from "../types";
 import {
 	findKeyValueByDotNotation,
 	flashElement,
-	PropertyValueComponent,
+	PropertyWidgetComponent,
 	triggerPropertyTypeChange,
 	updateNestedObject,
 } from "../utils";
@@ -63,7 +63,10 @@ export const renderWidget: CustomPropertyType["renderWidget"] = ({
 		addPropertyEl.createSpan({ cls: "text-button-icon" }),
 		"lucide-plus" satisfies Icon
 	);
-	addPropertyEl.createSpan({ cls: "text-button-label", text: "Add property" });
+	addPropertyEl.createSpan({
+		cls: "text-button-label",
+		text: obsidianText("properties.label-add-property-button"),
+	});
 	addPropertyEl.addEventListener("click", () => {
 		renderSubProperty({
 			itemKey: "",
@@ -90,7 +93,8 @@ export const renderWidget: CustomPropertyType["renderWidget"] = ({
 		});
 	}
 
-	return new PropertyValueComponent(
+	return new PropertyWidgetComponent(
+		"group",
 		container,
 		() => {
 			// toggle.setValue(!!v);
@@ -394,7 +398,9 @@ const renderSubProperty = ({
 	const mismatchTypeEl = propertyEl.createDiv({
 		cls: "clickable-icon metadata-property-warning-icon",
 		attr: {
-			"aria-label": `Type mismatch, expected ${widget.inferred.name()}`,
+			"aria-label": obsidianText("properties.label-type-mismatch-warning", {
+				type: widget.expected.name(),
+			}),
 			"style": "display: none;",
 		},
 	});

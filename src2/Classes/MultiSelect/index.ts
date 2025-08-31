@@ -1,6 +1,5 @@
 import { App, Constructor, Setting } from "obsidian";
-import { MetadataEditor } from "obsidian-typings";
-import { PropertyValueComponent } from "~/CustomPropertyTypes/utils";
+// import {  Multiselect } from "obsidian-typings";
 
 export const resolveMultiSelectPrototype = (app: App) => {
 	const widget = app.metadataTypeManager.registeredTypeWidgets["tags"];
@@ -12,21 +11,16 @@ export const resolveMultiSelectPrototype = (app: App) => {
 		app,
 		blur: () => {},
 		key: "tags",
-		metadataEditor: {
-			register: () => {},
-		} as unknown as MetadataEditor,
 		onChange: () => {},
 		sourcePath: "",
-	}) as PropertyValueComponent & {
-		multiselect: MultiSelect;
-	};
+	});
 
 	const { multiselect } = cmp;
 	const MultiSelectClass = Object.getPrototypeOf(multiselect).constructor;
-	return MultiSelectClass as Constructor<MultiSelect>;
+	return MultiSelectClass as Constructor<Multiselect>;
 };
 
-interface MultiSelect {
+interface Multiselect {
 	constructor(parentEl: HTMLElement): void;
 
 	elements: HTMLElement[];
@@ -35,7 +29,7 @@ interface MultiSelect {
 	values: string[];
 	changeCallback: (value: string[]) => void;
 	createOption: (item: string) => void;
-	findDuplicate: (item: string, value: string[]) => boolean;
+	findDuplicate: (item: string, value: string[]) => number;
 	optionsRenderer: (
 		item: string,
 		dom: {
@@ -70,7 +64,7 @@ interface MultiSelect {
 	triggerChange(): void;
 }
 
-export class MultiSelectComponent extends resolveMultiSelectPrototype(app) {
+export class MultiselectComponent extends resolveMultiSelectPrototype(app) {
 	addSuggestCallback:
 		| ((inputEl: HTMLDivElement, index: number) => void)
 		| undefined;
@@ -147,8 +141,8 @@ export class MultiSelectComponent extends resolveMultiSelectPrototype(app) {
 		});
 	};
 
-	findDuplicate: (item: string, value: string[]) => boolean = (item, value) => {
-		return value.includes(item);
+	findDuplicate: (item: string, value: string[]) => number = (item, value) => {
+		return value.indexOf(item);
 	};
 
 	createOption: (item: string) => void = (item) => {

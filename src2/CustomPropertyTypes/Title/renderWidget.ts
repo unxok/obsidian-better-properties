@@ -2,7 +2,7 @@ import { displayTooltip, TextComponent } from "obsidian";
 import { CustomPropertyType } from "../types";
 import {
 	// getPropertyTypeSettings,
-	PropertyValueComponent,
+	PropertyWidgetComponent,
 } from "../utils";
 import { tryCatch } from "~/lib/utils";
 
@@ -64,7 +64,8 @@ export const renderWidget: CustomPropertyType["renderWidget"] = ({
 		}
 	});
 
-	const cmp = new PropertyValueComponent(
+	const cmp = new PropertyWidgetComponent(
+		"title",
 		container,
 		(v) => {
 			text.setValue(v?.toString() ?? "");

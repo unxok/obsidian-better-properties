@@ -1,5 +1,6 @@
 import { Setting } from "obsidian";
 import { CustomPropertyType } from "../types";
+import { text } from "~/i18next";
 
 export const renderSettings: CustomPropertyType["renderSettings"] = ({
 	modal,
@@ -7,6 +8,6 @@ export const renderSettings: CustomPropertyType["renderSettings"] = ({
 	const { tabContentEl } = modal;
 
 	new Setting(tabContentEl)
-		.setName("Nothing to see here!")
-		.setDesc("This type has no settings available");
+		.setName(text("common.nothingToSeeHere"))
+		.setDesc(text("common.typeHasNoSettings"));
 };

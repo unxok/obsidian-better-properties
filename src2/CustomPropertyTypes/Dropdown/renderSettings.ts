@@ -7,11 +7,12 @@ import { Icon } from "~/lib/types/icons";
 import BetterProperties from "~/main";
 import { FolderSuggest } from "~/Classes/InputSuggest/FolderSuggest";
 import { TagSuggest } from "~/Classes/InputSuggest/TagSuggest";
-import { MultiSelectComponent } from "~/Classes/MultiSelect";
+import { MultiselectComponent } from "~/Classes/MultiSelect";
 import {
 	ConditionalSettings,
 	SettingsGroup,
 } from "~/Classes/ConditionalSettings";
+import { text } from "~/i18next";
 
 type Settings = NonNullable<PropertySettings["dropdown"]>;
 type OptionsType = NonNullable<Settings["optionsType"]>;
@@ -47,15 +48,17 @@ export const renderSettings: CustomPropertyType["renderSettings"] = ({
 	};
 
 	new Setting(parentEl)
-		.setName("Options type")
-		.setDesc(
-			"Whether to use manually defined options or a different dynamic way of determining available options"
-		)
+		.setName(text("customPropertyTypes.dropdown.settings.optionsType.title"))
+		.setDesc(text("customPropertyTypes.dropdown.settings.optionsType.desc"))
 		.addDropdown((dropdown) => {
 			dropdown
 				.addOptions({
-					manual: "Manual",
-					dynamic: "Dynamic",
+					manual: text(
+						"customPropertyTypes.dropdown.settings.optionsType.dropdownLabelManual"
+					),
+					dynamic: text(
+						"customPropertyTypes.dropdown.settings.optionsType.dropdownLabelDynamic"
+					),
 				} satisfies Record<Exclude<OptionsType, undefined>, string>)
 				.setValue(settings?.optionsType ?? "")
 				.onChange((v) => {
@@ -83,16 +86,28 @@ export const renderSettings: CustomPropertyType["renderSettings"] = ({
 		.addGroup("dynamic", (group) => {
 			group.addSetting((s) =>
 				s
-					.setName("Dynamic type")
+					.setName(
+						text(
+							"customPropertyTypes.dropdown.settings.optionsTypeSettings.dynamic.title"
+						)
+					)
 					.setDesc(
-						"Which method to use to dynamically determine available options"
+						text(
+							"customPropertyTypes.dropdown.settings.optionsTypeSettings.dynamic.desc"
+						)
 					)
 					.addDropdown((dropdown) => {
 						dropdown
 							.addOptions({
-								filesInFolder: "Files from folder",
-								filesFromTag: "Files from tag",
-								script: "Options from script",
+								filesInFolder: text(
+									"customPropertyTypes.dropdown.settings.optionsTypeSettings.dynamic.filesInFolderLabel"
+								),
+								filesFromTag: text(
+									"customPropertyTypes.dropdown.settings.optionsTypeSettings.dynamic.filesFromTagLabel"
+								),
+								script: text(
+									"customPropertyTypes.dropdown.settings.optionsTypeSettings.dynamic.scriptLabel"
+								),
 							} satisfies Record<NonNullable<Settings["dynamicOptionsType"]>, string>)
 							.setValue(
 								settings.dynamicOptionsType ??
@@ -142,8 +157,16 @@ const renderManualOptionsSetting = ({
 	defaultOption: Option;
 }) => {
 	const list = new ListSetting<Option>(parentEl)
-		.setName("Manual options")
-		.setDesc("The manually created choices this dropdown can be set to")
+		.setName(
+			text(
+				"customPropertyTypes.dropdown.settings.optionsTypeSettings.manual.title"
+			)
+		)
+		.setDesc(
+			text(
+				"customPropertyTypes.dropdown.settings.optionsTypeSettings.manual.desc"
+			)
+		)
 		.setValue(settings.manualOptions ?? [])
 		.onChange((v) => (settings.manualOptions = [...v]))
 		.onCreateItem((opt, item) => {
@@ -155,7 +178,7 @@ const renderManualOptionsSetting = ({
 				.addDragButton()
 				.addText((txt) =>
 					txt
-						.setPlaceholder("value")
+						.setPlaceholder(text("common.valuePlaceholder"))
 						.setValue(value)
 						.onChange((v) => {
 							const matched = list.value[item.index];
@@ -166,7 +189,7 @@ const renderManualOptionsSetting = ({
 				)
 				.addText((txt) =>
 					txt
-						.setPlaceholder("label (optional)")
+						.setPlaceholder(text("common.optionalLabelPlaceholder"))
 						.setValue(label ?? "")
 						.onChange((v) => {
 							const matched = list.value[item.index];
@@ -182,7 +205,7 @@ const renderManualOptionsSetting = ({
 				const menu = new Menu()
 					.setNoIcon()
 					.addItem((item) =>
-						item.setTitle("Value (A - Z)").onClick(() => {
+						item.setTitle(text("common.sort.valueAlphabetical")).onClick(() => {
 							list.value.sort((a, b) =>
 								(a?.value ?? "").localeCompare(b?.value ?? "")
 							);
@@ -190,15 +213,17 @@ const renderManualOptionsSetting = ({
 						})
 					)
 					.addItem((item) =>
-						item.setTitle("Value (Z - A)").onClick(() => {
-							list.value.sort((a, b) =>
-								(b?.value ?? "").localeCompare(a?.value ?? "")
-							);
-							list.renderAllItems();
-						})
+						item
+							.setTitle(text("common.sort.valueReverseAlphabetical"))
+							.onClick(() => {
+								list.value.sort((a, b) =>
+									(b?.value ?? "").localeCompare(a?.value ?? "")
+								);
+								list.renderAllItems();
+							})
 					)
 					.addItem((item) =>
-						item.setTitle("Label (A - Z)").onClick(() => {
+						item.setTitle(text("common.sort.labelAlphabetical")).onClick(() => {
 							list.value.sort((a, b) =>
 								(a?.label ?? "").localeCompare(b?.label ?? "")
 							);
@@ -206,12 +231,14 @@ const renderManualOptionsSetting = ({
 						})
 					)
 					.addItem((item) =>
-						item.setTitle("Label (Z - A)").onClick(() => {
-							list.value.sort((a, b) =>
-								(b?.label ?? "").localeCompare(a?.label ?? "")
-							);
-							list.renderAllItems();
-						})
+						item
+							.setTitle(text("common.sort.labelReverseAlphabetical"))
+							.onClick(() => {
+								list.value.sort((a, b) =>
+									(b?.label ?? "").localeCompare(a?.label ?? "")
+								);
+								list.renderAllItems();
+							})
 					);
 				menu.showAtMouseEvent(ev);
 			})
@@ -241,8 +268,16 @@ const renderFolderPathsSetting = ({
 	settings: Settings;
 }) => {
 	const folderPathsSetting = new ListSetting<string>(parentEl)
-		.setName("Folder paths")
-		.setDesc("Notes in the following folders will be options for this dropdown")
+		.setName(
+			text(
+				"customPropertyTypes.dropdown.settings.optionsTypeSettings.dynamic.filesInFolder.folderPaths.title"
+			)
+		)
+		.setDesc(
+			text(
+				"customPropertyTypes.dropdown.settings.optionsTypeSettings.dynamic.filesInFolder.folderPaths.desc"
+			)
+		)
 		.setValue(settings.folderOptionsPaths ?? [])
 		.onCreateItem((value, item) => {
 			item
@@ -272,7 +307,7 @@ const renderFolderPathsSetting = ({
 					.addItem((item) =>
 						item
 							.setSection("name")
-							.setTitle("Sort by name (A - Z)")
+							.setTitle(text("common.sort.nameAlphabetical"))
 							.onClick(() => {
 								folderPathsSetting.sort((a, b) =>
 									name(a).localeCompare(name(b))
@@ -282,7 +317,7 @@ const renderFolderPathsSetting = ({
 					.addItem((item) =>
 						item
 							.setSection("name")
-							.setTitle("Sort by name (Z - A)")
+							.setTitle(text("common.sort.nameReverseAlphabetical"))
 							.onClick(() => {
 								folderPathsSetting.sort((a, b) =>
 									name(b).localeCompare(name(a))
@@ -292,7 +327,7 @@ const renderFolderPathsSetting = ({
 					.addItem((item) =>
 						item
 							.setSection("path")
-							.setTitle("Sort by path (A - Z)")
+							.setTitle(text("common.sort.pathAlphabetical"))
 							.onClick(() => {
 								folderPathsSetting.sort((a, b) => a.localeCompare(b));
 							})
@@ -300,7 +335,7 @@ const renderFolderPathsSetting = ({
 					.addItem((item) =>
 						item
 							.setSection("path")
-							.setTitle("Sort by path (Z - A)")
+							.setTitle(text("common.sort.pathReverseAlphabetical"))
 							.onClick(() => {
 								folderPathsSetting.sort((a, b) => b.localeCompare(a));
 							})
@@ -337,9 +372,15 @@ const renderFilesInFolderGroup = ({
 		})
 		.addSetting((s) =>
 			s
-				.setName("Exclude Folder Notes")
+				.setName(
+					text(
+						"customPropertyTypes.dropdown.settings.optionsTypeSettings.dynamic.filesInFolder.excludeFolderNotes.title"
+					)
+				)
 				.setDesc(
-					"Whether to exclude notes that have the same name as their folder"
+					text(
+						"customPropertyTypes.dropdown.settings.optionsTypeSettings.dynamic.filesInFolder.excludeFolderNotes.desc"
+					)
 				)
 				.addToggle((toggle) => {
 					toggle
@@ -362,12 +403,18 @@ const renderFilesFromTagGroup = ({
 	group
 		.addSetting((s) =>
 			s
-				.setName("Tag(s)")
+				.setName(
+					text(
+						"customPropertyTypes.dropdown.settings.optionsTypeSettings.dynamic.filesFromTag.tags.title"
+					)
+				)
 				.setDesc(
-					"Notes with all of the following tags will be shown as this dropdown's options"
+					text(
+						"customPropertyTypes.dropdown.settings.optionsTypeSettings.dynamic.filesFromTag.tags.desc"
+					)
 				)
 				.then((s) => {
-					const tagsMultiSelect = new MultiSelectComponent(s)
+					const tagsMultiSelect = new MultiselectComponent(s)
 						.setValues(settings.tagOptionsTags ?? [])
 						.onChange((v) => (settings.tagOptionsTags = v))
 						.addSuggest((inputEl) => {
@@ -393,9 +440,15 @@ const renderFilesFromTagGroup = ({
 		)
 		.addSetting((s) =>
 			s
-				.setName("Include Nested Tags")
+				.setName(
+					text(
+						"customPropertyTypes.dropdown.settings.optionsTypeSettings.dynamic.filesFromTag.includeNestedTags.title"
+					)
+				)
 				.setDesc(
-					'Whether to include files containing a nested tag of one of the selected tags. For example, whether to include a note with the tag "food/fruit" when "food" is a selected tag'
+					text(
+						"customPropertyTypes.dropdown.settings.optionsTypeSettings.dynamic.filesFromTag.includeNestedTags.desc"
+					)
 				)
 				.addToggle((toggle) =>
 					toggle

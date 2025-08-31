@@ -1,5 +1,7 @@
 import { TextComponent, setIcon, ButtonComponent } from "obsidian";
 import { ConfirmationModal } from "~/Classes/ConfirmationModal";
+import { text } from "~/i18next";
+import { obsidianText } from "~/i18next/obsidian";
 import { Icon } from "~/lib/types/icons";
 import { renameProperty, findKey } from "~/lib/utils";
 import BetterProperties from "~/main";
@@ -16,23 +18,29 @@ export const openRenameModal = ({
 	modal.setTitle("Rename property").setContent(
 		createFragment((frag) => {
 			frag.createEl("p", {
-				text: `Enter a new name to change all instances of the "${property}" property in all notes' properties and this plugin's settings`,
+				text: text("metadataEditor.propertyMenu.rename.modalDesc", {
+					property,
+				}),
 			});
 			const textCmp = new TextComponent(frag.createDiv())
 				.setValue(property)
-				.setPlaceholder("new property name");
+				.setPlaceholder(
+					text("metadataEditor.propertyMenu.rename.newPropertyNamePlaceholder")
+				);
 			const warningEl = frag.createEl("p", {
 				cls: "better-properties-mod-warning",
 			});
 			setIcon(warningEl.createSpan(), "lucide-alert-circle" satisfies Icon);
 			warningEl.createSpan({
-				text: `Warning: The name you entered already exists. If you continue, the existing configuration for that name will be overwritten with the configuration from "${property}"`,
+				text: text("metadataEditor.propertyMenu.rename.nameExistsWarning", {
+					property,
+				}),
 			});
 			let renameBtn: ButtonComponent | null = null;
 			modal
 				.addFooterButton((btn) => {
 					renameBtn = btn
-						.setButtonText("Rename")
+						.setButtonText(obsidianText("interface.menu.rename"))
 						.setWarning()
 						.onClick(async () => {
 							await renameProperty({
@@ -44,9 +52,11 @@ export const openRenameModal = ({
 						});
 				})
 				.addFooterButton((btn) =>
-					btn.setButtonText("Cancel").onClick(() => {
-						modal.close();
-					})
+					btn
+						.setButtonText(obsidianText("dialogue.button-cancel"))
+						.onClick(() => {
+							modal.close();
+						})
 				);
 
 			textCmp.onChange((v) => {

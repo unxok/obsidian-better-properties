@@ -13,6 +13,6 @@ const fixedT = window.i18next.getFixedT(null, ns);
 export const text = (
 	key: NestedPaths<typeof en>,
 	variables?: Record<string, string>
-) => {
-	fixedT(key, variables);
+): string => {
+	return fixedT(key, variables);
 };

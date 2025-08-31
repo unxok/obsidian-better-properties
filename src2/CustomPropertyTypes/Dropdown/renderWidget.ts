@@ -7,7 +7,7 @@ import {
 } from "obsidian";
 import { typeKey } from ".";
 import { CustomPropertyType, PropertySettings } from "../types";
-import { getPropertyTypeSettings, PropertyValueComponent } from "../utils";
+import { getPropertyTypeSettings, PropertyWidgetComponent } from "../utils";
 import {
 	getAllTags,
 	getFirstLinkPathDest,
@@ -16,6 +16,8 @@ import {
 import { Icon } from "~/lib/types/icons";
 import BetterProperties from "~/main";
 import { PropertyRenderContext } from "obsidian-typings";
+import { obsidianText } from "~/i18next/obsidian";
+import { text } from "~/i18next";
 
 export const renderWidget: CustomPropertyType["renderWidget"] = ({
 	plugin,
@@ -74,7 +76,8 @@ export const renderWidget: CustomPropertyType["renderWidget"] = ({
 		}
 	}
 
-	return new PropertyValueComponent(
+	return new PropertyWidgetComponent(
+		"dropdown",
 		container,
 		(v) => {
 			dropdown.setValue(v?.toString() ?? "");
@@ -108,8 +111,8 @@ const createLinkEl = ({
 			.setIcon("link" satisfies Icon)
 			.setTooltip(
 				file
-					? `Open "${fileName}"`
-					: `"${fileName}" is not created yet. Click to create.`
+					? text("common.openFile", { fileName })
+					: obsidianText("plugins.page-preview.label-empty-note")
 			)
 			.then((btn) => {
 				btn.extraSettingsEl.addEventListener("click", (e) => {

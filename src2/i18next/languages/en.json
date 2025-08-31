@@ -1,10 +1,109 @@
 {
+	"common": {
+		"nothingToSeeHere": "Nothing to see here!",
+		"typeHasNoSettings": "This type has no settings available",
+		"valuePlaceholder": "value",
+		"optionalLabelPlaceholder": "label (optional)",
+		"sort": {
+			"valueAlphabetical": "Value (A - Z)",
+			"valueReverseAlphabetical": "Value (Z - A)",
+			"labelAlphabetical": "Label (A - Z)",
+			"labelReverseAlphabetical": "Label (Z - A)",
+			"nameAlphabetical": "Name (A - Z)",
+			"nameReverseAlphabetical": "Name (Z - A)",
+			"pathAlphabetical": "Path (A - Z)",
+			"pathReverseAlphabetical": "Path (Z - A)",
+			"typeAlphabetical": "Type (A - Z)",
+			"typeReverseAlphabetical": "Type (Z - A)"
+		},
+		"openFile": "Open \"{{fileName}}\"",
+		"dontAskAgain": "Don't ask again",
+		"icon": "Icon"
+	},
 	"customPropertyTypes": {
-		"created": {},
-		"dropdown": {},
-		"group": {},
-		"markdown": {},
-		"title": {},
-		"toggle": {}
+		"created": {
+			"name": "Created"
+		},
+		"dropdown": {
+			"name": "Dropdown",
+			"settings": {
+				"optionsType": {
+					"title": "Options type",
+					"desc": "Whether to use manually defined options or a different dynamic way of determining available options",
+					"dropdownLabelManual": "Manual",
+					"dropdownLabelDynamic": "Dynamic"
+				},
+				"optionsTypeSettings": {
+					"manual": {
+						"title": "Manual options",
+						"desc": "The manually created choices this dropdown can be set to"
+					},
+					"dynamic": {
+						"title": "Dynamic type",
+						"desc": "Which method to use to dynamically determine available options",
+						"filesInFolderLabel": "Files from folder",
+						"filesFromTagLabel": "Files from tag",
+						"scriptLabel": "Options from script",
+						"filesInFolder": {
+							"folderPaths": {
+								"title": "Folder paths",
+								"desc": "Notes in the following folders will be options for this dropdown"
+							},
+							"excludeFolderNotes": {
+								"title": "Exclude Folder Notes",
+								"desc": "Whether to exclude notes that have the same name as their folder"
+							}
+						},
+						"filesFromTag": {
+							"tags": {
+								"title": "Tag(s)",
+								"desc": "Notes with all of the following tags will be shown as this dropdown's options"
+							},
+							"includeNestedTags": {
+								"title": "Include Nested Tags",
+								"desc": "Whether to include files containing a nested tag of one of the selected tags. For example, whether to include a note with the tag \"food/fruit\" when \"food\" is a selected tag"
+							}
+						}
+					}
+				}
+			}
+		},
+		"group": {
+			"name": "Group"
+		},
+		"markdown": {
+			"name": "Markdown"
+		},
+		"title": {
+			"name": "Title"
+		},
+		"toggle": {
+			"name": "Toggle"
+		}
+	},
+	"metadataEditor": {
+		"moreButton": {
+			"showHidden": "Show hidden",
+			"sort": "Sort"
+		},
+		"propertyMenu": {
+			"delete": {
+				"modalTitle": "Are you sure?",
+				"modalDesc": "This action will permanently remove the property \"{{property}}\" from all notes, delete property configurations in this plugin's settings, and cannot be undone."
+			},
+			"icon": {
+				"modalTitle": "Change icon for property \"{{property}}\"",
+				"iconSetting": {
+					"title": "Icon",
+					"desc": "The icon to show for this property"
+				}
+			},
+			"rename": {
+				"modalTitle": "Rename property",
+				"modalDesc": "Enter a new name to change all instances of the \"{{property}}\" property in all notes' properties and this plugin's settings",
+				"newPropertyNamePlaceholder": "new property name",
+				"nameExistsWarning": "Warning: The name you entered already exists. If you continue, the existing configuration for that name will be overwritten with the configuration from \"{{property}}\""
+			}
+		}
 	}
 }

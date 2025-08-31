@@ -1,3 +1,4 @@
+import { text } from "~/i18next";
 import { CustomPropertyType } from "../types";
 import { registerListeners } from "./registerListeners";
 import { renderSettings } from "./renderSettings";
@@ -5,7 +6,7 @@ import { renderWidget } from "./renderWidget";
 
 export const groupPropertyType: CustomPropertyType = {
 	type: "group",
-	name: () => "Group",
+	name: () => text("customPropertyTypes.group.name"),
 	icon: "lucide-braces",
 	validate: (v) =>
 		v === null ||

@@ -2,7 +2,7 @@ import { moment } from "obsidian";
 import { CustomPropertyType } from "../types";
 import {
 	// getPropertyTypeSettings,
-	PropertyValueComponent,
+	PropertyWidgetComponent,
 } from "../utils";
 
 export const renderWidget: CustomPropertyType["renderWidget"] = ({
@@ -43,20 +43,6 @@ export const renderWidget: CustomPropertyType["renderWidget"] = ({
 		dateInput.value = createdTime;
 	});
 
-	// const doRename = async () => {
-	// 	const newPath =
-	// 		(file.parent?.path ?? "") + "/" + dateInput.getValue() + "." + file.extension;
-	// 	const { success, error } = await tryCatch(
-	// 		plugin.app.fileManager.renameFile(file, newPath)
-	// 	);
-	// 	if (success) return;
-	// 	dateInput.setValue(ctime);
-	// 	displayTooltip(dateInput.inputEl, error, {
-	// 		placement: "bottom",
-	// 		classes: ["mod-error"],
-	// 	});
-	// };
-
 	if (!value || ctime !== value) {
 		// property is rendered with no value
 		// so it's likely rendered for the first time
@@ -67,17 +53,8 @@ export const renderWidget: CustomPropertyType["renderWidget"] = ({
 		}, 0);
 	}
 
-	// dateInput.inputEl.addEventListener("blur", doRename);
-	// dateInput.inputEl.addEventListener("keydown", async (e) => {
-	// 	if (e.key === "Enter") {
-	// 		await doRename();
-	// 	}
-	// 	if (e.key === "Escape") {
-	// 		dateInput.setValue(ctime);
-	// 	}
-	// });
-
-	return new PropertyValueComponent(
+	return new PropertyWidgetComponent(
+		"created",
 		container,
 		(v) => {
 			const str = v?.toString() ?? "";

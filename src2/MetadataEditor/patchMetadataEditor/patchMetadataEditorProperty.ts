@@ -1,5 +1,5 @@
 import BetterProperties from "~/main";
-import { PatchedMetadataEditor, resolveMetadataEditorPrototype } from ".";
+import { PatchedMetadataEditor } from ".";
 import { around, dedupe } from "monkey-around";
 import { Constructor, MarkdownView } from "obsidian";
 import { monkeyAroundKey } from "~/lib/constants";

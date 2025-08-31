@@ -1,4 +1,6 @@
 import { ConfirmationModal } from "~/Classes/ConfirmationModal";
+import { text } from "~/i18next";
+import { obsidianText } from "~/i18next/obsidian";
 import { deleteProperty } from "~/lib/utils";
 import BetterProperties from "~/main";
 
@@ -10,14 +12,14 @@ export const openDeleteModal = ({
 	property: string;
 }) => {
 	const modal = new ConfirmationModal(plugin.app)
-		.setTitle("Are you sure?")
+		.setTitle(text("metadataEditor.propertyMenu.delete.modalTitle"))
 		.setContent(
-			`This action will permanently remove the property "${property}" from all notes, delete property configurations in this plugin's settings, and cannot be undone.`
+			text("metadataEditor.propertyMenu.delete.modalTitle", { property })
 		)
 		.setFooterCheckbox((checkbox) => {
 			checkbox
 				.setValue(false)
-				.setLabel("Don't ask again")
+				.setLabel(text("common.dontAskAgain"))
 				.onChange(async (b) => {
 					await plugin.updateSettings((s) => {
 						s.confirmPropertyDelete = b;
@@ -28,7 +30,7 @@ export const openDeleteModal = ({
 		.addFooterButton((btn) =>
 			btn
 				.setWarning()
-				.setButtonText("Delete")
+				.setButtonText(obsidianText("interface.delete-action-short-name"))
 				.onClick(async () => {
 					await deleteProperty({
 						plugin,
@@ -38,7 +40,7 @@ export const openDeleteModal = ({
 				})
 		)
 		.addFooterButton((btn) =>
-			btn.setButtonText("Cancel").onClick(() => {
+			btn.setButtonText(obsidianText("dialogue.button-cancel")).onClick(() => {
 				modal.close();
 			})
 		);
