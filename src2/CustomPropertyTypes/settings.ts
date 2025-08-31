@@ -18,6 +18,8 @@ import { ConfirmationModal } from "~/Classes/ConfirmationModal";
 import { propertySettingsSchema } from "./schema";
 import { IconSuggest } from "~/Classes/InputSuggest/IconSuggest";
 import { PropertyWidget } from "obsidian-typings";
+import { text } from "~/i18next";
+import { obsidianText } from "~/i18next/obsidian";
 
 export class PropertySettingsModal extends VerticalTabModal {
 	public propertyType: string = "unset";
@@ -53,10 +55,10 @@ export class PropertySettingsModal extends VerticalTabModal {
 
 		this.addTabGroup((group) =>
 			group
-				.setTitle("General")
+				.setTitle(text("propertySettings.generalTabGroupName"))
 				.addTab((tab) =>
 					tab
-						.setTitle("Settings")
+						.setTitle(text("propertySettings.generalSettingsTab.name"))
 						.onSelect(() => renderGeneralSettings(this))
 						.then((tab) => {
 							if (
@@ -74,19 +76,23 @@ export class PropertySettingsModal extends VerticalTabModal {
 
 	addTypesTabGroup() {
 		this.addTabGroup((group) =>
-			group.setTitle("Type settings").then((group) => {
-				Object.values(this.plugin.app.metadataTypeManager.registeredTypeWidgets)
-					.toSorted((a, b) => a.name().localeCompare(b.name()))
-					.forEach((widget) => {
-						group.addTab((tab) =>
-							handlePropertyTypeTab({
-								widget,
-								tab,
-								modal: this,
-							})
-						);
-					});
-			})
+			group
+				.setTitle(text("propertySettings.typesTabGroup.name"))
+				.then((group) => {
+					Object.values(
+						this.plugin.app.metadataTypeManager.registeredTypeWidgets
+					)
+						.toSorted((a, b) => a.name().localeCompare(b.name()))
+						.forEach((widget) => {
+							group.addTab((tab) =>
+								handlePropertyTypeTab({
+									widget,
+									tab,
+									modal: this,
+								})
+							);
+						});
+				})
 		);
 	}
 }
@@ -125,8 +131,8 @@ const renderGeneralSettings = (modal: PropertySettingsModal) => {
 	});
 
 	new Setting(tabContentEl)
-		.setName("Icon")
-		.setDesc("Set a custom icon to show for this property")
+		.setName(text("propertySettings.generalSettingsTab.iconSetting.title"))
+		.setDesc(text("propertySettings.generalSettingsTab.iconSetting.desc"))
 		.addSearch((search) => {
 			search.setValue(settings?.icon ?? "").onChange((v) => {
 				settings.icon = v;
@@ -138,13 +144,41 @@ const renderGeneralSettings = (modal: PropertySettingsModal) => {
 		});
 
 	new Setting(tabContentEl)
-		.setName("Hidden")
-		.setDesc("Whether to hide this property from view by default")
+		.setName(text("propertySettings.generalSettingsTab.hiddenSetting.title"))
+		.setDesc(text("propertySettings.generalSettingsTab.hiddenSetting.desc"))
 		.addToggle((toggle) =>
 			toggle.setValue(settings.hidden ?? false).onChange((b) => {
 				settings.hidden = b;
 			})
 		);
+
+	new Setting(tabContentEl)
+		.setName(
+			text("propertySettings.generalSettingsTab.defaultValueSetting.title")
+		)
+		.setDesc(
+			text("propertySettings.generalSettingsTab.defaultValueSetting.desc")
+		)
+		.addTextArea((cmp) => {
+			cmp.setValue(settings.defaultValue ?? "").onChange((v) => {
+				settings.defaultValue = v;
+			});
+			cmp.inputEl.setAttribute("rows", "3");
+			cmp.inputEl.setAttribute("cols", "40");
+		});
+
+	// new Setting(tabContentEl)
+	// 	.setName("On-load script")
+	// 	.setDesc("")
+
+	new Setting(tabContentEl)
+		.setName(text("propertySettings.generalSettingsTab.aliasSetting.title"))
+		.setDesc(text("propertySettings.generalSettingsTab.aliasSetting.desc"))
+		.addText((cmp) => {
+			cmp.setValue(settings.alias ?? "").onChange((v) => {
+				settings.alias = v;
+			});
+		});
 };
 
 const handleActionsTab = ({
@@ -155,7 +189,7 @@ const handleActionsTab = ({
 	tab: PropertySettingsModal["tabGroups"][number]["tabs"][number];
 }) => {
 	const { tabContentEl, plugin, property } = modal;
-	tab.setTitle("Actions").onSelect(() => {
+	tab.setTitle(text("propertySettings.generalActionsTab.name")).onSelect(() => {
 		tabContentEl.empty();
 		new Setting(tabContentEl)
 			.setName("Import")
@@ -202,7 +236,9 @@ const handleActionsTab = ({
 const showImportModal = (modal: PropertySettingsModal) => {
 	const { plugin, property } = modal;
 	const confirmationModal = new ConfirmationModal(plugin.app);
-	confirmationModal.setTitle("Import property settings");
+	confirmationModal.setTitle(
+		text("propertySettings.generalActionsTab.importSetting.modalTitle")
+	);
 	let data: undefined | PropertySettings = undefined;
 
 	new TextAreaComponent(confirmationModal.contentEl)
@@ -215,21 +251,27 @@ const showImportModal = (modal: PropertySettingsModal) => {
 				if (!jsonResult.success) {
 					data = undefined;
 					validityEl.setAttribute("data-is-valid", "false");
-					validityEl.textContent = "JSON parse error: " + jsonResult.error;
+					validityEl.textContent = text(
+						"propertySettings.generalActionsTab.importSetting.modalJsonParseError",
+						{ error: jsonResult.error }
+					);
 					return;
 				}
 				const parsed = propertySettingsSchema.safeParse(jsonResult.data);
 				if (!parsed.success) {
 					data = undefined;
 					validityEl.setAttribute("data-is-valid", "false");
-					validityEl.textContent =
-						"Parse error: Data does not conform to expected structure. Check developer console for more details.";
+					validityEl.textContent = text(
+						"propertySettings.generalActionsTab.importSetting.modalStrutureParseError"
+					);
 					console.error(parsed.error);
 					return;
 				}
 
 				validityEl.setAttribute("data-is-valid", "true");
-				validityEl.textContent = "Data is valid";
+				validityEl.textContent = text(
+					"propertySettings.generalActionsTab.importSetting.modalDataIsValid"
+				);
 				data = parsed.data;
 			});
 		});
@@ -241,7 +283,7 @@ const showImportModal = (modal: PropertySettingsModal) => {
 	confirmationModal
 		.addFooterButton((btn) =>
 			btn
-				.setButtonText("Import")
+				.setButtonText(text("common.import"))
 				.setWarning()
 				.onClick(() => {
 					if (!data) return;
@@ -252,11 +294,17 @@ const showImportModal = (modal: PropertySettingsModal) => {
 					});
 
 					confirmationModal.close();
-					new Notice("Property settings updated");
+					new Notice(
+						text(
+							"propertySettings.generalActionsTab.importSetting.modalImportSuccess"
+						)
+					);
 				})
 		)
 		.addFooterButton((btn) =>
-			btn.setButtonText("Cancel").onClick(() => confirmationModal.close())
+			btn
+				.setButtonText(obsidianText("dialogue.button-cancel"))
+				.onClick(() => confirmationModal.close())
 		);
 
 	confirmationModal.open();
@@ -265,13 +313,15 @@ const showImportModal = (modal: PropertySettingsModal) => {
 const showResetModal = (modal: PropertySettingsModal) => {
 	const { app, plugin, property } = modal;
 	const confirmationModal = new ConfirmationModal(app)
-		.setTitle("Are you sure?")
+		.setTitle(
+			text("propertySettings.generalActionsTab.resetSetting.modalTitle")
+		)
 		.setContent(
-			"This will reset this property's settings which cannot be undone"
+			text("propertySettings.generalActionsTab.resetSetting.modalDesc")
 		)
 		.setFooterCheckbox((checkbox) =>
 			checkbox
-				.setLabel("Don't ask again")
+				.setLabel(text("common.dontAskAgain"))
 				.setValue(false)
 				.onChange((v) => {
 					modal.plugin.updateSettings((prev) => ({
@@ -282,7 +332,7 @@ const showResetModal = (modal: PropertySettingsModal) => {
 		)
 		.addFooterButton((btn) =>
 			btn
-				.setButtonText("Reset")
+				.setButtonText(text("common.reset"))
 				.setWarning()
 				.onClick(() => {
 					deletePropertySettings({ plugin, property });
@@ -290,7 +340,9 @@ const showResetModal = (modal: PropertySettingsModal) => {
 				})
 		)
 		.addFooterButton((btn) =>
-			btn.setButtonText("Cancel").onClick(() => confirmationModal.close())
+			btn
+				.setButtonText(obsidianText("dialogue.button-cancel"))
+				.onClick(() => confirmationModal.close())
 		);
 	confirmationModal.open();
 };
@@ -316,11 +368,9 @@ const handlePropertyTypeTab = ({
 
 			if (!customPropertyType) {
 				new Setting(tabContentEl)
-					.setName("Unsupported type")
+					.setName(text("propertySettings.typesTabGroup.unsupportedTypeTitle"))
 					.setHeading()
-					.setDesc(
-						`The assigned type of "${widget.type}" is not supported for type-specific settings. This is likely because it is a built-in type or it was added by a different plugin than Better Properties`
-					);
+					.setDesc(text("propertySettings.typesTabGroup.unsupportedTypeDesc"));
 				return;
 			}
 			customPropertyType.renderSettings({

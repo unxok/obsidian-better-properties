@@ -18,7 +18,10 @@
 		},
 		"openFile": "Open \"{{fileName}}\"",
 		"dontAskAgain": "Don't ask again",
-		"icon": "Icon"
+		"areYouSure": "Are you sure?",
+		"icon": "Icon",
+		"import": "Import",
+		"reset": "Reset"
 	},
 	"customPropertyTypes": {
 		"created": {
@@ -79,6 +82,55 @@
 		},
 		"toggle": {
 			"name": "Toggle"
+		}
+	},
+	"propertySettings": {
+		"generalTabGroupName": "General",
+		"generalSettingsTab": {
+			"name": "Settings",
+			"iconSetting": {
+				"title": "Icon",
+				"desc": "Set a custom icon to show for this property"
+			},
+			"hiddenSetting": {
+				"title": "Hidden",
+				"desc": "Whether to hide this property from view by default"
+			},
+			"defaultValueSetting": {
+				"title": "Default value",
+				"desc": "Automatically set a property to this value if empty. Note, this will be parsed as YAML"
+			},
+			"aliasSetting": {
+				"title": "Alias",
+				"desc": "This will be shown in place of the property name in frontmatter"
+			}
+		},
+		"generalActionsTab": {
+			"name": "Actions",
+			"importSetting": {
+				"name": "Import",
+				"desc": "Paste settings as JSON. This will completely overwrite any existing settings for this property!",
+				"modalTitle": "Import property settings",
+				"modalJsonParseError": "JSON parse error: {{error}}",
+				"modalStrutureParseError": "Parse error: Data does not conform to expected structure. Check developer console for more details.",
+				"modalDataIsValid": "Data is valid",
+				"modalImportSuccess": "Property settings updated"
+			},
+			"exportSetting": {
+				"name": "Export",
+				"desc": "Copy this property's settings as JSON"
+			},
+			"resetSetting": {
+				"name": "Reset",
+				"desc": "Completely wipe all settings for this property",
+				"modalTitle": "Are you sure?",
+				"modalDesc": "This will reset this property's settings which cannot be undone"
+			}
+		},
+		"typesTabGroup": {
+			"name": "Type settings",
+			"unsupportedTypeTitle": "Unsupported type",
+			"unsupportedTypeDesc": "Unsupported type"
 		}
 	},
 	"metadataEditor": {

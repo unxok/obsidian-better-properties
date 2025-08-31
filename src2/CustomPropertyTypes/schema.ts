@@ -6,6 +6,9 @@ export const propertySettingsSchema = z.object({
 		.object({
 			icon: z.string().optional(),
 			hidden: z.boolean().optional(),
+			defaultValue: z.string().optional(),
+			// onloadScript: z.string().optional(),
+			alias: z.string().optional(),
 		})
 		.optional(),
 	dropdown: z
@@ -49,7 +52,11 @@ export const propertySettingsSchema = z.object({
 	markdown: z.object({}).optional(),
 	created: z.object({}).optional(),
 	modified: z.object({}).optional(),
-	group: z.object({}).optional(),
+	group: z
+		.object({
+			hideAddButton: z.boolean().optional(),
+		})
+		.optional(),
 }) satisfies ZodObject<
 	Record<
 		string,

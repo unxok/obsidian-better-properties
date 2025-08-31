@@ -15,69 +15,76 @@ export const openRenameModal = ({
 }) => {
 	const modal = new ConfirmationModal(plugin.app);
 
-	modal.setTitle("Rename property").setContent(
-		createFragment((frag) => {
-			frag.createEl("p", {
-				text: text("metadataEditor.propertyMenu.rename.modalDesc", {
-					property,
-				}),
-			});
-			const textCmp = new TextComponent(frag.createDiv())
-				.setValue(property)
-				.setPlaceholder(
-					text("metadataEditor.propertyMenu.rename.newPropertyNamePlaceholder")
-				);
-			const warningEl = frag.createEl("p", {
-				cls: "better-properties-mod-warning",
-			});
-			setIcon(warningEl.createSpan(), "lucide-alert-circle" satisfies Icon);
-			warningEl.createSpan({
-				text: text("metadataEditor.propertyMenu.rename.nameExistsWarning", {
-					property,
-				}),
-			});
-			let renameBtn: ButtonComponent | null = null;
-			modal
-				.addFooterButton((btn) => {
-					renameBtn = btn
-						.setButtonText(obsidianText("interface.menu.rename"))
-						.setWarning()
-						.onClick(async () => {
-							await renameProperty({
-								plugin,
-								property,
-								newProperty: textCmp.getValue(),
+	modal
+		.setTitle(text("metadataEditor.propertyMenu.rename.modalTitle"))
+		.setContent(
+			createFragment((frag) => {
+				frag.createEl("p", {
+					text: text("metadataEditor.propertyMenu.rename.modalDesc", {
+						property,
+					}),
+				});
+				const textCmp = new TextComponent(frag.createDiv())
+					.setValue(property)
+					.setPlaceholder(
+						text(
+							"metadataEditor.propertyMenu.rename.newPropertyNamePlaceholder"
+						)
+					);
+				const warningEl = frag.createEl("p", {
+					cls: "better-properties-mod-warning",
+				});
+				setIcon(warningEl.createSpan(), "lucide-alert-circle" satisfies Icon);
+				warningEl.createSpan({
+					text: text("metadataEditor.propertyMenu.rename.nameExistsWarning", {
+						property,
+					}),
+				});
+				let renameBtn: ButtonComponent | null = null;
+				modal
+					.addFooterButton((btn) => {
+						renameBtn = btn
+							.setButtonText(obsidianText("interface.menu.rename"))
+							.setWarning()
+							.onClick(async () => {
+								await renameProperty({
+									plugin,
+									property,
+									newProperty: textCmp.getValue(),
+								});
+								modal.close();
 							});
-							modal.close();
-						});
-				})
-				.addFooterButton((btn) =>
-					btn
-						.setButtonText(obsidianText("dialogue.button-cancel"))
-						.onClick(() => {
-							modal.close();
-						})
-				);
+					})
+					.addFooterButton((btn) =>
+						btn
+							.setButtonText(obsidianText("dialogue.button-cancel"))
+							.onClick(() => {
+								modal.close();
+							})
+					);
 
-			textCmp.onChange((v) => {
-				if (!renameBtn) return;
-				if (v === property) {
-					warningEl.style.setProperty("display", "none");
-					renameBtn.setDisabled(true);
-					return;
-				}
-				renameBtn.setDisabled(false);
-				const existing = findKey(plugin.app.metadataTypeManager.properties, v);
-				if (!existing) {
-					warningEl.style.setProperty("display", "none");
-					return;
-				}
-				warningEl.style.removeProperty("display");
-			});
+				textCmp.onChange((v) => {
+					if (!renameBtn) return;
+					if (v === property) {
+						warningEl.style.setProperty("display", "none");
+						renameBtn.setDisabled(true);
+						return;
+					}
+					renameBtn.setDisabled(false);
+					const existing = findKey(
+						plugin.app.metadataTypeManager.properties,
+						v
+					);
+					if (!existing) {
+						warningEl.style.setProperty("display", "none");
+						return;
+					}
+					warningEl.style.removeProperty("display");
+				});
 
-			textCmp.onChanged();
-		})
-	);
+				textCmp.onChanged();
+			})
+		);
 
 	modal.open();
 };

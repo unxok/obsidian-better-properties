@@ -2,16 +2,12 @@ import {
 	Modal,
 	ButtonComponent,
 	Plugin,
-	WorkspaceLeaf,
-	Constructor,
-	Notice,
 	MarkdownPostProcessorContext,
 	Component,
 	MarkdownRenderChild,
-	MarkdownPreviewRenderer,
 	MarkdownRenderer,
-	loadPrism,
 	App,
+	parseYaml,
 } from "obsidian";
 import {
 	BetterPropertiesSettings,
@@ -29,8 +25,6 @@ import {
 	patchMetadataEditor,
 	refreshPropertyEditor,
 } from "~/MetadataEditor";
-import { around, dedupe } from "monkey-around";
-import { monkeyAroundKey } from "~/lib/constants";
 
 export class BetterProperties extends Plugin {
 	settings: BetterPropertiesSettings = getDefaultSettings();
@@ -75,6 +69,9 @@ export class BetterProperties extends Plugin {
 		window.CodeMirror.defineMode("script", (config) =>
 			window.CodeMirror.getMode(config, "javascript")
 		);
+
+		// @ts-expect-error TESTING
+		window["parseYaml"] = (str: string) => parseYaml(str);
 	}
 
 	handlePropertyLabelWidth(): void {

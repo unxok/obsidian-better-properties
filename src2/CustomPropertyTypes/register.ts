@@ -1,7 +1,7 @@
 import BetterProperties from "~/main";
 import { CustomPropertyType, CustomTypeKey, getPropertyTypeSettings } from ".";
 import { dropdownPropertyType } from "./Dropdown";
-import { setIcon } from "obsidian";
+import { Notice, setIcon } from "obsidian";
 import { customPropertyTypePrefix, monkeyAroundKey } from "~/lib/constants";
 import { around, dedupe } from "monkey-around";
 import { togglePropertyType } from "./Toggle";
@@ -13,6 +13,8 @@ import {
 } from "obsidian-typings";
 import { createdPropertyType } from "./Created";
 import { groupPropertyType } from "./Group";
+import { tryParseYaml } from "@/libs/utils/obsidian";
+import { triggerPropertyTypeChange } from "./utils";
 
 export const customPropertyTypesArr: CustomPropertyType[] = [
 	dropdownPropertyType,
@@ -67,26 +69,84 @@ export const wrapAllPropertyTypeWidgets = (plugin: BetterProperties) => {
 				return dedupe(monkeyAroundKey, old, (containerEl, value, ctx) => {
 					const toReturn = old(containerEl, value, ctx);
 
-					const { icon, hidden } = getPropertyTypeSettings({
+					const settings = getPropertyTypeSettings({
 						plugin,
 						property: ctx.key,
 						type: "general",
 					});
 
-					if (icon) {
+					if (settings.icon) {
 						const iconEl = containerEl.parentElement?.querySelector(
 							".metadata-property-icon"
 						);
 						if (iconEl instanceof HTMLElement) {
-							setIcon(iconEl, icon);
+							setIcon(iconEl, settings.icon);
 						}
 					}
 
-					if (hidden) {
+					if (settings.hidden) {
 						containerEl.parentElement?.setAttribute(
 							"data-better-properties-hidden",
 							"true"
 						);
+					}
+
+					const valueIsEmpty =
+						typeof value === "object" &&
+						(value === null || value === undefined || Object.isEmpty(value));
+					if (settings.defaultValue !== undefined && valueIsEmpty) {
+						const parsedValue = tryParseYaml(settings.defaultValue);
+						if (!parsedValue.success) {
+							const err =
+								parsedValue.error instanceof Error
+									? parsedValue.error.message
+									: "Unknown error";
+							new Notice(err);
+							console.error(err);
+						}
+
+						if (parsedValue.success) {
+							window.setTimeout(() => {
+								ctx.onChange(parsedValue.data);
+								triggerPropertyTypeChange(
+									plugin.app.metadataTypeManager,
+									ctx.key
+								);
+							}, 0);
+						}
+					}
+
+					if (settings.alias) {
+						const keyInputEl: HTMLElement | undefined | null =
+							containerEl.parentElement?.querySelector(
+								"input.metadata-property-key-input"
+							);
+						if (keyInputEl) {
+							const existing = containerEl.parentElement?.querySelector(
+								".better-properties-metadata-property-alias-input"
+							) as HTMLInputElement | undefined | null;
+							if (existing) {
+								existing.style.removeProperty("display");
+							}
+							const aliasEl =
+								existing ?? (keyInputEl.cloneNode() as HTMLInputElement);
+							keyInputEl.insertAdjacentElement("afterend", aliasEl);
+							keyInputEl.style.display = "none";
+							keyInputEl.addEventListener("blur", () => {
+								keyInputEl.style.display = "none";
+								aliasEl.style.removeProperty("display");
+							});
+							aliasEl.value = settings.alias;
+							aliasEl.classList.add(
+								"better-properties-metadata-property-alias-input"
+							);
+							aliasEl.setAttribute("aria-disabled", "true");
+							aliasEl.addEventListener("focus", () => {
+								aliasEl.style.display = "none";
+								keyInputEl.style.removeProperty("display");
+								keyInputEl.focus();
+							});
+						}
 					}
 
 					return toReturn;

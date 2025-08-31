@@ -10,8 +10,10 @@ window.i18next.addResourceBundle("en", ns, en); // English
 //////////////////
 
 const fixedT = window.i18next.getFixedT(null, ns);
-export const text = (
-	key: NestedPaths<typeof en>,
+
+type EN = typeof en;
+export const text = <T extends NestedPaths<EN>>(
+	key: T,
 	variables?: Record<string, string>
 ): string => {
 	return fixedT(key, variables);
