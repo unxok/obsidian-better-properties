@@ -1,8 +1,9 @@
 import { displayTooltip, Menu, setIcon, stringifyYaml, TFile } from "obsidian";
-import { CustomPropertyType } from "../types";
+import { CustomPropertyType, CustomTypeKey } from "../types";
 import {
 	findKeyValueByDotNotation,
 	flashElement,
+	getPropertyTypeSettings,
 	PropertyWidgetComponent,
 	triggerPropertyTypeChange,
 	updateNestedObject,
@@ -14,17 +15,19 @@ import { ConfirmationModal } from "~/Classes/ConfirmationModal";
 import { PropertyWidget } from "obsidian-typings";
 import { arrayMove } from "~/lib/utils";
 
+export const typeKey = "group" satisfies CustomTypeKey;
+
 export const renderWidget: CustomPropertyType["renderWidget"] = ({
 	plugin,
 	el,
 	ctx,
 	value: initialValue,
 }) => {
-	// const settings = getPropertyTypeSettings({
-	// 	plugin,
-	// 	property: ctx.key,
-	// 	type: "toggle",
-	// });
+	const settings = getPropertyTypeSettings({
+		plugin,
+		property: ctx.key,
+		type: typeKey,
+	});
 
 	const value = (
 		typeof initialValue === "object" &&
@@ -56,29 +59,32 @@ export const renderWidget: CustomPropertyType["renderWidget"] = ({
 	const propertiesEl = container.createDiv({
 		cls: "better-properties-property-group-properties",
 	});
-	const addPropertyEl = container.createDiv({
-		cls: "better-properties-property-group-add-property metadata-add-button text-icon-button",
-	});
-	setIcon(
-		addPropertyEl.createSpan({ cls: "text-button-icon" }),
-		"lucide-plus" satisfies Icon
-	);
-	addPropertyEl.createSpan({
-		cls: "text-button-label",
-		text: obsidianText("properties.label-add-property-button"),
-	});
-	addPropertyEl.addEventListener("click", () => {
-		renderSubProperty({
-			itemKey: "",
-			itemValue: null,
-			parentKey: ctx.key,
-			parentValue: { ...value },
-			parentOnChange: (v) => ctx.onChange(v),
-			file,
-			plugin,
-			propertiesEl,
+
+	if (!settings.hideAddButton) {
+		const addPropertyEl = container.createDiv({
+			cls: "better-properties-property-group-add-property metadata-add-button text-icon-button",
 		});
-	});
+		setIcon(
+			addPropertyEl.createSpan({ cls: "text-button-icon" }),
+			"lucide-plus" satisfies Icon
+		);
+		addPropertyEl.createSpan({
+			cls: "text-button-label",
+			text: obsidianText("properties.label-add-property-button"),
+		});
+		addPropertyEl.addEventListener("click", () => {
+			renderSubProperty({
+				itemKey: "",
+				itemValue: null,
+				parentKey: ctx.key,
+				parentValue: { ...value },
+				parentOnChange: (v) => ctx.onChange(v),
+				file,
+				plugin,
+				propertiesEl,
+			});
+		});
+	}
 
 	for (const [itemKey, itemValue] of Object.entries(value)) {
 		renderSubProperty({
