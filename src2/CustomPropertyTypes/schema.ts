@@ -50,11 +50,16 @@ export const propertySettingsSchema = z.object({
 	toggle: z.object({}).optional(),
 	title: z.object({}).optional(),
 	markdown: z.object({}).optional(),
-	created: z.object({}).optional(),
+	created: z
+		.object({
+			format: z.string().optional(),
+		})
+		.optional(),
 	modified: z.object({}).optional(),
 	group: z
 		.object({
 			hideAddButton: z.boolean().optional(),
+			collapsed: z.boolean().optional(), // not frontend facing
 		})
 		.optional(),
 }) satisfies ZodObject<
