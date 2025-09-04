@@ -8,20 +8,32 @@ import { Menu, MenuItem, MenuSeparator } from "obsidian";
 import { openChangeIconModal } from "./icon";
 import { obsidianText } from "~/i18next/obsidian";
 import { text } from "~/i18next";
+import { customPropertyTypePrefix } from "~/lib/constants";
+import { MetadataTypeManager } from "obsidian-typings";
 
 export const onFilePropertyMenu = (
 	plugin: BetterProperties,
 	menu: Menu,
 	property: string
 ) => {
+	const { metadataTypeManager } = plugin.app;
+
 	const found = menu.items.find((item) => {
 		if (item instanceof MenuSeparator) return false;
 		return !!item.submenu;
 	}) as MenuItem | undefined;
 	found?.setSection("action");
 
+	if (found) {
+		recreateTypeOptionsSubmenu({
+			found,
+			metadataTypeManager,
+			property,
+		});
+	}
+
 	const isReserved = Object.values(
-		plugin.app.metadataTypeManager.registeredTypeWidgets
+		metadataTypeManager.registeredTypeWidgets
 	).some(({ reservedKeys }) => {
 		return reservedKeys?.includes(property);
 	});
@@ -79,4 +91,50 @@ export const onFilePropertyMenu = (
 		);
 
 	menu.sort();
+};
+
+const recreateTypeOptionsSubmenu = ({
+	found,
+	metadataTypeManager,
+	property,
+}: {
+	found: MenuItem;
+	metadataTypeManager: MetadataTypeManager;
+	property: string;
+}) => {
+	found.submenu!.items.forEach((item) => {
+		(item as MenuItem).dom.remove();
+	});
+
+	found.submenu?.unload();
+	found.submenu?.dom.remove();
+	found.submenu = null;
+	found.dom.querySelector(".menu-item-icon.mod-submenu")?.remove();
+	const submenu = found.setSubmenu();
+
+	const OBSIDIAN = "obsidian";
+	const BETTER_PROPERTIES = "better-properties";
+	submenu.addSections([OBSIDIAN, BETTER_PROPERTIES]);
+
+	Object.values(metadataTypeManager.registeredTypeWidgets).forEach((widget) => {
+		if (widget.reservedKeys) return;
+		submenu.addItem((item) => {
+			const isBuiltin = !widget.type.startsWith(customPropertyTypePrefix);
+			item.onClick(() => {
+				metadataTypeManager.setType(property, widget.type);
+			});
+			item.setTitle(widget.name()).setIcon(widget.icon);
+
+			if (!isBuiltin) {
+				item.dom.setAttribute("data-is-better-properties", "true");
+			}
+
+			// TODO make this an optional in settings
+			// item.setSection(isBuiltin ? OBSIDIAN : BETTER_PROPERTIES);
+
+			if (metadataTypeManager.getAssignedWidget(property) === widget.type) {
+				item.setChecked(true);
+			}
+		});
+	});
 };
