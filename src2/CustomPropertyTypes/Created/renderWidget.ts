@@ -1,6 +1,7 @@
 import { moment } from "obsidian";
 import { CustomPropertyType } from "../types";
 import {
+	getPropertyTypeSettings,
 	// getPropertyTypeSettings,
 	PropertyWidgetComponent,
 } from "../utils";
@@ -11,15 +12,22 @@ export const renderWidget: CustomPropertyType["renderWidget"] = ({
 	ctx,
 	value,
 }) => {
-	// const settings = getPropertyTypeSettings({
-	// 	plugin,
-	// 	property: ctx.key,
-	// 	type: "toggle",
-	// });
+	const settings = getPropertyTypeSettings({
+		plugin,
+		property: ctx.key,
+		type: "created",
+	});
 
 	const container = el.createDiv({
 		cls: "better-properties-property-value-inner better-properties-mod-created",
 	});
+
+	const cmp = new PropertyWidgetComponent(
+		"created",
+		container,
+		() => {},
+		() => {}
+	);
 
 	const file = plugin.app.vault.getFileByPath(ctx.sourcePath);
 	if (!file) {
@@ -27,22 +35,6 @@ export const renderWidget: CustomPropertyType["renderWidget"] = ({
 	}
 
 	const ctime = file.stat.ctime;
-	const dateInput = container.createEl("input", {
-		type: "datetime-local",
-		cls: "metadata-input metadata-input-text mod-datetime",
-		attr: {
-			// disabled: "true",
-			"aria-disabled": "true",
-		},
-	});
-
-	const createdTime = moment(ctime).format("yyyy-MM-DDTHH:mm");
-
-	dateInput.value = createdTime;
-	dateInput.addEventListener("input", () => {
-		dateInput.value = createdTime;
-	});
-
 	if (!value || ctime !== value) {
 		// property is rendered with no value
 		// so it's likely rendered for the first time
@@ -53,15 +45,39 @@ export const renderWidget: CustomPropertyType["renderWidget"] = ({
 		}, 0);
 	}
 
-	return new PropertyWidgetComponent(
-		"created",
-		container,
-		(v) => {
-			const str = v?.toString() ?? "";
-			dateInput.value = moment(str).format("yyyy-MM-DDTHH:mm");
-		},
-		() => {
+	if (!settings.format) {
+		const dateInput = container.createEl("input", {
+			type: "datetime-local",
+			cls: "metadata-input metadata-input-text mod-datetime",
+			attr: {
+				// disabled: "true",
+				"aria-disabled": "true",
+			},
+		});
+		const createdTime = moment(ctime).format("yyyy-MM-DDTHH:mm");
+
+		dateInput.value = createdTime;
+		dateInput.addEventListener("input", () => {
+			dateInput.value = createdTime;
+		});
+
+		cmp.onFocus = () => {
 			dateInput.focus();
-		}
-	);
+		};
+	}
+
+	if (settings.format) {
+		const dateStr = moment(ctime).format(settings.format);
+		const inputEl = container.createEl("input", {
+			cls: "metadata-input metadata-input-number",
+			value: dateStr,
+			type: "text",
+		});
+		inputEl.addEventListener("input", () => {
+			inputEl.value = dateStr;
+		});
+		cmp.onFocus = () => inputEl.focus();
+	}
+
+	return cmp;
 };
