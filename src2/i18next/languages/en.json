@@ -25,7 +25,13 @@
 	},
 	"customPropertyTypes": {
 		"created": {
-			"name": "Created"
+			"name": "Created",
+			"settings": {
+				"format": {
+					"title": "Format",
+					"desc": "Enter a valid momentjs format to display the date with."
+				}
+			}
 		},
 		"dropdown": {
 			"name": "Dropdown",
@@ -130,7 +136,7 @@
 		"typesTabGroup": {
 			"name": "Type settings",
 			"unsupportedTypeTitle": "Unsupported type",
-			"unsupportedTypeDesc": "Unsupported type"
+			"unsupportedTypeDesc": "The assigned type of \"{{widget.type}}\" is not supported for type-specific settings. This is likely because it is a built-in type or it was added by a different plugin than Better Properties"
 		}
 	},
 	"metadataEditor": {
