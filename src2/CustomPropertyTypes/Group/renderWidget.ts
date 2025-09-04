@@ -5,6 +5,7 @@ import {
 	flashElement,
 	getPropertyTypeSettings,
 	PropertyWidgetComponent,
+	setPropertyTypeSettings,
 	triggerPropertyTypeChange,
 	updateNestedObject,
 } from "../utils";
@@ -44,14 +45,44 @@ export const renderWidget: CustomPropertyType["renderWidget"] = ({
 
 	const propertyEl = el;
 
-	// const collapseIndicator = propertyEl.parentElement
-	// 	?.querySelector(".metadata-property-key")
-	// 	?.createDiv({
-	// 		cls: "better-properties-properties-group-collapse-indicator",
-	// 	});
-	// if (collapseIndicator) {
-	// 	setIcon(collapseIndicator, "lucide-chevron-down" satisfies Icon);
-	// }
+	const collapseCls = "better-properties-properties-group-collapse-indicator";
+	const keyEl = propertyEl.parentElement?.querySelector(
+		".metadata-property-key"
+	);
+
+	const existingCollapseIndicator: HTMLElement | undefined | null =
+		keyEl?.querySelector(`& > .${collapseCls}`);
+
+	existingCollapseIndicator?.remove();
+
+	const collapseIndicator = keyEl?.createDiv({
+		cls: collapseCls,
+	});
+	if (collapseIndicator) {
+		setIcon(collapseIndicator, "lucide-chevron-down" satisfies Icon);
+
+		const setAttr = (isCollapsed: boolean) => {
+			const attr = "data-better-properties-is-collapsed";
+			isCollapsed
+				? collapseIndicator.setAttribute(attr, "true")
+				: collapseIndicator.removeAttribute(attr);
+		};
+
+		setAttr(!!settings.collapsed);
+
+		collapseIndicator.addEventListener("click", async () => {
+			settings.collapsed = !settings.collapsed;
+			setAttr(settings.collapsed);
+			setPropertyTypeSettings({
+				plugin,
+				property: ctx.key,
+				type: typeKey,
+				typeSettings: {
+					...settings,
+				},
+			});
+		});
+	}
 
 	const container = propertyEl.createDiv({
 		cls: "better-properties-property-value-inner better-properties-mod-group metadata-container",
