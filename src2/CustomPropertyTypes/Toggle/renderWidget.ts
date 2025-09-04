@@ -17,7 +17,14 @@ export const renderWidget: CustomPropertyType["renderWidget"] = ({
 	// 	type: "toggle",
 	// });
 
-	console.log("value: ", initialValue);
+	// const setSettings = (typeSettings: PropertySettings[T]) => {
+	// 	setPropertyTypeSettings({
+	// 		plugin,
+	// 		property: ctx.key,
+	// 		type: 'toggle',
+	// 		typeSettings,
+	// 	});
+	// };
 
 	const value = !!initialValue;
 
