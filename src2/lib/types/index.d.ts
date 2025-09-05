@@ -38,4 +38,8 @@ declare module "obsidian" {
 		private focus(_: unknown): void;
 		onFocus(): void;
 	}
+
+	interface MetadataTypeManager extends BaseMetadataTypeManager {
+		on(name: "changed", cb: (property: string | undefined) => void): EventRef;
+	}
 }
