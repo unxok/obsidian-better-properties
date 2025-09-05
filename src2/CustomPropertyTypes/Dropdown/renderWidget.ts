@@ -37,39 +37,47 @@ export const renderWidget: CustomPropertyType["renderWidget"] = ({
 		cls: "better-properties-property-value-inner better-properties-mod-dropdown",
 	});
 
+	let isValid = false;
 	const dropdown = new DropdownComponent(container);
 	if (settings.optionsType === "manual" && settings.manualOptions) {
-		dropdown.addOptions(
-			settings.manualOptions.reduce((acc, cur) => {
-				if (cur === undefined) return acc;
-				acc[cur.value] = cur.label || cur.value;
-				return acc;
-			}, {} as Record<string, string>)
-		);
+		const options = settings.manualOptions.reduce((acc, cur) => {
+			if (cur === undefined) return acc;
+			acc[cur.value] = cur.label || cur.value;
+			return acc;
+		}, {} as Record<string, string>);
+		dropdown.addOptions(options);
+		isValid = value in options;
 	}
 	if (settings.optionsType === "dynamic") {
 		const options = getDynamicOptions({ plugin, settings, ctx });
 		dropdown.addOptions(options);
+		isValid = value in options;
 	}
 
-	createLinkEl({
+	createAuxEl({
 		value,
 		plugin,
 		parentEl: container,
 		sourcePath: ctx.sourcePath,
+		isValid,
 	});
 
 	dropdown.onChange((v) => {
+		isValid = Array.from(dropdown.selectEl.options).some(
+			(opt) => opt.value === v
+		);
 		ctx.onChange(v);
-		createLinkEl({
+		createAuxEl({
 			value: v,
 			plugin,
 			parentEl: container,
 			sourcePath: ctx.sourcePath,
+			isValid,
 		});
 	});
 	dropdown.setValue(value);
 	if (value === "") {
+		isValid = true;
 		const defaultOption = dropdown.selectEl.querySelector('option[value=""]');
 		if (defaultOption) {
 			defaultOption.setAttribute("selected", "true");
@@ -88,42 +96,59 @@ export const renderWidget: CustomPropertyType["renderWidget"] = ({
 	);
 };
 
-const createLinkEl = ({
+const createAuxEl = ({
 	value,
 	plugin,
 	sourcePath,
 	parentEl,
+	isValid,
 }: {
 	value: string;
 	plugin: BetterProperties;
 	sourcePath: string;
 	parentEl: HTMLElement;
+	isValid: boolean;
 }) => {
-	if (!value.startsWith("[[") && !value.endsWith("]]")) return;
-	if (value.startsWith("[[") && value.endsWith("]]")) {
-		const file = getFirstLinkPathDest(
-			plugin.app.metadataCache,
-			sourcePath,
-			value
-		);
-		const fileName = file?.basename ?? value.slice(2, -2);
+	const cls = "better-properties-dropdown-aux";
+	const existing = parentEl.querySelectorAll("." + cls);
+	if (existing.length) existing.forEach((el) => el.remove());
+
+	if (!isValid) {
 		new ExtraButtonComponent(parentEl)
-			.setIcon("link" satisfies Icon)
-			.setTooltip(
-				file
-					? text("common.openFile", { fileName })
-					: obsidianText("plugins.page-preview.label-empty-note")
-			)
+			.setIcon("lucide-alert-circle" satisfies Icon)
+			.setTooltip(`Invalid value: "${value}"`)
 			.then((btn) => {
-				btn.extraSettingsEl.addEventListener("click", (e) => {
-					plugin.app.workspace.openLinkText(
-						fileName,
-						sourcePath,
-						Keymap.isModEvent(e)
-					);
-				});
+				btn.extraSettingsEl.classList.add(cls);
+				btn.extraSettingsEl.classList.add("better-properties-mod-error");
 			});
 	}
+
+	const isWikiLink = value.startsWith("[[") && value.endsWith("]]");
+	if (!isWikiLink) return;
+
+	const file = getFirstLinkPathDest(
+		plugin.app.metadataCache,
+		sourcePath,
+		value
+	);
+	const fileName = file?.basename ?? value.slice(2, -2);
+	new ExtraButtonComponent(parentEl)
+		.setIcon("link" satisfies Icon)
+		.setTooltip(
+			file
+				? text("common.openFile", { fileName })
+				: obsidianText("plugins.page-preview.label-empty-note")
+		)
+		.then((btn) => {
+			btn.extraSettingsEl.classList.add(cls);
+			btn.extraSettingsEl.addEventListener("click", (e) => {
+				plugin.app.workspace.openLinkText(
+					fileName,
+					sourcePath,
+					Keymap.isModEvent(e)
+				);
+			});
+		});
 };
 
 const getDynamicOptions = ({
