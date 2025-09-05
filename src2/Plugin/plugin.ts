@@ -161,6 +161,7 @@ export class BetterProperties extends Plugin {
 	}
 }
 
+// TODO move to a separate plugin and make inline codeblock renderer
 class Script {
 	public app: App;
 	public mdrc: MarkdownRenderChild;
@@ -178,6 +179,22 @@ class Script {
 		this.containerEl = el.createDiv();
 		this.mdrc.addChild(this.component);
 		this.ctx.addChild(this.mdrc);
+
+		const eventRefs = [
+			plugin.app.vault.on("create", async () => await this.runCode(source)),
+			plugin.app.vault.on("modify", async () => await this.runCode(source)),
+			plugin.app.vault.on("delete", async () => await this.runCode(source)),
+			plugin.app.vault.on("rename", async () => await this.runCode(source)),
+			plugin.app.metadataCache.on(
+				"changed",
+				async () => await this.runCode(source)
+			),
+		];
+
+		eventRefs.forEach((ref) => {
+			plugin.registerEvent(ref);
+			this.component.registerEvent(ref);
+		});
 
 		if (!source) {
 			this.renderHelp();
@@ -199,10 +216,11 @@ class Script {
 		);
 	}
 
-	runCode(code: string) {
+	async runCode(code: string) {
 		try {
-			const func = eval(`(script) => {${code}}`);
-			func(this);
+			const func = eval(`async (script) => {${code}}`);
+			this.el.empty();
+			await func(this);
 		} catch (e) {
 			const msg = e instanceof Error ? e.message : "Unknown Error";
 			const fullMsg =
@@ -236,14 +254,18 @@ class Script {
 			styleEl.innerHTML = await vault.read(stylesCssFile);
 		}
 
-		this.runCode(await vault.read(mainJsFile));
+		await this.runCode(await vault.read(mainJsFile));
 	}
 
-	refresh() {
+	obsidian() {
+		return require("obsidian");
+	}
+
+	async refresh() {
 		this.component.unload();
 		console.log(this.component);
 		this.el.empty();
 		this.containerEl = this.el.createDiv();
-		this.runCode(this.source);
+		await this.runCode(this.source);
 	}
 }
