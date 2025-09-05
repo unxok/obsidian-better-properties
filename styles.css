@@ -342,3 +342,13 @@ div.metadata-content {
 .menu-item[data-is-better-properties] .menu-item-icon {
 	color: var(--text-accent);
 }
+
+.better-properties-mod-error {
+	color: var(--text-error);
+
+	&:hover,
+	&.clickable-icon:hover {
+		color: var(--text-error);
+		opacity: 0.5;
+	}
+}
