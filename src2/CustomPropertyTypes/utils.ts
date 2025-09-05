@@ -209,13 +209,6 @@ export const triggerPropertyTypeChange = (
 	metadataTypeManager: MetadataTypeManager,
 	property: string
 ) => {
-	const lower = property.toLowerCase();
-	if (!property.includes(".")) {
-		metadataTypeManager.trigger("changed", lower);
-		return;
-	}
-
-	const parentKey = property.split(".")[0]?.toLowerCase();
-	if (!parentKey) return;
-	metadataTypeManager.trigger("changed", parentKey);
+	metadataTypeManager.trigger("changed", property.toLowerCase());
+	// TODO this function isn't really needed since I now handle nested keys (ex: parent.child) in Group/registerListeners.ts
 };
