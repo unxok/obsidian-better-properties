@@ -1,7 +1,6 @@
-import { displayTooltip, Menu, setIcon, stringifyYaml, TFile } from "obsidian";
+import { displayTooltip, Menu, setIcon, stringifyYaml } from "obsidian";
 import { CustomPropertyType, CustomTypeKey } from "../types";
 import {
-	findKeyValueByDotNotation,
 	flashElement,
 	getPropertyTypeSettings,
 	PropertyWidgetComponent,
@@ -37,11 +36,6 @@ export const renderWidget: CustomPropertyType["renderWidget"] = ({
 			? initialValue
 			: {}
 	) as Record<string, unknown>;
-
-	const file = plugin.app.vault.getFileByPath(ctx.sourcePath);
-	if (!file) {
-		throw new Error("File not found by path: " + ctx.sourcePath);
-	}
 
 	const propertyEl = el;
 
@@ -110,9 +104,9 @@ export const renderWidget: CustomPropertyType["renderWidget"] = ({
 				parentKey: ctx.key,
 				parentValue: { ...value },
 				parentOnChange: (v) => ctx.onChange(v),
-				file,
 				plugin,
 				propertiesEl,
+				sourcePath: ctx.sourcePath,
 			});
 		});
 	}
@@ -124,9 +118,9 @@ export const renderWidget: CustomPropertyType["renderWidget"] = ({
 			parentKey: ctx.key,
 			parentValue: { ...value },
 			parentOnChange: (v) => ctx.onChange(v),
-			file,
 			plugin,
 			propertiesEl,
+			sourcePath: ctx.sourcePath,
 		});
 	}
 
@@ -148,18 +142,18 @@ const renderSubProperty = ({
 	parentKey,
 	parentValue,
 	parentOnChange,
-	file,
 	plugin,
 	propertiesEl,
+	sourcePath,
 }: {
 	itemKey: string;
 	itemValue: unknown;
 	parentKey: string;
 	parentValue: Record<string, unknown>;
 	parentOnChange: (newParentValue: Record<string, unknown>) => void;
-	file: TFile;
 	plugin: BetterProperties;
 	propertiesEl: HTMLElement;
+	sourcePath: string | undefined;
 }) => {
 	const itemKeyWithDots = parentKey + "." + itemKey;
 	const widget = plugin.app.metadataTypeManager.getTypeInfo(
@@ -203,25 +197,8 @@ const renderSubProperty = ({
 					.setSection("action")
 					.setTitle(obsidianText("properties.option-property-type"))
 					.setIcon("lucide-info" satisfies Icon);
-				const sub = item.setSubmenu();
-				Object.values(
-					plugin.app.metadataTypeManager.registeredTypeWidgets
-				).forEach((w) => {
-					if (w.reservedKeys) return;
-					sub.addItem((subItem) => {
-						subItem.setIcon(w.icon);
-						subItem.setTitle(w.name());
-						subItem.onClick(() => {
-							plugin.app.metadataTypeManager.setType(itemKeyWithDots, w.type);
-							triggerPropertyTypeChange(
-								plugin.app.metadataTypeManager,
-								itemKeyWithDots
-							);
-						});
-						if (widget.expected.type !== w.type) return;
-						subItem.setChecked(true);
-					});
-				});
+				item.setSubmenu();
+				// sub items are added elsewhere in src2/MetadataEditor
 			})
 			.addItem((item) =>
 				item
@@ -261,7 +238,7 @@ const renderSubProperty = ({
 			.showAtMouseEvent(e);
 	});
 
-	iconEl.addEventListener("mousedown", () => {
+	iconEl.addEventListener("mousedown", (mousedownEvent) => {
 		const dragGhostHiddenClass = "drag-ghost-hidden";
 		const dragGhostEl = createDiv({ cls: "drag-reorder-ghost" });
 
@@ -273,9 +250,21 @@ const renderSubProperty = ({
 			bottom: number;
 			el: Element;
 		}[] = [];
+
 		let originalIndex = -1;
 		let currentIndex = -1;
-		const onMouseMove = (e: MouseEvent) => {
+
+		const dragThreshold = 25;
+		let hasDragged = false;
+
+		const onMouseMove = (mousemoveEvent: MouseEvent) => {
+			if (!hasDragged) {
+				hasDragged =
+					Math.abs(mousedownEvent.pageX - mousemoveEvent.pageX) >
+						dragThreshold ||
+					Math.abs(mousedownEvent.pageY - mousemoveEvent.pageY) > dragThreshold;
+			}
+			if (!hasDragged) return;
 			if (!isSetupDone) {
 				const propertyElClone = propertyEl.cloneNode(true);
 				propertyEl.classList.add(dragGhostHiddenClass);
@@ -303,14 +292,15 @@ const renderSubProperty = ({
 						otherPropertyElsPositions.push({ top, bottom, el });
 					});
 			}
-			dragGhostEl.style.transform = `translate(${e.pageX - left}px, ${
-				e.pageY - top
-			}px)`;
+			dragGhostEl.style.transform = `translate(${
+				mousemoveEvent.pageX - left
+			}px, ${mousemoveEvent.pageY - top}px)`;
 
 			otherPropertyElsPositions.forEach(({ top, bottom, el }, i) => {
 				const middle = (top + bottom) / 2;
-				const shouldSwapUp = i < currentIndex && e.pageY < middle;
-				const shouldSwapDown = i > currentIndex && e.pageY > middle;
+				const shouldSwapUp = i < currentIndex && mousemoveEvent.pageY < middle;
+				const shouldSwapDown =
+					i > currentIndex && mousemoveEvent.pageY > middle;
 				if (!shouldSwapUp && !shouldSwapDown) return;
 				el.insertAdjacentElement(
 					shouldSwapUp ? "beforebegin" : "afterend",
@@ -360,17 +350,40 @@ const renderSubProperty = ({
 		const newItemKey = (e.target as EventTarget & HTMLInputElement).value;
 		if (newItemKey === itemKey) return;
 		const newItemKeyWithDots = parentKey + "." + newItemKey;
-		const fm = plugin.app.metadataCache.getFileCache(file)?.frontmatter ?? {};
-		const found = findKeyValueByDotNotation(newItemKeyWithDots, fm);
-		if (!found.key) {
-			updateParent((prev) => {
-				if (itemKey !== "") {
-					updateNestedObject(prev, itemKey, undefined);
-				}
-				return updateNestedObject(prev, newItemKey, itemValue);
-			});
+
+		const newItemKeyAlreadyExists = Object.keys(parentValue).some(
+			(k) => k.toLowerCase() === newItemKey.toLowerCase()
+		);
+
+		console.log(itemKey, newItemKey);
+
+		if (!newItemKeyAlreadyExists) {
+			const newParentValue =
+				itemKey === ""
+					? // this is a new item, so add it
+					  { ...parentValue, [newItemKey]: null }
+					: // this is an existing item
+					  Object.entries(parentValue).reduce((acc, [key, value]) => {
+							// key doesn't match, so add back to obj
+							if (key.toLowerCase() !== itemKey.toLowerCase()) {
+								acc[key] = value;
+								return acc;
+							}
+							// remove property by skipping
+							if (newItemKey === "") return acc;
+							// add back with different key to rename it
+							acc[newItemKey] = value;
+							return acc;
+					  }, {} as Record<string, unknown>);
+			parentOnChange(newParentValue);
+			plugin.app.metadataTypeManager.trigger(
+				"changed",
+				parentKey.toLowerCase()
+			);
 			return;
 		}
+
+		// new key already exists
 
 		const highestMetadataContainer = propertiesEl.closest(
 			".metadata-container:not(.better-properties-mod-group)"
@@ -393,6 +406,7 @@ const renderSubProperty = ({
 			);
 			return;
 		}
+
 		if (itemKey === "") {
 			propertyEl.remove();
 			return;
@@ -402,14 +416,16 @@ const renderSubProperty = ({
 		return;
 	};
 	keyInputEl.addEventListener("blur", async (e) => {
-		if ((e.target as EventTarget & HTMLInputElement).value === "") {
-			propertyEl.remove();
-			return;
-		}
+		// if ((e.target as EventTarget & HTMLInputElement).value === "") {
+		// 	propertyEl.remove();
+		// 	return;
+		// }
 		await updateItemKey(e);
 	});
 	keyInputEl.addEventListener("keydown", async (e) => {
 		if (e.key !== "Enter") return;
+
+		// TODO this causes a DOM exception. Nothing breaks really, so it's fine for now
 		await updateItemKey(e);
 	});
 
@@ -422,11 +438,12 @@ const renderSubProperty = ({
 			blur: () => {},
 			key: itemKeyWithDots,
 			onChange: async (value: unknown) => {
-				await plugin.app.fileManager.processFrontMatter(file, (fm) => {
-					updateNestedObject(fm, itemKeyWithDots, value);
-				});
+				const newParentValue = { ...parentValue };
+				newParentValue[itemKey] = value;
+				parentOnChange(newParentValue);
 			},
-			sourcePath: file.path,
+			// TODO open PR to obsidian typings - sourcePath can be undefined, like when rendered in a base
+			sourcePath: sourcePath ?? "",
 		});
 	};
 
