@@ -8,6 +8,7 @@ import {
 	MarkdownRenderer,
 	App,
 	parseYaml,
+	MarkdownView,
 } from "obsidian";
 import {
 	BetterPropertiesSettings,
@@ -24,9 +25,10 @@ import {
 import {
 	customizePropertyEditorMenu,
 	patchMetadataEditor,
-	refreshPropertyEditor,
 } from "~/MetadataEditor";
 import { PropertyWidget } from "obsidian-typings";
+import { PropertySuggestModal } from "~/Classes/InputSuggest/PropertySuggest";
+import { showPropertySettingsModal } from "~/CustomPropertyTypes/settings";
 
 export class BetterProperties extends Plugin {
 	settings: BetterPropertiesSettings = getDefaultSettings();
@@ -39,16 +41,48 @@ export class BetterProperties extends Plugin {
 		});
 	}
 
+	refreshPropertyEditors(): void {
+		this.app.workspace.iterateAllLeaves((leaf) => {
+			if (!(leaf.view instanceof MarkdownView)) return;
+			const me = leaf.view.metadataEditor;
+			if (!me) return;
+			me.synchronize(
+				me.properties.reduce((acc, { key, value }) => {
+					acc[key] = value;
+					return acc;
+				}, {} as Record<string, unknown>)
+			);
+		});
+	}
+
 	setupCommands(): void {
 		this.addCommand({
 			id: "refresh-property-editors",
 			name: "Refresh Property Editors",
 			callback: () => {
-				Object.values(this.app.metadataTypeManager.properties).forEach(
-					({ name }) => {
-						refreshPropertyEditor(this, name);
-					}
-				);
+				this.refreshPropertyEditors();
+			},
+		});
+		this.addCommand({
+			id: "rebuild-views",
+			name: "Rebuild views",
+			callback: () => {
+				this.rebuildLeaves();
+			},
+		});
+		this.addCommand({
+			id: "open-property-settings",
+			name: "Open property settings",
+			callback: () => {
+				const modal = new PropertySuggestModal(this);
+				modal.onChooseItem = (item) => {
+					modal.close();
+					showPropertySettingsModal({
+						plugin: this,
+						property: item.name,
+					});
+				};
+				modal.open();
 			},
 		});
 	}
