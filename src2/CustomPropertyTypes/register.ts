@@ -10,6 +10,7 @@ import { markdownPropertyType } from "./Markdown";
 import {
 	MetadataTypeManagerRegisteredTypeWidgetsRecord,
 	PropertyWidget,
+	PropertyWidgetType,
 } from "obsidian-typings";
 import { createdPropertyType } from "./Created";
 import { groupPropertyType } from "./Group";
@@ -166,16 +167,31 @@ export const unregisterCustomPropertyTypeWidgets = (
 		if (!key.startsWith(customPropertyTypePrefix)) return;
 		delete registeredTypeWidgets[key];
 	});
+
+	//TODO maybe do this in a separate function
+	Object.values(plugin.disabledTypeWidgets).forEach((w) => {
+		registeredTypeWidgets[w.type] = { ...w };
+	});
 };
 
-export const sortRegisteredTypeWidgets = (plugin: BetterProperties) => {
-	const registered = plugin.app.metadataTypeManager.registeredTypeWidgets;
+export const sortAndFilterRegisteredTypeWidgets = (
+	plugin: BetterProperties
+) => {
+	const registered = {
+		...plugin.app.metadataTypeManager.registeredTypeWidgets,
+		...plugin.disabledTypeWidgets,
+	};
+	plugin.disabledTypeWidgets = {};
 	const sortedKeys = Object.keys(registered).toSorted((a, b) => {
 		const aName = registered[a].name();
 		const bName = registered[b].name();
 		return aName.localeCompare(bName);
 	});
 	const sortedWidgets = sortedKeys.reduce((acc, cur) => {
+		if (plugin.settings.hiddenPropertyTypes?.includes(registered[cur]?.type)) {
+			plugin.disabledTypeWidgets[cur] = registered[cur];
+			return acc;
+		}
 		acc[cur] = registered[cur];
 		return acc;
 	}, {} as MetadataTypeManagerRegisteredTypeWidgetsRecord);

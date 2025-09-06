@@ -38,39 +38,39 @@
 			"settings": {
 				"optionsType": {
 					"title": "Options type",
-					"desc": "Whether to use manually defined options or a different dynamic way of determining available options",
+					"desc": "Whether to use manually defined options or a different dynamic way of determining available options.",
 					"dropdownLabelManual": "Manual",
 					"dropdownLabelDynamic": "Dynamic"
 				},
 				"optionsTypeSettings": {
 					"manual": {
 						"title": "Manual options",
-						"desc": "The manually created choices this dropdown can be set to"
+						"desc": "The manually created choices this dropdown can be set to."
 					},
 					"dynamic": {
 						"title": "Dynamic type",
-						"desc": "Which method to use to dynamically determine available options",
+						"desc": "Which method to use to dynamically determine available options.",
 						"filesInFolderLabel": "Files from folder",
 						"filesFromTagLabel": "Files from tag",
 						"scriptLabel": "Options from script",
 						"filesInFolder": {
 							"folderPaths": {
 								"title": "Folder paths",
-								"desc": "Notes in the following folders will be options for this dropdown"
+								"desc": "Notes in the following folders will be options for this dropdown."
 							},
 							"excludeFolderNotes": {
 								"title": "Exclude Folder Notes",
-								"desc": "Whether to exclude notes that have the same name as their folder"
+								"desc": "Whether to exclude notes that have the same name as their folder."
 							}
 						},
 						"filesFromTag": {
 							"tags": {
 								"title": "Tag(s)",
-								"desc": "Notes with all of the following tags will be shown as this dropdown's options"
+								"desc": "Notes with all of the following tags will be shown as this dropdown's options."
 							},
 							"includeNestedTags": {
 								"title": "Include Nested Tags",
-								"desc": "Whether to include files containing a nested tag of one of the selected tags. For example, whether to include a note with the tag \"food/fruit\" when \"food\" is a selected tag"
+								"desc": "Whether to include files containing a nested tag of one of the selected tags. For example, whether to include a note with the tag \"food/fruit\" when \"food\" is a selected tag."
 							}
 						}
 					}
@@ -96,19 +96,19 @@
 			"name": "Settings",
 			"iconSetting": {
 				"title": "Icon",
-				"desc": "Set a custom icon to show for this property"
+				"desc": "Set a custom icon to show for this property."
 			},
 			"hiddenSetting": {
 				"title": "Hidden",
-				"desc": "Whether to hide this property from view by default"
+				"desc": "Whether to hide this property from view by default."
 			},
 			"defaultValueSetting": {
 				"title": "Default value",
-				"desc": "Automatically set a property to this value if empty. Note, this will be parsed as YAML"
+				"desc": "Automatically set a property to this value if empty. Note, this will be parsed as YAML."
 			},
 			"aliasSetting": {
 				"title": "Alias",
-				"desc": "This will be shown in place of the property name in frontmatter"
+				"desc": "This will be shown in place of the property name in frontmatter."
 			}
 		},
 		"generalActionsTab": {
@@ -124,11 +124,11 @@
 			},
 			"exportSetting": {
 				"name": "Export",
-				"desc": "Copy this property's settings as JSON"
+				"desc": "Copy this property's settings as JSON."
 			},
 			"resetSetting": {
 				"name": "Reset",
-				"desc": "Completely wipe all settings for this property",
+				"desc": "Completely wipe all settings for this property.",
 				"modalTitle": "Are you sure?",
 				"modalDesc": "This will reset this property's settings which cannot be undone"
 			}
@@ -153,7 +153,7 @@
 				"modalTitle": "Change icon for property \"{{property}}\"",
 				"iconSetting": {
 					"title": "Icon",
-					"desc": "The icon to show for this property"
+					"desc": "The icon to show for this property."
 				}
 			},
 			"rename": {

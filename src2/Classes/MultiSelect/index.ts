@@ -1,4 +1,5 @@
 import { App, Constructor, Setting } from "obsidian";
+import { InputSuggest } from "../InputSuggest";
 // import {  Multiselect } from "obsidian-typings";
 
 export const resolveMultiSelectPrototype = (app: App) => {
@@ -65,8 +66,9 @@ interface Multiselect {
 }
 
 export class MultiselectComponent extends resolveMultiSelectPrototype(app) {
+	isInputElSuggestAdded: boolean = false;
 	addSuggestCallback:
-		| ((inputEl: HTMLDivElement, index: number) => void)
+		| ((inputEl: HTMLDivElement, index: number) => InputSuggest<any>) // TODO is it possible to not use `any` here? It seems like a fine usage though
 		| undefined;
 	constructor(parentEl: HTMLElement | Setting) {
 		const el = parentEl instanceof HTMLElement ? parentEl : parentEl.controlEl;
@@ -89,7 +91,8 @@ export class MultiselectComponent extends resolveMultiSelectPrototype(app) {
 	renderValues(): this {
 		super.renderValues.call(this);
 
-		if (this.addSuggestCallback) {
+		if (this.addSuggestCallback && !this.isInputElSuggestAdded) {
+			this.isInputElSuggestAdded = true;
 			this.addSuggestCallback(
 				this.inputEl as HTMLDivElement,
 				this.getItemIndex(this.inputEl)
@@ -111,21 +114,23 @@ export class MultiselectComponent extends resolveMultiSelectPrototype(app) {
 		inputEl: HTMLElement,
 		update: (item: string, index: number) => void
 	) => void = (inputEl) => {
-		// window.setTimeout(() => {
 		if (this.addSuggestCallback) {
-			// TODO do this properly
 			this.addSuggestCallback(
 				inputEl as HTMLDivElement,
 				this.getItemIndex(inputEl)
 			);
 		}
-		// }, 0);
 
 		const update = (e: Event) => {
-			const newItem = (e.target as Element)?.textContent ?? "";
 			const index = this.getItemIndex(inputEl);
+			const newItem = (e.target as Element)?.textContent ?? "";
 
 			this.updateAndRender((prev) => {
+				if (this.values.contains(newItem)) {
+					inputEl.textContent = this.values[index] ?? "";
+					inputEl.blur();
+					return prev;
+				}
 				if (!newItem) {
 					return prev.filter((_, i) => i !== index);
 				}
@@ -147,7 +152,12 @@ export class MultiselectComponent extends resolveMultiSelectPrototype(app) {
 
 	createOption: (item: string) => void = (item) => {
 		if (!item) return;
-		if (this.findDuplicate(item, this.values)) return;
+		// if (this.findDuplicate(item, this.values) !== -1) return;
+		if (this.values.contains(item)) {
+			this.setInputText("");
+			this.inputEl.blur();
+			return;
+		}
 		this.updateAndRender((prev) => [...prev, item]);
 		this.setInputText("");
 	};

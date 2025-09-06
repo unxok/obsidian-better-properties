@@ -414,18 +414,13 @@ const renderFilesFromTagGroup = ({
 					)
 				)
 				.then((s) => {
-					const tagsMultiSelect = new MultiselectComponent(s)
+					const tagsMultiSelect = new MultiselectComponent(s);
+					tagsMultiSelect
 						.setValues(settings.tagOptionsTags ?? [])
 						.onChange((v) => (settings.tagOptionsTags = v))
 						.addSuggest((inputEl) => {
-							new TagSuggest(plugin.app, inputEl)
-								.setFilter(
-									(v) =>
-										!tagsMultiSelect.findDuplicate(
-											v.tag,
-											tagsMultiSelect.values
-										)
-								)
+							const sugg = new TagSuggest(plugin.app, inputEl)
+								.setFilter((v) => !tagsMultiSelect.values.contains(v.tag))
 								.showHashtags(false)
 								.onSelect((v, e) => {
 									e.preventDefault();
@@ -434,6 +429,7 @@ const renderFilesFromTagGroup = ({
 									tagsMultiSelect.inputEl.blur();
 									tagsMultiSelect.inputEl.focus();
 								});
+							return sugg;
 						})
 						.renderValues();
 				})

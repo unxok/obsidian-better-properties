@@ -12,11 +12,12 @@ import {
 import {
 	BetterPropertiesSettings,
 	betterPropertiesSettingsSchema,
+	BetterPropertiesSettingsTab,
 	getDefaultSettings,
 } from "./settings";
 import {
 	registerCustomPropertyTypeWidgets,
-	sortRegisteredTypeWidgets,
+	sortAndFilterRegisteredTypeWidgets,
 	unregisterCustomPropertyTypeWidgets,
 	wrapAllPropertyTypeWidgets,
 } from "~/CustomPropertyTypes/register";
@@ -25,9 +26,13 @@ import {
 	patchMetadataEditor,
 	refreshPropertyEditor,
 } from "~/MetadataEditor";
+import { PropertyWidgetType } from "obsidian-typings";
+import { PropertyWidget } from "obsidian-typings";
 
 export class BetterProperties extends Plugin {
 	settings: BetterPropertiesSettings = getDefaultSettings();
+
+	disabledTypeWidgets: Record<string, PropertyWidget> = {};
 
 	rebuildLeaves(): void {
 		this.app.workspace.iterateAllLeaves((leaf) => {
@@ -51,9 +56,10 @@ export class BetterProperties extends Plugin {
 
 	async onload(): Promise<void> {
 		await this.loadSettings();
+		this.addSettingTab(new BetterPropertiesSettingsTab(this));
 		registerCustomPropertyTypeWidgets(this);
 		wrapAllPropertyTypeWidgets(this);
-		sortRegisteredTypeWidgets(this);
+		sortAndFilterRegisteredTypeWidgets(this);
 		this.setupCommands();
 		this.app.workspace.onLayoutReady(async () => {
 			customizePropertyEditorMenu(this);
@@ -77,22 +83,24 @@ export class BetterProperties extends Plugin {
 	handlePropertyLabelWidth(): void {
 		this.updateSettings((prev) => ({
 			...prev,
-			defaultPropertyLabelWidth: document.body.style.getPropertyValue(
+			defaultLabelWidth: document.body.style.getPropertyValue(
 				"---metadata-label-width"
 			),
 		}));
+		const updateDomMetadataLabelWidth = (width: number | undefined) => {
+			document.body.style.setProperty(
+				"--metadata-label-width",
+				width === undefined ? this.settings.defaultLabelWidth : width + "px"
+			);
+		};
 		this.app.workspace.on(
 			"better-properties:property-label-width-change",
 			(propertyLabelWidth) => {
+				updateDomMetadataLabelWidth(propertyLabelWidth);
 				this.updateSettings((prev) => ({ ...prev, propertyLabelWidth }));
 			}
 		);
-		if (this.settings.propertyLabelWidth !== undefined) {
-			document.body.style.setProperty(
-				"--metadata-label-width",
-				this.settings.propertyLabelWidth + "px"
-			);
-		}
+		updateDomMetadataLabelWidth(this.settings.propertyLabelWidth);
 	}
 
 	onunload(): void {

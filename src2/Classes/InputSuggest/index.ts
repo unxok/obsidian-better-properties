@@ -19,8 +19,14 @@ export abstract class InputSuggest<T> extends AbstractInputSuggest<T> {
 	 */
 	protected abstract parseSuggestion(value: T): Suggestion;
 
+	/**
+	 * An additional filter that must be true to render a given suggestion
+	 */
 	setFilterCallback: (suggestion: T) => boolean = () => true;
 
+	/**
+	 * Sets `this.setFilterCallback`
+	 */
 	setFilter(cb: this["setFilterCallback"]): this {
 		this.setFilterCallback = cb;
 		return this;
@@ -30,6 +36,11 @@ export abstract class InputSuggest<T> extends AbstractInputSuggest<T> {
 	 * Renders suggestions
 	 */
 	renderSuggestion(value: T, el: HTMLElement): void {
+		if (!this.setFilterCallback(value)) {
+			el.remove();
+			return;
+		}
+
 		const { title, aux, note, icon } = this.parseSuggestion(value);
 		el.classList.add("mod-complex");
 		if (icon) {
