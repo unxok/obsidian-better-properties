@@ -5,12 +5,6 @@
 >
 > But if you _really_ want to anyway, just be aware that there may be breaking changes that may require you to reconfigure different features and settings.
 
-> [!IMPORTANT]
->
-> **OBSIDIAN 1.9.x**
->
-> There have been many "breaking" changes relating to properties since Obsidian version `1.9.x`. As such, this plugin will no longer work in Obsidian `1.8.x `and below
-
 # Better Properties
 
 What if Properties in Obsidian were... better?
@@ -27,13 +21,11 @@ This plugin adds many different properties-related features, such as new propert
 
 </div>
 
-> [!WARNING]
+> [!CAUTION]
 >
 > **DISCLAIMER**
 >
-> This plugin aims to extend and seamlessly integrate into the existing metadata properties core-feature.
->
-> In order to be so closely integrated with core features, this plugin makes _heavy_ use of the _undocumented Obsidian API_ and uses a few _monkey-patches_ around existing app functions.
+> This plugin makes heavy use of the _undocumented Obsidian API_ and uses a few _monkey-patches_ around existing app functions.
 >
 > Because of the above, this plugin is prone to unforeseen, breaking changes on new updates to the Obsidian application.
 >
