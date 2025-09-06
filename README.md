@@ -5,7 +5,9 @@
 >
 > But if you _really_ want to anyway, just be aware that there may be breaking changes that may require you to reconfigure different features and settings.
 
-> [!IMPORTANT] > **OBSIDIAN 1.9.x**
+> [!IMPORTANT]
+>
+> **OBSIDIAN 1.9.x**
 >
 > There have been many "breaking" changes relating to properties since Obsidian version `1.9.x`. As such, this plugin will no longer work in Obsidian `1.8.x `and below
 
@@ -25,8 +27,7 @@ This plugin adds many different properties-related features, such as new propert
 
 </div>
 
-> [!WARNING]
-> **DISCLAIMER**
+> [!WARNING] > **DISCLAIMER**
 >
 > This plugin aims to extend and seamlessly integrate into the existing metadata properties core-feature.
 >
