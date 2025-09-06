@@ -27,7 +27,9 @@ This plugin adds many different properties-related features, such as new propert
 
 </div>
 
-> [!WARNING] > **DISCLAIMER**
+> [!WARNING]
+>
+> **DISCLAIMER**
 >
 > This plugin aims to extend and seamlessly integrate into the existing metadata properties core-feature.
 >
