@@ -182,16 +182,17 @@ export const sortAndFilterRegisteredTypeWidgets = (
 	};
 	plugin.disabledTypeWidgets = {};
 	const sortedKeys = Object.keys(registered).toSorted((a, b) => {
-		const aName = registered[a].name();
-		const bName = registered[b].name();
+		const aName = registered[a as keyof typeof registered].name();
+		const bName = registered[b as keyof typeof registered].name();
 		return aName.localeCompare(bName);
 	});
 	const sortedWidgets = sortedKeys.reduce((acc, cur) => {
-		if (plugin.settings.hiddenPropertyTypes?.includes(registered[cur]?.type)) {
-			plugin.disabledTypeWidgets[cur] = registered[cur];
+		const key = cur as keyof typeof registered;
+		if (plugin.settings.hiddenPropertyTypes?.includes(registered[key]?.type)) {
+			plugin.disabledTypeWidgets[cur] = registered[key];
 			return acc;
 		}
-		acc[cur] = registered[cur];
+		acc[cur] = registered[key];
 		return acc;
 	}, {} as MetadataTypeManagerRegisteredTypeWidgetsRecord);
 

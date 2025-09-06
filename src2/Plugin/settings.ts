@@ -124,13 +124,9 @@ export class BetterPropertiesSettingsTab extends PluginSettingTab {
 		super.hide.call(this);
 		// TODO settings won't save it app is closed while the tab is still displayed. Might be better to just do a debounce to save after every change
 		this.plugin.saveSettings();
-		// this.plugin.rebuildLeaves();
 
 		const { plugin } = this;
-		const { hiddenPropertyTypes } = plugin.settings;
-		if (hiddenPropertyTypes?.length) {
-			sortAndFilterRegisteredTypeWidgets(plugin);
-			plugin.rebuildLeaves();
-		}
+		sortAndFilterRegisteredTypeWidgets(plugin);
+		plugin.refreshPropertyEditors();
 	}
 }
