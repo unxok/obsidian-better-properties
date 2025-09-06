@@ -105,6 +105,7 @@ My goal is to not _need_ to create official documentation for the features of th
 
 ### Miscellaneous
 
-- [x] Option to disable certain property types
+- [x] Option to disable chosen property types
+- [ ] Option to modify default icon for chosen property types
 - [ ] Full link-recognition in property values
 - [ ] Render property within note content as codeblock or inline-codeblock
