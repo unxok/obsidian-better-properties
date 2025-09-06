@@ -26,7 +26,6 @@ import {
 	patchMetadataEditor,
 	refreshPropertyEditor,
 } from "~/MetadataEditor";
-import { PropertyWidgetType } from "obsidian-typings";
 import { PropertyWidget } from "obsidian-typings";
 
 export class BetterProperties extends Plugin {

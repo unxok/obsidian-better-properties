@@ -10,7 +10,6 @@ import { markdownPropertyType } from "./Markdown";
 import {
 	MetadataTypeManagerRegisteredTypeWidgetsRecord,
 	PropertyWidget,
-	PropertyWidgetType,
 } from "obsidian-typings";
 import { createdPropertyType } from "./Created";
 import { groupPropertyType } from "./Group";
