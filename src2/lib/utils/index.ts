@@ -1,5 +1,4 @@
 import {
-	App,
 	CachedMetadata,
 	DataWriteOptions,
 	FileManager,
@@ -23,6 +22,10 @@ export type Prettify<T> = {
 export type NonNullishObject<T> = {
 	[K in keyof T]-?: NonNullable<T[K]>;
 };
+
+export type Optional<T extends Record<string, unknown>> = {
+	[K in keyof T]?: T[K];
+} & Record<string, unknown>;
 
 export type NestedPaths<T, Prefix extends string = ""> = {
 	[K in keyof T & string]: T[K] extends Record<string, any>
