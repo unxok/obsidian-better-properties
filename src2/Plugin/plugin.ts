@@ -29,6 +29,7 @@ import {
 import { PropertyWidget } from "obsidian-typings";
 import { PropertySuggestModal } from "~/Classes/InputSuggest/PropertySuggest";
 import { showPropertySettingsModal } from "~/CustomPropertyTypes/settings";
+import { patchMetadataCache } from "~/MetadataCache";
 
 export class BetterProperties extends Plugin {
 	settings: BetterPropertiesSettings = getDefaultSettings();
@@ -97,6 +98,7 @@ export class BetterProperties extends Plugin {
 		this.app.workspace.onLayoutReady(async () => {
 			customizePropertyEditorMenu(this);
 			patchMetadataEditor(this);
+			patchMetadataCache(this);
 
 			this.rebuildLeaves();
 		});

@@ -9,6 +9,7 @@ export const propertySettingsSchema = z.object({
 			defaultValue: z.string().optional(),
 			// onloadScript: z.string().optional(),
 			alias: z.string().optional(),
+			suggestions: z.array(z.string()).optional(),
 		})
 		.optional(),
 	dropdown: z

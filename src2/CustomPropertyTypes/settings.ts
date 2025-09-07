@@ -20,6 +20,7 @@ import { IconSuggest } from "~/Classes/InputSuggest/IconSuggest";
 import { PropertyWidget } from "obsidian-typings";
 import { text } from "~/i18next";
 import { obsidianText } from "~/i18next/obsidian";
+import { MultiselectComponent } from "~/Classes/MultiSelect";
 
 export class PropertySettingsModal extends VerticalTabModal {
 	public propertyType: string = "unset";
@@ -179,6 +180,22 @@ const renderGeneralSettings = (modal: PropertySettingsModal) => {
 				settings.alias = v;
 			});
 		});
+
+	new Setting(tabContentEl)
+		.setName(
+			text("propertySettings.generalSettingsTab.suggestionsSetting.title")
+		)
+		.setDesc(
+			text("propertySettings.generalSettingsTab.suggestionsSetting.desc")
+		)
+		.then((s) => {
+			new MultiselectComponent(s)
+				.setValues(settings.suggestions ?? [])
+				.onChange((v) => {
+					settings.suggestions = [...v];
+				})
+				.renderValues();
+		});
 };
 
 const handleActionsTab = ({
@@ -192,10 +209,8 @@ const handleActionsTab = ({
 	tab.setTitle(text("propertySettings.generalActionsTab.name")).onSelect(() => {
 		tabContentEl.empty();
 		new Setting(tabContentEl)
-			.setName("Import")
-			.setDesc(
-				"Paste settings as JSON. This will completely overwrite any existing settings for this property!"
-			)
+			.setName(text("propertySettings.generalActionsTab.importSetting.title"))
+			.setDesc(text("propertySettings.generalActionsTab.importSetting.desc"))
 			.addButton((cmp) =>
 				cmp
 					.setIcon("lucide-import" satisfies Icon)
@@ -203,8 +218,8 @@ const handleActionsTab = ({
 			);
 
 		new Setting(tabContentEl)
-			.setName("Export")
-			.setDesc("Copy this property's settings as JSON")
+			.setName(text("propertySettings.generalActionsTab.exportSetting.title"))
+			.setDesc(text("propertySettings.generalActionsTab.exportSetting.desc"))
 			.addButton((btn) =>
 				btn.setIcon("lucide-copy" satisfies Icon).onClick(() => {
 					const settings = getPropertySettings({
@@ -213,13 +228,17 @@ const handleActionsTab = ({
 					});
 					const str = JSON.stringify(settings, null, 2);
 					navigator.clipboard.writeText(str);
-					new Notice("Copied settings to clipboard!");
+					new Notice(
+						text(
+							"propertySettings.generalActionsTab.exportSetting.copySuccessNotice"
+						)
+					);
 				})
 			);
 
 		new Setting(tabContentEl)
-			.setName("Reset")
-			.setDesc("Completely wipe all settings for this property")
+			.setName(text("propertySettings.generalActionsTab.resetSetting.title"))
+			.setDesc(text("propertySettings.generalActionsTab.resetSetting.desc"))
 			.addButton((btn) =>
 				btn
 					.setWarning()

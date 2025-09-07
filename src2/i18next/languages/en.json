@@ -109,12 +109,16 @@
 			"aliasSetting": {
 				"title": "Alias",
 				"desc": "This will be shown in place of the property name in frontmatter."
+			},
+			"suggestionsSetting": {
+				"title": "Suggestions",
+				"desc": "Override the default suggestions with the following."
 			}
 		},
 		"generalActionsTab": {
 			"name": "Actions",
 			"importSetting": {
-				"name": "Import",
+				"title": "Import",
 				"desc": "Paste settings as JSON. This will completely overwrite any existing settings for this property!",
 				"modalTitle": "Import property settings",
 				"modalJsonParseError": "JSON parse error: {{error}}",
@@ -123,11 +127,12 @@
 				"modalImportSuccess": "Property settings updated"
 			},
 			"exportSetting": {
-				"name": "Export",
-				"desc": "Copy this property's settings as JSON."
+				"title": "Export",
+				"desc": "Copy this property's settings as JSON.",
+				"copySuccessNotice": "Copied settings to clipboard"
 			},
 			"resetSetting": {
-				"name": "Reset",
+				"title": "Reset",
 				"desc": "Completely wipe all settings for this property.",
 				"modalTitle": "Are you sure?",
 				"modalDesc": "This will reset this property's settings which cannot be undone"
