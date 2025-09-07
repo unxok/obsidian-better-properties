@@ -19,14 +19,13 @@ export const propertySettingsSchema = z.object({
 				.optional(),
 			manualOptions: z
 				.array(
-					z
-						.object({
-							value: z.string(),
-							label: z.string(),
-							// bgColor: z.string(),
-							// textColor: z.string(),
-						})
-						.optional()
+					z.object({
+						value: z.string(),
+						label: z.string().optional(),
+						desc: z.string().optional(),
+						bgColor: z.string().optional(),
+						textColor: z.string().optional(),
+					})
 				)
 				.optional(),
 			dynamicOptionsType: z

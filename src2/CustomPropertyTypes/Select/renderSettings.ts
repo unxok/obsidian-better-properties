@@ -1,4 +1,4 @@
-import { Setting, Menu } from "obsidian";
+import { Setting, Menu, App } from "obsidian";
 import { typeKey } from ".";
 import { CustomPropertyType, PropertySettings } from "../types";
 import { getPropertyTypeSettings, setPropertyTypeSettings } from "../utils";
@@ -13,6 +13,9 @@ import {
 	SettingsGroup,
 } from "~/Classes/ConditionalSettings";
 import { text } from "~/i18next";
+import { InputSuggest, Suggestion } from "~/Classes/InputSuggest";
+import { SelectComponent } from "~/Classes/SelectComponent";
+import { selectColors, selectBackgroundCssVar } from "~/lib/constants";
 
 type Settings = NonNullable<PropertySettings["select"]>;
 type OptionsType = NonNullable<Settings["optionsType"]>;
@@ -146,7 +149,7 @@ export const renderSettings: CustomPropertyType["renderSettings"] = ({
 };
 
 const renderManualOptionsSetting = ({
-	// plugin,
+	plugin,
 	parentEl,
 	settings,
 	defaultOption,
@@ -197,6 +200,17 @@ const renderManualOptionsSetting = ({
 							matched.label = v;
 						})
 				)
+				.then(() => {
+					new ColorSelect(plugin.app, item.controlEl)
+						.setValue(
+							opt.bgColor ?? ("gray" satisfies keyof typeof selectColors)
+						)
+						.onChange((v) => {
+							const matched = list.value[item.index];
+							if (matched === undefined) return;
+							matched.bgColor = v;
+						});
+				})
 				.addDeleteButton();
 		})
 		.renderAllItems()
@@ -452,3 +466,49 @@ const renderFilesFromTagGroup = ({
 						.onChange((b) => (settings.tagOptionsIncludeNested = b))
 				)
 		);
+
+type ColorOption = {
+	key: string;
+	value: string;
+};
+class ColorSelect extends SelectComponent<ColorOption> {
+	constructor(app: App, containerEl: HTMLElement) {
+		super(containerEl, false);
+
+		new ColorSuggest(app, this.selectEl).onSelect((opt) => {
+			this.setValue(opt.key);
+			this.onChanged();
+			this.selectEl.blur();
+		});
+	}
+
+	setValue(value: string): this {
+		super.setValue(value);
+		this.selectContainerEl.style.setProperty(
+			selectBackgroundCssVar,
+			selectColors[value as keyof typeof selectColors]
+		);
+		return this;
+	}
+}
+
+class ColorSuggest extends InputSuggest<ColorOption> {
+	getSuggestions(): ColorOption[] {
+		return Object.entries(selectColors).reduce((acc, [key, value]) => {
+			acc.push({ key, value });
+			return acc;
+		}, [] as ColorOption[]);
+	}
+
+	parseSuggestion({ key }: ColorOption): Suggestion {
+		return {
+			title: key,
+		};
+	}
+
+	renderSuggestion(opt: ColorOption, el: HTMLElement) {
+		super.renderSuggestion(opt, el);
+		el.classList.add("better-properties-select-option");
+		el.style.setProperty(selectBackgroundCssVar, opt.value);
+	}
+}

@@ -1,11 +1,107 @@
+body {
+	--better-properties-select-opactiy: 1;
+	--better-properties-select-saturation: 55%;
+	--better-properties-select-lightness: 30%;
+	--better-properties-select-bg: var(--better-properties-select-gray);
+
+	&.theme-light {
+		--better-properties-select-saturation: 80%;
+		--better-properties-select-lightness: 80%;
+	}
+
+	--better-properties-select-red: hsl(
+		from rgb(var(--color-red-rgb)) h var(--better-properties-select-saturation)
+			var(--better-properties-select-lightness)
+	);
+	--better-properties-select-orange: hsl(
+		from rgb(var(--color-orange-rgb)) h
+			var(--better-properties-select-saturation)
+			var(--better-properties-select-lightness)
+	);
+	--better-properties-select-yellow: hsl(
+		from rgb(var(--color-yellow-rgb)) h
+			var(--better-properties-select-saturation)
+			var(--better-properties-select-lightness)
+	);
+	--better-properties-select-green: hsl(
+		from rgb(var(--color-green-rgb)) h
+			var(--better-properties-select-saturation)
+			var(--better-properties-select-lightness)
+	);
+	--better-properties-select-blue: hsl(
+		from rgb(var(--color-blue-rgb)) h var(--better-properties-select-saturation)
+			var(--better-properties-select-lightness)
+	);
+	--better-properties-select-cyan: hsl(
+		from rgb(var(--color-cyan-rgb)) h var(--better-properties-select-saturation)
+			var(--better-properties-select-lightness)
+	);
+	--better-properties-select-purple: hsl(
+		from rgb(var(--color-purple-rgb)) h
+			var(--better-properties-select-saturation)
+			var(--better-properties-select-lightness)
+	);
+	--better-properties-select-pink: hsl(
+		from rgb(var(--color-pink-rgb)) h var(--better-properties-select-saturation)
+			var(--better-properties-select-lightness)
+	);
+
+	--better-properties-select-transparent: transparent;
+	--better-properties-select-gray: hsl(
+		from gray h s var(--better-properties-select-lightness)
+	);
+}
+
+.better-properties-select-option {
+	&.better-properties-select-container,
+	& .suggestion-content {
+		color: var(--metadata-input-text-color);
+		background-color: var(--better-properties-select-bg);
+		border-radius: var(--radius-s);
+		padding: var(--size-2-1) var(--size-2-2);
+	}
+}
+
 .better-properties-property-value-inner {
-	&.better-properties-mod-dropdown {
+	&.better-properties-mod-select {
 		padding: var(--size-2-2);
 		display: flex;
-		justify-content: center;
+		justify-content: start;
 		align-items: center;
 		gap: var(--size-4-1);
 		padding: var(--input-padding);
+		width: 100%;
+
+		& > .better-properties-select-container {
+			display: flex;
+			align-items: center;
+			gap: var(--size-2-1);
+			min-width: 2ch;
+			font-size: var(--metadata-input-font-size);
+			cursor: default;
+			--better-properties-close-display: none;
+
+			&:focus-within {
+				--better-properties-close-display: flex;
+			}
+
+			/* & > .better-properties-select-input {
+			} */
+
+			& > .better-properties-select-close {
+				cursor: var(--cursor);
+				color: rgb(var(--mono-rgb-100));
+				border-radius: var(--radius-s);
+				display: var(--better-properties-close-display);
+				align-items: center;
+				--icon-size: var(--icon-xs);
+				--icon-stroke: var(--icon-xs-stroke-width);
+
+				&:hover {
+					color: rgb(var(--mono-rgb-0));
+				}
+			}
+		}
 
 		/* STYLED */
 		/* & {

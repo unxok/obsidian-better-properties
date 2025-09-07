@@ -1,17 +1,23 @@
-const customPropertyTypePrefix = "better-properties:";
-const monkeyAroundKey = "better-properties_monkey-around-key";
+export const customPropertyTypePrefix = "better-properties:";
+export const monkeyAroundKey = "better-properties_monkey-around-key";
 
-const invalidFileNameRegex = /[*"\/\\<>:|?]/;
+export const invalidFileNameRegex = /[*"\/\\<>:|?]/;
 
-const TITLE = "title";
-const MODIFIED = "modified";
-const CREATED = "created";
+export const TITLE = "title";
+export const MODIFIED = "modified";
+export const CREATED = "created";
 
-export {
-	customPropertyTypePrefix,
-	monkeyAroundKey,
-	invalidFileNameRegex,
-	TITLE,
-	MODIFIED,
-	CREATED,
+export const selectColors = {
+	gray: "var(--better-properties-select-gray)",
+	transparent: "var(--better-properties-select-transparent)",
+	red: "var(--better-properties-select-red)",
+	orange: "var(--better-properties-select-orange)",
+	yellow: "var(--better-properties-select-yellow)",
+	green: "var(--better-properties-select-green)",
+	blue: "var(--better-properties-select-blue)",
+	cyan: "var(--better-properties-select-cyan)",
+	purple: "var(--better-properties-select-purple)",
+	pink: "var(--better-properties-select-pink)",
 };
+
+export const selectBackgroundCssVar = "--better-properties-select-bg";
