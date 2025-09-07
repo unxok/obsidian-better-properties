@@ -33,19 +33,19 @@
 				}
 			}
 		},
-		"dropdown": {
-			"name": "Dropdown",
+		"select": {
+			"name": "Select",
 			"settings": {
 				"optionsType": {
 					"title": "Options type",
 					"desc": "Whether to use manually defined options or a different dynamic way of determining available options.",
-					"dropdownLabelManual": "Manual",
-					"dropdownLabelDynamic": "Dynamic"
+					"selectLabelManual": "Manual",
+					"selectLabelDynamic": "Dynamic"
 				},
 				"optionsTypeSettings": {
 					"manual": {
 						"title": "Manual options",
-						"desc": "The manually created choices this dropdown can be set to."
+						"desc": "The manually created choices this select can be set to."
 					},
 					"dynamic": {
 						"title": "Dynamic type",
@@ -56,7 +56,7 @@
 						"filesInFolder": {
 							"folderPaths": {
 								"title": "Folder paths",
-								"desc": "Notes in the following folders will be options for this dropdown."
+								"desc": "Notes in the following folders will be options for this select."
 							},
 							"excludeFolderNotes": {
 								"title": "Exclude Folder Notes",
@@ -66,7 +66,7 @@
 						"filesFromTag": {
 							"tags": {
 								"title": "Tag(s)",
-								"desc": "Notes with all of the following tags will be shown as this dropdown's options."
+								"desc": "Notes with all of the following tags will be shown as this select's options."
 							},
 							"includeNestedTags": {
 								"title": "Include Nested Tags",

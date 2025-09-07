@@ -12,7 +12,7 @@ export const propertySettingsSchema = z.object({
 			suggestions: z.array(z.string()).optional(),
 		})
 		.optional(),
-	dropdown: z
+	select: z
 		.object({
 			optionsType: z
 				.union([z.literal("manual"), z.literal("dynamic")])
@@ -75,7 +75,7 @@ export const getDefaultPropertySettings = (): PropertySettings => ({
 		icon: "",
 		hidden: false,
 	},
-	dropdown: {
+	select: {
 		optionsType: "manual",
 		manualOptions: [],
 		dynamicOptionsType: "filesInFolder",

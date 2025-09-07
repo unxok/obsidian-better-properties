@@ -1,6 +1,6 @@
 import BetterProperties from "~/main";
 import { CustomPropertyType, CustomTypeKey, getPropertyTypeSettings } from ".";
-import { dropdownPropertyType } from "./Dropdown";
+import { selectPropertyType } from "./Select";
 import { Notice, setIcon } from "obsidian";
 import { customPropertyTypePrefix, monkeyAroundKey } from "~/lib/constants";
 import { around, dedupe } from "monkey-around";
@@ -17,7 +17,7 @@ import { tryParseYaml } from "@/libs/utils/obsidian";
 import { triggerPropertyTypeChange } from "./utils";
 
 export const customPropertyTypesArr: CustomPropertyType[] = [
-	dropdownPropertyType,
+	selectPropertyType,
 	togglePropertyType,
 	titlePropertyType,
 	markdownPropertyType,

@@ -2,6 +2,7 @@ import { debounce, EventRef } from "obsidian";
 import BetterProperties from "~/main";
 import { refreshPropertyEditor } from "~/MetadataEditor";
 import { CustomPropertyType } from "../types";
+import { typeKey } from ".";
 
 export const registerListeners: CustomPropertyType["registerListeners"] = (
 	plugin: BetterProperties
@@ -24,7 +25,7 @@ const vaultEventHandlerFactory = (plugin: BetterProperties): (() => void) => {
 			if (!propertySettings) return;
 
 			Object.entries(propertySettings).forEach(([property, settings]) => {
-				const { optionsType, dynamicOptionsType } = settings.dropdown ?? {};
+				const { optionsType, dynamicOptionsType } = settings[typeKey] ?? {};
 				if (optionsType !== "dynamic") return;
 				if (dynamicOptionsType !== "filesInFolder") return;
 				refreshPropertyEditor(plugin, property);
@@ -44,7 +45,7 @@ const metadataCacheEventHandlerFactory = (
 			if (!propertySettings) return;
 
 			Object.entries(propertySettings).forEach(([property, settings]) => {
-				const { optionsType, dynamicOptionsType } = settings.dropdown ?? {};
+				const { optionsType, dynamicOptionsType } = settings[typeKey] ?? {};
 				if (optionsType !== "dynamic") return;
 				if (dynamicOptionsType !== "filesFromTag") return;
 				refreshPropertyEditor(plugin, property);

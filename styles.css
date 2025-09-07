@@ -6,6 +6,25 @@
 		align-items: center;
 		gap: var(--size-4-1);
 		padding: var(--input-padding);
+
+		/* STYLED */
+		/* & {
+			& > select.dropdown {
+				background-color: transparent;
+				box-shadow: none;
+				border: none;
+				background-image: none;
+				padding: var(--size-2-1);
+				text-align: center;
+				border-radius: var(--radius-s);
+				height: 1.5lh;
+				width: auto;
+				min-width: none;
+
+				--color: var(--color-red-rgb);
+				background-color: rgba(var(--color), 0.2);
+			}
+		} */
 	}
 
 	&.better-properties-mod-toggle {

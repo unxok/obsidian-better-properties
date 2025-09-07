@@ -14,7 +14,7 @@ import {
 } from "~/Classes/ConditionalSettings";
 import { text } from "~/i18next";
 
-type Settings = NonNullable<PropertySettings["dropdown"]>;
+type Settings = NonNullable<PropertySettings["select"]>;
 type OptionsType = NonNullable<Settings["optionsType"]>;
 type DynamicOptionsType = NonNullable<Settings["dynamicOptionsType"]>;
 type Option = NonNullable<Settings["manualOptions"]>[number];
@@ -48,16 +48,16 @@ export const renderSettings: CustomPropertyType["renderSettings"] = ({
 	};
 
 	new Setting(parentEl)
-		.setName(text("customPropertyTypes.dropdown.settings.optionsType.title"))
-		.setDesc(text("customPropertyTypes.dropdown.settings.optionsType.desc"))
+		.setName(text("customPropertyTypes.select.settings.optionsType.title"))
+		.setDesc(text("customPropertyTypes.select.settings.optionsType.desc"))
 		.addDropdown((dropdown) => {
 			dropdown
 				.addOptions({
 					manual: text(
-						"customPropertyTypes.dropdown.settings.optionsType.dropdownLabelManual"
+						"customPropertyTypes.select.settings.optionsType.selectLabelManual"
 					),
 					dynamic: text(
-						"customPropertyTypes.dropdown.settings.optionsType.dropdownLabelDynamic"
+						"customPropertyTypes.select.settings.optionsType.selectLabelDynamic"
 					),
 				} satisfies Record<Exclude<OptionsType, undefined>, string>)
 				.setValue(settings?.optionsType ?? "")
@@ -88,25 +88,25 @@ export const renderSettings: CustomPropertyType["renderSettings"] = ({
 				s
 					.setName(
 						text(
-							"customPropertyTypes.dropdown.settings.optionsTypeSettings.dynamic.title"
+							"customPropertyTypes.select.settings.optionsTypeSettings.dynamic.title"
 						)
 					)
 					.setDesc(
 						text(
-							"customPropertyTypes.dropdown.settings.optionsTypeSettings.dynamic.desc"
+							"customPropertyTypes.select.settings.optionsTypeSettings.dynamic.desc"
 						)
 					)
 					.addDropdown((dropdown) => {
 						dropdown
 							.addOptions({
 								filesInFolder: text(
-									"customPropertyTypes.dropdown.settings.optionsTypeSettings.dynamic.filesInFolderLabel"
+									"customPropertyTypes.select.settings.optionsTypeSettings.dynamic.filesInFolderLabel"
 								),
 								filesFromTag: text(
-									"customPropertyTypes.dropdown.settings.optionsTypeSettings.dynamic.filesFromTagLabel"
+									"customPropertyTypes.select.settings.optionsTypeSettings.dynamic.filesFromTagLabel"
 								),
 								script: text(
-									"customPropertyTypes.dropdown.settings.optionsTypeSettings.dynamic.scriptLabel"
+									"customPropertyTypes.select.settings.optionsTypeSettings.dynamic.scriptLabel"
 								),
 							} satisfies Record<NonNullable<Settings["dynamicOptionsType"]>, string>)
 							.setValue(
@@ -159,12 +159,12 @@ const renderManualOptionsSetting = ({
 	const list = new ListSetting<Option>(parentEl)
 		.setName(
 			text(
-				"customPropertyTypes.dropdown.settings.optionsTypeSettings.manual.title"
+				"customPropertyTypes.select.settings.optionsTypeSettings.manual.title"
 			)
 		)
 		.setDesc(
 			text(
-				"customPropertyTypes.dropdown.settings.optionsTypeSettings.manual.desc"
+				"customPropertyTypes.select.settings.optionsTypeSettings.manual.desc"
 			)
 		)
 		.setValue(settings.manualOptions ?? [])
@@ -270,12 +270,12 @@ const renderFolderPathsSetting = ({
 	const folderPathsSetting = new ListSetting<string>(parentEl)
 		.setName(
 			text(
-				"customPropertyTypes.dropdown.settings.optionsTypeSettings.dynamic.filesInFolder.folderPaths.title"
+				"customPropertyTypes.select.settings.optionsTypeSettings.dynamic.filesInFolder.folderPaths.title"
 			)
 		)
 		.setDesc(
 			text(
-				"customPropertyTypes.dropdown.settings.optionsTypeSettings.dynamic.filesInFolder.folderPaths.desc"
+				"customPropertyTypes.select.settings.optionsTypeSettings.dynamic.filesInFolder.folderPaths.desc"
 			)
 		)
 		.setValue(settings.folderOptionsPaths ?? [])
@@ -374,12 +374,12 @@ const renderFilesInFolderGroup = ({
 			s
 				.setName(
 					text(
-						"customPropertyTypes.dropdown.settings.optionsTypeSettings.dynamic.filesInFolder.excludeFolderNotes.title"
+						"customPropertyTypes.select.settings.optionsTypeSettings.dynamic.filesInFolder.excludeFolderNotes.title"
 					)
 				)
 				.setDesc(
 					text(
-						"customPropertyTypes.dropdown.settings.optionsTypeSettings.dynamic.filesInFolder.excludeFolderNotes.desc"
+						"customPropertyTypes.select.settings.optionsTypeSettings.dynamic.filesInFolder.excludeFolderNotes.desc"
 					)
 				)
 				.addToggle((toggle) => {
@@ -405,12 +405,12 @@ const renderFilesFromTagGroup = ({
 			s
 				.setName(
 					text(
-						"customPropertyTypes.dropdown.settings.optionsTypeSettings.dynamic.filesFromTag.tags.title"
+						"customPropertyTypes.select.settings.optionsTypeSettings.dynamic.filesFromTag.tags.title"
 					)
 				)
 				.setDesc(
 					text(
-						"customPropertyTypes.dropdown.settings.optionsTypeSettings.dynamic.filesFromTag.tags.desc"
+						"customPropertyTypes.select.settings.optionsTypeSettings.dynamic.filesFromTag.tags.desc"
 					)
 				)
 				.then((s) => {
@@ -438,12 +438,12 @@ const renderFilesFromTagGroup = ({
 			s
 				.setName(
 					text(
-						"customPropertyTypes.dropdown.settings.optionsTypeSettings.dynamic.filesFromTag.includeNestedTags.title"
+						"customPropertyTypes.select.settings.optionsTypeSettings.dynamic.filesFromTag.includeNestedTags.title"
 					)
 				)
 				.setDesc(
 					text(
-						"customPropertyTypes.dropdown.settings.optionsTypeSettings.dynamic.filesFromTag.includeNestedTags.desc"
+						"customPropertyTypes.select.settings.optionsTypeSettings.dynamic.filesFromTag.includeNestedTags.desc"
 					)
 				)
 				.addToggle((toggle) =>

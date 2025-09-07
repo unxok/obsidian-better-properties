@@ -157,7 +157,7 @@ const getDynamicOptions = ({
 	ctx,
 }: {
 	plugin: BetterProperties;
-	settings: PropertySettings["dropdown"];
+	settings: PropertySettings["select"];
 	ctx: PropertyRenderContext;
 }): Record<string, string> => {
 	if (settings?.dynamicOptionsType === "filesInFolder") {
