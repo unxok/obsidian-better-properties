@@ -47,7 +47,6 @@ export class SelectComponent<Option> extends ValueComponent<string> {
 				value !== "" &&
 				!this.options.some((v) => this.parseOptionToString(v) === value)
 			) {
-				console.log("revert");
 				this.selectEl.textContent = this.value;
 				return;
 			}
