@@ -63,6 +63,7 @@ export const propertySettingsSchema = z.object({
 			collapsed: z.boolean().optional(), // not frontend facing
 		})
 		.optional(),
+	color: z.object({}).optional(),
 }) satisfies ZodObject<
 	Record<
 		string,
@@ -90,4 +91,9 @@ export const getDefaultPropertySettings = (): PropertySettings => ({
 	},
 	toggle: {},
 	title: {},
+	color: {},
+	created: { format: undefined },
+	group: { collapsed: false, hideAddButton: false },
+	markdown: {},
+	modified: {},
 });

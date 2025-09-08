@@ -11,6 +11,10 @@ What if Properties in Obsidian were... better?
 
 This plugin adds many different properties-related features, such as new property types and per-property settings.
 
+- [[#Installation]]
+- [[#Contributing]]
+- [[#Docs]]
+- [[#Features]]
 <div style="display: flex; gap: 5px; flex-wrap: wrap;">
 
 <!-- ![property types example](./demo-assets/property-types-example.png)
@@ -20,6 +24,8 @@ This plugin adds many different properties-related features, such as new propert
 ![property types](./demo-assets/property-menu.png) -->
 
 </div>
+
+## Installation
 
 > [!CAUTION]
 >
@@ -31,13 +37,15 @@ This plugin adds many different properties-related features, such as new propert
 >
 > If you use this plugin, I would recommend you _turn off_ automatic updates for Obsidian _or_ be prepared to open bug reports and/or wait for fixes
 
+1. Coming soon to a BRAT near you!
+
 ## Contributing
 
 - Bugs, feature requests, questions-- [Open an issue!](https://github.com/unxok/obsidian-better-properties/issues/new/choose)
 - Pull requests-- likely won't be accepted at this time as the plugin is still in very early stages
 - Translations-- _instructions TBD_
 
-## Where's the docs??
+## Docs
 
 My goal is to not _need_ to create official documentation for the features of this plugin. If needed, I may add additional help text to different settings or modals as needed. Please [open an issue](https://github.com/unxok/obsidian-better-properties/issues/new/choose) if you notice something that needs better documentation, whether within obsidian or not.
 
@@ -47,15 +55,18 @@ My goal is to not _need_ to create official documentation for the features of th
 
 **note:** Types that have a reserved keyword are marked with an asterisk (\*)
 
+- [ ] Background
 - [ ] Banner
 - [ ] Button
-- [ ] Color
-- [ ] Counter
+- [ ] Calculation
+- [x] Color
 - [ ] Custom
 - [x] Created\*
 - [ ] Date Custom
   - [Properties: let the user customize the way Dates/Times are displayed (independently from OS)](https://forum.obsidian.md/t/properties-let-the-user-customize-the-way-dates-times-are-displayed-independently-from-os/64139/108)
   - [Date & time property type doesn’t display or edit seconds](https://forum.obsidian.md/t/date-time-property-type-doesnt-display-or-edit-seconds/104154/3)
+- [ ] Date Range `NOT COMMITED`
+  - You can achieve this with a "group" type and sub-properties name like "from" and "to", so I'm unsure if there's a strong need for this.
 - [x] Dropdown
 - [x] Group
 - [ ] Image
@@ -63,13 +74,14 @@ My goal is to not _need_ to create official documentation for the features of th
 - [x] Markdown
   - [Properties & Bases: Parse (Render) Markdown in text properties // Allow mixing text and links in string fields](https://forum.obsidian.md/t/properties-bases-parse-render-markdown-in-text-properties-allow-mixing-text-and-links-in-string-fields/66542/18)
 - [ ] Modified
-- [ ] Multiselect
+- [ ] Multiselect `NOT COMMITED`
+  - You can achieve this with a "list" type and custom suggestions, so is there enough of a need to have a dedicated "multiselect" type as well?
 - [ ] Progress
 - [ ] Relation
   - [Add support for automatic, bidirectional and separately named list properties](https://forum.obsidian.md/t/add-support-for-automatic-bidirectional-and-separately-named-list-properties/76175/4)
-- [ ] Select
+- [x] Select
 - [ ] Slider
-- [ ] Stars
+- [ ] Rating
 - [ ] Tags Category
   - [Add a property type for tags / multiple tag-based properties](https://forum.obsidian.md/t/add-a-property-type-for-tags-multiple-tag-based-properties/63810/15)
   - [Properties: Recognize tags in text property when formatted as “#tags”](https://forum.obsidian.md/t/properties-recognize-tags-in-text-property-when-formatted-as-tags/63812/40)
