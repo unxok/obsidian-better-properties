@@ -14,6 +14,7 @@ export const propertySettingsSchema = z.object({
 		.optional(),
 	select: z
 		.object({
+			useDefaultStyle: z.boolean().optional(),
 			optionsType: z
 				.union([z.literal("manual"), z.literal("dynamic")])
 				.optional(),

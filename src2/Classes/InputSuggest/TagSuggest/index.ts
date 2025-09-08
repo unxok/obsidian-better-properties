@@ -7,14 +7,8 @@ type Value = {
 	count: number;
 };
 export class TagSuggest extends InputSuggest<Value> {
-	private shouldShowHashtags: boolean = true;
 	constructor(app: App, cmp: HTMLDivElement | HTMLInputElement) {
 		super(app, cmp);
-	}
-
-	showHashtags(b: boolean): this {
-		this.shouldShowHashtags = b;
-		return this;
 	}
 
 	protected getSuggestions(query: string): Value[] {
@@ -35,12 +29,10 @@ export class TagSuggest extends InputSuggest<Value> {
 			([tag, count]) => ({ tag, count }),
 			[] as Value[]
 		);
-		const allTagsMaybeHashtag = this.shouldShowHashtags
-			? allTags
-			: allTags.map(({ tag, count }) => ({ tag: tag.slice(1), count }));
-		if (!query) return allTagsMaybeHashtag.filter(this.setFilterCallback);
+
+		if (!query) return allTags.filter(this.setFilterCallback);
 		const lower = query.toLowerCase();
-		return allTagsMaybeHashtag.filter(
+		return allTags.filter(
 			(v) => v.tag.toLowerCase().startsWith(lower) && this.setFilterCallback(v)
 		);
 	}

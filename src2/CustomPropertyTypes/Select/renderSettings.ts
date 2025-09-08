@@ -1,4 +1,13 @@
-import { Setting, Menu, App } from "obsidian";
+import {
+	Setting,
+	Menu,
+	App,
+	ValueComponent,
+	TextComponent,
+	ColorComponent,
+	Modal,
+	setTooltip,
+} from "obsidian";
 import { typeKey } from ".";
 import { CustomPropertyType, PropertySettings } from "../types";
 import { getPropertyTypeSettings, setPropertyTypeSettings } from "../utils";
@@ -14,8 +23,11 @@ import {
 } from "~/Classes/ConditionalSettings";
 import { text } from "~/i18next";
 import { InputSuggest, Suggestion } from "~/Classes/InputSuggest";
-import { SelectComponent } from "~/Classes/SelectComponent";
-import { selectColors, selectBackgroundCssVar } from "~/lib/constants";
+import {
+	selectColors,
+	selectBackgroundCssVar,
+	backgroundCssVar,
+} from "~/lib/constants";
 
 type Settings = NonNullable<PropertySettings["select"]>;
 type OptionsType = NonNullable<Settings["optionsType"]>;
@@ -49,6 +61,19 @@ export const renderSettings: CustomPropertyType["renderSettings"] = ({
 		// bgColor: "",
 		// textColor: "",
 	};
+
+	new Setting(parentEl)
+		.setName(
+			text("customPropertyTypes.select.settings.useDefaultDropdown.title")
+		)
+		.setDesc(
+			text("customPropertyTypes.select.settings.useDefaultDropdown.desc")
+		)
+		.addToggle((cmp) => {
+			cmp.setValue(settings.useDefaultStyle ?? false).onChange((b) => {
+				settings.useDefaultStyle = b;
+			});
+		});
 
 	new Setting(parentEl)
 		.setName(text("customPropertyTypes.select.settings.optionsType.title"))
@@ -201,15 +226,66 @@ const renderManualOptionsSetting = ({
 						})
 				)
 				.then(() => {
-					new ColorSelect(plugin.app, item.controlEl)
-						.setValue(
-							opt.bgColor ?? ("gray" satisfies keyof typeof selectColors)
-						)
-						.onChange((v) => {
-							const matched = list.value[item.index];
-							if (matched === undefined) return;
-							matched.bgColor = v;
-						});
+					// new ColorSelect(plugin.app, item.controlEl)
+					// 	.setValue(
+					// 		opt.bgColor ?? ("gray" satisfies keyof typeof selectColors)
+					// 	)
+					// 	.onChange((v) => {
+					// 		const matched = list.value[item.index];
+					// 		if (matched === undefined) return;
+					// 		matched.bgColor = v;
+					// 	});
+					const swatchEl = item.controlEl.createDiv({
+						cls: "better-properties-swatch",
+					});
+					const swatchInputEl = swatchEl.createDiv({
+						cls: "better-properties-swatch-input",
+						attr: {
+							"role": "button",
+							"aria-index": "0",
+							"contenteditable": "true",
+						},
+					});
+
+					swatchEl.addEventListener("click", () => {
+						swatchInputEl.focus();
+					});
+
+					swatchInputEl.addEventListener("focus", () => {
+						const { win } = swatchInputEl;
+						const range = win.document.createRange();
+						range.selectNodeContents(swatchInputEl);
+						const selection = win.getSelection();
+						if (selection) {
+							selection.removeAllRanges();
+							selection.addRange(range);
+						}
+					});
+
+					setTooltip(swatchEl, opt.bgColor ?? "unset");
+					const setBgCssVar = (color: string) => {
+						swatchEl.style.setProperty(backgroundCssVar, color);
+					};
+					setBgCssVar(opt.bgColor ?? selectColors.gray);
+
+					const setValue = (value: string) => {
+						const matched = list.value[item.index];
+						if (matched === undefined) return;
+						matched.bgColor = value;
+						setBgCssVar(value);
+						setTooltip(swatchEl, value);
+					};
+
+					const suggest = new ColorSuggest(plugin.app, swatchInputEl).onSelect(
+						(opt) => {
+							setValue(opt.value);
+							suggest.close();
+						}
+					);
+
+					suggest.setValue(
+						opt.bgColor ?? "var(--better-properties-select-custom)"
+					);
 				})
 				.addDeleteButton();
 		})
@@ -435,7 +511,6 @@ const renderFilesFromTagGroup = ({
 						.addSuggest((inputEl) => {
 							const sugg = new TagSuggest(plugin.app, inputEl)
 								.setFilter((v) => !tagsMultiSelect.values.contains(v.tag))
-								.showHashtags(false)
 								.onSelect((v, e) => {
 									e.preventDefault();
 									e.stopImmediatePropagation();
@@ -471,33 +546,38 @@ type ColorOption = {
 	key: string;
 	value: string;
 };
-class ColorSelect extends SelectComponent<ColorOption> {
-	constructor(app: App, containerEl: HTMLElement) {
-		super(containerEl, false);
 
-		new ColorSuggest(app, this.selectEl).onSelect((opt) => {
-			this.setValue(opt.key);
-			this.onChanged();
-			this.selectEl.blur();
+class ColorSuggest extends InputSuggest<ColorOption> {
+	constructor(app: App, textInputEl: HTMLDivElement | HTMLInputElement) {
+		super(app, textInputEl);
+
+		textInputEl.addEventListener("keydown", () => {
+			this.isTyping = true;
+		});
+
+		textInputEl.addEventListener("blur", () => {
+			this.isTyping = false;
 		});
 	}
 
-	setValue(value: string): this {
-		super.setValue(value);
-		this.selectContainerEl.style.setProperty(
-			selectBackgroundCssVar,
-			selectColors[value as keyof typeof selectColors]
-		);
-		return this;
-	}
-}
-
-class ColorSuggest extends InputSuggest<ColorOption> {
+	isTyping: boolean = false;
 	getSuggestions(): ColorOption[] {
-		return Object.entries(selectColors).reduce((acc, [key, value]) => {
-			acc.push({ key, value });
-			return acc;
-		}, [] as ColorOption[]);
+		const query = this.textInputEl.textContent.toLowerCase();
+		const suggestions: ColorOption[] = [
+			{
+				key: "custom",
+				value: "var(--better-properties-select-custom)",
+			},
+			...Object.entries(selectColors).reduce((acc, [key, value]) => {
+				acc.push({ key, value });
+				return acc;
+			}, [] as ColorOption[]),
+		];
+
+		if (!query || !this.isTyping) {
+			return suggestions;
+		}
+		return suggestions.filter((s) => s.key.toLowerCase().includes(query));
 	}
 
 	parseSuggestion({ key }: ColorOption): Suggestion {
@@ -510,5 +590,105 @@ class ColorSuggest extends InputSuggest<ColorOption> {
 		super.renderSuggestion(opt, el);
 		el.classList.add("better-properties-select-option");
 		el.style.setProperty(selectBackgroundCssVar, opt.value);
+		if (opt.key !== "custom") return;
+		el.addEventListener("click", (e) => {
+			this.close();
+			e.preventDefault();
+			const modal = new Modal(this.app);
+			new Setting(modal.contentEl)
+				.setName("Custom color")
+				.setDesc("Select a color or enter any valid CSS value for background.")
+				.then((s) => {
+					new ColorTextComponent(s.controlEl)
+						.setValue(this.getValue())
+						.onChange((value) => {
+							if (!this.selectCb) return;
+							this.selectCb({ key: "custom", value }, e);
+						});
+				});
+			modal.open();
+		});
+	}
+}
+
+/////////////////
+
+class ColorTextComponent extends ValueComponent<string> {
+	private value: string = "";
+	componentsContainerEl: HTMLElement;
+	colorsContainerEl: HTMLElement;
+	textComponent: TextComponent;
+	colorComponent: ColorComponent;
+	colorInputEl: HTMLDivElement;
+
+	onChangeCallback: (value: string) => void = () => {};
+
+	constructor(containerEl: HTMLElement) {
+		super();
+
+		this.componentsContainerEl = containerEl.createDiv({
+			cls: "better-properties-color-text-component-container",
+		});
+
+		this.colorsContainerEl = this.componentsContainerEl.createDiv({
+			cls: "better-properties-color-text-component-colors-container",
+			attr: {
+				// tabindex: "-1",
+			},
+		});
+
+		this.colorComponent = new ColorComponent(this.colorsContainerEl);
+		this.colorComponent.colorPickerEl.setAttribute("aria-hidden", "true");
+		this.colorComponent.colorPickerEl.setAttribute("tabindex", "-1");
+		this.colorInputEl = this.colorsContainerEl.createDiv({
+			cls: "better-properties-swatch better-properties-color-text-component-color-input",
+			attr: {
+				tabindex: "0",
+				role: "button",
+			},
+		});
+		this.colorComponent.onChange((v) => {
+			this.setColorCssVar(v);
+			this.textComponent.inputEl.value = v;
+			this.value = v;
+			this.onChanged();
+		});
+
+		this.colorInputEl.addEventListener("click", () => {
+			this.colorComponent.colorPickerEl.showPicker();
+		});
+
+		this.textComponent = new TextComponent(this.componentsContainerEl);
+		this.textComponent.onChange((v) => {
+			this.setColorCssVar(v);
+			this.colorComponent.colorPickerEl.value = v;
+			this.value = v;
+			this.onChanged();
+		});
+	}
+
+	getValue(): string {
+		return this.value;
+	}
+
+	setValue(value: string): this {
+		this.value = value;
+		this.setColorCssVar(value);
+		this.textComponent.inputEl.value = value;
+		this.colorComponent.colorPickerEl.value = value;
+		return this;
+	}
+
+	onChanged() {
+		this.onChangeCallback(this.getValue());
+	}
+
+	onChange(cb: (value: string) => void): this {
+		this.onChangeCallback = cb;
+		return this;
+	}
+
+	setColorCssVar(value: string) {
+		this.colorsContainerEl.style.setProperty("--better-properties-bg", value);
 	}
 }

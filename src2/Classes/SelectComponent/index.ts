@@ -1,4 +1,5 @@
 import { ValueComponent, setIcon } from "obsidian";
+import { selectEmptyAttr } from "~/lib/constants";
 import { Icon } from "~/lib/types/icons";
 
 export class SelectComponent<Option> extends ValueComponent<string> {
@@ -40,12 +41,13 @@ export class SelectComponent<Option> extends ValueComponent<string> {
 
 		const commitValue = () => {
 			const value = this.selectEl.textContent;
+
+			// ensure value is valid
 			if (
-				!(
-					value === "" ||
-					this.options.some((v) => this.parseOptionToString(v) === value)
-				)
+				value !== "" &&
+				!this.options.some((v) => this.parseOptionToString(v) === value)
 			) {
+				console.log("revert");
 				this.selectEl.textContent = this.value;
 				return;
 			}
@@ -58,13 +60,17 @@ export class SelectComponent<Option> extends ValueComponent<string> {
 			commitValue();
 		});
 
+		this.selectEl.addEventListener("keydown", () => {
+			this.selectContainerEl.removeAttribute(selectEmptyAttr);
+		});
+
 		this.selectEl.addEventListener("keyup", (e) => {
 			if (e.key !== "Enter") return;
 			commitValue();
 			this.selectEl.blur();
 		});
 
-		this.selectContainerEl.addEventListener("click", () => {
+		this.containerEl.addEventListener("click", () => {
 			this.selectEl.focus();
 		});
 	}
@@ -80,6 +86,13 @@ export class SelectComponent<Option> extends ValueComponent<string> {
 	setValue(value: string): this {
 		this.value = value;
 		this.selectEl.textContent = value;
+
+		if (value === "") {
+			this.selectContainerEl.setAttribute(selectEmptyAttr, "true");
+			return this;
+		}
+
+		this.selectContainerEl.removeAttribute(selectEmptyAttr);
 		return this;
 	}
 

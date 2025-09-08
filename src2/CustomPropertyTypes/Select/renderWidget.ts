@@ -48,10 +48,8 @@ export const renderWidget: CustomPropertyType["renderWidget"] = ({
 		isValid = b;
 	};
 
-	const isStyled = true; //TODO;
-
-	const cmp = isStyled
-		? renderSelect({
+	const cmp = settings.useDefaultStyle
+		? renderDropdown({
 				container,
 				ctx,
 				isValid,
@@ -60,7 +58,7 @@ export const renderWidget: CustomPropertyType["renderWidget"] = ({
 				settings,
 				value,
 		  })
-		: renderDropdown({
+		: renderSelect({
 				container,
 				ctx,
 				isValid,
@@ -108,7 +106,7 @@ const renderDropdown = ({
 	setIsValid,
 	settings,
 	value,
-}: RenderProps) => {
+}: RenderProps): DropdownComponent => {
 	const dropdown = new DropdownComponent(container);
 	if (settings.optionsType === "manual" && settings.manualOptions) {
 		const options = settings.manualOptions.reduce((acc, cur) => {
@@ -166,12 +164,12 @@ const renderSelect = ({
 	if (settings.optionsType === "manual" && settings.manualOptions) {
 		const options = settings.manualOptions;
 		select.addOptions(options);
-		setIsValid(options.some((opt) => opt.value === value));
+		setIsValid(value === "" || options.some((opt) => opt.value === value));
 	}
 	if (settings.optionsType === "dynamic") {
 		const options = getDynamicOptions({ plugin, settings, ctx });
 		select.addOptions(options);
-		setIsValid(options.some((opt) => opt.value === value));
+		setIsValid(value === "" || options.some((opt) => opt.value === value));
 	}
 	select.onChange((v) => {
 		ctx.onChange(v);
@@ -205,7 +203,7 @@ const createAuxEl = ({
 	const existing = parentEl.querySelectorAll("." + cls);
 	if (existing.length) existing.forEach((el) => el.remove());
 
-	if (!isValid) {
+	if (!isValid && value !== "") {
 		new ExtraButtonComponent(parentEl)
 			.setIcon("lucide-alert-circle" satisfies Icon)
 			.setTooltip(`Invalid value: "${value}"`)
@@ -252,6 +250,11 @@ const getDynamicOptions = ({
 	settings: PropertySettings["select"];
 	ctx: PropertyRenderContext;
 }): Option[] => {
+	/**
+	 * TODO
+	 * Add option to have backgrounds, like by getting the color from a property in the note
+	 */
+
 	if (settings?.dynamicOptionsType === "filesInFolder") {
 		return getFolderFilesOptions({
 			plugin,
@@ -286,28 +289,6 @@ const getFolderFilesOptions = ({
 	propertyName: string;
 	folderOptionsPaths: string[];
 }): Option[] => {
-	// return (folderOptionsPaths ?? []).reduce((acc, path) => {
-	// 	const folderPath = path === "" || path === undefined ? "/" : path;
-	// 	const folder = plugin.app.vault.getFolderByPath(folderPath);
-	// 	if (!folder) {
-	// 		const err = `Better Properties: The provided folder "${folderPath}" could not be found in the vault. This was set in the Dropdown settings for property name "${propertyName}"`;
-	// 		new Notice(err, 0);
-	// 		console.error(err);
-	// 		return {};
-	// 	}
-	// 	const options = folder.children.reduce((acc, cur) => {
-	// 		if (!(cur instanceof TFile) || cur.extension.toLowerCase() !== "md")
-	// 			return acc;
-	// 		if (excludeFolderNote && folder.name === cur.basename) {
-	// 			return acc;
-	// 		}
-	// 		const link = plugin.app.fileManager.generateMarkdownLink(cur, sourcePath);
-	// 		acc[link] = cur.basename;
-	// 		return acc;
-	// 	}, {} as Record<string, string>);
-	// 	return { ...acc, ...options };
-	// }, {} as Record<string, string>);
-
 	return (folderOptionsPaths ?? []).reduce((acc, path) => {
 		const folderPath = path === "" || path === undefined ? "/" : path;
 		const folder = plugin.app.vault.getFolderByPath(folderPath);
@@ -345,37 +326,6 @@ const getTagOptions = ({
 	includeNested: boolean;
 	sourcePath: string;
 }): Option[] => {
-	// const options: Record<string, string> = {};
-
-	// const addOption = (file: TFile) => {
-	// 	options[plugin.app.fileManager.generateMarkdownLink(file, sourcePath)] =
-	// 		file.basename;
-	// };
-
-	// iterateFileMetadata({
-	// 	vault: plugin.app.vault,
-	// 	metadataCache: plugin.app.metadataCache,
-	// 	callback: ({ file, metadata }) => {
-	// 		if (!metadata) return;
-	// 		const fileTags = getAllTags(metadata, false);
-	// 		if (!fileTags) return;
-	// 		if (!includeNested) {
-	// 			const fileTagsSet = new Set(fileTags);
-	// 			const isMatch = tags.some((t) => fileTagsSet.has(t));
-	// 			if (!isMatch) return;
-	// 			addOption(file);
-	// 			return;
-	// 		}
-	// 		const isMatch = fileTags.some((fTag) =>
-	// 			tags.some((tag) => tag === fTag || fTag.startsWith(`${tag}/`))
-	// 		);
-	// 		if (!isMatch) return;
-	// 		addOption(file);
-	// 	},
-	// });
-
-	// return options;
-
 	const options: Option[] = [];
 
 	const addOption = (file: TFile) => {
@@ -419,8 +369,7 @@ class Select extends SelectComponent<Option> {
 		super(containerEl);
 
 		new SelectSuggest(this).onSelect((option) => {
-			this.setValue(option.value);
-			this.onChanged();
+			this.selectEl.textContent = option.value;
 			this.selectEl.blur();
 		});
 
@@ -436,13 +385,15 @@ class Select extends SelectComponent<Option> {
 		const color = settings.manualOptions?.find(
 			(v) => v.value === value
 		)?.bgColor;
-		return (
-			selectColors[color as keyof typeof selectColors] ?? selectColors.gray
-		);
+		return color ?? selectColors.gray;
 	}
 
 	setValue(value: string): this {
 		super.setValue(value);
+		const option = this.options.find((o) => o.value === value);
+		if (option?.label) {
+			this.selectEl.textContent = option.label;
+		}
 		this.selectContainerEl.style.setProperty(
 			selectBackgroundCssVar,
 			this.getColor(value)

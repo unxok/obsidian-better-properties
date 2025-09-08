@@ -91,28 +91,32 @@ export const wrapAllPropertyTypeWidgets = (plugin: BetterProperties) => {
 						);
 					}
 
-					const valueIsEmpty =
-						typeof value === "object" &&
-						(value === null || value === undefined || Object.isEmpty(value));
-					if (settings.defaultValue !== undefined && valueIsEmpty) {
-						const parsedValue = tryParseYaml(settings.defaultValue);
-						if (!parsedValue.success) {
-							const err =
-								parsedValue.error instanceof Error
-									? parsedValue.error.message
-									: "Unknown error";
-							new Notice(err);
-							console.error(err);
-						}
-
-						if (parsedValue.success) {
+					if (settings.defaultValue && !value) {
+						const update = (value: unknown) => {
 							window.setTimeout(() => {
-								ctx.onChange(parsedValue.data);
+								ctx.onChange(value);
 								triggerPropertyTypeChange(
 									plugin.app.metadataTypeManager,
 									ctx.key
 								);
 							}, 0);
+						};
+
+						if (typeof value !== "object") {
+							update(settings.defaultValue);
+						} else {
+							const parsedValue = tryParseYaml(settings.defaultValue!);
+							if (!parsedValue.success) {
+								const err =
+									parsedValue.error instanceof Error
+										? parsedValue.error.message
+										: "Unknown error";
+								new Notice(err);
+								console.error(err);
+							}
+							if (parsedValue.success) {
+								update(parsedValue.data);
+							}
 						}
 					}
 

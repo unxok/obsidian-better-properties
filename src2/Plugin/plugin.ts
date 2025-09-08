@@ -99,7 +99,6 @@ export class BetterProperties extends Plugin {
 			customizePropertyEditorMenu(this);
 			patchMetadataEditor(this);
 			patchMetadataCache(this);
-
 			this.rebuildLeaves();
 		});
 		this.handlePropertyLabelWidth();

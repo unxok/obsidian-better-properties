@@ -50,13 +50,19 @@ body {
 	--better-properties-select-gray: hsl(
 		from gray h s var(--better-properties-select-lightness)
 	);
+	--better-properties-select-custom: linear-gradient(
+		90deg,
+		var(--better-properties-select-blue) 0%,
+		var(--better-properties-select-green) 50%,
+		var(--better-properties-select-yellow) 100%
+	);
 }
 
 .better-properties-select-option {
 	&.better-properties-select-container,
 	& .suggestion-content {
 		color: var(--metadata-input-text-color);
-		background-color: var(--better-properties-select-bg);
+		background: var(--better-properties-select-bg);
 		border-radius: var(--radius-s);
 		padding: var(--size-2-1) var(--size-2-2);
 	}
@@ -76,13 +82,18 @@ body {
 			display: flex;
 			align-items: center;
 			gap: var(--size-2-1);
-			min-width: 2ch;
+			min-width: 0;
 			font-size: var(--metadata-input-font-size);
 			cursor: default;
 			--better-properties-close-display: none;
 
 			&:focus-within {
 				--better-properties-close-display: flex;
+				opacity: 1;
+			}
+
+			&[data-better-properties-select-empty] {
+				opacity: 0;
 			}
 
 			/* & > .better-properties-select-input {
@@ -301,7 +312,8 @@ div.setting-item.better-properties-list-setting {
 
 			& input,
 			div.search-input-container {
-				width: 100%;
+				/* width: 100%; */
+				flex-grow: 1;
 			}
 
 			& .setting-item[data-is-dragged="true"] {
@@ -465,5 +477,49 @@ div.metadata-content {
 	&.clickable-icon:hover {
 		color: var(--text-error);
 		opacity: 0.5;
+	}
+}
+
+.better-properties-color-text-component-container {
+	display: flex;
+	align-items: center;
+	gap: var(--size-2-2);
+	& > .better-properties-color-text-component-colors-container {
+		& > input[type="color"] {
+			opacity: 0;
+			position: absolute;
+			left: 50%;
+			top: 50%;
+			transform: translate(-50%, -50%);
+			pointer-events: none;
+		}
+	}
+}
+
+.better-properties-swatch {
+	background: var(--better-properties-bg, black);
+	height: var(--swatch-width);
+	width: var(--swatch-width);
+	border-radius: var(--swatch-radius);
+	box-shadow: var(--swatch-shadow);
+	/* margin: calc(var(--swatch-width) / 2); */
+	caret-color: transparent;
+	color: transparent;
+	cursor: var(--cursor);
+	display: flex;
+	justify-content: center;
+	align-items: center;
+
+	&:focus-within,
+	&:active,
+	&:hover {
+		outline: 3px solid var(--background-modifier-border-focus);
+	}
+
+	& > .better-properties-swatch-input {
+		opacity: 0;
+		user-select: all;
+		width: 0;
+		height: 0;
 	}
 }

@@ -36,6 +36,10 @@
 		"select": {
 			"name": "Select",
 			"settings": {
+				"useDefaultDropdown": {
+					"title": "Use default dropdown",
+					"desc": "Whether to use the default dropdown."
+				},
 				"optionsType": {
 					"title": "Options type",
 					"desc": "Whether to use manually defined options or a different dynamic way of determining available options.",
