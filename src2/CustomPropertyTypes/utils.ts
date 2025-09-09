@@ -1,12 +1,11 @@
 import BetterProperties from "~/main";
 import { CustomTypeKey, PropertySettings } from "./types";
-import { getDefaultPropertySettings, propertySettingsSchema } from "./schema";
+import { getDefaultPropertySettings } from "./schema";
 // import { PropertyValueComponent as IPropertyValueComponent } from "obsidian";
 import { PropertyWidgetComponentBase } from "obsidian-typings";
 import { customPropertyTypePrefix } from "~/lib/constants";
 import { MetadataTypeManager } from "obsidian-typings";
 import { NonNullishObject } from "~/lib/utils";
-import * as v from "valibot";
 
 export const getPropertySettings = ({
 	plugin,

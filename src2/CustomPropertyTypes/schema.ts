@@ -10,16 +10,12 @@ type PropertyTypeSchema = v.OptionalSchema<
 	undefined
 >;
 
-const generalSettingsSchema = v.optional(
-	v.object({
-		foo: v.optional(v.string(), ""),
-	})
-) satisfies PropertyTypeSchema;
-
 type SettingsBase = v.ObjectSchema<
 	Record<string, PropertyTypeSchema>,
 	undefined
 >;
+
+// TODO move each type schema to be coupled with the type's widget definition
 
 export const propertySettingsSchema = v.object({
 	general: v.optional(
