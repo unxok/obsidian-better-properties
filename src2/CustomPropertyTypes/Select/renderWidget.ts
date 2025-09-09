@@ -388,11 +388,15 @@ class Select extends SelectComponent<Option> {
 		return color ?? selectColors.gray;
 	}
 
-	setValue(value: string): this {
+	setValue(initialValue: string): this {
+		const value =
+			this.options.find((o) => o.label === initialValue)?.value ?? initialValue;
+		console.log("value: ", value);
 		super.setValue(value);
 		const option = this.options.find((o) => o.value === value);
 		if (option?.label) {
 			this.selectEl.textContent = option.label;
+			this.setEmptyAttr(false);
 		}
 		this.selectContainerEl.style.setProperty(
 			selectBackgroundCssVar,

@@ -41,16 +41,6 @@ export class SelectComponent<Option> extends ValueComponent<string> {
 
 		const commitValue = () => {
 			const value = this.selectEl.textContent;
-
-			// ensure value is valid
-			if (
-				value !== "" &&
-				!this.options.some((v) => this.parseOptionToString(v) === value)
-			) {
-				this.selectEl.textContent = this.value;
-				return;
-			}
-
 			this.setValue(value);
 			this.onChanged();
 		};
@@ -82,16 +72,27 @@ export class SelectComponent<Option> extends ValueComponent<string> {
 		return this.value;
 	}
 
-	setValue(value: string): this {
-		this.value = value;
-		this.selectEl.textContent = value;
-
-		if (value === "") {
+	setEmptyAttr(isEmpty: boolean) {
+		if (isEmpty) {
 			this.selectContainerEl.setAttribute(selectEmptyAttr, "true");
-			return this;
+			return;
 		}
 
 		this.selectContainerEl.removeAttribute(selectEmptyAttr);
+	}
+
+	setValue(value: string): this {
+		// if invalid
+		if (
+			value !== "" &&
+			!this.options.some((v) => this.parseOptionToString(v) === value)
+		) {
+			this.selectEl.textContent = this.value;
+			return this;
+		}
+		this.value = value;
+		this.selectEl.textContent = value;
+		this.setEmptyAttr(value === "");
 		return this;
 	}
 
