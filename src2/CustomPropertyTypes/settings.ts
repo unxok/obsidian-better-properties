@@ -21,6 +21,7 @@ import { PropertyWidget } from "obsidian-typings";
 import { text } from "~/i18next";
 import { obsidianText } from "~/i18next/obsidian";
 import { MultiselectComponent } from "~/Classes/MultiSelect";
+import * as v from "valibot";
 
 export class PropertySettingsModal extends VerticalTabModal {
 	public propertyType: string = "unset";
@@ -265,8 +266,8 @@ const showImportModal = (modal: PropertySettingsModal) => {
 		.then((textArea) => {
 			textArea.inputEl.classList.add("better-properties-mod-w-full");
 			textArea.inputEl.setAttribute("rows", "7");
-			textArea.onChange(async (v) => {
-				const jsonResult = await tryCatch(() => JSON.parse(v));
+			textArea.onChange(async (val) => {
+				const jsonResult = await tryCatch(() => JSON.parse(val));
 				if (!jsonResult.success) {
 					data = undefined;
 					validityEl.setAttribute("data-is-valid", "false");
@@ -276,14 +277,14 @@ const showImportModal = (modal: PropertySettingsModal) => {
 					);
 					return;
 				}
-				const parsed = propertySettingsSchema.safeParse(jsonResult.data);
+				const parsed = v.safeParse(propertySettingsSchema, jsonResult.data);
 				if (!parsed.success) {
 					data = undefined;
 					validityEl.setAttribute("data-is-valid", "false");
 					validityEl.textContent = text(
 						"propertySettings.generalActionsTab.importSetting.modalStrutureParseError"
 					);
-					console.error(parsed.error);
+					console.log(parsed.issues);
 					return;
 				}
 
@@ -291,7 +292,7 @@ const showImportModal = (modal: PropertySettingsModal) => {
 				validityEl.textContent = text(
 					"propertySettings.generalActionsTab.importSetting.modalDataIsValid"
 				);
-				data = parsed.data;
+				data = parsed.output;
 			});
 		});
 

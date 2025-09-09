@@ -1,5 +1,5 @@
 import { PropertyRenderContext } from "obsidian-typings";
-import { z } from "zod";
+import * as v from "valibot";
 import { Prettify } from "~/lib/utils";
 import { propertySettingsSchema } from "./schema";
 import BetterProperties from "~/main";
@@ -7,13 +7,10 @@ import { PropertyValueComponent } from "obsidian";
 import { PropertySettingsModal } from "./settings";
 import { Icon } from "~/lib/types/icons";
 
-export type PropertySettings = Prettify<z.infer<typeof propertySettingsSchema>>;
+export type PropertySettings = Prettify<
+	v.InferOutput<typeof propertySettingsSchema>
+>;
 export type CustomTypeKey = keyof PropertySettings;
-
-// export type CustomPropertyType<Value> = {
-// 	renderSettings: RenderCustomTypeSettings;
-// 	widget: CustomTypeWidget<Value>;
-// };
 
 export type CustomPropertyType = {
 	type: CustomTypeKey;

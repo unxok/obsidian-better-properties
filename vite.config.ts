@@ -8,9 +8,7 @@ export default defineConfig(async ({ mode }) => {
 	const prod = mode === "production";
 
 	return {
-		plugins: [
-			// analyzer()
-		],
+		plugins: [analyzer()],
 		resolve: {
 			alias: {
 				"@": path.resolve(__dirname, "./src"),

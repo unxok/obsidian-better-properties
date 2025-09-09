@@ -1,5 +1,5 @@
 import { Prettify } from "~/lib/utils";
-import { z } from "zod";
+import * as v from "valibot";
 import { propertySettingsSchema } from "~/CustomPropertyTypes";
 import { PluginSettingTab, Setting } from "obsidian";
 import { BetterProperties } from "./plugin";
@@ -9,17 +9,17 @@ import { MultiselectComponent } from "~/Classes/MultiSelect";
 import { PropertyTypeSuggest } from "~/Classes/InputSuggest/PropertyTypeSuggest";
 import { sortAndFilterRegisteredTypeWidgets } from "~/CustomPropertyTypes/register";
 
-export const betterPropertiesSettingsSchema = z.object({
-	propertySettings: z.record(propertySettingsSchema).optional(),
-	confirmPropertySettingsReset: z.boolean().optional(),
-	confirmPropertyDelete: z.boolean().optional(),
-	propertyLabelWidth: z.number().optional(),
-	defaultLabelWidth: z.string().catch("9em"), // not UI facing
-	hiddenPropertyTypes: z.array(z.string()).optional(),
+export const betterPropertiesSettingsSchema = v.object({
+	propertySettings: v.optional(v.record(v.string(), propertySettingsSchema)),
+	confirmPropertySettingsReset: v.optional(v.boolean()),
+	confirmPropertyDelete: v.optional(v.boolean()),
+	propertyLabelWidth: v.optional(v.number()),
+	defaultLabelWidth: v.optional(v.string()), // not UI facing
+	hiddenPropertyTypes: v.optional(v.array(v.string())),
 });
 
 export type BetterPropertiesSettings = Prettify<
-	z.infer<typeof betterPropertiesSettingsSchema>
+	v.InferOutput<typeof betterPropertiesSettingsSchema>
 >;
 
 export const getDefaultSettings = (): BetterPropertiesSettings => ({

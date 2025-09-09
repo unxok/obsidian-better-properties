@@ -13,7 +13,7 @@
 		"noImplicitAny": true,
 		"strict": true,
 		"target": "ESNext",
-		"module": "nodenext",
+		"module": "esnext",
 		"strictNullChecks": true,
 		"paths": {
 			"@/*": ["./src/*"],
