@@ -7,9 +7,7 @@ import {
 	MarkdownRenderChild,
 	MarkdownRenderer,
 	App,
-	parseYaml,
 	MarkdownView,
-	Menu,
 } from "obsidian";
 import {
 	BetterPropertiesSettings,
@@ -113,8 +111,6 @@ export class BetterProperties extends Plugin {
 		window.CodeMirror.defineMode("script", (config) =>
 			window.CodeMirror.getMode(config, "javascript")
 		);
-
-		test(this);
 	}
 
 	handlePropertyLabelWidth(): void {
@@ -314,23 +310,3 @@ class Script {
 		await this.runCode(this.source);
 	}
 }
-
-const test = (plugin: BetterProperties) => {
-	const ev = plugin.app.workspace.on("editor-menu", (menu) => {
-		menu.addItem((item) =>
-			item
-				.setTitle("Fizz")
-				.setSubmenu()
-				.setNoIcon()
-				.addItem((item) =>
-					item
-						.setTitle("Buzz")
-						.setSubmenu()
-						.setNoIcon()
-						.addItem((item) => item.setTitle("Foo"))
-				)
-		);
-	});
-
-	plugin.registerEvent(ev);
-};
