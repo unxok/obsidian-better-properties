@@ -390,7 +390,8 @@ class Select extends SelectComponent<Option> {
 
 	setValue(initialValue: string): this {
 		const value =
-			this.options.find((o) => o.label === initialValue)?.value ?? initialValue;
+			this.options.find((o) => o.label && o.label === initialValue)?.value ??
+			initialValue;
 		super.setValue(value);
 		const option = this.options.find((o) => o.value === value);
 		if (option?.label) {
