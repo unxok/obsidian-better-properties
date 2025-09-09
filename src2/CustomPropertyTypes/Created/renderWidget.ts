@@ -34,7 +34,7 @@ export const renderWidget: CustomPropertyType["renderWidget"] = ({
 		throw new Error("File not found by ctx.sourcePath of: " + ctx.sourcePath);
 	}
 
-	const ctime = file.stat.ctime;
+	const ctime = moment(file.stat.ctime).format("yyyy-MM-DDTHH:mm");
 	if (!value || ctime !== value) {
 		// property is rendered with no value
 		// so it's likely rendered for the first time

@@ -10,7 +10,7 @@ export const createdPropertyType: CustomPropertyType = {
 	type: "created",
 	name: () => text("customPropertyTypes.created.name"),
 	icon: "lucide-clock-10",
-	validate: (v) => typeof v === "number" && moment(v).isValid(),
+	validate: (v) => moment(v?.toString()).isValid(),
 	registerListeners,
 	renderSettings,
 	renderWidget,

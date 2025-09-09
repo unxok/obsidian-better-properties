@@ -11,7 +11,7 @@ import {
 	MetadataTypeManagerRegisteredTypeWidgetsRecord,
 	PropertyWidget,
 } from "obsidian-typings";
-import { createdPropertyType } from "./Created";
+// import { createdPropertyType } from "./Created";
 import { groupPropertyType } from "./Group";
 import { tryParseYaml } from "@/libs/utils/obsidian";
 import { triggerPropertyTypeChange } from "./utils";
@@ -22,7 +22,7 @@ export const customPropertyTypesArr: CustomPropertyType[] = [
 	togglePropertyType,
 	titlePropertyType,
 	markdownPropertyType,
-	createdPropertyType,
+	// createdPropertyType,
 	groupPropertyType,
 	colorPropertyType,
 ];
