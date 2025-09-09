@@ -54,7 +54,13 @@ body {
 		90deg,
 		var(--better-properties-select-blue) 0%,
 		var(--better-properties-select-green) 50%,
-		var(--better-properties-select-yellow) 100%
+		var(--better-properties-select-red) 100%
+	);
+	--better-properties-select-watermelon: radial-gradient(
+		circle,
+		var(--better-properties-select-red) 0%,
+		/* var(--better-properties-select-green) 50%, */
+			var(--better-properties-select-green) 100%
 	);
 }
 

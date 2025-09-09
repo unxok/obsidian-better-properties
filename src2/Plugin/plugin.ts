@@ -9,6 +9,7 @@ import {
 	App,
 	parseYaml,
 	MarkdownView,
+	Menu,
 } from "obsidian";
 import {
 	BetterPropertiesSettings,
@@ -30,7 +31,8 @@ import { PropertyWidget } from "obsidian-typings";
 import { PropertySuggestModal } from "~/Classes/InputSuggest/PropertySuggest";
 import { showPropertySettingsModal } from "~/CustomPropertyTypes/settings";
 import { patchMetadataCache } from "~/MetadataCache";
-
+import * as v from "valibot";
+import { getDefaultPropertySettings } from "~/CustomPropertyTypes";
 export class BetterProperties extends Plugin {
 	settings: BetterPropertiesSettings = getDefaultSettings();
 
@@ -100,6 +102,8 @@ export class BetterProperties extends Plugin {
 			patchMetadataEditor(this);
 			patchMetadataCache(this);
 			this.rebuildLeaves();
+
+			console.log("defaults: ", getDefaultPropertySettings());
 		});
 		this.handlePropertyLabelWidth();
 
@@ -109,9 +113,6 @@ export class BetterProperties extends Plugin {
 		window.CodeMirror.defineMode("script", (config) =>
 			window.CodeMirror.getMode(config, "javascript")
 		);
-
-		// @ts-expect-error TESTING
-		window["parseYaml"] = (str: string) => parseYaml(str);
 	}
 
 	handlePropertyLabelWidth(): void {
@@ -157,10 +158,10 @@ export class BetterProperties extends Plugin {
 			return;
 		}
 
-		const parsed = betterPropertiesSettingsSchema.safeParse(loaded);
+		const parsed = v.safeParse(betterPropertiesSettingsSchema, loaded);
 		// settings are valid, so use them
 		if (parsed.success) {
-			this.settings = parsed.data;
+			this.settings = parsed.output;
 			return;
 		}
 
@@ -169,7 +170,7 @@ export class BetterProperties extends Plugin {
 		const msg1 =
 			"This likely happened because you modified the plugin's settings.json file directly. If not, please open an issue on the plugin's github repository";
 		console.error(msg0 + "\n" + msg1);
-		console.error(parsed.error);
+		console.error(parsed.issues);
 		const modal = new Modal(this.app);
 		modal.setTitle(msg0);
 		modal.contentEl.createEl("p", { text: msg1 });

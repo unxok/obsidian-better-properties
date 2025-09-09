@@ -1,14 +1,16 @@
 import { UserConfig, defineConfig } from "vite";
 import path from "path";
 import builtins from "builtin-modules";
-import { analyzer } from "vite-bundle-analyzer";
+// import { analyzer } from "vite-bundle-analyzer";
 
 export default defineConfig(async ({ mode }) => {
 	const { resolve } = path;
 	const prod = mode === "production";
 
 	return {
-		plugins: [analyzer()],
+		plugins: [
+			// analyzer()
+		],
 		resolve: {
 			alias: {
 				"@": path.resolve(__dirname, "./src"),

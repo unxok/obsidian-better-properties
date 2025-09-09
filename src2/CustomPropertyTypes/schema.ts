@@ -1,11 +1,31 @@
+import { NonNullishObject } from "~/lib/utils";
 import { PropertySettings } from "./types";
 import * as v from "valibot";
+
+type PropertyTypeSchema = v.OptionalSchema<
+	v.ObjectSchema<
+		Record<string, v.OptionalSchema<v.GenericSchema, unknown>>,
+		undefined
+	>,
+	undefined
+>;
+
+const generalSettingsSchema = v.optional(
+	v.object({
+		foo: v.optional(v.string(), ""),
+	})
+) satisfies PropertyTypeSchema;
+
+type SettingsBase = v.ObjectSchema<
+	Record<string, PropertyTypeSchema>,
+	undefined
+>;
 
 export const propertySettingsSchema = v.object({
 	general: v.optional(
 		v.object({
-			icon: v.optional(v.string()),
-			hidden: v.optional(v.optional(v.boolean())),
+			icon: v.optional(v.string(), ""),
+			hidden: v.optional(v.boolean(), false),
 			defaultValue: v.optional(v.string()),
 			// onloadScript: z.string(),
 			alias: v.optional(v.string()),
@@ -14,9 +34,10 @@ export const propertySettingsSchema = v.object({
 	),
 	select: v.optional(
 		v.object({
-			useDefaultStyle: v.optional(v.boolean()),
+			useDefaultStyle: v.optional(v.boolean(), false),
 			optionsType: v.optional(
-				v.union([v.literal("manual"), v.literal("dynamic")])
+				v.union([v.literal("manual"), v.literal("dynamic")]),
+				"manual"
 			),
 			manualOptions: v.optional(
 				v.array(
@@ -27,7 +48,27 @@ export const propertySettingsSchema = v.object({
 						bgColor: v.optional(v.string()),
 						textColor: v.optional(v.string()),
 					})
-				)
+				),
+				[
+					{
+						value: "",
+						label: "none",
+						bgColor: "var(--better-properties-select-gray)",
+					},
+					{
+						value: "apples",
+						label: "ApPLeS",
+						bgColor: "var(--better-properties-select-red)",
+					},
+					{
+						value: "bananas",
+						bgColor: "var(--better-properties-select-yellow)",
+					},
+					{
+						value: "watermelon",
+						bgColor: "var(--better-properties-select-watermelon)",
+					},
+				]
 			),
 			dynamicOptionsType: v.optional(
 				v.union([
@@ -64,43 +105,17 @@ export const propertySettingsSchema = v.object({
 		})
 	),
 	color: v.optional(v.object({})),
-}) satisfies v.ObjectSchema<
-	Record<
-		string,
-		v.OptionalSchema<
-			v.ObjectSchema<
-				Record<string, v.OptionalSchema<v.GenericSchema, undefined>>,
-				undefined
-			>,
-			undefined
-		>
-	>,
-	undefined
->;
+}) satisfies SettingsBase;
 
-export const getDefaultPropertySettings = (): PropertySettings => ({
-	general: {
-		icon: "",
-		hidden: false,
-	},
-	select: {
-		optionsType: "manual",
-		manualOptions: [],
-		dynamicOptionsType: "filesInFolder",
-		folderOptionsPaths: [],
-		folderOptionsIsSubsIncluded: false,
-		folderOptionsExcludeFolderNote: false,
-		tagOptionsTags: [],
-		tagOptionsIncludeNested: false,
-		scriptOptionsExternalFile: "",
-		scriptOptionsType: "inline",
-		scriptOptionsInlineCode: "",
-	},
-	toggle: {},
-	title: {},
-	color: {},
-	created: { format: undefined },
-	group: { collapsed: false, hideAddButton: false },
-	markdown: {},
-	modified: {},
-});
+export const getDefaultPropertySettings =
+	(): NonNullishObject<PropertySettings> => {
+		return Object.entries(propertySettingsSchema.entries).reduce(
+			(acc, [k, schema]) => {
+				const key = k as keyof typeof acc;
+				// @ts-ignore TODO
+				acc[key] = v.parse(schema, {});
+				return acc;
+			},
+			{} as NonNullishObject<PropertySettings>
+		);
+	};

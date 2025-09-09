@@ -1,10 +1,12 @@
 import BetterProperties from "~/main";
 import { CustomTypeKey, PropertySettings } from "./types";
-import { getDefaultPropertySettings } from "./schema";
+import { getDefaultPropertySettings, propertySettingsSchema } from "./schema";
 // import { PropertyValueComponent as IPropertyValueComponent } from "obsidian";
 import { PropertyWidgetComponentBase } from "obsidian-typings";
 import { customPropertyTypePrefix } from "~/lib/constants";
 import { MetadataTypeManager } from "obsidian-typings";
+import { NonNullishObject } from "~/lib/utils";
+import * as v from "valibot";
 
 export const getPropertySettings = ({
 	plugin,
@@ -12,8 +14,7 @@ export const getPropertySettings = ({
 }: {
 	plugin: BetterProperties;
 	property: string;
-}): PropertySettings => {
-	// TODO will need to add checking for dotkey when groups are added
+}): NonNullishObject<PropertySettings> => {
 	const lower = property.toLowerCase();
 	if (!plugin.settings.propertySettings) {
 		plugin.settings.propertySettings = {};
@@ -21,7 +22,22 @@ export const getPropertySettings = ({
 	if (!plugin.settings.propertySettings[lower]) {
 		plugin.settings.propertySettings[lower] = getDefaultPropertySettings();
 	}
-	return plugin.settings.propertySettings[lower];
+
+	const typeSettings = plugin.settings.propertySettings[lower];
+	const defaultTypeSettings = getDefaultPropertySettings();
+	const noUndefinedTypeSettings = Object.keys(defaultTypeSettings).reduce(
+		(acc, k) => {
+			const key = k as keyof PropertySettings;
+			const value = typeSettings[key];
+			if (!value) return acc;
+			// @ts-ignore TODO
+			acc[key] = value;
+			return acc;
+		},
+		defaultTypeSettings
+	);
+	plugin.settings.propertySettings[lower] = noUndefinedTypeSettings;
+	return noUndefinedTypeSettings;
 };
 
 export const deletePropertySettings = ({
@@ -80,7 +96,8 @@ export const getPropertyTypeSettings = <T extends CustomTypeKey>({
 	type: T;
 }): NonNullable<PropertySettings[T]> => {
 	const settings = getPropertySettings(args);
-	return settings[type] ?? {};
+	const typeSettings = settings[type];
+	return typeSettings;
 };
 
 export const setPropertyTypeSettings = <T extends CustomTypeKey>({
@@ -94,7 +111,7 @@ export const setPropertyTypeSettings = <T extends CustomTypeKey>({
 	type: T;
 	typeSettings: PropertySettings[T];
 }): void => {
-	const settings = getPropertySettings({ plugin, property });
+	const settings: PropertySettings = getPropertySettings({ plugin, property });
 	settings[type] = typeSettings;
 	setPropertySettings({ plugin, property, settings });
 };
@@ -110,7 +127,7 @@ export const updatePropertyTypeSettings = <T extends CustomTypeKey>({
 	type: T;
 	cb: (settings: PropertySettings[T]) => PropertySettings[T];
 }): void => {
-	const settings = getPropertySettings({ plugin, property });
+	const settings: PropertySettings = getPropertySettings({ plugin, property });
 	settings[type] = cb(settings[type]);
 	setPropertySettings({ plugin, property, settings });
 };

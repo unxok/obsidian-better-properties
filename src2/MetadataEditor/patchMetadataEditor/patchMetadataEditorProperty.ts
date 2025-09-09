@@ -41,7 +41,7 @@ export const patchMetadataEditorProperty = (
 	metadataEditor.errorEl = createDiv();
 	metadataEditor.owner.getHoverSource = () => "source";
 	metadataEditor.load();
-	metadataEditor.synchronize({ foo: "bar" });
+	metadataEditor.synchronize({ tags: "[]" });
 	const MetadataEditorPropertyPrototype = Object.getPrototypeOf(
 		metadataEditor.rendered[0]
 	) as (typeof metadataEditor.rendered)[0];

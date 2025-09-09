@@ -19,9 +19,11 @@ export type Prettify<T> = {
 	[K in keyof T]: T[K];
 } & {};
 
-export type NonNullishObject<T> = {
-	[K in keyof T]-?: NonNullable<T[K]>;
-};
+export type NonNullishObject<T> = T extends Record<string, unknown>
+	? {
+			[P in keyof T]-?: NonNullable<NonNullishObject<T[P]>>;
+	  }
+	: NonNullable<T>;
 
 export type Optional<T extends Record<string, unknown>> = {
 	[K in keyof T]?: T[K];

@@ -10,26 +10,23 @@ import { PropertyTypeSuggest } from "~/Classes/InputSuggest/PropertyTypeSuggest"
 import { sortAndFilterRegisteredTypeWidgets } from "~/CustomPropertyTypes/register";
 
 export const betterPropertiesSettingsSchema = v.object({
-	propertySettings: v.optional(v.record(v.string(), propertySettingsSchema)),
-	confirmPropertySettingsReset: v.optional(v.boolean()),
-	confirmPropertyDelete: v.optional(v.boolean()),
-	propertyLabelWidth: v.optional(v.number()),
-	defaultLabelWidth: v.optional(v.string()), // not UI facing
-	hiddenPropertyTypes: v.optional(v.array(v.string())),
+	propertySettings: v.optional(
+		v.record(v.string(), propertySettingsSchema),
+		{}
+	),
+	confirmPropertySettingsReset: v.optional(v.boolean(), true),
+	confirmPropertyDelete: v.optional(v.boolean(), true),
+	propertyLabelWidth: v.optional(v.number(), undefined),
+	defaultLabelWidth: v.optional(v.string(), "9em"), // not UI facing
+	hiddenPropertyTypes: v.optional(v.array(v.string()), [] satisfies string[]),
 });
 
 export type BetterPropertiesSettings = Prettify<
 	v.InferOutput<typeof betterPropertiesSettingsSchema>
 >;
 
-export const getDefaultSettings = (): BetterPropertiesSettings => ({
-	propertySettings: {},
-	confirmPropertySettingsReset: true,
-	confirmPropertyDelete: true,
-	propertyLabelWidth: undefined,
-	defaultLabelWidth: "9em",
-	hiddenPropertyTypes: [],
-});
+export const getDefaultSettings = (): BetterPropertiesSettings =>
+	v.getDefaults(betterPropertiesSettingsSchema);
 
 export class BetterPropertiesSettingsTab extends PluginSettingTab {
 	constructor(public plugin: BetterProperties) {
