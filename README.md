@@ -11,10 +11,10 @@ What if Properties in Obsidian were... better?
 
 This plugin adds many different properties-related features, such as new property types and per-property settings.
 
-- [[#Installation]]
-- [[#Contributing]]
-- [[#Docs]]
-- [[#Features]]
+- [Installation](#installation)
+- [Contributing](#contributing)
+- [Docs](#docs)
+- [Features](#features)
 <div style="display: flex; gap: 5px; flex-wrap: wrap;">
 
 <!-- ![property types example](./demo-assets/property-types-example.png)
