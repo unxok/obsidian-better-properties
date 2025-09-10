@@ -1,11 +1,4 @@
-// TRANSLATIONS done
-import {
-	AbstractInputSuggest,
-	App,
-	SearchComponent,
-	setIcon,
-	TextComponent,
-} from "obsidian";
+import { AbstractInputSuggest, setIcon } from "obsidian";
 
 export type Suggestion = {
 	title: string;
@@ -15,15 +8,9 @@ export type Suggestion = {
 };
 
 export abstract class InputSuggest<T> extends AbstractInputSuggest<T> {
-	component: SearchComponent | TextComponent;
-
-	constructor(app: App, component: SearchComponent | TextComponent) {
-		super(app, component.inputEl);
-		this.component = component;
-	}
-
 	/**
 	 * Get the suggestions for the popover
+	 * @note Make sure to utilize `this.setFilterCallback`
 	 */
 	protected abstract getSuggestions(query: string): T[] | Promise<T[]>;
 
@@ -33,28 +20,27 @@ export abstract class InputSuggest<T> extends AbstractInputSuggest<T> {
 	protected abstract parseSuggestion(value: T): Suggestion;
 
 	/**
-	 * Use to further mutate how suggestions are rendered.
-	 * @remark If not needed, simply define as an empty function-- `onRenderSuggestion() {}`
+	 * An additional filter that must be true to render a given suggestion
 	 */
-	protected abstract onRenderSuggestion(
-		value: T,
-		contentEl: HTMLElement,
-		titleEl: HTMLElement,
-		noteEl?: HTMLElement,
-		auxEl?: HTMLElement,
-		icon?: string
-	): void;
+	setFilterCallback: (suggestion: T) => boolean = () => true;
 
 	/**
-	 * What to do when a suggestion is clicked with the mouse or keyboard
+	 * Sets `this.setFilterCallback`
 	 */
-	abstract selectSuggestion(value: T, evt: MouseEvent | KeyboardEvent): void;
+	setFilter(cb: this["setFilterCallback"]): this {
+		this.setFilterCallback = cb;
+		return this;
+	}
 
 	/**
-	 * Renders suggestions.
-	 * @remark Do **NOT** override this! Use `this.onRenderSuggestion()` if you need to mutate the suggestion DOM elements
+	 * Renders suggestions
 	 */
 	renderSuggestion(value: T, el: HTMLElement): void {
+		if (!this.setFilterCallback(value)) {
+			el.remove();
+			return;
+		}
+
 		const { title, aux, note, icon } = this.parseSuggestion(value);
 		el.classList.add("mod-complex");
 		if (icon) {
@@ -64,20 +50,18 @@ export abstract class InputSuggest<T> extends AbstractInputSuggest<T> {
 			setIcon(iconEl, icon);
 		}
 		const contentEl = el.createDiv({ cls: "suggestion-content" });
-		const titleEl = contentEl.createDiv({
+		contentEl.createDiv({
 			cls: "suggestion-title",
 			text: title,
 		});
-		const noteEl =
-			note === undefined
-				? undefined
-				: contentEl.createDiv({ cls: "suggestion-note", text: note });
-		const auxEl =
-			aux === undefined
-				? undefined
-				: el
-						.createDiv({ cls: "suggestion-aux" })
-						.createSpan({ cls: "suggestion-flair", text: aux });
-		this.onRenderSuggestion(value, contentEl, titleEl, noteEl, auxEl);
+		if (note !== undefined) {
+			contentEl.createDiv({ cls: "suggestion-note", text: note });
+		}
+		if (aux !== undefined) {
+			el.createDiv({ cls: "suggestion-aux" }).createSpan({
+				cls: "suggestion-flair",
+				text: aux,
+			});
+		}
 	}
 }
