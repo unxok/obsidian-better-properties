@@ -80,6 +80,9 @@ export const renderWidget: CustomPropertyType["renderWidget"] = ({
 
 	const container = propertyEl.createDiv({
 		cls: "better-properties-property-value-inner better-properties-mod-group metadata-container",
+		attr: {
+			tabindex: "0",
+		},
 	});
 	const propertiesEl = container.createDiv({
 		cls: "better-properties-property-group-properties",
@@ -127,11 +130,14 @@ export const renderWidget: CustomPropertyType["renderWidget"] = ({
 	return new PropertyWidgetComponent(
 		"group",
 		container,
-		() => {
-			// toggle.setValue(!!v);
+		(v) => {
+			ctx.onChange(v);
 		},
 		() => {
-			// toggle.toggleEl.focus();
+			const el: HTMLElement | null = propertiesEl.querySelector(
+				"& > .metadata-property"
+			);
+			el?.focus();
 		}
 	);
 };

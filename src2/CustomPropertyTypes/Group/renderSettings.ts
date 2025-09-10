@@ -2,6 +2,7 @@ import { Setting } from "obsidian";
 import { CustomPropertyType } from "../types";
 import { getPropertyTypeSettings, setPropertyTypeSettings } from "../utils";
 import { typeKey } from "./renderWidget";
+import { text } from "~/i18next";
 
 export const renderSettings: CustomPropertyType["renderSettings"] = ({
 	modal,
@@ -26,8 +27,8 @@ export const renderSettings: CustomPropertyType["renderSettings"] = ({
 	});
 
 	new Setting(tabContentEl)
-		.setName('Hide "Add property" button')
-		.setDesc("Useful for more structured property setups")
+		.setName(text("customPropertyTypes.group.settings.hideAddButton.title"))
+		.setDesc(text("customPropertyTypes.group.settings.hideAddButton.desc"))
 		.addToggle((cmp) => {
 			cmp.setValue(!!settings.hideAddButton).onChange((b) => {
 				settings.hideAddButton = b;

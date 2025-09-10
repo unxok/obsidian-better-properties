@@ -50,7 +50,7 @@ export const renderWidget: CustomPropertyType["renderWidget"] = ({
 	toggle.render();
 
 	return new PropertyWidgetComponent(
-		"toggle",
+		typeKey,
 		container,
 		(v) => {
 			toggle.setValue(clamp(v));

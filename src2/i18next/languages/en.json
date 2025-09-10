@@ -23,6 +23,16 @@
 		"import": "Import",
 		"reset": "Reset"
 	},
+	"datetime": {
+		"date": "Date",
+		"dateAndTime": "Date & time",
+		"year": "Year",
+		"month": "Month",
+		"day": "Day",
+		"hour": "Hour",
+		"minute": "Minute",
+		"second": "Second"
+	},
 	"customPropertyTypes": {
 		"created": {
 			"name": "Created",
@@ -46,6 +56,27 @@
 				"count": {
 					"title": "Count",
 					"desc": "Set a custom icon count rather than the default of 5."
+				}
+			}
+		},
+		"datecustom": {
+			"name": "Date custom",
+			"settings": {
+				"type": {
+					"title": "Type",
+					"desc": "The type of date."
+				},
+				"format": {
+					"title": "Format",
+					"desc": "The format to apply to the date value."
+				},
+				"placeholder": {
+					"title": "Placeholder",
+					"desc": "What text to show when the date is empty."
+				},
+				"icon": {
+					"title": "Icon",
+					"desc": "The icon to show for the date-picker button."
 				}
 			}
 		},
@@ -98,7 +129,13 @@
 			}
 		},
 		"group": {
-			"name": "Group"
+			"name": "Group",
+			"settings": {
+				"hideAddButton": {
+					"title": "Hide \"Add property\" button",
+					"desc": "Whether to hide the button used to add properties to this group."
+				}
+			}
 		},
 		"markdown": {
 			"name": "Markdown"
