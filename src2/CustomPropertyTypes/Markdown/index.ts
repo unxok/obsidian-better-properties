@@ -15,6 +15,6 @@ export const markdownPropertyType: CustomPropertyType = {
 	renderWidget,
 };
 
-export const markdownSettingsSchema: PropertyTypeSchema = v.optional(
+export const markdownSettingsSchema = v.optional(
 	v.object({})
-);
+) satisfies PropertyTypeSchema;

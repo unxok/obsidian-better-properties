@@ -18,9 +18,9 @@ export const groupPropertyType: CustomPropertyType = {
 	renderWidget,
 };
 
-export const groupSettingsSchema: PropertyTypeSchema = v.optional(
+export const groupSettingsSchema = v.optional(
 	v.object({
 		hideAddButton: v.optional(v.boolean()),
 		collapsed: v.optional(v.boolean()), // not frontend facing
 	})
-);
+) satisfies PropertyTypeSchema;

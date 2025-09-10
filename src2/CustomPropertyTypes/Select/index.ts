@@ -18,7 +18,7 @@ export const selectPropertyType: CustomPropertyType = {
 	renderSettings,
 };
 
-export const selectSettingsSchema: PropertyTypeSchema = v.optional(
+export const selectSettingsSchema = v.optional(
 	v.object({
 		useDefaultStyle: v.optional(v.boolean(), false),
 		optionsType: v.optional(
@@ -74,4 +74,4 @@ export const selectSettingsSchema: PropertyTypeSchema = v.optional(
 		scriptOptionsInlineCode: v.optional(v.string()),
 		scriptOptionsExternalFile: v.optional(v.string()),
 	})
-);
+) satisfies PropertyTypeSchema;

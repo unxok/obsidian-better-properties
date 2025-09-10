@@ -21,6 +21,6 @@ export const togglePropertyType: CustomPropertyType = {
 	renderWidget,
 };
 
-export const toggleSettingsSchema: PropertyTypeSchema = v.optional(
+export const toggleSettingsSchema = v.optional(
 	v.object({})
-);
+) satisfies PropertyTypeSchema;

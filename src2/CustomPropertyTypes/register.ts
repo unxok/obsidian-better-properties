@@ -16,6 +16,7 @@ import { groupPropertyType } from "./Group";
 import { tryParseYaml } from "@/libs/utils/obsidian";
 import { triggerPropertyTypeChange } from "./utils";
 import { colorPropertyType } from "./Color";
+import { ratingPropertyType } from "./Rating";
 
 export const getCustomPropertyTypesArr = (): CustomPropertyType[] => [
 	selectPropertyType,
@@ -25,6 +26,7 @@ export const getCustomPropertyTypesArr = (): CustomPropertyType[] => [
 	// createdPropertyType,
 	groupPropertyType,
 	colorPropertyType,
+	ratingPropertyType,
 ];
 
 export const getCustomPropertyTypesRecord = (): Record<

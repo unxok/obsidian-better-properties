@@ -8,6 +8,7 @@ import { markdownSettingsSchema } from "./Markdown";
 import { createdSettingsSchema } from "./Created";
 import { groupSettingsSchema } from "./Group";
 import { colorSettingsSchema } from "./Color";
+import { ratingSettingsSchema } from "./Rating";
 
 type SettingsBase = v.ObjectSchema<
 	Record<string, PropertyTypeSchema>,
@@ -33,6 +34,7 @@ export const propertySettingsSchema = v.object({
 	// modified: v.optional(v.object({})),
 	group: groupSettingsSchema,
 	color: colorSettingsSchema,
+	rating: ratingSettingsSchema,
 }) satisfies SettingsBase;
 
 export const getDefaultPropertySettings =

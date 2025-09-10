@@ -36,6 +36,19 @@
 		"color": {
 			"name": "Color"
 		},
+		"rating": {
+			"name": "Rating",
+			"settings": {
+				"icon": {
+					"title": "Icon",
+					"desc": "Set a custom icon to use instead of a star."
+				},
+				"count": {
+					"title": "Count",
+					"desc": "Set a custom icon count rather than the default of 5."
+				}
+			}
+		},
 		"select": {
 			"name": "Select",
 			"settings": {

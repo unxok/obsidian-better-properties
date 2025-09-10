@@ -15,4 +15,6 @@ export const colorPropertyType: CustomPropertyType = {
 	renderWidget,
 };
 
-export const colorSettingsSchema: PropertyTypeSchema = v.optional(v.object({}));
+export const colorSettingsSchema = v.optional(
+	v.object({})
+) satisfies PropertyTypeSchema;

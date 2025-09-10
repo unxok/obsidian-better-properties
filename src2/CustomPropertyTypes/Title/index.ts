@@ -17,4 +17,6 @@ export const titlePropertyType: CustomPropertyType = {
 	reservedKeys: [TITLE],
 };
 
-export const titleSettingsSchema: PropertyTypeSchema = v.optional(v.object({}));
+export const titleSettingsSchema = v.optional(
+	v.object({})
+) satisfies PropertyTypeSchema;

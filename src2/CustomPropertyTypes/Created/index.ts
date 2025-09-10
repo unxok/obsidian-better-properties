@@ -18,8 +18,8 @@ export const createdPropertyType: CustomPropertyType = {
 	reservedKeys: [CREATED],
 };
 
-export const createdSettingsSchema: PropertyTypeSchema = v.optional(
+export const createdSettingsSchema = v.optional(
 	v.object({
 		format: v.optional(v.string()),
 	})
-);
+) satisfies PropertyTypeSchema;
