@@ -4,6 +4,7 @@ import {
 	// getPropertyTypeSettings,
 	PropertyWidgetComponent,
 } from "../utils";
+// import { typeKey } from ".";
 
 export const renderWidget: CustomPropertyType["renderWidget"] = ({
 	// plugin,
@@ -14,14 +15,14 @@ export const renderWidget: CustomPropertyType["renderWidget"] = ({
 	// const settings = getPropertyTypeSettings({
 	// 	plugin,
 	// 	property: ctx.key,
-	// 	type: "toggle",
+	// 	type: typeKey,
 	// });
 
 	// const setSettings = (typeSettings: PropertySettings[T]) => {
 	// 	setPropertyTypeSettings({
 	// 		plugin,
 	// 		property: ctx.key,
-	// 		type: 'toggle',
+	// 		type: typeKey,
 	// 		typeSettings,
 	// 	});
 	// };
