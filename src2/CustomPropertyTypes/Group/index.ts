@@ -1,8 +1,9 @@
 import { text } from "~/i18next";
-import { CustomPropertyType } from "../types";
+import { CustomPropertyType, PropertyTypeSchema } from "../types";
 import { registerListeners } from "./registerListeners";
 import { renderSettings } from "./renderSettings";
 import { renderWidget } from "./renderWidget";
+import * as v from "valibot";
 
 export const groupPropertyType: CustomPropertyType = {
 	type: "group",
@@ -16,3 +17,10 @@ export const groupPropertyType: CustomPropertyType = {
 	renderSettings,
 	renderWidget,
 };
+
+export const groupSettingsSchema: PropertyTypeSchema = v.optional(
+	v.object({
+		hideAddButton: v.optional(v.boolean()),
+		collapsed: v.optional(v.boolean()), // not frontend facing
+	})
+);

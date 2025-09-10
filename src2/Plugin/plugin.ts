@@ -100,8 +100,6 @@ export class BetterProperties extends Plugin {
 			patchMetadataEditor(this);
 			patchMetadataCache(this);
 			this.rebuildLeaves();
-
-			console.log("defaults: ", getDefaultPropertySettings());
 		});
 		this.handlePropertyLabelWidth();
 

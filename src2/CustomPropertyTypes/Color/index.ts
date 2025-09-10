@@ -1,8 +1,9 @@
 import { text } from "~/i18next";
-import { CustomPropertyType } from "../types";
+import { CustomPropertyType, PropertyTypeSchema } from "../types";
 import { registerListeners } from "./registerListeners";
 import { renderSettings } from "./renderSettings";
 import { renderWidget } from "./renderWidget";
+import * as v from "valibot";
 
 export const colorPropertyType: CustomPropertyType = {
 	type: "color",
@@ -13,3 +14,5 @@ export const colorPropertyType: CustomPropertyType = {
 	renderSettings,
 	renderWidget,
 };
+
+export const colorSettingsSchema: PropertyTypeSchema = v.optional(v.object({}));

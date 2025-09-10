@@ -1,8 +1,9 @@
 import { text } from "~/i18next";
-import { CustomPropertyType } from "../types";
+import { CustomPropertyType, PropertyTypeSchema } from "../types";
 import { registerListeners } from "./registerListeners";
 import { renderSettings } from "./renderSettings";
 import { renderWidget } from "./renderWidget";
+import * as v from "valibot";
 
 export const togglePropertyType: CustomPropertyType = {
 	type: "toggle",
@@ -13,3 +14,7 @@ export const togglePropertyType: CustomPropertyType = {
 	renderSettings,
 	renderWidget,
 };
+
+export const toggleSettingsSchema: PropertyTypeSchema = v.optional(
+	v.object({})
+);

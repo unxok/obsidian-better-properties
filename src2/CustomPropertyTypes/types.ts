@@ -56,3 +56,11 @@ export type RenderCustomTypeWidget<Value> = (args: {
 	value: Value;
 	ctx: PropertyRenderContext;
 }) => PropertyValueComponent;
+
+export type PropertyTypeSchema = v.OptionalSchema<
+	v.ObjectSchema<
+		Record<string, v.OptionalSchema<v.GenericSchema, unknown>>,
+		undefined
+	>,
+	undefined
+>;

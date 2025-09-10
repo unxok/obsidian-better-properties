@@ -6,6 +6,13 @@ import {
 } from "../utils";
 import { tryCatch } from "~/lib/utils";
 
+/**
+ * TODO
+ * Current implementation is wrong. Instead should behave like the "Frontmatter Title" plugin where it *displays* the value of this property, rather than actually renaming the file.
+ *
+ * Might not even include this type due to the other plugin existing
+ */
+
 export const renderWidget: CustomPropertyType["renderWidget"] = ({
 	plugin,
 	el,

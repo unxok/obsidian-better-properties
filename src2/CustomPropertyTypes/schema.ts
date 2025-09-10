@@ -1,21 +1,18 @@
 import { NonNullishObject } from "~/lib/utils";
-import { PropertySettings } from "./types";
+import { PropertySettings, PropertyTypeSchema } from "./types";
 import * as v from "valibot";
-
-type PropertyTypeSchema = v.OptionalSchema<
-	v.ObjectSchema<
-		Record<string, v.OptionalSchema<v.GenericSchema, unknown>>,
-		undefined
-	>,
-	undefined
->;
+import { selectSettingsSchema } from "./Select";
+import { toggleSettingsSchema } from "./Toggle";
+import { titleSettingsSchema } from "./Title";
+import { markdownSettingsSchema } from "./Markdown";
+import { createdSettingsSchema } from "./Created";
+import { groupSettingsSchema } from "./Group";
+import { colorSettingsSchema } from "./Color";
 
 type SettingsBase = v.ObjectSchema<
 	Record<string, PropertyTypeSchema>,
 	undefined
 >;
-
-// TODO move each type schema to be coupled with the type's widget definition
 
 export const propertySettingsSchema = v.object({
 	general: v.optional(
@@ -28,79 +25,14 @@ export const propertySettingsSchema = v.object({
 			suggestions: v.optional(v.array(v.string())),
 		})
 	),
-	select: v.optional(
-		v.object({
-			useDefaultStyle: v.optional(v.boolean(), false),
-			optionsType: v.optional(
-				v.union([v.literal("manual"), v.literal("dynamic")]),
-				"manual"
-			),
-			manualOptions: v.optional(
-				v.array(
-					v.object({
-						value: v.string(),
-						label: v.optional(v.string()),
-						desc: v.optional(v.string()),
-						bgColor: v.optional(v.string()),
-						textColor: v.optional(v.string()),
-					})
-				),
-				[
-					{
-						value: "",
-						label: "none",
-						bgColor: "var(--better-properties-select-gray)",
-					},
-					{
-						value: "apples",
-						label: "ApPLeS",
-						bgColor: "var(--better-properties-select-red)",
-					},
-					{
-						value: "bananas",
-						bgColor: "var(--better-properties-select-yellow)",
-					},
-					{
-						value: "watermelon",
-						bgColor: "var(--better-properties-select-watermelon)",
-					},
-				]
-			),
-			dynamicOptionsType: v.optional(
-				v.union([
-					v.literal("filesInFolder"),
-					v.literal("filesFromTag"),
-					v.literal("script"),
-				])
-			),
-			folderOptionsPaths: v.optional(v.array(v.string())),
-			folderOptionsIsSubsIncluded: v.optional(v.boolean()),
-			folderOptionsExcludeFolderNote: v.optional(v.boolean()),
-			tagOptionsTags: v.optional(v.array(v.string())),
-			tagOptionsIncludeNested: v.optional(v.boolean()),
-			scriptOptionsType: v.optional(
-				v.union([v.literal("inline"), v.literal("external")])
-			),
-			scriptOptionsInlineCode: v.optional(v.string()),
-			scriptOptionsExternalFile: v.optional(v.string()),
-		})
-	),
-	toggle: v.optional(v.object({})),
-	title: v.optional(v.object({})),
-	markdown: v.optional(v.object({})),
-	created: v.optional(
-		v.object({
-			format: v.optional(v.string()),
-		})
-	),
-	modified: v.optional(v.object({})),
-	group: v.optional(
-		v.object({
-			hideAddButton: v.optional(v.boolean()),
-			collapsed: v.optional(v.boolean()), // not frontend facing
-		})
-	),
-	color: v.optional(v.object({})),
+	select: selectSettingsSchema,
+	toggle: toggleSettingsSchema,
+	title: titleSettingsSchema,
+	markdown: markdownSettingsSchema,
+	created: createdSettingsSchema,
+	// modified: v.optional(v.object({})),
+	group: groupSettingsSchema,
+	color: colorSettingsSchema,
 }) satisfies SettingsBase;
 
 export const getDefaultPropertySettings =
