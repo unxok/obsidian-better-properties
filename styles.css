@@ -130,6 +130,8 @@ body {
 
 	&.better-properties-mod-color {
 		padding: var(--input-padding);
+		height: var(--input-height);
+		/* font-size: var(--metadata-input-font-size); */
 		width: 100%;
 
 		& > .better-properties-color-text-component-container {
@@ -158,6 +160,7 @@ body {
 	&.better-properties-mod-datecustom {
 		padding: var(--input-padding);
 		height: var(--input-height);
+		/* font-size: var(--metadata-input-font-size); */
 		display: flex;
 		align-items: center;
 

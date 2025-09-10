@@ -30,7 +30,7 @@ import { PropertySuggestModal } from "~/Classes/InputSuggest/PropertySuggest";
 import { showPropertySettingsModal } from "~/CustomPropertyTypes/settings";
 import { patchMetadataCache } from "~/MetadataCache";
 import * as v from "valibot";
-import { getDefaultPropertySettings } from "~/CustomPropertyTypes";
+import { openRenameModal } from "~/MetadataEditor/propertyEditorMenu/rename";
 export class BetterProperties extends Plugin {
 	settings: BetterPropertiesSettings = getDefaultSettings();
 
@@ -79,6 +79,21 @@ export class BetterProperties extends Plugin {
 				modal.onChooseItem = (item) => {
 					modal.close();
 					showPropertySettingsModal({
+						plugin: this,
+						property: item.name,
+					});
+				};
+				modal.open();
+			},
+		});
+		this.addCommand({
+			id: "rename-property",
+			name: "Rename property",
+			callback: () => {
+				const modal = new PropertySuggestModal(this);
+				modal.onChooseItem = (item) => {
+					modal.close();
+					openRenameModal({
 						plugin: this,
 						property: item.name,
 					});
