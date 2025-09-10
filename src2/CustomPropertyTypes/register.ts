@@ -5,7 +5,7 @@ import { Notice, setIcon } from "obsidian";
 import { customPropertyTypePrefix, monkeyAroundKey } from "~/lib/constants";
 import { around, dedupe } from "monkey-around";
 import { togglePropertyType } from "./Toggle";
-import { titlePropertyType } from "./Title";
+// import { titlePropertyType } from "./Title";
 import { markdownPropertyType } from "./Markdown";
 import {
 	MetadataTypeManagerRegisteredTypeWidgetsRecord,
@@ -20,7 +20,7 @@ import { colorPropertyType } from "./Color";
 export const customPropertyTypesArr: CustomPropertyType[] = [
 	selectPropertyType,
 	togglePropertyType,
-	titlePropertyType,
+	// titlePropertyType,
 	markdownPropertyType,
 	// createdPropertyType,
 	groupPropertyType,
