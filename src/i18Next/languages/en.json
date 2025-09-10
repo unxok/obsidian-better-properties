@@ -1,0 +1,229 @@
+{
+	"common": {
+		"nothingToSeeHere": "Nothing to see here!",
+		"typeHasNoSettings": "This type has no settings available",
+		"valuePlaceholder": "value",
+		"optionalLabelPlaceholder": "label (optional)",
+		"sort": {
+			"valueAlphabetical": "Value (A - Z)",
+			"valueReverseAlphabetical": "Value (Z - A)",
+			"labelAlphabetical": "Label (A - Z)",
+			"labelReverseAlphabetical": "Label (Z - A)",
+			"nameAlphabetical": "Name (A - Z)",
+			"nameReverseAlphabetical": "Name (Z - A)",
+			"pathAlphabetical": "Path (A - Z)",
+			"pathReverseAlphabetical": "Path (Z - A)",
+			"typeAlphabetical": "Type (A - Z)",
+			"typeReverseAlphabetical": "Type (Z - A)"
+		},
+		"openFile": "Open \"{{fileName}}\"",
+		"dontAskAgain": "Don't ask again",
+		"areYouSure": "Are you sure?",
+		"icon": "Icon",
+		"import": "Import",
+		"reset": "Reset"
+	},
+	"datetime": {
+		"date": "Date",
+		"dateAndTime": "Date & time",
+		"year": "Year",
+		"month": "Month",
+		"day": "Day",
+		"hour": "Hour",
+		"minute": "Minute",
+		"second": "Second"
+	},
+	"customPropertyTypes": {
+		"created": {
+			"name": "Created",
+			"settings": {
+				"format": {
+					"title": "Format",
+					"desc": "Enter a valid momentjs format to display the date with."
+				}
+			}
+		},
+		"color": {
+			"name": "Color"
+		},
+		"rating": {
+			"name": "Rating",
+			"settings": {
+				"icon": {
+					"title": "Icon",
+					"desc": "Set a custom icon to use instead of a star."
+				},
+				"count": {
+					"title": "Count",
+					"desc": "Set a custom icon count rather than the default of 5."
+				}
+			}
+		},
+		"datecustom": {
+			"name": "Date custom",
+			"settings": {
+				"type": {
+					"title": "Type",
+					"desc": "The type of date."
+				},
+				"format": {
+					"title": "Format",
+					"desc": "The format to apply to the date value."
+				},
+				"placeholder": {
+					"title": "Placeholder",
+					"desc": "What text to show when the date is empty."
+				},
+				"icon": {
+					"title": "Icon",
+					"desc": "The icon to show for the date-picker button."
+				}
+			}
+		},
+		"select": {
+			"name": "Select",
+			"settings": {
+				"useDefaultDropdown": {
+					"title": "Use default dropdown",
+					"desc": "Whether to use the default dropdown."
+				},
+				"optionsType": {
+					"title": "Options type",
+					"desc": "Whether to use manually defined options or a different dynamic way of determining available options.",
+					"selectLabelManual": "Manual",
+					"selectLabelDynamic": "Dynamic"
+				},
+				"optionsTypeSettings": {
+					"manual": {
+						"title": "Manual options",
+						"desc": "The manually created choices this select can be set to."
+					},
+					"dynamic": {
+						"title": "Dynamic type",
+						"desc": "Which method to use to dynamically determine available options.",
+						"filesInFolderLabel": "Files from folder",
+						"filesFromTagLabel": "Files from tag",
+						"scriptLabel": "Options from script",
+						"filesInFolder": {
+							"folderPaths": {
+								"title": "Folder paths",
+								"desc": "Notes in the following folders will be options for this select."
+							},
+							"excludeFolderNotes": {
+								"title": "Exclude Folder Notes",
+								"desc": "Whether to exclude notes that have the same name as their folder."
+							}
+						},
+						"filesFromTag": {
+							"tags": {
+								"title": "Tag(s)",
+								"desc": "Notes with all of the following tags will be shown as this select's options."
+							},
+							"includeNestedTags": {
+								"title": "Include Nested Tags",
+								"desc": "Whether to include files containing a nested tag of one of the selected tags. For example, whether to include a note with the tag \"food/fruit\" when \"food\" is a selected tag."
+							}
+						}
+					}
+				}
+			}
+		},
+		"group": {
+			"name": "Group",
+			"settings": {
+				"hideAddButton": {
+					"title": "Hide \"Add property\" button",
+					"desc": "Whether to hide the button used to add properties to this group."
+				}
+			}
+		},
+		"markdown": {
+			"name": "Markdown"
+		},
+		"title": {
+			"name": "Title"
+		},
+		"toggle": {
+			"name": "Toggle"
+		}
+	},
+	"propertySettings": {
+		"generalTabGroupName": "General",
+		"generalSettingsTab": {
+			"name": "Settings",
+			"iconSetting": {
+				"title": "Icon",
+				"desc": "Set a custom icon to show for this property."
+			},
+			"hiddenSetting": {
+				"title": "Hidden",
+				"desc": "Whether to hide this property from view by default."
+			},
+			"defaultValueSetting": {
+				"title": "Default value",
+				"desc": "Automatically set a property to this value if empty. Note, this will be parsed as YAML."
+			},
+			"aliasSetting": {
+				"title": "Alias",
+				"desc": "This will be shown in place of the property name in frontmatter."
+			},
+			"suggestionsSetting": {
+				"title": "Suggestions",
+				"desc": "Override the default suggestions with the following."
+			}
+		},
+		"generalActionsTab": {
+			"name": "Actions",
+			"importSetting": {
+				"title": "Import",
+				"desc": "Paste settings as JSON. This will completely overwrite any existing settings for this property!",
+				"modalTitle": "Import property settings",
+				"modalJsonParseError": "JSON parse error: {{error}}",
+				"modalStrutureParseError": "Parse error: Data does not conform to expected structure. Check developer console for more details.",
+				"modalDataIsValid": "Data is valid",
+				"modalImportSuccess": "Property settings updated"
+			},
+			"exportSetting": {
+				"title": "Export",
+				"desc": "Copy this property's settings as JSON.",
+				"copySuccessNotice": "Copied settings to clipboard"
+			},
+			"resetSetting": {
+				"title": "Reset",
+				"desc": "Completely wipe all settings for this property.",
+				"modalTitle": "Are you sure?",
+				"modalDesc": "This will reset this property's settings which cannot be undone"
+			}
+		},
+		"typesTabGroup": {
+			"name": "Type settings",
+			"unsupportedTypeTitle": "Unsupported type",
+			"unsupportedTypeDesc": "The assigned type of \"{{widget.type}}\" is not supported for type-specific settings. This is likely because it is a built-in type or it was added by a different plugin than Better Properties"
+		}
+	},
+	"metadataEditor": {
+		"moreButton": {
+			"showHidden": "Show hidden",
+			"sort": "Sort"
+		},
+		"propertyMenu": {
+			"delete": {
+				"modalTitle": "Are you sure?",
+				"modalDesc": "This action will permanently remove the property \"{{property}}\" from all notes, delete property configurations in this plugin's settings, and cannot be undone."
+			},
+			"icon": {
+				"modalTitle": "Change icon for property \"{{property}}\"",
+				"iconSetting": {
+					"title": "Icon",
+					"desc": "The icon to show for this property."
+				}
+			},
+			"rename": {
+				"modalTitle": "Rename property",
+				"modalDesc": "Enter a new name to change all instances of the \"{{property}}\" property in all notes' properties and this plugin's settings",
+				"newPropertyNamePlaceholder": "new property name",
+				"nameExistsWarning": "Warning: The name you entered already exists. If you continue, the existing configuration for that name will be overwritten with the configuration from \"{{property}}\""
+			}
+		}
+	}
+}

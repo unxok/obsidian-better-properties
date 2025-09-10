@@ -1,12 +1,20 @@
-import { en } from "./en";
-import { es } from "./es";
+import { NestedPaths } from "~/lib/utils";
+import en from "./languages/en.json";
 
-const namespace = "better-properties-plugin";
+const ns = "better-properties";
 
-/* Add bundles here */
-i18next.addResourceBundle("en", namespace, en);
-i18next.addResourceBundle("es", namespace, es);
-/********************/
+// add language packs below
 
-// export const getFixedT = () => i18next.getFixedT(null, namespace);
-export const text = i18next.getFixedT(null, namespace);
+window.i18next.addResourceBundle("en", ns, en); // English
+
+//////////////////
+
+const fixedT = window.i18next.getFixedT(null, ns);
+
+type EN = typeof en;
+export const text = <T extends NestedPaths<EN>>(
+	key: T,
+	variables?: Record<string, string>
+): string => {
+	return fixedT(key, variables);
+};

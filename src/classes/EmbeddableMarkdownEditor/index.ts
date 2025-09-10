@@ -24,7 +24,7 @@
  * - @author Unxok
  */
 
-import { App, Constructor, Scope, TFile } from "obsidian";
+import { App, Constructor, MarkdownView, Scope, TFile } from "obsidian";
 import { MarkdownScrollableEditView, WidgetEditorView } from "obsidian-typings";
 import { EditorSelection, Extension, Prec } from "@codemirror/state";
 import { EditorView, keymap, placeholder, ViewUpdate } from "@codemirror/view";
@@ -43,11 +43,12 @@ function resolveEditorPrototype(app: App) {
 	const MarkdownEditor = Object.getPrototypeOf(
 		Object.getPrototypeOf(widgetEditorView.editMode!)
 	);
-
 	// Unload to remove the temporary editor
 	widgetEditorView.unload();
 
-	return MarkdownEditor.constructor as Constructor<MarkdownScrollableEditView>;
+	const c =
+		MarkdownEditor.constructor as Constructor<MarkdownScrollableEditView>;
+	return c;
 }
 
 interface MarkdownEditorProps {
@@ -110,8 +111,6 @@ export class EmbeddableMarkdownEditor
 	options: MarkdownEditorProps;
 	initial_value: string;
 	scope: Scope;
-	//
-	setActiveLeafCalls: number = 0;
 
 	/**
 	 * Construct the editor
@@ -132,6 +131,7 @@ export class EmbeddableMarkdownEditor
 			onMarkdownScroll: () => {},
 			getMode: () => "source",
 		});
+		// super(app, container, new MyView(app, app.workspace.activeEditor!.leaf));
 		this.options = { ...defaultProperties, ...options };
 		this.initial_value = this.options.value!;
 		this.scope = new Scope(this.app.scope);
@@ -161,19 +161,56 @@ export class EmbeddableMarkdownEditor
 		this.owner.file = f;
 
 		this.set(options.value || "", true);
+		// this.register(
+		// 	around(this.app.workspace, {
+		// 		// @ts-expect-error (Incorrectly matches the deprecated setActiveLeaf method)
+		// 		setActiveLeaf:
+		// 			(
+		// 				oldMethod: (
+		// 					leaf: WorkspaceLeaf,
+		// 					params?: { focus?: boolean }
+		// 				) => void
+		// 			) =>
+		// 			(leaf: WorkspaceLeaf, params: { focus?: boolean }) => {
+		// 				// If the editor is currently focused, prevent the workspace setting the focus to a workspaceLeaf instead
+		// 				if (!this.activeCM.hasFocus)
+		// 					oldMethod.call(this.app.workspace, leaf, params);
+		// 			},
+		// 	})
+		// );
+
+		let containgMarkdownView: MarkdownView | null = null;
+		window.setTimeout(() => {
+			app.workspace.iterateAllLeaves((leaf) => {
+				if (!(leaf.view instanceof MarkdownView)) return;
+				if (!leaf.containerEl.contains(this.containerEl)) return;
+				containgMarkdownView = leaf.view;
+			});
+		}, 0);
 
 		// Execute onBlur when the editor loses focus
-		if (this.options.onBlur !== defaultProperties.onBlur) {
-			this.editor!.cm.contentDOM.addEventListener("blur", () => {
-				this.options.onBlur(this);
-			});
-		}
+		this.editor!.cm.contentDOM.addEventListener("blur", async () => {
+			if (app.workspace.activeEditor === this.owner) {
+				if (containgMarkdownView === null) {
+					throw new Error(
+						"The MarkdownView containing this editor was not found"
+					);
+				}
+				// @ts-expect-error
+				app.workspace._activeEditor = containgMarkdownView;
+				app.workspace.activeEditor = containgMarkdownView;
+			}
+
+			this.app.keymap.popScope(this.scope);
+			await this.options.onBlur(this);
+		});
 
 		// Whenever the editor is focused, set the activeEditor to the mocked view (this.owner)
 		// This allows for the editorCommands to actually work
-		this.editor!.cm.contentDOM.addEventListener("focusin", () => {
+		this.editor!.cm.contentDOM.addEventListener("focusin", async () => {
 			this.app.keymap.pushScope(this.scope);
-			this.app.workspace.activeEditor = this.owner;
+			// this.app.workspace.activeEditor = this.owner;
+
 			if (this.options.onFocus === defaultProperties.onFocus) return;
 			this.options.onFocus(this);
 		});
@@ -189,12 +226,18 @@ export class EmbeddableMarkdownEditor
 				),
 			});
 		}
+
+		// test
 	}
 
-	onUpdate(update: ViewUpdate, changed: boolean) {
-		super.onUpdate(update, changed);
-		if (changed) this.options.onChange(update, this);
+	get value() {
+		return this.editor!.cm.state.doc.toString();
 	}
+
+	// onUpdate(update: ViewUpdate, changed: boolean) {
+	// 	super.onUpdate(update, changed);
+	// 	if (changed) this.options.onChange(update, this);
+	// }
 
 	onEditorClick(event: MouseEvent, element?: HTMLElement): void {
 		super.onEditorClick(event, element);

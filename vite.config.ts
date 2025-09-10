@@ -1,21 +1,25 @@
 import { UserConfig, defineConfig } from "vite";
 import path from "path";
 import builtins from "builtin-modules";
+// import { analyzer } from "vite-bundle-analyzer";
 
 export default defineConfig(async ({ mode }) => {
 	const { resolve } = path;
 	const prod = mode === "production";
 
 	return {
-		plugins: [],
+		plugins: [
+			// analyzer()
+		],
 		resolve: {
 			alias: {
-				"@": path.resolve(__dirname, "./src"),
+				"~": path.resolve(__dirname, "./src"),
 			},
 		},
 		build: {
 			lib: {
 				entry: resolve(__dirname, "src/main.ts"),
+				cssFileName: "styles",
 				name: "main",
 				fileName: () => "main.js",
 				formats: ["cjs"],
@@ -23,6 +27,7 @@ export default defineConfig(async ({ mode }) => {
 			minify: prod,
 			sourcemap: prod ? false : "inline",
 			cssCodeSplit: false,
+			// cssCodeSplit: true,
 			emptyOutDir: false,
 			outDir: "",
 			rollupOptions: {
@@ -32,6 +37,7 @@ export default defineConfig(async ({ mode }) => {
 				output: {
 					entryFileNames: "main.js",
 					assetFileNames: "styles.css",
+					// assetFileNames: "[name].css",/
 				},
 				external: [
 					"obsidian",
