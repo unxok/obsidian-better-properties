@@ -1,8 +1,9 @@
-import { Notice, Setting, setTooltip, TextAreaComponent } from "obsidian";
+import { App, Notice, Setting, setTooltip, TextAreaComponent } from "obsidian";
 import { VerticalTabModal } from "~/Classes/VerticalTabModal";
 import BetterProperties from "~/main";
 import {
 	deletePropertySettings,
+	findKeyValueByDotNotation,
 	getPropertySettings,
 	getPropertyTypeSettings,
 	setPropertySettings,
@@ -10,8 +11,8 @@ import {
 	withoutTypeWidgetPrefix,
 } from "./utils";
 import { CustomPropertyType, CustomTypeKey, PropertySettings } from "./types";
-import { customPropertyTypesRecord } from "./register";
-import { tryCatch } from "~/lib/utils";
+import { getCustomPropertyTypesRecord } from "./register";
+import { iterateFileMetadata, tryCatch } from "~/lib/utils";
 import { refreshPropertyEditor } from "~/MetadataEditor";
 import { Icon } from "~/lib/types/icons";
 import { ConfirmationModal } from "~/Classes/ConfirmationModal";
@@ -22,6 +23,7 @@ import { text } from "~/i18next";
 import { obsidianText } from "~/i18next/obsidian";
 import { MultiselectComponent } from "~/Classes/MultiSelect";
 import * as v from "valibot";
+import { InputSuggest, Suggestion } from "~/Classes/InputSuggest";
 
 export class PropertySettingsModal extends VerticalTabModal {
 	public propertyType: string = "unset";
@@ -65,7 +67,7 @@ export class PropertySettingsModal extends VerticalTabModal {
 						.then((tab) => {
 							if (
 								withoutTypeWidgetPrefix(propertyType) in
-								customPropertyTypesRecord
+								getCustomPropertyTypesRecord()
 							)
 								return;
 							// select general tab because current type is unsupported
@@ -190,14 +192,73 @@ const renderGeneralSettings = (modal: PropertySettingsModal) => {
 			text("propertySettings.generalSettingsTab.suggestionsSetting.desc")
 		)
 		.then((s) => {
-			new MultiselectComponent(s)
+			const multiselect = new MultiselectComponent(s);
+
+			multiselect
 				.setValues(settings.suggestions ?? [])
 				.onChange((v) => {
 					settings.suggestions = [...v];
 				})
+				.addSuggest((inputEl) => {
+					return new PropertyValueSuggest(
+						plugin.app,
+						inputEl,
+						property,
+						multiselect
+					);
+				})
 				.renderValues();
 		});
 };
+
+class PropertyValueSuggest extends InputSuggest<string> {
+	constructor(
+		app: App,
+		inputEl: HTMLDivElement | HTMLInputElement,
+		public property: string,
+		public multiselect: MultiselectComponent
+	) {
+		super(app, inputEl);
+	}
+
+	getSuggestions(query: string): string[] {
+		const fromValuesSet = this.getPropertyValues();
+		this.multiselect.values.forEach((v) => {
+			fromValuesSet.delete(v);
+		});
+		const suggestions = Array.from(fromValuesSet);
+		if (!query) {
+			return suggestions;
+		}
+		const lower = query.toLowerCase();
+		return suggestions.filter((v) => v.toLowerCase().includes(lower));
+	}
+
+	parseSuggestion(value: string): Suggestion {
+		return {
+			title: value,
+		};
+	}
+
+	getPropertyValues(): Set<string> {
+		const set = new Set<string>();
+		iterateFileMetadata({
+			vault: this.app.vault,
+			metadataCache: this.app.metadataCache,
+			callback: ({ metadata }) => {
+				if (!metadata?.frontmatter) return;
+				const { value } = findKeyValueByDotNotation(
+					this.property,
+					metadata.frontmatter
+				);
+				const str = value?.toString();
+				if (!str) return;
+				set.add(str);
+			},
+		});
+		return set;
+	}
+}
 
 const handleActionsTab = ({
 	modal,
@@ -378,7 +439,7 @@ const handlePropertyTypeTab = ({
 }) => {
 	const { tabContentEl, plugin, property, propertyType } = modal;
 	const customPropertyType: CustomPropertyType | undefined =
-		customPropertyTypesRecord[
+		getCustomPropertyTypesRecord()[
 			withoutTypeWidgetPrefix(widget.type) as CustomTypeKey
 		];
 	tab

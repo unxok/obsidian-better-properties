@@ -17,7 +17,7 @@ import { tryParseYaml } from "@/libs/utils/obsidian";
 import { triggerPropertyTypeChange } from "./utils";
 import { colorPropertyType } from "./Color";
 
-export const customPropertyTypesArr: CustomPropertyType[] = [
+export const getCustomPropertyTypesArr = (): CustomPropertyType[] => [
 	selectPropertyType,
 	togglePropertyType,
 	// titlePropertyType,
@@ -27,16 +27,17 @@ export const customPropertyTypesArr: CustomPropertyType[] = [
 	colorPropertyType,
 ];
 
-export const customPropertyTypesRecord: Record<
+export const getCustomPropertyTypesRecord = (): Record<
 	CustomTypeKey,
 	CustomPropertyType
-> = customPropertyTypesArr.reduce((acc, cur) => {
-	acc[cur.type] = cur;
-	return acc;
-}, {} as Record<CustomTypeKey, CustomPropertyType>);
+> =>
+	getCustomPropertyTypesArr().reduce((acc, cur) => {
+		acc[cur.type] = cur;
+		return acc;
+	}, {} as Record<CustomTypeKey, CustomPropertyType>);
 
 export const registerCustomPropertyTypeWidgets = (plugin: BetterProperties) => {
-	customPropertyTypesArr.forEach((customPropertyType) => {
+	getCustomPropertyTypesArr().forEach((customPropertyType) => {
 		// @ts-expect-error TODO obsidian-typings issue I think
 		const render: PropertyWidget["render"] = (el, value, ctx) => {
 			return customPropertyType.renderWidget({ plugin, el, value, ctx });
