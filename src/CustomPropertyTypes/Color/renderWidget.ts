@@ -1,51 +1,52 @@
 import { CustomPropertyType } from "../types";
-import {
-	// getPropertyTypeSettings,
-	PropertyWidgetComponent,
-} from "../utils";
+import { PropertyWidgetComponentNew } from "../utils";
 import { ColorTextComponent } from "~/Classes/ColorTextComponent";
+import BetterProperties from "~/main";
+import { PropertyRenderContext } from "obsidian-typings";
 
 export const renderWidget: CustomPropertyType["renderWidget"] = ({
-	// plugin,
+	plugin,
 	el,
 	ctx,
-	value: initialValue,
+	value,
 }) => {
-	// const settings = getPropertyTypeSettings({
-	// 	plugin,
-	// 	property: ctx.key,
-	// 	type: "toggle",
-	// });
-
-	// const setSettings = (typeSettings: PropertySettings[T]) => {
-	// 	setPropertyTypeSettings({
-	// 		plugin,
-	// 		property: ctx.key,
-	// 		type: 'toggle',
-	// 		typeSettings,
-	// 	});
-	// };
-
-	const value = initialValue?.toString() ?? "";
-
-	const container = el.createDiv({
-		cls: "better-properties-property-value-inner better-properties-mod-color",
-	});
-
-	const colorTextComponent = new ColorTextComponent(container)
-		.setValue(value)
-		.onChange((b) => {
-			ctx.onChange(b);
-		});
-
-	return new PropertyWidgetComponent(
-		"color",
-		container,
-		(v) => {
-			colorTextComponent.setValue(v?.toString() ?? "");
-		},
-		() => {
-			colorTextComponent.colorInputEl.focus();
-		}
-	);
+	return new ColorTypeComponent(plugin, el, value, ctx);
 };
+
+class ColorTypeComponent extends PropertyWidgetComponentNew<"color", string> {
+	type = "color" as const;
+	parseValue = (v: unknown) => v?.toString() ?? "";
+
+	colorText: ColorTextComponent;
+
+	constructor(
+		plugin: BetterProperties,
+		el: HTMLElement,
+		value: unknown,
+		ctx: PropertyRenderContext
+	) {
+		super(plugin, el, value, ctx);
+
+		const parsed = this.parseValue(value);
+		this.colorText = new ColorTextComponent(el)
+			.setValue(parsed)
+			.onChange((v) => {
+				this.setValue(v);
+			});
+
+		this.onFocus = () => {
+			this.colorText.colorInputEl.focus();
+		};
+	}
+
+	getValue(): string {
+		return this.colorText.getValue() ?? "";
+	}
+
+	setValue(value: unknown): void {
+		if (this.colorText.getValue() !== value) {
+			this.colorText.setValue(this.parseValue(value));
+		}
+		super.setValue(value);
+	}
+}

@@ -72,11 +72,12 @@ export const registerCustomPropertyTypeWidgets = (plugin: BetterProperties) => {
 export const wrapAllPropertyTypeWidgets = (plugin: BetterProperties) => {
 	const { registeredTypeWidgets } = plugin.app.metadataTypeManager;
 	Object.values(registeredTypeWidgets).forEach((widget) => {
-		// console.log(widget.name(), widget.render);
 		const removePatch = around(widget, {
 			render(old) {
 				return dedupe(monkeyAroundKey, old, (containerEl, value, ctx) => {
 					const toReturn = old(containerEl, value, ctx);
+
+					containerEl.setAttribute("data-property-type", widget.type);
 
 					const settings = getPropertyTypeSettings({
 						plugin,

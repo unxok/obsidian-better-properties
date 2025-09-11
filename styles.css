@@ -74,8 +74,8 @@ body {
 	}
 }
 
-.better-properties-property-value-inner {
-	&.better-properties-mod-select {
+.metadata-property-value {
+	&[data-property-type="better-properties:select"] {
 		padding: var(--size-2-2);
 		display: flex;
 		justify-content: start;
@@ -121,14 +121,12 @@ body {
 		}
 	}
 
-	&.better-properties-mod-toggle {
-		display: flex;
-		justify-content: center;
-		align-items: center;
+	&[data-property-type="better-properties:toggle"] {
 		padding: var(--input-padding);
+		height: var(--input-height);
 	}
 
-	&.better-properties-mod-color {
+	&[data-property-type="better-properties:color"] {
 		padding: var(--input-padding);
 		height: var(--input-height);
 		/* font-size: var(--metadata-input-font-size); */
@@ -145,17 +143,19 @@ body {
 		}
 	}
 
-	&.better-properties-mod-slider {
-		padding: var(--input-padding);
-		height: var(--input-height);
-		display: flex;
-		align-items: center;
-		font-size: var(--metadata-input-font-size);
-		gap: var(--size-2-3);
+	&[data-property-type="better-properties:slider"] {
+		& > .better-properties-slider-container {
+			padding: var(--input-padding);
+			height: var(--input-height);
+			display: flex;
+			align-items: center;
+			font-size: var(--metadata-input-font-size);
+			gap: var(--size-2-3);
 
-		&[data-better-properties-slider-hide-limit="true"] {
-			& > .better-properties-slider-limit {
-				display: none;
+			&[data-better-properties-slider-hide-limit="true"] {
+				& > .better-properties-slider-limit {
+					display: none;
+				}
 			}
 		}
 	}
@@ -172,7 +172,7 @@ body {
 		}
 	}
 
-	&.better-properties-mod-datecustom {
+	&[data-property-type="better-properties:datecustom"] {
 		padding: var(--input-padding);
 		height: var(--input-height);
 		/* font-size: var(--metadata-input-font-size); */
@@ -211,7 +211,7 @@ body {
 		}
 	}
 
-	&.better-properties-mod-rating {
+	&[data-property-type="better-properties:rating"] {
 		padding: var(--input-padding);
 		height: var(--input-height);
 
@@ -245,7 +245,7 @@ body {
 		}
 	}
 
-	&.better-properties-mod-markdown {
+	&[data-property-type="better-properties:markdown"] {
 		padding: var(--input-padding);
 		&:has(.collapse-indicator.collapse-icon) {
 			padding: 0 16px; /* 10px is width of svg-icon and 5px is padding-inline-end of .collapse-indicator plus an extra 1px for space... unfortunately these are manually defined in default stylesheet */
@@ -254,10 +254,14 @@ body {
 		font-family: var(--font-text) !important;
 		line-height: var(--line-height-normal) I !important;
 
-		& .markdown-source-view.mod-cm6.is-readable-line-width .cm-content,
+		& > .cm-s-obsidian.mod-cm6.node-insert-event.is-live-preview {
+			width: 100%;
+		}
+
+		/* & .markdown-source-view.mod-cm6.is-readable-line-width .cm-content,
 		& .mod-cm6.is-readable-line-width .cm-content {
 			width: unset !important;
-		}
+		} */
 
 		& div.cm-gutters {
 			display: none !important;
@@ -300,7 +304,8 @@ body {
 }
 
 .metadata-property:has(
-		> .metadata-property-value > .better-properties-mod-rating
+		> .metadata-property-value
+			> &[data-property-type="better-properties:rating"]
 	) {
 	& > .metadata-property-value:focus-within {
 		background-color: var(--metadata-input-background);

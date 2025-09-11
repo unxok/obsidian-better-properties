@@ -1,64 +1,65 @@
 import { obsidianText } from "~/i18next/obsidian";
 import { CustomPropertyType } from "../types";
-import {
-	// getPropertyTypeSettings,
-	PropertyWidgetComponent,
-} from "../utils";
+import { PropertyWidgetComponentNew } from "../utils";
 // import { EmbeddableMarkdownEditor } from "~/Classes/EmbeddableMarkdownEditor/original";
 import { EmbeddableMarkdownEditor } from "~/Classes/EmbeddableMarkdownEditor";
+import { PropertyRenderContext } from "obsidian-typings";
+import BetterProperties from "~/main";
 
 export const renderWidget: CustomPropertyType["renderWidget"] = ({
 	plugin,
 	el,
 	ctx,
-	value: initialValue,
+	value,
 }) => {
-	// const settings = getPropertyTypeSettings({
-	// 	plugin,
-	// 	property: ctx.key,
-	// 	type: "toggle",
-	// });
-
-	const value = typeof initialValue === "string" ? initialValue : "";
-
-	const container = el.createDiv({
-		cls: "better-properties-property-value-inner better-properties-mod-markdown metadata-input-longtext",
-	});
-
-	const emde = new EmbeddableMarkdownEditor(
-		plugin.app,
-		container,
-		{
-			value,
-			onBlur: (editor) => {
-				const val = editor.editor?.getValue() ?? "";
-				ctx.onChange(val);
-			},
-			placeholder: obsidianText("properties.label-no-value"),
-		},
-		ctx.sourcePath
-	);
-
-	const cmp = new PropertyWidgetComponent(
-		"markdown",
-		container,
-		(v) => {
-			emde.set(v?.toString() ?? "", true);
-		},
-		() => {
-			emde.focus();
-		}
-	);
-
-	// window.setTimeout(() => {
-	// 	plugin.app.workspace.iterateAllLeaves((leaf) => {
-	// 		if (!(leaf.view instanceof MarkdownView)) return;
-	// 		if (!leaf.containerEl.contains(el)) return;
-	// 		leaf.view.metadataEditor.register(() => {
-	// 			emde.destroy();
-	// 		});
-	// 	});
-	// }, 0);
-
-	return cmp;
+	return new MarkdownTypeComponent(plugin, el, value, ctx);
 };
+
+class MarkdownTypeComponent extends PropertyWidgetComponentNew<
+	"markdown",
+	string
+> {
+	type = "markdown" as const;
+	parseValue = (v: unknown) => v?.toString() ?? "";
+
+	embeddedMarkdownEditor: EmbeddableMarkdownEditor;
+
+	constructor(
+		plugin: BetterProperties,
+		el: HTMLElement,
+		value: unknown,
+		ctx: PropertyRenderContext
+	) {
+		super(plugin, el, value, ctx);
+
+		const parsed = this.parseValue(value);
+		this.embeddedMarkdownEditor = new EmbeddableMarkdownEditor(
+			plugin.app,
+			el,
+			{
+				value: parsed,
+				onBlur: (editor) => {
+					const val = editor.editor?.getValue() ?? "";
+					this.setValue(val);
+				},
+				placeholder: obsidianText("properties.label-no-value"),
+			},
+			ctx.sourcePath
+		);
+
+		this.onFocus = () => {
+			this.embeddedMarkdownEditor.focus();
+		};
+	}
+
+	getValue(): string {
+		return this.embeddedMarkdownEditor.editor?.getValue() ?? "";
+	}
+
+	setValue(value: unknown): void {
+		if (this.embeddedMarkdownEditor.editor?.getValue() !== value) {
+			this.embeddedMarkdownEditor.editor?.setValue(this.parseValue(value));
+		}
+		super.setValue(value);
+	}
+}

@@ -1,53 +1,53 @@
 import { ToggleComponent } from "obsidian";
 import { CustomPropertyType } from "../types";
-import {
-	// getPropertyTypeSettings,
-	PropertyWidgetComponent,
-} from "../utils";
-import { typeKey } from ".";
-// import { typeKey } from ".";
+import { PropertyWidgetComponentNew } from "../utils";
+import { PropertyRenderContext } from "obsidian-typings";
+import BetterProperties from "~/main";
 
 export const renderWidget: CustomPropertyType["renderWidget"] = ({
-	// plugin,
+	plugin,
 	el,
 	ctx,
-	value: initialValue,
+	value,
 }) => {
-	// const settings = getPropertyTypeSettings({
-	// 	plugin,
-	// 	property: ctx.key,
-	// 	type: typeKey,
-	// });
+	return new ToggleTypeComponent(plugin, el, value, ctx);
+};
 
-	// const setSettings = (typeSettings: PropertySettings[T]) => {
-	// 	setPropertyTypeSettings({
-	// 		plugin,
-	// 		property: ctx.key,
-	// 		type: typeKey,
-	// 		typeSettings,
-	// 	});
-	// };
+class ToggleTypeComponent extends PropertyWidgetComponentNew<
+	"toggle",
+	boolean
+> {
+	type = "toggle" as const;
+	parseValue = (v: unknown) => !!v;
 
-	const value = !!initialValue;
+	toggle: ToggleComponent;
 
-	const container = el.createDiv({
-		cls: "better-properties-property-value-inner better-properties-mod-toggle",
-	});
+	constructor(
+		plugin: BetterProperties,
+		el: HTMLElement,
+		value: unknown,
+		ctx: PropertyRenderContext
+	) {
+		super(plugin, el, value, ctx);
 
-	const toggle = new ToggleComponent(container)
-		.setValue(value)
-		.onChange((b) => {
-			ctx.onChange(b);
+		const parsed = this.parseValue(value);
+		this.toggle = new ToggleComponent(el).setValue(parsed).onChange((b) => {
+			this.setValue(b);
 		});
 
-	return new PropertyWidgetComponent(
-		typeKey,
-		container,
-		(v) => {
-			toggle.setValue(!!v);
-		},
-		() => {
-			toggle.toggleEl.focus();
+		this.onFocus = () => {
+			this.toggle.toggleEl.focus();
+		};
+	}
+
+	getValue(): boolean {
+		return !!this.toggle?.getValue();
+	}
+
+	setValue(value: unknown): void {
+		if (this.toggle.getValue() !== value) {
+			this.toggle.setValue(this.parseValue(value));
 		}
-	);
-};
+		super.setValue(value);
+	}
+}

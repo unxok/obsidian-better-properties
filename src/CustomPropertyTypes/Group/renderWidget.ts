@@ -2,9 +2,7 @@ import { displayTooltip, Menu, setIcon, stringifyYaml } from "obsidian";
 import { CustomPropertyType, CustomTypeKey } from "../types";
 import {
 	flashElement,
-	getPropertyTypeSettings,
-	PropertyWidgetComponent,
-	setPropertyTypeSettings,
+	PropertyWidgetComponentNew,
 	triggerPropertyTypeChange,
 	updateNestedObject,
 } from "../utils";
@@ -12,8 +10,10 @@ import { Icon } from "~/lib/types/icons";
 import BetterProperties from "~/main";
 import { obsidianText } from "~/i18next/obsidian";
 import { ConfirmationModal } from "~/Classes/ConfirmationModal";
-import { PropertyWidget } from "obsidian-typings";
+import { PropertyRenderContext, PropertyWidget } from "obsidian-typings";
 import { arrayMove } from "~/lib/utils";
+
+//TODO this code is pretty messy
 
 export const typeKey = "group" satisfies CustomTypeKey;
 
@@ -21,126 +21,132 @@ export const renderWidget: CustomPropertyType["renderWidget"] = ({
 	plugin,
 	el,
 	ctx,
-	value: initialValue,
+	value,
 }) => {
-	const settings = getPropertyTypeSettings({
-		plugin,
-		property: ctx.key,
-		type: typeKey,
-	});
+	return new GroupTypeComponent(plugin, el, value, ctx);
+};
 
-	const value = (
-		typeof initialValue === "object" &&
-		!Array.isArray(initialValue) &&
-		initialValue !== null
-			? initialValue
-			: {}
-	) as Record<string, unknown>;
+class GroupTypeComponent extends PropertyWidgetComponentNew<"group", object> {
+	type = "group" as const;
+	parseValue = (v: unknown) => {
+		if (typeof v !== "object" || !v) return {};
+		return v;
+	};
 
-	const propertyEl = el;
+	constructor(
+		plugin: BetterProperties,
+		el: HTMLElement,
+		value: unknown,
+		ctx: PropertyRenderContext
+	) {
+		super(plugin, el, value, ctx);
+		this.render();
+	}
 
-	const collapseCls = "better-properties-properties-group-collapse-indicator";
-	const keyEl = propertyEl.parentElement?.querySelector(
-		".metadata-property-key"
-	);
+	render(): void {
+		const parsed = this.parseValue(this.value);
+		const settings = this.getSettings();
+		this.renderCollapseIndicator(settings);
 
-	const existingCollapseIndicator: HTMLElement | undefined | null =
-		keyEl?.querySelector(`& > .${collapseCls}`);
+		const container = this.el.createDiv({
+			cls: "better-properties-property-value-inner better-properties-mod-group metadata-container",
+			attr: {
+				tabindex: "0",
+			},
+		});
 
-	existingCollapseIndicator?.remove();
+		const propertiesEl = container.createDiv({
+			cls: "better-properties-property-group-properties",
+		});
 
-	const collapseIndicator = keyEl?.createDiv({
-		cls: collapseCls,
-	});
-	if (collapseIndicator) {
-		setIcon(collapseIndicator, "lucide-chevron-down" satisfies Icon);
-
-		const setAttr = (isCollapsed: boolean) => {
-			const attr = "data-better-properties-is-collapsed";
-			isCollapsed
-				? collapseIndicator.setAttribute(attr, "true")
-				: collapseIndicator.removeAttribute(attr);
+		const renderSub = (itemKey: string, itemValue: unknown) => {
+			renderSubProperty({
+				itemKey,
+				itemValue,
+				parentKey: this.ctx.key,
+				parentValue: { ...parsed },
+				parentOnChange: (v) => this.ctx.onChange(v),
+				plugin: this.plugin,
+				propertiesEl,
+				sourcePath: this.ctx.sourcePath,
+			});
 		};
 
-		setAttr(!!settings.collapsed);
-
-		collapseIndicator.addEventListener("click", async () => {
-			settings.collapsed = !settings.collapsed;
-			setAttr(settings.collapsed);
-			setPropertyTypeSettings({
-				plugin,
-				property: ctx.key,
-				type: typeKey,
-				typeSettings: {
-					...settings,
-				},
+		if (!settings.hideAddButton) {
+			const addPropertyEl = container.createDiv({
+				cls: "better-properties-property-group-add-property metadata-add-button text-icon-button",
 			});
-		});
-	}
-
-	const container = propertyEl.createDiv({
-		cls: "better-properties-property-value-inner better-properties-mod-group metadata-container",
-		attr: {
-			tabindex: "0",
-		},
-	});
-	const propertiesEl = container.createDiv({
-		cls: "better-properties-property-group-properties",
-	});
-
-	if (!settings.hideAddButton) {
-		const addPropertyEl = container.createDiv({
-			cls: "better-properties-property-group-add-property metadata-add-button text-icon-button",
-		});
-		setIcon(
-			addPropertyEl.createSpan({ cls: "text-button-icon" }),
-			"lucide-plus" satisfies Icon
-		);
-		addPropertyEl.createSpan({
-			cls: "text-button-label",
-			text: obsidianText("properties.label-add-property-button"),
-		});
-		addPropertyEl.addEventListener("click", () => {
-			renderSubProperty({
-				itemKey: "",
-				itemValue: null,
-				parentKey: ctx.key,
-				parentValue: { ...value },
-				parentOnChange: (v) => ctx.onChange(v),
-				plugin,
-				propertiesEl,
-				sourcePath: ctx.sourcePath,
+			setIcon(
+				addPropertyEl.createSpan({ cls: "text-button-icon" }),
+				"lucide-plus" satisfies Icon
+			);
+			addPropertyEl.createSpan({
+				cls: "text-button-label",
+				text: obsidianText("properties.label-add-property-button"),
 			});
-		});
-	}
+			addPropertyEl.addEventListener("click", () => {
+				renderSub("", null);
+			});
+		}
 
-	for (const [itemKey, itemValue] of Object.entries(value)) {
-		renderSubProperty({
-			itemKey,
-			itemValue,
-			parentKey: ctx.key,
-			parentValue: { ...value },
-			parentOnChange: (v) => ctx.onChange(v),
-			plugin,
-			propertiesEl,
-			sourcePath: ctx.sourcePath,
-		});
-	}
+		for (const [itemKey, itemValue] of Object.entries(parsed)) {
+			renderSub(itemKey, itemValue);
+		}
 
-	return new PropertyWidgetComponent(
-		"group",
-		container,
-		(v) => {
-			ctx.onChange(v);
-		},
-		() => {
+		this.onFocus = () => {
 			const el: HTMLElement | null = propertiesEl.querySelector(
 				"& > .metadata-property"
 			);
 			el?.focus();
+		};
+	}
+
+	renderCollapseIndicator(settings: ReturnType<typeof this.getSettings>): void {
+		const collapseCls = "better-properties-properties-group-collapse-indicator";
+		const keyEl = this.el.parentElement?.querySelector(
+			".metadata-property-key"
+		);
+
+		const existingCollapseIndicator: HTMLElement | undefined | null =
+			keyEl?.querySelector(`& > .${collapseCls}`);
+
+		existingCollapseIndicator?.remove();
+
+		const collapseIndicator = keyEl?.createDiv({
+			cls: collapseCls,
+		});
+		if (collapseIndicator) {
+			setIcon(collapseIndicator, "lucide-chevron-down" satisfies Icon);
+
+			const setAttr = (isCollapsed: boolean) => {
+				const attr = "data-better-properties-is-collapsed";
+				isCollapsed
+					? collapseIndicator.setAttribute(attr, "true")
+					: collapseIndicator.removeAttribute(attr);
+			};
+
+			setAttr(!!settings.collapsed);
+
+			collapseIndicator.addEventListener("click", () => {
+				settings.collapsed = !settings.collapsed;
+				setAttr(settings.collapsed);
+				this.setSettings({ ...settings });
+			});
 		}
-	);
-};
+	}
+
+	getValue(): object {
+		return this.parseValue(this.value);
+	}
+
+	setValue(value: unknown): void {
+		super.setValue(value);
+		const parsed = this.parseValue(value);
+		if (JSON.stringify(parsed) !== JSON.stringify(this.getValue())) {
+			this.render();
+		}
+	}
+}
 
 const renderSubProperty = ({
 	itemKey,
@@ -422,10 +428,6 @@ const renderSubProperty = ({
 		return;
 	};
 	keyInputEl.addEventListener("blur", async (e) => {
-		// if ((e.target as EventTarget & HTMLInputElement).value === "") {
-		// 	propertyEl.remove();
-		// 	return;
-		// }
 		await updateItemKey(e);
 	});
 	keyInputEl.addEventListener("keydown", async (e) => {

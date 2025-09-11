@@ -2,7 +2,10 @@ import BetterProperties from "~/main";
 import { CustomTypeKey, PropertySettings } from "./types";
 import { getDefaultPropertySettings } from "./schema";
 // import { PropertyValueComponent as IPropertyValueComponent } from "obsidian";
-import { PropertyWidgetComponentBase } from "obsidian-typings";
+import {
+	PropertyRenderContext,
+	PropertyWidgetComponentBase,
+} from "obsidian-typings";
 import { customPropertyTypePrefix } from "~/lib/constants";
 import { MetadataTypeManager } from "obsidian-typings";
 import { NonNullishObject } from "~/lib/utils";
@@ -141,6 +144,55 @@ export class PropertyWidgetComponent implements PropertyWidgetComponentBase {
 
 	focus(): void {
 		this.onFocus();
+	}
+}
+
+export abstract class PropertyWidgetComponentNew<
+	Type extends CustomTypeKey,
+	Value
+> implements PropertyWidgetComponent
+{
+	containerEl: HTMLElement;
+	onFocus: () => void = () => {
+		throw new Error("Method not implemented");
+	};
+
+	abstract type: Type;
+	abstract parseValue: (value: NonNullable<unknown>) => Value;
+	abstract getValue(): Value;
+
+	constructor(
+		public plugin: BetterProperties,
+		public el: HTMLElement,
+		public value: unknown,
+		public ctx: PropertyRenderContext
+	) {
+		this.containerEl = el;
+	}
+
+	focus(): void {
+		this.onFocus();
+	}
+
+	setValue(value: unknown): void {
+		this.ctx.onChange(value);
+	}
+
+	getSettings(): ReturnType<typeof getPropertyTypeSettings<Type>> {
+		return getPropertyTypeSettings({
+			plugin: this.plugin,
+			property: this.ctx.key,
+			type: this.type,
+		});
+	}
+
+	setSettings(settings: PropertySettings[Type]): void {
+		setPropertyTypeSettings({
+			plugin: this.plugin,
+			property: this.ctx.key,
+			type: this.type,
+			typeSettings: settings,
+		});
 	}
 }
 

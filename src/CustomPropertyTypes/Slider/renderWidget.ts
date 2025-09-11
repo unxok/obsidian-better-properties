@@ -1,71 +1,82 @@
 import { SliderComponent } from "obsidian";
 import { CustomPropertyType } from "../types";
-import { getPropertyTypeSettings, PropertyWidgetComponent } from "../utils";
-import { typeKey } from ".";
+import { PropertyWidgetComponentNew } from "../utils";
 import { clampNumber } from "~/lib/utils";
+import { PropertyRenderContext } from "obsidian-typings";
+import BetterProperties from "~/main";
 
 export const renderWidget: CustomPropertyType["renderWidget"] = ({
 	plugin,
 	el,
 	ctx,
-	value: initialValue,
+	value,
 }) => {
-	const settings = getPropertyTypeSettings({
-		plugin,
-		property: ctx.key,
-		type: typeKey,
-	});
+	return new SliderTypeComponent(plugin, el, value, ctx);
+};
 
-	// const setSettings = (typeSettings: PropertySettings[T]) => {
-	// 	setPropertyTypeSettings({
-	// 		plugin,
-	// 		property: ctx.key,
-	// 		type: typeKey,
-	// 		typeSettings,
-	// 	});
-	// };
+class SliderTypeComponent extends PropertyWidgetComponentNew<"slider", number> {
+	type = "slider" as const;
+	parseValue = (v: unknown) => {
+		const n = Number(v);
+		return Number.isNaN(n) ? 0 : n;
+	};
 
-	const min = settings.min ?? 0;
-	const max = settings.max ?? 100;
-	const step = settings.step ?? 1;
-	const clamp = (x: unknown) => clampNumber(Number(x), min, max);
+	slider: SliderComponent;
 
-	const value = clamp(initialValue);
+	constructor(
+		plugin: BetterProperties,
+		el: HTMLElement,
+		value: unknown,
+		ctx: PropertyRenderContext
+	) {
+		super(plugin, el, value, ctx);
 
-	const container = el.createDiv({
-		cls: "better-properties-property-value-inner better-properties-mod-slider",
-	});
+		const settings = this.getSettings();
+		const min = settings.min ?? 0;
+		const max = settings.max ?? 100;
+		const step = settings.step ?? 1;
+		const clamp = (x: unknown) => clampNumber(Number(x), min, max);
 
-	container.createDiv({
-		cls: "better-properties-slider-limit",
-		text: min.toString(),
-	});
+		const parsed = clamp(this.parseValue(value));
 
-	if (settings.hideLimits) {
-		container.setAttribute("data-better-properties-slider-hide-limit", "true");
+		const container = el.createDiv({
+			cls: "better-properties-slider-container",
+			attr: {
+				"data-better-properties-slider-hide-limit": settings.hideLimits ?? null,
+			},
+		});
+
+		container.createDiv({
+			cls: "better-properties-slider-limit",
+			text: min.toString(),
+		});
+
+		this.slider = new SliderComponent(container)
+			.setValue(parsed)
+			.onChange((v) => {
+				this.setValue(v);
+			})
+			.setLimits(min, max, step)
+			.setDynamicTooltip();
+
+		container.createDiv({
+			cls: "better-properties-slider-limit",
+			text: max.toString(),
+		});
+
+		this.onFocus = () => {
+			this.slider.sliderEl.focus();
+		};
 	}
 
-	const slider = new SliderComponent(container)
-		.setValue(value)
-		.onChange((b) => {
-			ctx.onChange(b);
-		})
-		.setLimits(min, max, step)
-		.setDynamicTooltip();
+	getValue(): number {
+		return this.slider.getValue();
+	}
 
-	container.createDiv({
-		cls: "better-properties-slider-limit",
-		text: max.toString(),
-	});
-
-	return new PropertyWidgetComponent(
-		typeKey,
-		container,
-		(v) => {
-			slider.setValue(clamp(v));
-		},
-		() => {
-			slider.sliderEl.focus();
+	setValue(value: unknown): void {
+		if (this.slider.getValue() !== value) {
+			this.slider.setValue(this.parseValue(value));
 		}
-	);
-};
+		super.setValue(value);
+	}
+}
