@@ -19,6 +19,7 @@ import { ratingPropertyType } from "./Rating";
 import { dateCustomPropertyType } from "./DateCustom";
 import { syncTryCatch } from "~/lib/utils";
 import { sliderPropertyType } from "./Slider";
+import { timePropertyType } from "./Time";
 
 export const getCustomPropertyTypesArr = (): CustomPropertyType[] => [
 	selectPropertyType,
@@ -31,6 +32,7 @@ export const getCustomPropertyTypesArr = (): CustomPropertyType[] => [
 	ratingPropertyType,
 	dateCustomPropertyType,
 	sliderPropertyType,
+	timePropertyType,
 ];
 
 export const getCustomPropertyTypesRecord = (): Record<

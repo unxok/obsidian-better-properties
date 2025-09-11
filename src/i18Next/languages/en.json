@@ -67,6 +67,10 @@
 				}
 			}
 		},
+		"time": {
+			"name": "Time",
+			"settings": {}
+		},
 		"rating": {
 			"name": "Rating",
 			"settings": {
