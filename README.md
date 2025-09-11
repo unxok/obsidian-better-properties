@@ -25,13 +25,12 @@ This plugin adds many different properties-related features, such as new propert
 - [Contributing](#contributing)
 - [Docs](#docs)
 - [Features](#features)
+
 <div style="display: flex; gap: 5px; flex-wrap: wrap;">
 
-<!-- ![property types example](./demo-assets/property-types-example.png)
+![property types example](./demo-assets/new-types.png)
 
-![property types](./demo-assets/property-types.png)
-
-![property types](./demo-assets/property-menu.png) -->
+![property types example](./demo-assets/property-menu.png)
 
 </div>
 
@@ -100,7 +99,7 @@ My goal is to not _need_ to create official documentation for the features of th
 - [ ] Tags Category
   - [Add a property type for tags / multiple tag-based properties](https://forum.obsidian.md/t/add-a-property-type-for-tags-multiple-tag-based-properties/63810/15)
   - [Properties: Recognize tags in text property when formatted as “#tags”](https://forum.obsidian.md/t/properties-recognize-tags-in-text-property-when-formatted-as-tags/63812/40)
-- [ ] Time
+- [x] Time
 - [ ] Title\* `NOT COMMITTED`
   - Mimics what the plugin [Frontmatter Title](obsidian://show-plugin?id=obsidian-front-matter-title-plugin) does, so is it worth it to include these features in this plugin?
 - [x] Toggle
