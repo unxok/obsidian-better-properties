@@ -4,6 +4,7 @@ import {
 	// getPropertyTypeSettings,
 	PropertyWidgetComponent,
 } from "../utils";
+import { typeKey } from ".";
 // import { typeKey } from ".";
 
 export const renderWidget: CustomPropertyType["renderWidget"] = ({
@@ -40,7 +41,7 @@ export const renderWidget: CustomPropertyType["renderWidget"] = ({
 		});
 
 	return new PropertyWidgetComponent(
-		"toggle",
+		typeKey,
 		container,
 		(v) => {
 			toggle.setValue(!!v);

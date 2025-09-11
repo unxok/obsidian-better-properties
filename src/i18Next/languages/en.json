@@ -46,6 +46,27 @@
 		"color": {
 			"name": "Color"
 		},
+		"slider": {
+			"name": "Slider",
+			"settings": {
+				"min": {
+					"title": "Minimum",
+					"desc": "The lowest value the slider can be set to."
+				},
+				"max": {
+					"title": "Maximum",
+					"desc": "The highest value the slider can be set to."
+				},
+				"step": {
+					"title": "Step",
+					"desc": "The amount the slider value will change when moved left or right one time."
+				},
+				"hideLimits": {
+					"title": "Hide limits",
+					"desc": "Whether to hide the limits of the slider"
+				}
+			}
+		},
 		"rating": {
 			"name": "Rating",
 			"settings": {

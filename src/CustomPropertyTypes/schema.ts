@@ -10,6 +10,7 @@ import { groupSettingsSchema } from "./Group";
 import { colorSettingsSchema } from "./Color";
 import { ratingSettingsSchema } from "./Rating";
 import { dateCustomSettingsSchema } from "./DateCustom";
+import { sliderSettingsSchema } from "./Slider";
 
 type SettingsBase = v.ObjectSchema<
 	Record<string, PropertyTypeSchema>,
@@ -37,6 +38,7 @@ export const propertySettingsSchema = v.object({
 	color: colorSettingsSchema,
 	rating: ratingSettingsSchema,
 	datecustom: dateCustomSettingsSchema,
+	slider: sliderSettingsSchema,
 }) satisfies SettingsBase;
 
 export const getDefaultPropertySettings =

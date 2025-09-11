@@ -145,6 +145,21 @@ body {
 		}
 	}
 
+	&.better-properties-mod-slider {
+		padding: var(--input-padding);
+		height: var(--input-height);
+		display: flex;
+		align-items: center;
+		font-size: var(--metadata-input-font-size);
+		gap: var(--size-2-3);
+
+		&[data-better-properties-slider-hide-limit="true"] {
+			& > .better-properties-slider-limit {
+				display: none;
+			}
+		}
+	}
+
 	&.better-properties-mod-created {
 		pointer-events: none;
 	}
