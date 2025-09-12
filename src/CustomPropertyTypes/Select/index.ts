@@ -63,6 +63,7 @@ export const selectSettingsSchema = v.optional(
 				v.literal("script"),
 			])
 		),
+		dynamicEmptyLabel: v.optional(v.string()),
 		folderOptionsPaths: v.optional(v.array(v.string())),
 		folderOptionsIsSubsIncluded: v.optional(v.boolean()),
 		folderOptionsExcludeFolderNote: v.optional(v.boolean()),

@@ -75,6 +75,7 @@ class SelectTypeComponent extends PropertyWidgetComponentNew<"select", string> {
 	}
 
 	validateOption(value: string): boolean {
+		if (!value) return true;
 		return !!this.options.find((o) => o.value === value);
 	}
 
@@ -291,7 +292,7 @@ const getFolderFilesOptions = ({
 	propertyName: string;
 	folderOptionsPaths: string[];
 }): Option[] => {
-	return (folderOptionsPaths ?? []).reduce((acc, path) => {
+	const opts = (folderOptionsPaths ?? []).reduce((acc, path) => {
 		const folderPath = path === "" || path === undefined ? "/" : path;
 		const folder = plugin.app.vault.getFolderByPath(folderPath);
 		if (!folder) {
@@ -312,6 +313,8 @@ const getFolderFilesOptions = ({
 		}, [] as Option[]);
 		return [...acc, ...options];
 	}, [] as Option[]);
+	console.log("folder opts: ", opts);
+	return opts;
 };
 
 const getTagOptions = ({

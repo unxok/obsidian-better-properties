@@ -1,13 +1,4 @@
-import {
-	Setting,
-	Menu,
-	App,
-	ValueComponent,
-	TextComponent,
-	ColorComponent,
-	Modal,
-	setTooltip,
-} from "obsidian";
+import { Setting, Menu, App, Modal, setTooltip } from "obsidian";
 import { typeKey } from ".";
 import { CustomPropertyType, PropertySettings } from "../types";
 import { getPropertyTypeSettings, setPropertyTypeSettings } from "../utils";
@@ -89,7 +80,7 @@ export const renderSettings: CustomPropertyType["renderSettings"] = ({
 						"customPropertyTypes.select.settings.optionsType.selectLabelDynamic"
 					),
 				} satisfies Record<Exclude<OptionsType, undefined>, string>)
-				.setValue(settings?.optionsType ?? "")
+				.setValue(settings?.optionsType ?? ("manual" satisfies OptionsType))
 				.onChange((v) => {
 					const opt = v as OptionsType;
 					optionsTypeSettings.showGroup(opt);
@@ -113,6 +104,10 @@ export const renderSettings: CustomPropertyType["renderSettings"] = ({
 			})
 		)
 		.addGroup("dynamic", (group) => {
+			if (!settings.dynamicOptionsType) {
+				settings.dynamicOptionsType = "filesInFolder";
+			}
+			group.addSetting((s) => s.setName("Empty label"));
 			group.addSetting((s) =>
 				s
 					.setName(
