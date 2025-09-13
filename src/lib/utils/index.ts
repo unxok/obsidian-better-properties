@@ -422,3 +422,105 @@ export const compareFunc = new Intl.Collator(undefined, {
 	sensitivity: "base",
 	numeric: false,
 }).compare;
+
+export const makeDraggable = ({
+	itemEl,
+	dragHandleEl,
+	parentEl,
+	itemsQuerySelector,
+	onDragEnd,
+}: {
+	itemEl: HTMLElement;
+	dragHandleEl: HTMLElement;
+	parentEl: HTMLElement;
+	itemsQuerySelector: string;
+	onDragEnd: (oldIndex: number, newIndex: number) => void;
+}) => {
+	dragHandleEl.addEventListener("mousedown", (mousedownEvent) => {
+		const dragGhostHiddenClass = "drag-ghost-hidden";
+		const dragGhostEl = createDiv({ cls: "drag-reorder-ghost" });
+
+		let isSetupDone = false;
+
+		const { width, height, left, top } = itemEl.getBoundingClientRect();
+		let otherPropertyElsPositions: {
+			top: number;
+			bottom: number;
+			el: Element;
+		}[] = [];
+
+		let originalIndex = -1;
+		let currentIndex = -1;
+
+		const dragThreshold = 25;
+		let hasDragged = false;
+
+		const onMouseMove = (mousemoveEvent: MouseEvent) => {
+			if (!hasDragged) {
+				hasDragged =
+					Math.abs(mousedownEvent.pageX - mousemoveEvent.pageX) >
+						dragThreshold ||
+					Math.abs(mousedownEvent.pageY - mousemoveEvent.pageY) > dragThreshold;
+			}
+			if (!hasDragged) return;
+			if (!isSetupDone) {
+				const propertyElClone = itemEl.cloneNode(true);
+				itemEl.classList.add(dragGhostHiddenClass);
+				if (!(propertyElClone instanceof HTMLElement)) {
+					throw new Error("Cloned property element is not an HTMLElement");
+				}
+				propertyElClone.style.width = width + "px";
+				propertyElClone.style.height = height + "px";
+				dragGhostEl.appendChild(propertyElClone);
+				window.activeDocument.body.appendChild(dragGhostEl);
+				window.activeDocument.body.classList.add("is-grabbing");
+				isSetupDone = true;
+				// TODO this centers cursor over icon, but native properties drag from the exact point the mouse went down
+				dragGhostEl.style.left = `calc(${left}px - var(--icon-size))`;
+				dragGhostEl.style.top = `calc(${top}px - var(--icon-size))`;
+
+				parentEl.querySelectorAll(itemsQuerySelector)?.forEach((el, i) => {
+					if (el === itemEl) {
+						originalIndex = i;
+						currentIndex = i;
+					}
+					const { top, bottom } = el.getBoundingClientRect();
+					otherPropertyElsPositions.push({ top, bottom, el });
+				});
+			}
+			dragGhostEl.style.transform = `translate(${
+				mousemoveEvent.pageX - left
+			}px, ${mousemoveEvent.pageY - top}px)`;
+
+			otherPropertyElsPositions.forEach(({ top, bottom, el }, i) => {
+				const middle = (top + bottom) / 2;
+				const shouldSwapUp = i < currentIndex && mousemoveEvent.pageY < middle;
+				const shouldSwapDown =
+					i > currentIndex && mousemoveEvent.pageY > middle;
+				if (!shouldSwapUp && !shouldSwapDown) return;
+				el.insertAdjacentElement(
+					shouldSwapUp ? "beforebegin" : "afterend",
+					itemEl
+				);
+				otherPropertyElsPositions = arrayMove(
+					otherPropertyElsPositions,
+					currentIndex,
+					i
+				);
+				currentIndex = i;
+			});
+		};
+		const onMouseUp = () => {
+			dragGhostEl.remove();
+			itemEl.classList.remove(dragGhostHiddenClass);
+			document.removeEventListener("mousemove", onMouseMove);
+			document.removeEventListener("mouseup", onMouseUp);
+			window.activeDocument.body.classList.remove("is-grabbing");
+
+			if (originalIndex === -1 || currentIndex === -1) return;
+			onDragEnd(originalIndex, currentIndex);
+		};
+		document.addEventListener("mousemove", onMouseMove);
+		document.addEventListener("mouseup", onMouseUp);
+	});
+};

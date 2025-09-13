@@ -240,7 +240,7 @@ export const updateNestedObject = (
 	obj: Record<string, unknown>,
 	key: string,
 	value: unknown
-) => {
+): Record<string, unknown> => {
 	const keys = key.split(".");
 	let current = obj;
 

@@ -345,7 +345,6 @@ const showImportModal = (modal: PropertySettingsModal) => {
 					validityEl.textContent = text(
 						"propertySettings.generalActionsTab.importSetting.modalStrutureParseError"
 					);
-					console.log(parsed.issues);
 					return;
 				}
 

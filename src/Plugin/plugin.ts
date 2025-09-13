@@ -317,7 +317,6 @@ class Script {
 
 	async refresh() {
 		this.component.unload();
-		console.log(this.component);
 		this.el.empty();
 		this.containerEl = this.el.createDiv();
 		await this.runCode(this.source);

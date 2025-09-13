@@ -43,7 +43,6 @@ class DateTypeComponent extends PropertyWidgetComponentNew<
 	}
 
 	render(): void {
-		console.log("render");
 		this.containerEl.empty();
 		const settings = this.getSettings();
 		const isEmptyAttr = "data-better-properties-is-empty";

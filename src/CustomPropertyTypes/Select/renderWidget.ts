@@ -313,7 +313,6 @@ const getFolderFilesOptions = ({
 		}, [] as Option[]);
 		return [...acc, ...options];
 	}, [] as Option[]);
-	console.log("folder opts: ", opts);
 	return opts;
 };
 
