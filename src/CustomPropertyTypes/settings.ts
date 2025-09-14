@@ -1,5 +1,5 @@
 import { App, Notice, Setting, setTooltip, TextAreaComponent } from "obsidian";
-import { VerticalTabModal } from "~/Classes/VerticalTabModal";
+import { VerticalTabModal } from "~/classes/VerticalTabModal";
 import BetterProperties from "~/main";
 import {
 	deletePropertySettings,
@@ -15,15 +15,15 @@ import { getCustomPropertyTypesRecord } from "./register";
 import { iterateFileMetadata, tryCatch } from "~/lib/utils";
 import { refreshPropertyEditor } from "~/MetadataEditor";
 import { Icon } from "~/lib/types/icons";
-import { ConfirmationModal } from "~/Classes/ConfirmationModal";
 import { propertySettingsSchema } from "./schema";
-import { IconSuggest } from "~/Classes/InputSuggest/IconSuggest";
+import { IconSuggest } from "~/classes/InputSuggest/IconSuggest";
 import { PropertyWidget } from "obsidian-typings";
 import { text } from "~/i18next";
 import { obsidianText } from "~/i18next/obsidian";
-import { MultiselectComponent } from "~/Classes/MultiSelect";
+import { MultiselectComponent } from "~/classes/MultiSelect";
 import * as v from "valibot";
-import { InputSuggest, Suggestion } from "~/Classes/InputSuggest";
+import { InputSuggest, Suggestion } from "~/classes/InputSuggest";
+import { ConfirmationModal } from "~/classes/ConfirmationModal";
 
 export class PropertySettingsModal extends VerticalTabModal {
 	public propertyType: string = "unset";

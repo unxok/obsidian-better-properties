@@ -120,12 +120,16 @@
 				},
 				"optionsTypeSettings": {
 					"manual": {
-						"title": "Manual options",
-						"desc": "The manually created choices this select can be set to."
+						"allowCreateTitle": "Allow creating options",
+						"allowCreateDesc": "Whether to show a button to create a new option in the popup menu.",
+						"optionsTitle": "Manual options",
+						"optionsDesc": "The manually created choices this select can be set to."
 					},
 					"dynamic": {
-						"title": "Dynamic type",
-						"desc": "Which method to use to dynamically determine available options.",
+						"typeTitle": "Dynamic type",
+						"typeDesc": "Which method to use to dynamically determine available options.",
+						"emptyLabelTitle": "Empty label",
+						"emptyLabelDesc": "The text that will show when the value is empty.",
 						"filesInFolderLabel": "Files from folder",
 						"filesFromTagLabel": "Files from tag",
 						"scriptLabel": "Options from script",

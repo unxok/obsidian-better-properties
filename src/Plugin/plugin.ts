@@ -26,15 +26,37 @@ import {
 	patchMetadataEditor,
 } from "~/MetadataEditor";
 import { PropertyWidget } from "obsidian-typings";
-import { PropertySuggestModal } from "~/Classes/InputSuggest/PropertySuggest";
+import { PropertySuggestModal } from "~/classes/InputSuggest/PropertySuggest";
 import { showPropertySettingsModal } from "~/CustomPropertyTypes/settings";
 import { patchMetadataCache } from "~/MetadataCache";
 import * as v from "valibot";
 import { openRenameModal } from "~/MetadataEditor/propertyEditorMenu/rename";
 export class BetterProperties extends Plugin {
 	settings: BetterPropertiesSettings = getDefaultSettings();
-
 	disabledTypeWidgets: Record<string, PropertyWidget> = {};
+
+	async onload(): Promise<void> {
+		await this.loadSettings();
+		this.addSettingTab(new BetterPropertiesSettingsTab(this));
+		registerCustomPropertyTypeWidgets(this);
+		wrapAllPropertyTypeWidgets(this);
+		sortAndFilterRegisteredTypeWidgets(this);
+		this.setupCommands();
+		this.app.workspace.onLayoutReady(async () => {
+			customizePropertyEditorMenu(this);
+			patchMetadataEditor(this);
+			patchMetadataCache(this);
+			this.rebuildLeaves();
+		});
+		this.handlePropertyLabelWidth();
+
+		this.registerMarkdownCodeBlockProcessor("script", (source, el, ctx) => {
+			new Script(this, el, source, ctx);
+		});
+		window.CodeMirror.defineMode("script", (config) =>
+			window.CodeMirror.getMode(config, "javascript")
+		);
+	}
 
 	rebuildLeaves(): void {
 		this.app.workspace.iterateAllLeaves((leaf) => {
@@ -101,29 +123,6 @@ export class BetterProperties extends Plugin {
 				modal.open();
 			},
 		});
-	}
-
-	async onload(): Promise<void> {
-		await this.loadSettings();
-		this.addSettingTab(new BetterPropertiesSettingsTab(this));
-		registerCustomPropertyTypeWidgets(this);
-		wrapAllPropertyTypeWidgets(this);
-		sortAndFilterRegisteredTypeWidgets(this);
-		this.setupCommands();
-		this.app.workspace.onLayoutReady(async () => {
-			customizePropertyEditorMenu(this);
-			patchMetadataEditor(this);
-			patchMetadataCache(this);
-			this.rebuildLeaves();
-		});
-		this.handlePropertyLabelWidth();
-
-		this.registerMarkdownCodeBlockProcessor("script", (source, el, ctx) => {
-			new Script(this, el, source, ctx);
-		});
-		window.CodeMirror.defineMode("script", (config) =>
-			window.CodeMirror.getMode(config, "javascript")
-		);
 	}
 
 	handlePropertyLabelWidth(): void {

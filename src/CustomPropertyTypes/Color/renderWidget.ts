@@ -1,6 +1,6 @@
 import { CustomPropertyType } from "../types";
 import { PropertyWidgetComponentNew } from "../utils";
-import { ColorTextComponent } from "~/Classes/ColorTextComponent";
+import { ColorTextComponent } from "~/classes/ColorTextComponent";
 import BetterProperties from "~/main";
 import { PropertyRenderContext } from "obsidian-typings";
 

@@ -1,5 +1,5 @@
 import { TextComponent, setIcon, ButtonComponent } from "obsidian";
-import { ConfirmationModal } from "~/Classes/ConfirmationModal";
+import { ConfirmationModal } from "~/classes/ConfirmationModal";
 import { text } from "~/i18next";
 import { obsidianText } from "~/i18next/obsidian";
 import { Icon } from "~/lib/types/icons";

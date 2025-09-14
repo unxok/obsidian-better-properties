@@ -42,4 +42,8 @@ declare module "obsidian" {
 	interface MetadataTypeManager extends BaseMetadataTypeManager {
 		on(name: "changed", cb: (property: string | undefined) => void): EventRef;
 	}
+
+	interface Menu {
+		scrollEl: HTMLDivElement;
+	}
 }

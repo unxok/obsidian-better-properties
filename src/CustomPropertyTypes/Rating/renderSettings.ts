@@ -3,7 +3,7 @@ import { CustomPropertyType } from "../types";
 import { text } from "~/i18next";
 import { typeKey } from ".";
 import { getPropertyTypeSettings, setPropertyTypeSettings } from "../utils";
-import { IconSuggest } from "~/Classes/InputSuggest/IconSuggest";
+import { IconSuggest } from "~/classes/InputSuggest/IconSuggest";
 
 export const renderSettings: CustomPropertyType["renderSettings"] = ({
 	modal,

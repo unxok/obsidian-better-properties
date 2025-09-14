@@ -2,24 +2,24 @@ import { Setting, Menu, App, Modal, setTooltip } from "obsidian";
 import { typeKey } from ".";
 import { CustomPropertyType, PropertySettings } from "../types";
 import { getPropertyTypeSettings, setPropertyTypeSettings } from "../utils";
-import { ListSetting } from "~/Classes/ListSetting";
+import { ListSetting } from "~/classes/ListSetting";
 import { Icon } from "~/lib/types/icons";
 import BetterProperties from "~/main";
-import { FolderSuggest } from "~/Classes/InputSuggest/FolderSuggest";
-import { TagSuggest } from "~/Classes/InputSuggest/TagSuggest";
-import { MultiselectComponent } from "~/Classes/MultiSelect";
+import { FolderSuggest } from "~/classes/InputSuggest/FolderSuggest";
+import { TagSuggest } from "~/classes/InputSuggest/TagSuggest";
+import { MultiselectComponent } from "~/classes/MultiSelect";
 import {
 	ConditionalSettings,
 	SettingsGroup,
-} from "~/Classes/ConditionalSettings";
+} from "~/classes/ConditionalSettings";
 import { text } from "~/i18next";
-import { InputSuggest, Suggestion } from "~/Classes/InputSuggest";
+import { InputSuggest, Suggestion } from "~/classes/InputSuggest";
 import {
 	selectColors,
 	selectBackgroundCssVar,
 	backgroundCssVar,
 } from "~/lib/constants";
-import { ColorTextComponent } from "~/Classes/ColorTextComponent";
+import { ColorTextComponent } from "~/classes/ColorTextComponent";
 
 type Settings = NonNullable<PropertySettings["select"]>;
 type OptionsType = NonNullable<Settings["optionsType"]>;
@@ -90,7 +90,14 @@ export const renderSettings: CustomPropertyType["renderSettings"] = ({
 
 	const optionsTypeSettings = new ConditionalSettings<OptionsType>(parentEl);
 	optionsTypeSettings
-		.addGroup("manual", (group) =>
+		.addGroup("manual", (group) => {
+			group.addSetting((s) => {
+				s.setHeading().setName(
+					text(
+						"customPropertyTypes.select.settings.optionsType.selectLabelManual"
+					)
+				);
+			});
 			group.addSetting((s) => {
 				s.settingEl.remove();
 				group.set.add(
@@ -101,23 +108,64 @@ export const renderSettings: CustomPropertyType["renderSettings"] = ({
 						defaultOption,
 					})
 				);
-			})
-		)
+			});
+			group.addSetting((s) => {
+				s.setName(
+					text(
+						"customPropertyTypes.select.settings.optionsTypeSettings.manual.allowCreateTitle"
+					)
+				)
+					.setDesc(
+						text(
+							"customPropertyTypes.select.settings.optionsTypeSettings.manual.allowCreateDesc"
+						)
+					)
+					.addToggle((cmp) =>
+						cmp.setValue(settings.manualAllowCreate ?? false).onChange((b) => {
+							settings.manualAllowCreate = b;
+						})
+					);
+			});
+		})
 		.addGroup("dynamic", (group) => {
 			if (!settings.dynamicOptionsType) {
 				settings.dynamicOptionsType = "filesInFolder";
 			}
-			group.addSetting((s) => s.setName("Empty label"));
+			group.addSetting((s) => {
+				s.setHeading().setName(
+					text(
+						"customPropertyTypes.select.settings.optionsType.selectLabelDynamic"
+					)
+				);
+			});
 			group.addSetting((s) =>
 				s
 					.setName(
 						text(
-							"customPropertyTypes.select.settings.optionsTypeSettings.dynamic.title"
+							"customPropertyTypes.select.settings.optionsTypeSettings.dynamic.emptyLabelTitle"
 						)
 					)
 					.setDesc(
 						text(
-							"customPropertyTypes.select.settings.optionsTypeSettings.dynamic.desc"
+							"customPropertyTypes.select.settings.optionsTypeSettings.dynamic.emptyLabelDesc"
+						)
+					)
+					.addText((cmp) => {
+						cmp.setValue(settings.dynamicEmptyLabel ?? "").onChange((v) => {
+							settings.dynamicEmptyLabel = v;
+						});
+					})
+			);
+			group.addSetting((s) =>
+				s
+					.setName(
+						text(
+							"customPropertyTypes.select.settings.optionsTypeSettings.dynamic.typeTitle"
+						)
+					)
+					.setDesc(
+						text(
+							"customPropertyTypes.select.settings.optionsTypeSettings.dynamic.typeDesc"
 						)
 					)
 					.addDropdown((dropdown) => {
@@ -183,12 +231,12 @@ const renderManualOptionsSetting = ({
 	const list = new ListSetting<Option>(parentEl)
 		.setName(
 			text(
-				"customPropertyTypes.select.settings.optionsTypeSettings.manual.title"
+				"customPropertyTypes.select.settings.optionsTypeSettings.manual.optionsTitle"
 			)
 		)
 		.setDesc(
 			text(
-				"customPropertyTypes.select.settings.optionsTypeSettings.manual.desc"
+				"customPropertyTypes.select.settings.optionsTypeSettings.manual.optionsDesc"
 			)
 		)
 		.setValue(settings.manualOptions ?? [])
@@ -282,6 +330,8 @@ const renderManualOptionsSetting = ({
 					suggest.setValue(
 						opt.bgColor ?? "var(--better-properties-select-custom)"
 					);
+
+					// TODO use ComboBox instead
 				})
 				.addDeleteButton();
 		})

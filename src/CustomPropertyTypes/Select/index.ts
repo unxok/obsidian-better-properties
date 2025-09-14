@@ -25,6 +25,7 @@ export const selectSettingsSchema = v.optional(
 			v.union([v.literal("manual"), v.literal("dynamic")]),
 			"manual"
 		),
+		manualAllowCreate: v.optional(v.boolean()),
 		manualOptions: v.optional(
 			v.array(
 				v.object({

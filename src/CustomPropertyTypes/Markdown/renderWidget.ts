@@ -2,7 +2,7 @@ import { obsidianText } from "~/i18next/obsidian";
 import { CustomPropertyType } from "../types";
 import { PropertyWidgetComponentNew } from "../utils";
 // import { EmbeddableMarkdownEditor } from "~/Classes/EmbeddableMarkdownEditor/original";
-import { EmbeddableMarkdownEditor } from "~/Classes/EmbeddableMarkdownEditor";
+import { EmbeddableMarkdownEditor } from "~/classes/EmbeddableMarkdownEditor";
 import { PropertyRenderContext } from "obsidian-typings";
 import BetterProperties from "~/main";
 

@@ -10,7 +10,7 @@ import BetterProperties from "~/main";
 import { obsidianText } from "~/i18next/obsidian";
 import { PropertyRenderContext } from "obsidian-typings";
 import { arrayMove, makeDraggable } from "~/lib/utils";
-import { PropertyComponent } from "~/Classes/PropertyComponent";
+import { PropertyComponent } from "~/classes/PropertyComponent";
 
 export const typeKey = "group" satisfies CustomTypeKey;
 

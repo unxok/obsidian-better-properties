@@ -1,6 +1,6 @@
 import { Setting } from "obsidian";
-import { ConfirmationModal } from "~/Classes/ConfirmationModal";
-import { IconSuggest } from "~/Classes/InputSuggest/IconSuggest";
+import { ConfirmationModal } from "~/classes/ConfirmationModal";
+import { IconSuggest } from "~/classes/InputSuggest/IconSuggest";
 import { getPropertyTypeSettings } from "~/CustomPropertyTypes";
 import { updatePropertyTypeSettings } from "~/CustomPropertyTypes/utils";
 import BetterProperties from "~/main";

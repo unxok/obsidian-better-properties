@@ -2,11 +2,11 @@ import {
 	DropdownComponent,
 	ExtraButtonComponent,
 	Keymap,
+	MenuItem,
 	TFile,
 } from "obsidian";
-import { typeKey } from ".";
 import { CustomPropertyType, PropertySettings } from "../types";
-import { getPropertyTypeSettings, PropertyWidgetComponentNew } from "../utils";
+import { PropertyWidgetComponentNew } from "../utils";
 import {
 	getAllTags,
 	getFirstLinkPathDest,
@@ -16,9 +16,9 @@ import BetterProperties from "~/main";
 import { PropertyRenderContext } from "obsidian-typings";
 import { obsidianText } from "~/i18next/obsidian";
 import { text } from "~/i18next";
-import { InputSuggest, Suggestion } from "~/Classes/InputSuggest";
-import { selectBackgroundCssVar, selectColors } from "~/lib/constants";
-import { SelectComponent } from "~/Classes/SelectComponent";
+import { selectColors } from "~/lib/constants";
+import { ComboboxComponent, SearchableMenu } from "~/classes/ComboboxComponent";
+import { Icon } from "~/lib/types/icons";
 
 type Settings = NonNullable<PropertySettings["select"]>;
 type Option = NonNullable<Settings["manualOptions"]>[number];
@@ -51,7 +51,7 @@ class SelectTypeComponent extends PropertyWidgetComponentNew<"select", string> {
 		const settings = this.getSettings();
 		this.component = settings?.useDefaultStyle
 			? new DropdownComponent(el)
-			: new Select(plugin, el, ctx.key);
+			: new Select(plugin, el, ctx.key, !!settings?.manualAllowCreate);
 		this.initOptions();
 
 		const parsed = this.parseValue(value);
@@ -111,10 +111,10 @@ class SelectTypeComponent extends PropertyWidgetComponentNew<"select", string> {
 			);
 		this.auxEl = button.extraSettingsEl;
 
-		button.extraSettingsEl.classList.add(
-			"better-properties-select-aux",
-			auxType === "invalid" ? "better-properties-mod-error" : ""
-		);
+		button.extraSettingsEl.classList.add("better-properties-select-aux");
+		if (auxType === "invalid") {
+			button.extraSettingsEl.classList.add("better-properties-mod-error");
+		}
 
 		if (auxType !== "wikilink") return;
 
@@ -140,7 +140,7 @@ class SelectTypeComponent extends PropertyWidgetComponentNew<"select", string> {
 	}
 
 	addOptions(options: Option[]): void {
-		if (this.component instanceof SelectComponent) {
+		if (this.component instanceof Select) {
 			this.component.addOptions(options);
 			return;
 		}
@@ -162,86 +162,117 @@ class SelectTypeComponent extends PropertyWidgetComponentNew<"select", string> {
 	}
 }
 
-class Select extends SelectComponent<Option> {
+class Select extends ComboboxComponent<Option> {
 	constructor(
 		public plugin: BetterProperties,
 		public containerEl: HTMLElement,
-		public property: string
+		public property: string,
+		public isCreateAllowed: boolean
 	) {
 		super(containerEl);
-
-		new SelectSuggest(this).onSelect((option) => {
-			this.selectEl.textContent = option.value;
-			this.selectEl.blur();
-		});
-
-		this.getStringFromOption((opt) => opt.value);
 	}
 
-	getColor(value: string) {
-		const settings = getPropertyTypeSettings({
-			plugin: this.plugin,
-			property: this.property,
-			type: typeKey,
-		});
-		const color = settings.manualOptions?.find(
-			(v) => v.value === value
-		)?.bgColor;
-		return color ?? selectColors.gray;
+	getValueFromOption(option: Option): string {
+		return option.value;
 	}
 
-	setValue(initialValue: string): this {
-		const value =
-			this.options.find((o) => o.label && o.label === initialValue)?.value ??
-			initialValue;
+	onRenderMenuItem(
+		item: MenuItem,
+		option: {
+			value: string;
+			label?: string | undefined;
+			desc?: string | undefined;
+			bgColor?: string | undefined;
+			textColor?: string | undefined;
+		}
+	): void {
+		super.onRenderMenuItem(item, option);
+		const { value, label, bgColor } = option;
+		item.titleEl.empty();
+		item.removeIcon();
+		const innerEl = item.titleEl.createDiv({
+			cls: "better-properties-select-option",
+			text: label || value,
+		});
+		innerEl.setCssProps({
+			"--better-properties-select-bg": bgColor ?? selectColors.gray,
+		});
+	}
+
+	createSelectEl(containerEl: HTMLElement): HTMLDivElement {
+		const el = super.createSelectEl(containerEl);
+		el.classList.add("better-properties-select");
+		return el;
+	}
+
+	setValue(value: string): this {
 		super.setValue(value);
-		const option = this.options.find((o) => o.value === value);
+		const option = this.options.find((opt) => {
+			return opt.value === value;
+		});
 		if (option?.label) {
 			this.selectEl.textContent = option.label;
-			this.setEmptyAttr(false);
 		}
-		this.selectContainerEl.style.setProperty(
-			selectBackgroundCssVar,
-			this.getColor(value)
-		);
+		if (value === "" && option?.label) {
+			this.setEmptyClass(false);
+		}
+		this.selectEl.setCssProps({
+			"--better-properties-select-bg": option?.bgColor ?? selectColors.gray,
+		});
+
 		return this;
 	}
-}
 
-class SelectSuggest extends InputSuggest<Option> {
-	isTyping: boolean = false;
-	constructor(public selectComponent: Select) {
-		super(selectComponent.plugin.app, selectComponent.selectEl);
+	createOptionItem: MenuItem | undefined;
 
-		selectComponent.selectEl.addEventListener("keydown", () => {
-			this.isTyping = true;
+	createMenu(): SearchableMenu {
+		const menu = super.createMenu();
+
+		if (this.isCreateAllowed) {
+			menu.addSectionItem("footer", (item) => {
+				this.createOptionItem = item.setIcon("lucide-plus" satisfies Icon);
+				this.createOptionItem.dom.style.setProperty("display", "none");
+			});
+		}
+		menu.addSectionItem("footer", (item) => {
+			item
+				.setIcon("lucide-trash-2" satisfies Icon)
+				.setTitle("Set empty")
+				.onClick(() => {
+					this.setValue("");
+				});
 		});
-		selectComponent.selectEl.addEventListener("blur", () => {
-			this.isTyping = false;
+
+		if (!this.isCreateAllowed) {
+			return menu;
+		}
+		menu.onShow(() => {
+			const { search } = menu;
+			if (!search) return;
+			search.inputEl.addEventListener("keyup", () => {
+				if (!this.createOptionItem) return;
+
+				const newOption = search.getValue();
+				if (!newOption) {
+					this.createOptionItem.dom.style.setProperty("display", "none");
+					return;
+				}
+
+				this.createOptionItem.dom.style.removeProperty("display");
+				this.createOptionItem
+					.setTitle(`Create option "${newOption}"`)
+					.onClick(() => {
+						this.selectEl.textContent = newOption;
+						this.options.push({
+							value: newOption,
+						});
+						this.plugin.saveSettings();
+						menu.close();
+						this.commitValue();
+					});
+			});
 		});
-	}
-
-	getSuggestions(query: string): Option[] {
-		const options = this.selectComponent.options;
-		if (!query || !this.isTyping) return [...options];
-		const lower = query.toLowerCase();
-		return options.filter(({ value }) => value.toLowerCase().includes(lower));
-	}
-
-	parseSuggestion(opt: Option): Suggestion {
-		return {
-			title: opt.label || opt.value,
-			note: opt.desc || undefined,
-		};
-	}
-
-	renderSuggestion(opt: Option, el: HTMLElement) {
-		super.renderSuggestion(opt, el);
-		el.classList.add("better-properties-select-option");
-		el.style.setProperty(
-			selectBackgroundCssVar,
-			this.selectComponent.getColor(opt.value)
-		);
+		return menu;
 	}
 }
 
@@ -259,22 +290,37 @@ const getDynamicOptions = ({
 	 * Add option to have backgrounds, like by getting the color from a property in the note
 	 */
 
+	const arr: Option[] = settings?.dynamicEmptyLabel
+		? [
+				{
+					value: "",
+					label: settings.dynamicEmptyLabel,
+				},
+		  ]
+		: [];
+
 	if (settings?.dynamicOptionsType === "filesInFolder") {
-		return getFolderFilesOptions({
-			plugin,
-			excludeFolderNote: !!settings.folderOptionsExcludeFolderNote,
-			sourcePath: ctx.sourcePath,
-			propertyName: ctx.key,
-			folderOptionsPaths: settings.folderOptionsPaths ?? [],
-		});
+		return [
+			...arr,
+			...getFolderFilesOptions({
+				plugin,
+				excludeFolderNote: !!settings.folderOptionsExcludeFolderNote,
+				sourcePath: ctx.sourcePath,
+				propertyName: ctx.key,
+				folderOptionsPaths: settings.folderOptionsPaths ?? [],
+			}),
+		];
 	}
 	if (settings?.dynamicOptionsType === "filesFromTag") {
-		return getTagOptions({
-			plugin,
-			tags: settings.tagOptionsTags ?? [],
-			includeNested: settings.tagOptionsIncludeNested ?? false,
-			sourcePath: ctx.sourcePath,
-		});
+		return [
+			...arr,
+			...getTagOptions({
+				plugin,
+				tags: settings.tagOptionsTags ?? [],
+				includeNested: settings.tagOptionsIncludeNested ?? false,
+				sourcePath: ctx.sourcePath,
+			}),
+		];
 	}
 
 	return [];

@@ -5,8 +5,8 @@ import { PluginSettingTab, Setting } from "obsidian";
 import { BetterProperties } from "./plugin";
 import { Icon } from "~/lib/types/icons";
 import { obsidianText } from "~/i18next/obsidian";
-import { MultiselectComponent } from "~/Classes/MultiSelect";
-import { PropertyTypeSuggest } from "~/Classes/InputSuggest/PropertyTypeSuggest";
+import { MultiselectComponent } from "~/classes/MultiSelect";
+import { PropertyTypeSuggest } from "~/classes/InputSuggest/PropertyTypeSuggest";
 import { sortAndFilterRegisteredTypeWidgets } from "~/CustomPropertyTypes/register";
 
 export const betterPropertiesSettingsSchema = v.object({

@@ -21,5 +21,5 @@ export const selectColors = {
 };
 
 export const selectBackgroundCssVar = "--better-properties-select-bg";
-export const selectEmptyAttr = "data-better-properties-select-empty";
+export const selectEmptyAttr = "data-better-properties-combobox-empty";
 export const backgroundCssVar = "--better-properties-bg";
