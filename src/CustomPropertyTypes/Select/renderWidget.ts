@@ -245,7 +245,8 @@ class Select extends ComboboxComponent<Option> {
 
 		if (this.isCreateAllowed) {
 			menu.addSectionItem("footer", (item) => {
-				this.createOptionItem = item.setIcon("lucide-plus" satisfies Icon);
+				this.createOptionItem = item;
+				item.setIcon("lucide-plus" satisfies Icon);
 				this.createOptionItem.dom.style.setProperty("display", "none");
 			});
 		}

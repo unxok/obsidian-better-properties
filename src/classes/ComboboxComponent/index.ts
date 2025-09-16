@@ -164,6 +164,7 @@ export class SearchableMenu extends Menu {
 		search.containerEl.addEventListener("click", (e) => {
 			e.stopImmediatePropagation();
 			e.stopPropagation();
+			search.inputEl.focus();
 		});
 		this.scrollEl.insertAdjacentElement("afterbegin", search.containerEl);
 		search.setPlaceholder("Search options...");

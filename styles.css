@@ -572,7 +572,8 @@ div.metadata-content {
 	}
 }
 
-.better-properties-swatch {
+.better-properties-swatch,
+.better-properties-swatch.better-properties-combobox-select {
 	background: var(--better-properties-bg, black);
 	height: var(--swatch-width);
 	width: var(--swatch-width);

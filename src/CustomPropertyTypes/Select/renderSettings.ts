@@ -1,4 +1,4 @@
-import { Setting, Menu, App, Modal, setTooltip, Notice } from "obsidian";
+import { Setting, Menu, Notice, MenuItem } from "obsidian";
 import { typeKey } from ".";
 import { CustomPropertyType } from "../types";
 import { getPropertyTypeSettings, setPropertyTypeSettings } from "../utils";
@@ -9,12 +9,7 @@ import { FolderSuggest } from "~/classes/InputSuggest/FolderSuggest";
 import { TagSuggest } from "~/classes/InputSuggest/TagSuggest";
 import { MultiselectComponent } from "~/classes/MultiSelect";
 import { text } from "~/i18next";
-import { InputSuggest, Suggestion } from "~/classes/InputSuggest";
-import {
-	selectColors,
-	selectBackgroundCssVar,
-	backgroundCssVar,
-} from "~/lib/constants";
+import { selectColors } from "~/lib/constants";
 import { ColorTextComponent } from "~/classes/ColorTextComponent";
 import { PropertySettingsModal } from "../settings";
 import {
@@ -27,6 +22,7 @@ import {
 	tryRunInlineCode,
 } from "./utils";
 import { FileSuggest } from "~/classes/InputSuggest/FileSuggest";
+import { ComboboxComponent, SearchableMenu } from "~/classes/ComboboxComponent";
 
 export const renderSettings: CustomPropertyType["renderSettings"] = ({
 	plugin,
@@ -551,7 +547,6 @@ const renderFilesFromFileJsSetings = ({
 ////
 
 const renderManualOptionsSetting = ({
-	plugin,
 	parentEl,
 	settings,
 	defaultOption,
@@ -603,68 +598,22 @@ const renderManualOptionsSetting = ({
 						})
 				)
 				.then(() => {
-					// new ColorSelect(plugin.app, item.controlEl)
-					// 	.setValue(
-					// 		opt.bgColor ?? ("gray" satisfies keyof typeof selectColors)
-					// 	)
-					// 	.onChange((v) => {
-					// 		const matched = list.value[item.index];
-					// 		if (matched === undefined) return;
-					// 		matched.bgColor = v;
-					// 	});
-					const swatchEl = item.controlEl.createDiv({
-						cls: "better-properties-swatch",
+					const combobox = new SelectColorCombobox(item.controlEl);
+					const options: {
+						value: string;
+						label: string;
+					}[] = Object.entries(selectColors).reduce((acc, [label, value]) => {
+						acc.push({
+							value,
+							label,
+						});
+						return acc;
+					}, [] as typeof options);
+					combobox.addOptions(options);
+					combobox.setValue(opt.bgColor ?? selectColors.gray);
+					combobox.onChange((v) => {
+						opt.bgColor = v;
 					});
-					const swatchInputEl = swatchEl.createDiv({
-						cls: "better-properties-swatch-input",
-						attr: {
-							"role": "button",
-							"aria-index": "0",
-							"contenteditable": "true",
-						},
-					});
-
-					swatchEl.addEventListener("click", () => {
-						swatchInputEl.focus();
-					});
-
-					swatchInputEl.addEventListener("focus", () => {
-						const { win } = swatchInputEl;
-						const range = win.document.createRange();
-						range.selectNodeContents(swatchInputEl);
-						const selection = win.getSelection();
-						if (selection) {
-							selection.removeAllRanges();
-							selection.addRange(range);
-						}
-					});
-
-					setTooltip(swatchEl, opt.bgColor ?? "unset");
-					const setBgCssVar = (color: string) => {
-						swatchEl.style.setProperty(backgroundCssVar, color);
-					};
-					setBgCssVar(opt.bgColor ?? selectColors.gray);
-
-					const setValue = (value: string) => {
-						const matched = list.value[item.index];
-						if (matched === undefined) return;
-						matched.bgColor = value;
-						setBgCssVar(value);
-						setTooltip(swatchEl, value);
-					};
-
-					const suggest = new ColorSuggest(plugin.app, swatchInputEl).onSelect(
-						(opt) => {
-							setValue(opt.value);
-							suggest.close();
-						}
-					);
-
-					suggest.setValue(
-						opt.bgColor ?? "var(--better-properties-select-custom)"
-					);
-
-					// TODO use ComboBox instead
 				})
 				.addDeleteButton();
 		})
@@ -823,71 +772,84 @@ const renderFolderPathsSetting = ({
 	return folderPathsSetting;
 };
 
-type ColorOption = {
-	key: string;
+class SelectColorCombobox extends ComboboxComponent<{
 	value: string;
-};
+	label: string;
+}> {
+	constructor(containerEl: HTMLElement) {
+		super(containerEl);
+	}
 
-class ColorSuggest extends InputSuggest<ColorOption> {
-	constructor(app: App, textInputEl: HTMLDivElement | HTMLInputElement) {
-		super(app, textInputEl);
+	override getValueFromOption(option: {
+		value: string;
+		label: string;
+	}): string {
+		return option.value;
+	}
 
-		textInputEl.addEventListener("keydown", () => {
-			this.isTyping = true;
+	override setValue(value: string): this {
+		super.setValue(value);
+		this.setEmptyClass(false);
+		this.selectEl.textContent = "";
+		this.selectEl.setCssProps({
+			"--better-properties-bg": value,
 		});
 
-		textInputEl.addEventListener("blur", () => {
-			this.isTyping = false;
+		return this;
+	}
+
+	override createAuxEl(containerEl: HTMLElement): HTMLElement {
+		const auxEl = super.createAuxEl(containerEl);
+		auxEl.remove();
+		return auxEl;
+	}
+
+	override onRenderMenuItem(
+		item: MenuItem,
+		option: { value: string; label: string }
+	): void {
+		super.onRenderMenuItem(item, option);
+		const { value, label } = option;
+		item.titleEl.empty();
+		item.removeIcon();
+		const innerEl = item.titleEl.createDiv({
+			cls: "better-properties-select-option",
+			text: label,
+		});
+		innerEl.setCssProps({
+			"--better-properties-select-bg": value ?? selectColors.gray,
 		});
 	}
 
-	isTyping: boolean = false;
-	getSuggestions(): ColorOption[] {
-		const query = this.textInputEl.textContent.toLowerCase();
-		const suggestions: ColorOption[] = [
-			{
-				key: "custom",
-				value: "var(--better-properties-select-custom)",
-			},
-			...Object.entries(selectColors).reduce((acc, [key, value]) => {
-				acc.push({ key, value });
-				return acc;
-			}, [] as ColorOption[]),
-		];
-
-		if (!query || !this.isTyping) {
-			return suggestions;
-		}
-		return suggestions.filter((s) => s.key.toLowerCase().includes(query));
+	override createSelectEl(containerEl: HTMLElement): HTMLDivElement {
+		const el = super.createSelectEl(containerEl);
+		el.classList.add("better-properties-swatch");
+		return el;
 	}
 
-	parseSuggestion({ key }: ColorOption): Suggestion {
-		return {
-			title: key,
-		};
-	}
-
-	renderSuggestion(opt: ColorOption, el: HTMLElement) {
-		super.renderSuggestion(opt, el);
-		el.classList.add("better-properties-select-option");
-		el.style.setProperty(selectBackgroundCssVar, opt.value);
-		if (opt.key !== "custom") return;
-		el.addEventListener("click", (e) => {
-			this.close();
-			e.preventDefault();
-			const modal = new Modal(this.app);
-			new Setting(modal.contentEl)
-				.setName("Custom color")
-				.setDesc("Select a color or enter any valid CSS value for background.")
-				.then((s) => {
-					new ColorTextComponent(s.controlEl)
-						.setValue(this.getValue())
-						.onChange((value) => {
-							if (!this.selectCb) return;
-							this.selectCb({ key: "custom", value }, e);
-						});
+	override createMenu(): SearchableMenu {
+		const menu = super.createMenu();
+		menu.addSectionItem("footer", (item) => {
+			item
+				.setIcon("lucide-paintbrush" satisfies Icon)
+				.setTitle("Custom color")
+				.setSubmenu()
+				.addItem((subItem) => {
+					subItem.removeIcon();
+					const cmp = new ColorTextComponent(subItem.titleEl);
+					cmp.setValue(this.getValue());
+					cmp.onChange((v) => {
+						this.setValue(v);
+						this.onChanged();
+					});
+					subItem.onClick((e) => {
+						e.stopImmediatePropagation();
+						e.stopPropagation();
+						cmp.textComponent.inputEl.focus();
+					});
 				});
-			modal.open();
 		});
+
+		return menu;
 	}
 }
