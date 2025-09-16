@@ -8,10 +8,6 @@ import BetterProperties from "~/main";
 import { FolderSuggest } from "~/classes/InputSuggest/FolderSuggest";
 import { TagSuggest } from "~/classes/InputSuggest/TagSuggest";
 import { MultiselectComponent } from "~/classes/MultiSelect";
-import {
-	ConditionalSettings,
-	SettingsGroup,
-} from "~/classes/ConditionalSettings";
 import { text } from "~/i18next";
 import { InputSuggest, Suggestion } from "~/classes/InputSuggest";
 import {
@@ -20,10 +16,10 @@ import {
 	backgroundCssVar,
 } from "~/lib/constants";
 import { ColorTextComponent } from "~/classes/ColorTextComponent";
+import { PropertySettingsModal } from "../settings";
 
 type Settings = NonNullable<PropertySettings["select"]>;
 type OptionsType = NonNullable<Settings["optionsType"]>;
-type DynamicOptionsType = NonNullable<Settings["dynamicOptionsType"]>;
 type Option = NonNullable<Settings["manualOptions"]>[number];
 
 export const renderSettings: CustomPropertyType["renderSettings"] = ({
@@ -83,138 +79,273 @@ export const renderSettings: CustomPropertyType["renderSettings"] = ({
 				.setValue(settings?.optionsType ?? ("manual" satisfies OptionsType))
 				.onChange((v) => {
 					const opt = v as OptionsType;
-					optionsTypeSettings.showGroup(opt);
+					// optionsTypeSettings.showGroup(opt);
 					settings.optionsType = opt;
+					parentEl.empty();
+					renderSettings({ plugin, modal, property });
 				});
 		});
 
-	const optionsTypeSettings = new ConditionalSettings<OptionsType>(parentEl);
-	optionsTypeSettings
-		.addGroup("manual", (group) => {
-			group.addSetting((s) => {
-				s.setHeading().setName(
-					text(
-						"customPropertyTypes.select.settings.optionsType.selectLabelManual"
-					)
-				);
-			});
-			group.addSetting((s) => {
-				s.settingEl.remove();
-				group.set.add(
-					renderManualOptionsSetting({
-						plugin,
-						parentEl,
-						settings,
-						defaultOption,
-					})
-				);
-			});
-			group.addSetting((s) => {
-				s.setName(
-					text(
-						"customPropertyTypes.select.settings.optionsTypeSettings.manual.allowCreateTitle"
-					)
-				)
-					.setDesc(
-						text(
-							"customPropertyTypes.select.settings.optionsTypeSettings.manual.allowCreateDesc"
-						)
-					)
-					.addToggle((cmp) =>
-						cmp.setValue(settings.manualAllowCreate ?? false).onChange((b) => {
-							settings.manualAllowCreate = b;
-						})
-					);
-			});
-		})
-		.addGroup("dynamic", (group) => {
-			if (!settings.dynamicOptionsType) {
-				settings.dynamicOptionsType = "filesInFolder";
-			}
-			group.addSetting((s) => {
-				s.setHeading().setName(
-					text(
-						"customPropertyTypes.select.settings.optionsType.selectLabelDynamic"
-					)
-				);
-			});
-			group.addSetting((s) =>
-				s
-					.setName(
-						text(
-							"customPropertyTypes.select.settings.optionsTypeSettings.dynamic.emptyLabelTitle"
-						)
-					)
-					.setDesc(
-						text(
-							"customPropertyTypes.select.settings.optionsTypeSettings.dynamic.emptyLabelDesc"
-						)
-					)
-					.addText((cmp) => {
-						cmp.setValue(settings.dynamicEmptyLabel ?? "").onChange((v) => {
-							settings.dynamicEmptyLabel = v;
-						});
-					})
-			);
-			group.addSetting((s) =>
-				s
-					.setName(
-						text(
-							"customPropertyTypes.select.settings.optionsTypeSettings.dynamic.typeTitle"
-						)
-					)
-					.setDesc(
-						text(
-							"customPropertyTypes.select.settings.optionsTypeSettings.dynamic.typeDesc"
-						)
-					)
-					.addDropdown((dropdown) => {
-						dropdown
-							.addOptions({
-								filesInFolder: text(
-									"customPropertyTypes.select.settings.optionsTypeSettings.dynamic.filesInFolderLabel"
-								),
-								filesFromTag: text(
-									"customPropertyTypes.select.settings.optionsTypeSettings.dynamic.filesFromTagLabel"
-								),
-								script: text(
-									"customPropertyTypes.select.settings.optionsTypeSettings.dynamic.scriptLabel"
-								),
-							} satisfies Record<NonNullable<Settings["dynamicOptionsType"]>, string>)
-							.setValue(
-								settings.dynamicOptionsType ??
-									("filesInFolder" satisfies NonNullable<
-										Settings["dynamicOptionsType"]
-									>)
-							)
-							.onChange((v) => {
-								const opt = v as NonNullable<Settings["dynamicOptionsType"]>;
-								dynamicOptionsTypeSettings.showGroup(opt);
-								settings.dynamicOptionsType = opt;
-							});
-						dynamicOptionsTypeSettings.showGroup(
-							settings.dynamicOptionsType ??
-								("filesInFolder" satisfies NonNullable<
-									Settings["dynamicOptionsType"]
-								>)
-						);
-					})
-			);
+	if (settings.optionsType === "manual") {
+		renderManualSettings({
+			plugin,
+			parentEl,
+			settings,
+			defaultOption,
+		});
+	}
 
-			const dynamicOptionsTypeSettings =
-				new ConditionalSettings<DynamicOptionsType>(
-					parentEl,
-					optionsTypeSettings
-				)
-					.addGroup("filesInFolder", (group) =>
-						renderFilesInFolderGroup({ group, plugin, parentEl, settings })
-					)
-					.addGroup("filesFromTag", (group) =>
-						renderFilesFromTagGroup({ group, plugin, settings })
-					);
+	if (settings.optionsType === "dynamic") {
+		if (!settings.dynamicOptionsType) {
+			settings.dynamicOptionsType = "filesInFolder";
+		}
+
+		renderDynamicSettings({
+			plugin,
+			parentEl,
+			settings,
+			modal,
+			property,
 		});
 
-	optionsTypeSettings.showGroup(settings.optionsType ?? "manual");
+		if (settings.dynamicOptionsType === "filesInFolder") {
+			renderFilesFromFolderSettings({
+				plugin,
+				parentEl,
+				settings,
+			});
+		}
+
+		if (settings.dynamicOptionsType === "filesFromTag") {
+			renderFilesFromTagSettings({
+				plugin,
+				parentEl,
+				settings,
+			});
+		}
+	}
+};
+
+const renderManualSettings = ({
+	plugin,
+	parentEl,
+	settings,
+	defaultOption,
+}: {
+	plugin: BetterProperties;
+	parentEl: HTMLElement;
+	settings: Settings;
+	defaultOption: Option;
+}) => {
+	new Setting(parentEl)
+		.setHeading()
+		.setName(
+			text("customPropertyTypes.select.settings.optionsType.selectLabelManual")
+		);
+
+	renderManualOptionsSetting({
+		plugin,
+		parentEl,
+		settings,
+		defaultOption,
+	});
+
+	new Setting(parentEl)
+		.setName(
+			text(
+				"customPropertyTypes.select.settings.optionsTypeSettings.manual.allowCreateTitle"
+			)
+		)
+		.setDesc(
+			text(
+				"customPropertyTypes.select.settings.optionsTypeSettings.manual.allowCreateDesc"
+			)
+		)
+		.addToggle((cmp) =>
+			cmp.setValue(settings.manualAllowCreate ?? false).onChange((b) => {
+				settings.manualAllowCreate = b;
+			})
+		);
+};
+
+const renderDynamicSettings = ({
+	plugin,
+	parentEl,
+	settings,
+	modal,
+	property,
+}: {
+	plugin: BetterProperties;
+	parentEl: HTMLElement;
+	settings: Settings;
+	modal: PropertySettingsModal;
+	property: string;
+}) => {
+	new Setting(parentEl)
+		.setHeading()
+		.setName(
+			text("customPropertyTypes.select.settings.optionsType.selectLabelDynamic")
+		);
+
+	new Setting(parentEl)
+		.setName(
+			text(
+				"customPropertyTypes.select.settings.optionsTypeSettings.dynamic.emptyLabelTitle"
+			)
+		)
+		.setDesc(
+			text(
+				"customPropertyTypes.select.settings.optionsTypeSettings.dynamic.emptyLabelDesc"
+			)
+		)
+		.addText((cmp) => {
+			cmp.setValue(settings.dynamicEmptyLabel ?? "").onChange((v) => {
+				settings.dynamicEmptyLabel = v;
+			});
+		});
+
+	new Setting(parentEl)
+		.setName(
+			text(
+				"customPropertyTypes.select.settings.optionsTypeSettings.dynamic.typeTitle"
+			)
+		)
+		.setDesc(
+			text(
+				"customPropertyTypes.select.settings.optionsTypeSettings.dynamic.typeDesc"
+			)
+		)
+		.addDropdown((dropdown) => {
+			dropdown
+				.addOptions({
+					filesInFolder: text(
+						"customPropertyTypes.select.settings.optionsTypeSettings.dynamic.filesInFolderLabel"
+					),
+					filesFromTag: text(
+						"customPropertyTypes.select.settings.optionsTypeSettings.dynamic.filesFromTagLabel"
+					),
+					script: text(
+						"customPropertyTypes.select.settings.optionsTypeSettings.dynamic.scriptLabel"
+					),
+				} satisfies Record<NonNullable<Settings["dynamicOptionsType"]>, string>)
+				.setValue(
+					settings.dynamicOptionsType ??
+						("filesInFolder" satisfies NonNullable<
+							Settings["dynamicOptionsType"]
+						>)
+				)
+				.onChange((v) => {
+					const opt = v as NonNullable<Settings["dynamicOptionsType"]>;
+					settings.dynamicOptionsType = opt;
+					parentEl.empty();
+					renderSettings({ plugin, modal, property });
+				});
+		});
+};
+
+const renderFilesFromFolderSettings = ({
+	plugin,
+	parentEl,
+	settings,
+}: {
+	plugin: BetterProperties;
+	parentEl: HTMLElement;
+	settings: Settings;
+}) => {
+	new Setting(parentEl)
+		.setHeading()
+		.setName(
+			text(
+				"customPropertyTypes.select.settings.optionsTypeSettings.dynamic.filesInFolderLabel"
+			)
+		);
+	renderFolderPathsSetting({
+		plugin,
+		parentEl,
+		settings,
+	});
+	new Setting(parentEl)
+		.setName(
+			text(
+				"customPropertyTypes.select.settings.optionsTypeSettings.dynamic.filesInFolder.excludeFolderNotes.title"
+			)
+		)
+		.setDesc(
+			text(
+				"customPropertyTypes.select.settings.optionsTypeSettings.dynamic.filesInFolder.excludeFolderNotes.desc"
+			)
+		)
+		.addToggle((toggle) => {
+			toggle
+				.setValue(settings.folderOptionsExcludeFolderNote ?? false)
+				.onChange((b) => {
+					settings.folderOptionsExcludeFolderNote = b;
+				});
+		});
+};
+
+const renderFilesFromTagSettings = ({
+	plugin,
+	parentEl,
+	settings,
+}: {
+	plugin: BetterProperties;
+	parentEl: HTMLElement;
+	settings: Settings;
+}) => {
+	new Setting(parentEl)
+		.setHeading()
+		.setName(
+			text(
+				"customPropertyTypes.select.settings.optionsTypeSettings.dynamic.filesFromTagLabel"
+			)
+		);
+	new Setting(parentEl)
+		.setName(
+			text(
+				"customPropertyTypes.select.settings.optionsTypeSettings.dynamic.filesFromTag.tags.title"
+			)
+		)
+		.setDesc(
+			text(
+				"customPropertyTypes.select.settings.optionsTypeSettings.dynamic.filesFromTag.tags.desc"
+			)
+		)
+		.then((s) => {
+			const tagsMultiSelect = new MultiselectComponent(s);
+			tagsMultiSelect
+				.setValues(settings.tagOptionsTags ?? [])
+				.onChange((v) => (settings.tagOptionsTags = v))
+				.addSuggest((inputEl) => {
+					const sugg = new TagSuggest(plugin.app, inputEl)
+						.setFilter((v) => !tagsMultiSelect.values.contains(v.tag))
+						.onSelect((v, e) => {
+							e.preventDefault();
+							e.stopImmediatePropagation();
+							inputEl.textContent = v.tag;
+							tagsMultiSelect.inputEl.blur();
+							tagsMultiSelect.inputEl.focus();
+						});
+					return sugg;
+				})
+				.renderValues();
+		});
+	new Setting(parentEl)
+		.setName(
+			text(
+				"customPropertyTypes.select.settings.optionsTypeSettings.dynamic.filesFromTag.includeNestedTags.title"
+			)
+		)
+		.setDesc(
+			text(
+				"customPropertyTypes.select.settings.optionsTypeSettings.dynamic.filesFromTag.includeNestedTags.desc"
+			)
+		)
+		.addToggle((toggle) =>
+			toggle
+				.setValue(settings.tagOptionsIncludeNested ?? false)
+				.onChange((b) => (settings.tagOptionsIncludeNested = b))
+		);
 };
 
 const renderManualOptionsSetting = ({
@@ -490,104 +621,6 @@ const renderFolderPathsSetting = ({
 	return folderPathsSetting;
 };
 
-const renderFilesInFolderGroup = ({
-	group,
-	plugin,
-	parentEl,
-	settings,
-}: {
-	group: SettingsGroup;
-	plugin: BetterProperties;
-	parentEl: HTMLElement;
-	settings: Settings;
-}) =>
-	group
-		.addSetting((s) => {
-			s.settingEl.remove();
-			group.set.add(renderFolderPathsSetting({ plugin, parentEl, settings }));
-		})
-		.addSetting((s) =>
-			s
-				.setName(
-					text(
-						"customPropertyTypes.select.settings.optionsTypeSettings.dynamic.filesInFolder.excludeFolderNotes.title"
-					)
-				)
-				.setDesc(
-					text(
-						"customPropertyTypes.select.settings.optionsTypeSettings.dynamic.filesInFolder.excludeFolderNotes.desc"
-					)
-				)
-				.addToggle((toggle) => {
-					toggle
-						.setValue(settings.folderOptionsExcludeFolderNote ?? false)
-						.onChange((b) => {
-							settings.folderOptionsExcludeFolderNote = b;
-						});
-				})
-		);
-
-const renderFilesFromTagGroup = ({
-	group,
-	plugin,
-	settings,
-}: {
-	group: SettingsGroup;
-	plugin: BetterProperties;
-	settings: Settings;
-}) =>
-	group
-		.addSetting((s) =>
-			s
-				.setName(
-					text(
-						"customPropertyTypes.select.settings.optionsTypeSettings.dynamic.filesFromTag.tags.title"
-					)
-				)
-				.setDesc(
-					text(
-						"customPropertyTypes.select.settings.optionsTypeSettings.dynamic.filesFromTag.tags.desc"
-					)
-				)
-				.then((s) => {
-					const tagsMultiSelect = new MultiselectComponent(s);
-					tagsMultiSelect
-						.setValues(settings.tagOptionsTags ?? [])
-						.onChange((v) => (settings.tagOptionsTags = v))
-						.addSuggest((inputEl) => {
-							const sugg = new TagSuggest(plugin.app, inputEl)
-								.setFilter((v) => !tagsMultiSelect.values.contains(v.tag))
-								.onSelect((v, e) => {
-									e.preventDefault();
-									e.stopImmediatePropagation();
-									inputEl.textContent = v.tag;
-									tagsMultiSelect.inputEl.blur();
-									tagsMultiSelect.inputEl.focus();
-								});
-							return sugg;
-						})
-						.renderValues();
-				})
-		)
-		.addSetting((s) =>
-			s
-				.setName(
-					text(
-						"customPropertyTypes.select.settings.optionsTypeSettings.dynamic.filesFromTag.includeNestedTags.title"
-					)
-				)
-				.setDesc(
-					text(
-						"customPropertyTypes.select.settings.optionsTypeSettings.dynamic.filesFromTag.includeNestedTags.desc"
-					)
-				)
-				.addToggle((toggle) =>
-					toggle
-						.setValue(settings.tagOptionsIncludeNested ?? false)
-						.onChange((b) => (settings.tagOptionsIncludeNested = b))
-				)
-		);
-
 type ColorOption = {
 	key: string;
 	value: string;
@@ -656,5 +689,3 @@ class ColorSuggest extends InputSuggest<ColorOption> {
 		});
 	}
 }
-
-/////////////////
