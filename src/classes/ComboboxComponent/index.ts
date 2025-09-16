@@ -86,6 +86,7 @@ export abstract class ComboboxComponent<Option> extends ValueComponent<string> {
 		};
 
 		selectEl.addEventListener("click", (e) => {
+			console.log("click");
 			e.preventDefault();
 			initMenu();
 		});

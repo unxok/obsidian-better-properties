@@ -83,6 +83,8 @@ body {
 		gap: var(--size-4-1);
 		padding: var(--input-padding);
 		width: 100%;
+		min-width: fit-content;
+		text-wrap: nowrap;
 	}
 
 	&[data-property-type="better-properties:toggle"] {
@@ -214,6 +216,8 @@ body {
 
 	&[data-property-type="better-properties:markdown"] {
 		padding: var(--input-padding);
+		font-size: var(--metadata-input-font-size);
+
 		&:has(.collapse-indicator.collapse-icon) {
 			padding: 0 16px; /* 10px is width of svg-icon and 5px is padding-inline-end of .collapse-indicator plus an extra 1px for space... unfortunately these are manually defined in default stylesheet */
 		}
@@ -598,9 +602,11 @@ div.metadata-content {
 
 .better-properties-combobox-select {
 	display: flex;
+	height: var(--input-height);
 	align-items: center;
 	gap: var(--size-2-1);
 	min-width: 0;
+	width: fit-content;
 	font-size: var(--metadata-input-font-size);
 	cursor: default;
 	--better-properties-close-display: none;

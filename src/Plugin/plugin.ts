@@ -233,21 +233,21 @@ class Script {
 		this.mdrc.addChild(this.component);
 		this.ctx.addChild(this.mdrc);
 
-		const eventRefs = [
-			plugin.app.vault.on("create", async () => await this.runCode(source)),
-			plugin.app.vault.on("modify", async () => await this.runCode(source)),
-			plugin.app.vault.on("delete", async () => await this.runCode(source)),
-			plugin.app.vault.on("rename", async () => await this.runCode(source)),
-			plugin.app.metadataCache.on(
-				"changed",
-				async () => await this.runCode(source)
-			),
-		];
+		// const eventRefs = [
+		// 	plugin.app.vault.on("create", async () => await this.runCode(source)),
+		// 	plugin.app.vault.on("modify", async () => await this.runCode(source)),
+		// 	plugin.app.vault.on("delete", async () => await this.runCode(source)),
+		// 	plugin.app.vault.on("rename", async () => await this.runCode(source)),
+		// 	plugin.app.metadataCache.on(
+		// 		"changed",
+		// 		async () => await this.runCode(source)
+		// 	),
+		// ];
 
-		eventRefs.forEach((ref) => {
-			plugin.registerEvent(ref);
-			this.component.registerEvent(ref);
-		});
+		// eventRefs.forEach((ref) => {
+		// 	plugin.registerEvent(ref);
+		// 	this.component.registerEvent(ref);
+		// });
 
 		if (!source) {
 			this.renderHelp();
@@ -272,7 +272,7 @@ class Script {
 	async runCode(code: string) {
 		try {
 			const func = eval(`async (script) => {${code}}`);
-			this.el.empty();
+			this.containerEl.empty();
 			await func(this);
 		} catch (e) {
 			const msg = e instanceof Error ? e.message : "Unknown Error";
