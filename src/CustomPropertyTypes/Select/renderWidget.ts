@@ -62,9 +62,7 @@ class SelectTypeComponent extends PropertyWidgetComponentNew<"select", string> {
 		});
 
 		this.onFocus = () => {
-			// this.component.selectEl.focus();
-			console.log("focus");
-			this.component.selectEl.click();
+			this.component.selectEl.focus();
 		};
 
 		if (!(value === "" && this.component instanceof DropdownComponent)) return;
