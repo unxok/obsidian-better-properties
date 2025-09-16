@@ -61,7 +61,8 @@ export const selectSettingsSchema = v.optional(
 			v.union([
 				v.literal("filesInFolder"),
 				v.literal("filesFromTag"),
-				v.literal("script"),
+				v.literal("filesFromInlineJs"),
+				v.literal("filesFromJsFile"),
 			])
 		),
 		dynamicEmptyLabel: v.optional(v.string()),
@@ -70,10 +71,7 @@ export const selectSettingsSchema = v.optional(
 		folderOptionsExcludeFolderNote: v.optional(v.boolean()),
 		tagOptionsTags: v.optional(v.array(v.string())),
 		tagOptionsIncludeNested: v.optional(v.boolean()),
-		scriptOptionsType: v.optional(
-			v.union([v.literal("inline"), v.literal("external")])
-		),
-		scriptOptionsInlineCode: v.optional(v.string()),
-		scriptOptionsExternalFile: v.optional(v.string()),
+		inlineJsOptionsCode: v.optional(v.string()),
+		fileJsOptionsPath: v.optional(v.string()),
 	})
 ) satisfies PropertyTypeSchema;

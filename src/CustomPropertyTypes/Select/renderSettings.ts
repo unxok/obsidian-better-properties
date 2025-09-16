@@ -1,6 +1,6 @@
-import { Setting, Menu, App, Modal, setTooltip } from "obsidian";
+import { Setting, Menu, App, Modal, setTooltip, Notice } from "obsidian";
 import { typeKey } from ".";
-import { CustomPropertyType, PropertySettings } from "../types";
+import { CustomPropertyType } from "../types";
 import { getPropertyTypeSettings, setPropertyTypeSettings } from "../utils";
 import { ListSetting } from "~/classes/ListSetting";
 import { Icon } from "~/lib/types/icons";
@@ -17,10 +17,16 @@ import {
 } from "~/lib/constants";
 import { ColorTextComponent } from "~/classes/ColorTextComponent";
 import { PropertySettingsModal } from "../settings";
-
-type Settings = NonNullable<PropertySettings["select"]>;
-type OptionsType = NonNullable<Settings["optionsType"]>;
-type Option = NonNullable<Settings["manualOptions"]>[number];
+import {
+	SelectOption,
+	selectOptionInlineCodeTemplate,
+	selectOptionJsFileTemplate,
+	SelectOptionsType,
+	SelectSettings,
+	tryRunFileCode,
+	tryRunInlineCode,
+} from "./utils";
+import { FileSuggest } from "~/classes/InputSuggest/FileSuggest";
 
 export const renderSettings: CustomPropertyType["renderSettings"] = ({
 	plugin,
@@ -43,7 +49,7 @@ export const renderSettings: CustomPropertyType["renderSettings"] = ({
 		});
 	});
 
-	const defaultOption: Option = {
+	const defaultOption: SelectOption = {
 		value: "",
 		label: "",
 		// bgColor: "",
@@ -75,10 +81,12 @@ export const renderSettings: CustomPropertyType["renderSettings"] = ({
 					dynamic: text(
 						"customPropertyTypes.select.settings.optionsType.selectLabelDynamic"
 					),
-				} satisfies Record<Exclude<OptionsType, undefined>, string>)
-				.setValue(settings?.optionsType ?? ("manual" satisfies OptionsType))
+				} satisfies Record<Exclude<SelectOptionsType, undefined>, string>)
+				.setValue(
+					settings?.optionsType ?? ("manual" satisfies SelectOptionsType)
+				)
 				.onChange((v) => {
-					const opt = v as OptionsType;
+					const opt = v as SelectOptionsType;
 					// optionsTypeSettings.showGroup(opt);
 					settings.optionsType = opt;
 					parentEl.empty();
@@ -114,6 +122,7 @@ export const renderSettings: CustomPropertyType["renderSettings"] = ({
 				parentEl,
 				settings,
 			});
+			return;
 		}
 
 		if (settings.dynamicOptionsType === "filesFromTag") {
@@ -122,6 +131,15 @@ export const renderSettings: CustomPropertyType["renderSettings"] = ({
 				parentEl,
 				settings,
 			});
+			return;
+		}
+
+		if (settings.dynamicOptionsType === "filesFromInlineJs") {
+			renderFilesFromInlineJsSettings({ plugin, parentEl, settings });
+		}
+
+		if (settings.dynamicOptionsType === "filesFromJsFile") {
+			renderFilesFromFileJsSetings({ plugin, parentEl, settings });
 		}
 	}
 };
@@ -134,8 +152,8 @@ const renderManualSettings = ({
 }: {
 	plugin: BetterProperties;
 	parentEl: HTMLElement;
-	settings: Settings;
-	defaultOption: Option;
+	settings: SelectSettings;
+	defaultOption: SelectOption;
 }) => {
 	new Setting(parentEl)
 		.setHeading()
@@ -177,7 +195,7 @@ const renderDynamicSettings = ({
 }: {
 	plugin: BetterProperties;
 	parentEl: HTMLElement;
-	settings: Settings;
+	settings: SelectSettings;
 	modal: PropertySettingsModal;
 	property: string;
 }) => {
@@ -224,18 +242,21 @@ const renderDynamicSettings = ({
 					filesFromTag: text(
 						"customPropertyTypes.select.settings.optionsTypeSettings.dynamic.filesFromTagLabel"
 					),
-					script: text(
-						"customPropertyTypes.select.settings.optionsTypeSettings.dynamic.scriptLabel"
+					filesFromInlineJs: text(
+						"customPropertyTypes.select.settings.optionsTypeSettings.dynamic.filesFromInlineJsLabel"
 					),
-				} satisfies Record<NonNullable<Settings["dynamicOptionsType"]>, string>)
+					filesFromJsFile: text(
+						"customPropertyTypes.select.settings.optionsTypeSettings.dynamic.filesFromFileJsLabel"
+					),
+				} satisfies Record<NonNullable<SelectSettings["dynamicOptionsType"]>, string>)
 				.setValue(
 					settings.dynamicOptionsType ??
 						("filesInFolder" satisfies NonNullable<
-							Settings["dynamicOptionsType"]
+							SelectSettings["dynamicOptionsType"]
 						>)
 				)
 				.onChange((v) => {
-					const opt = v as NonNullable<Settings["dynamicOptionsType"]>;
+					const opt = v as NonNullable<SelectSettings["dynamicOptionsType"]>;
 					settings.dynamicOptionsType = opt;
 					parentEl.empty();
 					renderSettings({ plugin, modal, property });
@@ -250,7 +271,7 @@ const renderFilesFromFolderSettings = ({
 }: {
 	plugin: BetterProperties;
 	parentEl: HTMLElement;
-	settings: Settings;
+	settings: SelectSettings;
 }) => {
 	new Setting(parentEl)
 		.setHeading()
@@ -291,7 +312,7 @@ const renderFilesFromTagSettings = ({
 }: {
 	plugin: BetterProperties;
 	parentEl: HTMLElement;
-	settings: Settings;
+	settings: SelectSettings;
 }) => {
 	new Setting(parentEl)
 		.setHeading()
@@ -348,6 +369,187 @@ const renderFilesFromTagSettings = ({
 		);
 };
 
+const renderFilesFromInlineJsSettings = ({
+	plugin,
+	parentEl,
+	settings,
+}: {
+	plugin: BetterProperties;
+	parentEl: HTMLElement;
+	settings: SelectSettings;
+}) => {
+	new Setting(parentEl)
+		.setHeading()
+		.setName(
+			text(
+				"customPropertyTypes.select.settings.optionsTypeSettings.dynamic.filesFromInlineJsLabel"
+			)
+		);
+
+	new Setting(parentEl)
+		.setName(
+			text(
+				"customPropertyTypes.select.settings.optionsTypeSettings.dynamic.filesFromInlineJs.code.title"
+			)
+		)
+		.setDesc(
+			text(
+				"customPropertyTypes.select.settings.optionsTypeSettings.dynamic.filesFromInlineJs.code.desc"
+			)
+		)
+		.addTextArea((cmp) => {
+			cmp
+				.setValue(settings.inlineJsOptionsCode ?? "")
+				.setPlaceholder('(props) => [{value: "foo"}]')
+				.onChange((v) => {
+					settings.inlineJsOptionsCode = v;
+				});
+		})
+		.addExtraButton((cmp) => {
+			cmp
+				.setIcon("lucide-copy" satisfies Icon)
+				.setTooltip(
+					text(
+						"customPropertyTypes.select.settings.optionsTypeSettings.dynamic.filesFromInlineJs.code.helpText"
+					)
+				)
+				.onClick(async () => {
+					await navigator.clipboard.writeText(selectOptionInlineCodeTemplate);
+					new Notice(
+						text(
+							"customPropertyTypes.select.settings.optionsTypeSettings.dynamic.filesFromInlineJs.code.copySuccessNotice"
+						)
+					);
+				});
+		})
+		.addExtraButton((cmp) => {
+			cmp
+				.setIcon("lucide-play-circle" satisfies Icon)
+				.setTooltip(
+					text(
+						"customPropertyTypes.select.settings.optionsTypeSettings.dynamic.filesFromInlineJs.code.runInConsole"
+					)
+				)
+				.onClick(async () => {
+					if (!settings.inlineJsOptionsCode) {
+						return;
+					}
+					const { success, data, error } = await tryRunInlineCode(
+						plugin,
+						settings.inlineJsOptionsCode
+					);
+
+					if (success) {
+						console.log(data);
+						new Notice("Validation successful");
+						return;
+					}
+
+					console.error(error);
+					new Notice(
+						createFragment((frag) => {
+							frag.appendText("Validation failed");
+							frag.createEl("br");
+							frag.appendText(error);
+						})
+					);
+				});
+		});
+};
+
+const renderFilesFromFileJsSetings = ({
+	plugin,
+	parentEl,
+	settings,
+}: {
+	plugin: BetterProperties;
+	parentEl: HTMLElement;
+	settings: SelectSettings;
+}) => {
+	new Setting(parentEl)
+		.setHeading()
+		.setName(
+			text(
+				"customPropertyTypes.select.settings.optionsTypeSettings.dynamic.filesFromFileJsLabel"
+			)
+		);
+
+	new Setting(parentEl)
+		.setName(
+			text(
+				"customPropertyTypes.select.settings.optionsTypeSettings.dynamic.filesFromFileJs.filePath.title"
+			)
+		)
+		.setDesc(
+			text(
+				"customPropertyTypes.select.settings.optionsTypeSettings.dynamic.filesFromFileJs.filePath.desc"
+			)
+		)
+		.addText((cmp) => {
+			cmp.setValue(settings.fileJsOptionsPath ?? "").onChange((v) => {
+				settings.fileJsOptionsPath = v;
+			});
+			new FileSuggest(plugin.app, cmp.inputEl)
+				.setFilter((f) => f.extension.toLowerCase().endsWith("js"))
+				.onSelect((f) => {
+					cmp.setValue(f.path);
+					cmp.onChanged();
+				});
+		})
+		.addExtraButton((cmp) => {
+			cmp
+				.setIcon("lucide-copy" satisfies Icon)
+				.setTooltip(
+					text(
+						"customPropertyTypes.select.settings.optionsTypeSettings.dynamic.filesFromFileJs.filePath.helpText"
+					)
+				)
+				.onClick(async () => {
+					await navigator.clipboard.writeText(selectOptionJsFileTemplate);
+					new Notice(
+						text(
+							"customPropertyTypes.select.settings.optionsTypeSettings.dynamic.filesFromFileJs.filePath.copySuccessNotice"
+						)
+					);
+				});
+		})
+		.addExtraButton((cmp) => {
+			cmp
+				.setIcon("lucide-play-circle" satisfies Icon)
+				.setTooltip(
+					text(
+						"customPropertyTypes.select.settings.optionsTypeSettings.dynamic.filesFromFileJs.filePath.runInConsole"
+					)
+				)
+				.onClick(async () => {
+					if (!settings.fileJsOptionsPath) {
+						return;
+					}
+					const { success, data, error } = await tryRunFileCode(
+						plugin,
+						settings.fileJsOptionsPath
+					);
+
+					if (success) {
+						console.log(data);
+						new Notice("Validation successful");
+						return;
+					}
+
+					console.error(error);
+					new Notice(
+						createFragment((frag) => {
+							frag.appendText("Validation failed");
+							frag.createEl("br");
+							frag.appendText(error);
+						})
+					);
+				});
+		});
+};
+
+////
+
 const renderManualOptionsSetting = ({
 	plugin,
 	parentEl,
@@ -356,10 +558,10 @@ const renderManualOptionsSetting = ({
 }: {
 	plugin: BetterProperties;
 	parentEl: HTMLElement;
-	settings: Settings;
-	defaultOption: Option;
+	settings: SelectSettings;
+	defaultOption: SelectOption;
 }) => {
-	const list = new ListSetting<Option>(parentEl)
+	const list = new ListSetting<SelectOption>(parentEl)
 		.setName(
 			text(
 				"customPropertyTypes.select.settings.optionsTypeSettings.manual.optionsTitle"
@@ -532,7 +734,7 @@ const renderFolderPathsSetting = ({
 }: {
 	plugin: BetterProperties;
 	parentEl: HTMLElement;
-	settings: Settings;
+	settings: SelectSettings;
 }) => {
 	const folderPathsSetting = new ListSetting<string>(parentEl)
 		.setName(

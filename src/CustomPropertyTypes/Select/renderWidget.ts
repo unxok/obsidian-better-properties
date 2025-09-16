@@ -3,6 +3,7 @@ import {
 	ExtraButtonComponent,
 	Keymap,
 	MenuItem,
+	setIcon,
 	TFile,
 } from "obsidian";
 import { CustomPropertyType, PropertySettings } from "../types";
@@ -19,6 +20,7 @@ import { text } from "~/i18next";
 import { selectColors } from "~/lib/constants";
 import { ComboboxComponent, SearchableMenu } from "~/classes/ComboboxComponent";
 import { Icon } from "~/lib/types/icons";
+import { tryRunFileCode, tryRunInlineCode } from "./utils";
 
 type Settings = NonNullable<PropertySettings["select"]>;
 type Option = NonNullable<Settings["manualOptions"]>[number];
@@ -43,7 +45,7 @@ class SelectTypeComponent extends PropertyWidgetComponentNew<"select", string> {
 	constructor(
 		plugin: BetterProperties,
 		el: HTMLElement,
-		value: unknown,
+		public value: unknown,
 		ctx: PropertyRenderContext
 	) {
 		super(plugin, el, value, ctx);
@@ -53,25 +55,6 @@ class SelectTypeComponent extends PropertyWidgetComponentNew<"select", string> {
 			? new DropdownComponent(el)
 			: new Select(plugin, el, ctx.key, !!settings?.manualAllowCreate);
 		this.initOptions();
-
-		const parsed = this.parseValue(value);
-		this.component.setValue(parsed);
-		this.component.onChange((v) => {
-			this.setValue(v);
-			this.renderAux();
-		});
-
-		this.onFocus = () => {
-			this.component.selectEl.focus();
-		};
-
-		if (!(value === "" && this.component instanceof DropdownComponent)) return;
-
-		// native <select> will not render normally when value is set to empty string
-		const defaultOption =
-			this.component.selectEl.querySelector('option[value=""]');
-		if (!defaultOption) return;
-		defaultOption.setAttribute("selected", "true");
 	}
 
 	validateOption(value: string): boolean {
@@ -152,13 +135,45 @@ class SelectTypeComponent extends PropertyWidgetComponentNew<"select", string> {
 		);
 	}
 
-	initOptions(): void {
+	async initOptions(): Promise<void> {
 		const settings = this.getSettings();
+		if (this.component instanceof Select) {
+			this.component.selectEl.classList.add("better-properties-mod-loader");
+			setIcon(this.component.selectEl, "lucide-loader-2" satisfies Icon);
+		}
 		this.options =
 			settings.optionsType === "manual"
 				? settings.manualOptions
-				: getDynamicOptions({ plugin: this.plugin, settings, ctx: this.ctx });
+				: await getDynamicOptions({
+						plugin: this.plugin,
+						settings,
+						ctx: this.ctx,
+				  });
+		if (this.component instanceof Select) {
+			this.component.selectEl.classList.remove("better-properties-mod-loader");
+			this.component.selectEl.empty();
+		}
 		this.addOptions(this.options);
+
+		const parsed = this.parseValue(this.value);
+		this.component.setValue(parsed);
+		this.component.onChange((v) => {
+			this.setValue(v);
+			this.renderAux();
+		});
+
+		this.onFocus = () => {
+			this.component.selectEl.focus();
+		};
+
+		if (!(this.value === "" && this.component instanceof DropdownComponent))
+			return;
+
+		// native <select> will not render normally when value is set to empty string
+		const defaultOption =
+			this.component.selectEl.querySelector('option[value=""]');
+		if (!defaultOption) return;
+		defaultOption.setAttribute("selected", "true");
 	}
 }
 
@@ -276,7 +291,7 @@ class Select extends ComboboxComponent<Option> {
 	}
 }
 
-const getDynamicOptions = ({
+const getDynamicOptions = async ({
 	plugin,
 	settings,
 	ctx,
@@ -284,46 +299,66 @@ const getDynamicOptions = ({
 	plugin: BetterProperties;
 	settings: PropertySettings["select"];
 	ctx: PropertyRenderContext;
-}): Option[] => {
+}): Promise<Option[]> => {
 	/**
 	 * TODO
 	 * Add option to have backgrounds, like by getting the color from a property in the note
 	 */
 
-	const arr: Option[] = settings?.dynamicEmptyLabel
-		? [
-				{
-					value: "",
-					label: settings.dynamicEmptyLabel,
-				},
-		  ]
-		: [];
+	let options: Option[] = [];
 
 	if (settings?.dynamicOptionsType === "filesInFolder") {
-		return [
-			...arr,
-			...getFolderFilesOptions({
-				plugin,
-				excludeFolderNote: !!settings.folderOptionsExcludeFolderNote,
-				sourcePath: ctx.sourcePath,
-				propertyName: ctx.key,
-				folderOptionsPaths: settings.folderOptionsPaths ?? [],
-			}),
-		];
+		options = getFolderFilesOptions({
+			plugin,
+			excludeFolderNote: !!settings.folderOptionsExcludeFolderNote,
+			sourcePath: ctx.sourcePath,
+			propertyName: ctx.key,
+			folderOptionsPaths: settings.folderOptionsPaths ?? [],
+		});
 	}
 	if (settings?.dynamicOptionsType === "filesFromTag") {
-		return [
-			...arr,
-			...getTagOptions({
-				plugin,
-				tags: settings.tagOptionsTags ?? [],
-				includeNested: settings.tagOptionsIncludeNested ?? false,
-				sourcePath: ctx.sourcePath,
-			}),
-		];
+		options = getTagOptions({
+			plugin,
+			tags: settings.tagOptionsTags ?? [],
+			includeNested: settings.tagOptionsIncludeNested ?? false,
+			sourcePath: ctx.sourcePath,
+		});
 	}
 
-	return [];
+	if (
+		settings?.dynamicOptionsType === "filesFromInlineJs" &&
+		settings?.inlineJsOptionsCode
+	) {
+		const { success, data } = await tryRunInlineCode(
+			plugin,
+			settings.inlineJsOptionsCode
+		);
+		if (success) {
+			options = data;
+		}
+	}
+
+	if (
+		settings?.dynamicOptionsType === "filesFromJsFile" &&
+		settings?.fileJsOptionsPath
+	) {
+		const { success, data } = await tryRunFileCode(
+			plugin,
+			settings.fileJsOptionsPath
+		);
+		if (success) {
+			options = data;
+		}
+	}
+
+	if (settings?.dynamicEmptyLabel) {
+		options.unshift({
+			value: "",
+			label: settings.dynamicEmptyLabel,
+		});
+	}
+
+	return options;
 };
 
 const getFolderFilesOptions = ({

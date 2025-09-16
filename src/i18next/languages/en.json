@@ -132,6 +132,8 @@
 						"emptyLabelDesc": "The text that will show when the value is empty.",
 						"filesInFolderLabel": "Files from folder",
 						"filesFromTagLabel": "Files from tag",
+						"filesFromInlineJsLabel": "Inline JS",
+						"filesFromFileJsLabel": "JS file",
 						"scriptLabel": "Options from script",
 						"filesInFolder": {
 							"folderPaths": {
@@ -151,6 +153,24 @@
 							"includeNestedTags": {
 								"title": "Include Nested Tags",
 								"desc": "Whether to include files containing a nested tag of one of the selected tags. For example, whether to include a note with the tag \"food/fruit\" when \"food\" is a selected tag."
+							}
+						},
+						"filesFromInlineJs": {
+							"code": {
+								"title": "JavaScript code",
+								"desc": "Provide a function which returns an array of options.",
+								"helpText": "Copy function template",
+								"runInConsole": "Run code in console",
+								"copySuccessNotice": "Copied template to clipboard"
+							}
+						},
+						"filesFromFileJs": {
+							"filePath": {
+								"title": "JavaScript file",
+								"desc": "Select the path to a JavaScript file which default exports a function which returns an array of options.",
+								"helpText": "Copy file template",
+								"runInConsole": "Run file in console",
+								"copySuccessNotice": "Copied template to clipboard"
 							}
 						}
 					}

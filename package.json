@@ -29,6 +29,7 @@
 		"vite-bundle-analyzer": "^1.2.1"
 	},
 	"dependencies": {
+		"math-expression-evaluator": "^2.0.7",
 		"monkey-around": "^3.0.0",
 		"obsidian-typings": "obsidian-public-latest",
 		"valibot": "^1.1.0",

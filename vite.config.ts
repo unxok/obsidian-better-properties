@@ -55,6 +55,11 @@ export default defineConfig(async ({ mode }) => {
 					"@lezer/lr",
 					...builtins,
 				],
+				onwarn(warning, warn) {
+					// suppress eval warnings
+					if (warning.code === "EVAL") return;
+					warn(warning);
+				},
 			},
 		},
 	} as UserConfig;

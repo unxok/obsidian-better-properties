@@ -602,7 +602,7 @@ div.metadata-content {
 
 .better-properties-combobox-select {
 	display: flex;
-	height: var(--input-height);
+	/* height: var(--input-height); */
 	align-items: center;
 	gap: var(--size-2-1);
 	min-width: 0;
@@ -669,4 +669,8 @@ div.metadata-content {
 	.menu-item.is-disabled[data-section="body"] {
 		display: none;
 	}
+}
+
+.better-properties-mod-loader > svg {
+	animation: spin 1s ease infinite;
 }
