@@ -64,12 +64,11 @@ My goal is to not _need_ to create official documentation for the features of th
 **note:** Types that have a reserved keyword are marked with an asterisk (\*)
 
 - [ ] Background `NOT COMMITTED`
-  - Does it make sense to have this feature when they are plenty of other plugins dedicated to it?
+  - Does it make sense to have this feature when they are plenty of other plugins dedicated to it? Also it's relatively easy to accomplish with CSS snippets and the `cssclasses` property
 - [ ] Banner `NOT COMMITTED`
   - Does it make sense to have this feature when they are plenty of other plugins dedicated to it?
 - [ ] Button `NOT COMMITTED`
   - Running commands isn't that useful, so these would mostly be used for running user-provided js code... but then what's the utility of this type when there's the "Custom" type?
-- [ ] Calculation
 - [x] Color
 - [ ] Custom
 - [ ] Created\* `NOT COMMITTED`
@@ -83,13 +82,13 @@ My goal is to not _need_ to create official documentation for the features of th
 - [x] Group
 - [ ] Image `NOT COMMITTED`
   - [New property type: media](https://forum.obsidian.md/t/new-property-type-media/99259/1)
-  - Is this necessary since you can do an embed with the "Markdown"
+  - Is this necessary since you can do an embed with the "Markdown" type
 - [x] Markdown
   - [Properties & Bases: Parse (Render) Markdown in text properties // Allow mixing text and links in string fields](https://forum.obsidian.md/t/properties-bases-parse-render-markdown-in-text-properties-allow-mixing-text-and-links-in-string-fields/66542/18)
 - [ ] Modified\* `NOT COMMITTED`
   - Unsure if useful enough. Same note as "Created" type above
-- [ ] Multiselect `NOT COMMITTED`
-  - You can achieve this with a "list" type and custom suggestions, so is there enough of a need to have a dedicated "multiselect" type as well?
+- [x] Multiselect
+- [x] Numeric
 - [ ] Progress
 - [ ] Relation
   - [Add support for automatic, bidirectional and separately named list properties](https://forum.obsidian.md/t/add-support-for-automatic-bidirectional-and-separately-named-list-properties/76175/4)
