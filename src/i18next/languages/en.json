@@ -177,6 +177,9 @@
 				}
 			}
 		},
+		"multiSelect": {
+			"name": "Multi-Select"
+		},
 		"group": {
 			"name": "Group",
 			"settings": {

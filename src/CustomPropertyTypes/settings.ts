@@ -463,6 +463,7 @@ const handlePropertyTypeTab = ({
 			if (!customPropertyType) {
 				tab.labelEl.classList.add("better-properties-mod-unsupported");
 			}
+			console.log(propertyType, widget.type);
 			if (propertyType === widget.type) {
 				tab.labelEl.classList.add("better-properties-mod-active");
 				tab.select();

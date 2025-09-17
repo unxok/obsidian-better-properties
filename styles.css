@@ -69,6 +69,7 @@ body {
 	color: var(--metadata-input-text-color);
 	background: var(--better-properties-select-bg);
 	border-radius: var(--radius-s);
+	/* padding: var(--size-2-1) var(--size-2-2); */
 	padding: var(--size-2-1) var(--size-2-2);
 	width: fit-content;
 	flex: unset;
@@ -76,6 +77,18 @@ body {
 
 .metadata-property-value {
 	&[data-property-type="better-properties:select"] {
+		padding: var(--size-2-2);
+		display: flex;
+		justify-content: start;
+		align-items: center;
+		gap: var(--size-4-1);
+		padding: var(--input-padding);
+		width: 100%;
+		min-width: fit-content;
+		text-wrap: nowrap;
+	}
+
+	&[data-property-type="better-properties:multiselect"] {
 		padding: var(--size-2-2);
 		display: flex;
 		justify-content: start;
@@ -601,9 +614,18 @@ div.metadata-content {
 	}
 }
 
+.better-properties-select-container {
+	display: flex;
+	gap: var(--size-2-2);
+
+	&:has(.data-better-properties-combobox-mod-empty) {
+		width: 100%;
+	}
+}
+
 .better-properties-combobox-select {
 	display: flex;
-	/* height: var(--input-height); */
+	/* min-height: var(--input-height); */
 	align-items: center;
 	gap: var(--size-2-1);
 	min-width: 0;
@@ -674,4 +696,10 @@ div.metadata-content {
 
 .better-properties-mod-loader > svg {
 	animation: spin 1s ease infinite;
+}
+
+.better-properties-multiselect-items-container {
+	display: flex;
+	gap: var(--size-2-2);
+	width: 100%;
 }

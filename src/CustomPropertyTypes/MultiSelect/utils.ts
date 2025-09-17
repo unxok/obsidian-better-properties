@@ -1,7 +1,7 @@
-import { iterateFileMetadata, tryCatch } from "~/lib/utils";
+import { tryCatch } from "~/lib/utils";
 import BetterProperties from "~/main";
 import { PropertySettings } from "../types";
-import { Setting, Menu, Notice, MenuItem, getAllTags, TFile } from "obsidian";
+import { Setting, Menu, Notice, MenuItem } from "obsidian";
 import { ColorTextComponent } from "~/classes/ColorTextComponent";
 import { ComboboxComponent, SearchableMenu } from "~/classes/ComboboxComponent";
 import { FileSuggest } from "~/classes/InputSuggest/FileSuggest";
@@ -14,9 +14,8 @@ import { Icon } from "~/lib/types/icons";
 import { PropertySettingsModal } from "../settings";
 import { renderSettings } from "./renderSettings";
 import { text } from "~/i18next";
-import { PropertyRenderContext } from "obsidian-typings";
 
-export type SelectSettings = NonNullable<PropertySettings["select"]>;
+export type SelectSettings = NonNullable<PropertySettings["multiselect"]>;
 export type SelectOptionsType = NonNullable<SelectSettings["optionsType"]>;
 export type SelectOption = NonNullable<SelectSettings["manualOptions"]>[number];
 
@@ -133,19 +132,6 @@ export const renderDefaultSettings = ({
 	modal: PropertySettingsModal;
 	property: string;
 }) => {
-	new Setting(parentEl)
-		.setName(
-			text("customPropertyTypes.select.settings.useDefaultDropdown.title")
-		)
-		.setDesc(
-			text("customPropertyTypes.select.settings.useDefaultDropdown.desc")
-		)
-		.addToggle((cmp) => {
-			cmp.setValue(settings.useDefaultStyle ?? false).onChange((b) => {
-				settings.useDefaultStyle = b;
-			});
-		});
-
 	new Setting(parentEl)
 		.setName(text("customPropertyTypes.select.settings.optionsType.title"))
 		.setDesc(text("customPropertyTypes.select.settings.optionsType.desc"))
@@ -357,23 +343,6 @@ export const renderDynamicSettings = ({
 		.setName(
 			text("customPropertyTypes.select.settings.optionsType.selectLabelDynamic")
 		);
-
-	new Setting(parentEl)
-		.setName(
-			text(
-				"customPropertyTypes.select.settings.optionsTypeSettings.dynamic.emptyLabelTitle"
-			)
-		)
-		.setDesc(
-			text(
-				"customPropertyTypes.select.settings.optionsTypeSettings.dynamic.emptyLabelDesc"
-			)
-		)
-		.addText((cmp) => {
-			cmp.setValue(settings.dynamicEmptyLabel ?? "").onChange((v) => {
-				settings.dynamicEmptyLabel = v;
-			});
-		});
 
 	new Setting(parentEl)
 		.setName(
@@ -878,161 +847,3 @@ class SelectColorCombobox extends ComboboxComponent<{
 		return menu;
 	}
 }
-
-/////
-
-export const getDynamicOptions = async ({
-	plugin,
-	ctx,
-	dynamicOptionsType,
-	folderOptionsExcludeFolderNote,
-	folderOptionsPaths,
-	tagOptionsTags,
-	tagOptionsIncludeNested,
-	inlineJsOptionsCode,
-	fileJsOptionsPath,
-	dynamicEmptyLabel,
-}: {
-	plugin: BetterProperties;
-	ctx: PropertyRenderContext;
-	dynamicOptionsType: SelectSettings["dynamicOptionsType"];
-	folderOptionsExcludeFolderNote: SelectSettings["folderOptionsExcludeFolderNote"];
-	folderOptionsPaths: SelectSettings["folderOptionsPaths"];
-	tagOptionsTags: SelectSettings["tagOptionsTags"];
-	tagOptionsIncludeNested: SelectSettings["tagOptionsIncludeNested"];
-	inlineJsOptionsCode: SelectSettings["inlineJsOptionsCode"];
-	fileJsOptionsPath: SelectSettings["fileJsOptionsPath"];
-	dynamicEmptyLabel: SelectSettings["dynamicEmptyLabel"];
-}): Promise<SelectOption[]> => {
-	/**
-	 * TODO
-	 * Add option to have backgrounds, like by getting the color from a property in the note
-	 */
-
-	let options: SelectOption[] = [];
-
-	if (dynamicOptionsType === "filesInFolder") {
-		options = getFolderFilesOptions({
-			plugin,
-			excludeFolderNote: !!folderOptionsExcludeFolderNote,
-			sourcePath: ctx.sourcePath,
-			propertyName: ctx.key,
-			folderOptionsPaths: folderOptionsPaths ?? [],
-		});
-	}
-	if (dynamicOptionsType === "filesFromTag") {
-		options = getTagOptions({
-			plugin,
-			tags: tagOptionsTags ?? [],
-			includeNested: tagOptionsIncludeNested ?? false,
-			sourcePath: ctx.sourcePath,
-		});
-	}
-
-	if (dynamicOptionsType === "filesFromInlineJs" && inlineJsOptionsCode) {
-		const { success, data } = await tryRunInlineCode(
-			plugin,
-			inlineJsOptionsCode
-		);
-		if (success) {
-			options = data;
-		}
-	}
-
-	if (dynamicOptionsType === "filesFromJsFile" && fileJsOptionsPath) {
-		const { success, data } = await tryRunFileCode(plugin, fileJsOptionsPath);
-		if (success) {
-			options = data;
-		}
-	}
-
-	if (dynamicEmptyLabel) {
-		options.unshift({
-			value: "",
-			label: dynamicEmptyLabel,
-		});
-	}
-
-	return options;
-};
-
-export const getFolderFilesOptions = ({
-	plugin,
-	excludeFolderNote,
-	sourcePath,
-	folderOptionsPaths,
-}: {
-	plugin: BetterProperties;
-	excludeFolderNote: boolean;
-	sourcePath: string;
-	propertyName: string;
-	folderOptionsPaths: string[];
-}): SelectOption[] => {
-	const opts = (folderOptionsPaths ?? []).reduce((acc, path) => {
-		const folderPath = path === "" || path === undefined ? "/" : path;
-		const folder = plugin.app.vault.getFolderByPath(folderPath);
-		if (!folder) {
-			return [];
-		}
-		const options = folder.children.reduce((acc, cur) => {
-			if (!(cur instanceof TFile) || cur.extension.toLowerCase() !== "md")
-				return acc;
-			if (excludeFolderNote && folder.name === cur.basename) {
-				return acc;
-			}
-			const link = plugin.app.fileManager.generateMarkdownLink(cur, sourcePath);
-			acc.push({
-				value: link,
-				label: cur.basename,
-			});
-			return acc;
-		}, [] as SelectOption[]);
-		return [...acc, ...options];
-	}, [] as SelectOption[]);
-	return opts;
-};
-
-export const getTagOptions = ({
-	plugin,
-	tags,
-	includeNested,
-	sourcePath,
-}: {
-	plugin: BetterProperties;
-	tags: string[];
-	includeNested: boolean;
-	sourcePath: string;
-}): SelectOption[] => {
-	const options: SelectOption[] = [];
-
-	const addOption = (file: TFile) => {
-		options.push({
-			value: plugin.app.fileManager.generateMarkdownLink(file, sourcePath),
-			label: file.basename,
-		});
-	};
-
-	iterateFileMetadata({
-		vault: plugin.app.vault,
-		metadataCache: plugin.app.metadataCache,
-		callback: ({ file, metadata }) => {
-			if (!metadata) return;
-			const fileTags = getAllTags(metadata);
-			if (!fileTags) return;
-			if (!includeNested) {
-				const fileTagsSet = new Set(fileTags);
-				const isMatch = tags.some((t) => fileTagsSet.has(t));
-				if (!isMatch) return;
-				addOption(file);
-				return;
-			}
-			const isMatch = fileTags.some((fTag) =>
-				tags.some((tag) => tag === fTag || fTag.startsWith(`${tag}/`))
-			);
-			if (!isMatch) return;
-			addOption(file);
-		},
-	});
-
-	return options;
-};

@@ -12,12 +12,14 @@ import { ratingSettingsSchema } from "./Rating";
 import { dateCustomSettingsSchema } from "./DateCustom";
 import { sliderSettingsSchema } from "./Slider";
 import { timeSettingsSchema } from "./Time";
+import { multiSelectSettingsSchema } from "./MultiSelect";
 
 type SettingsBase = v.ObjectSchema<
 	Record<string, PropertyTypeSchema>,
 	undefined
 >;
 
+// NOTE type key names must be all lowercase, otherwise they will fail to register
 export const propertySettingsSchema = v.object({
 	general: v.optional(
 		v.object({
@@ -30,6 +32,7 @@ export const propertySettingsSchema = v.object({
 		})
 	),
 	select: selectSettingsSchema,
+	multiselect: multiSelectSettingsSchema,
 	toggle: toggleSettingsSchema,
 	title: titleSettingsSchema,
 	markdown: markdownSettingsSchema,

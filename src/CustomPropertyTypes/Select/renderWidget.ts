@@ -4,15 +4,10 @@ import {
 	Keymap,
 	MenuItem,
 	setIcon,
-	TFile,
 } from "obsidian";
 import { CustomPropertyType, PropertySettings } from "../types";
 import { PropertyWidgetComponentNew } from "../utils";
-import {
-	getAllTags,
-	getFirstLinkPathDest,
-	iterateFileMetadata,
-} from "~/lib/utils";
+import { getFirstLinkPathDest } from "~/lib/utils";
 import BetterProperties from "~/main";
 import { PropertyRenderContext } from "obsidian-typings";
 import { obsidianText } from "~/i18next/obsidian";
@@ -20,7 +15,7 @@ import { text } from "~/i18next";
 import { selectColors } from "~/lib/constants";
 import { ComboboxComponent, SearchableMenu } from "~/classes/ComboboxComponent";
 import { Icon } from "~/lib/types/icons";
-import { tryRunFileCode, tryRunInlineCode } from "./utils";
+import { getDynamicOptions } from "./utils";
 
 type Settings = NonNullable<PropertySettings["select"]>;
 type Option = NonNullable<Settings["manualOptions"]>[number];
@@ -38,8 +33,8 @@ class SelectTypeComponent extends PropertyWidgetComponentNew<"select", string> {
 	type = "select" as const;
 	parseValue = (v: unknown) => v?.toString() ?? "";
 
-	component: Select | DropdownComponent;
-	auxEl: HTMLElement | undefined;
+	selectContainerEl: HTMLDivElement;
+	component: SelectComponent | DropdownComponent;
 	options: Option[] = [];
 
 	constructor(
@@ -51,64 +46,19 @@ class SelectTypeComponent extends PropertyWidgetComponentNew<"select", string> {
 		super(plugin, el, value, ctx);
 
 		const settings = this.getSettings();
-		this.component = settings?.useDefaultStyle
-			? new DropdownComponent(el)
-			: new Select(plugin, el, ctx.key, !!settings?.manualAllowCreate);
-		this.initOptions();
-	}
-
-	validateOption(value: string): boolean {
-		if (!value) return true;
-		return !!this.options.find((o) => o.value === value);
-	}
-
-	renderAux(): void {
-		const { auxEl, plugin, ctx, component, containerEl } = this;
-		if (auxEl) {
-			auxEl.remove();
-		}
-
-		const value = component.getValue();
-		const file = getFirstLinkPathDest(
-			plugin.app.metadataCache,
-			ctx.sourcePath,
-			value
-		);
-		const auxType: "invalid" | "wikilink" | "other" /*TODO add external link*/ =
-			!this.validateOption(value)
-				? "invalid"
-				: value.startsWith("[[") && value.endsWith("]]")
-				? "wikilink"
-				: "other";
-
-		if (auxType === "other") return;
-
-		const button = new ExtraButtonComponent(containerEl)
-			.setIcon(auxType === "invalid" ? "lucide-alert-circle" : "link")
-			.setTooltip(
-				auxType === "invalid"
-					? `Invalid value: "${value}"`
-					: file
-					? text("common.openFile", { fileName: file.name })
-					: obsidianText("plugins.page-preview.label-empty-note")
-			);
-		this.auxEl = button.extraSettingsEl;
-
-		button.extraSettingsEl.classList.add("better-properties-select-aux");
-		if (auxType === "invalid") {
-			button.extraSettingsEl.classList.add("better-properties-mod-error");
-		}
-
-		if (auxType !== "wikilink") return;
-
-		const fileName = file?.basename ?? value.slice(2, -2);
-		button.extraSettingsEl.addEventListener("click", (e) => {
-			this.plugin.app.workspace.openLinkText(
-				fileName,
-				ctx.sourcePath,
-				Keymap.isModEvent(e)
-			);
+		this.selectContainerEl = el.createDiv({
+			cls: "better-properties-select-container",
 		});
+		this.component = settings?.useDefaultStyle
+			? new DropdownComponent(this.selectContainerEl)
+			: new SelectComponent(
+					plugin,
+					this.selectContainerEl,
+					ctx.key,
+					!!settings?.manualAllowCreate && settings.optionsType !== "dynamic",
+					ctx.sourcePath
+			  );
+		this.initOptions();
 	}
 
 	getValue(): string {
@@ -123,7 +73,7 @@ class SelectTypeComponent extends PropertyWidgetComponentNew<"select", string> {
 	}
 
 	addOptions(options: Option[]): void {
-		if (this.component instanceof Select) {
+		if (this.component instanceof SelectComponent) {
 			this.component.addOptions(options);
 			return;
 		}
@@ -137,19 +87,36 @@ class SelectTypeComponent extends PropertyWidgetComponentNew<"select", string> {
 
 	async initOptions(): Promise<void> {
 		const settings = this.getSettings();
-		if (this.component instanceof Select) {
+		if (this.component instanceof SelectComponent) {
 			this.component.selectEl.classList.add("better-properties-mod-loader");
 			setIcon(this.component.selectEl, "lucide-loader-2" satisfies Icon);
 		}
+		const {
+			dynamicOptionsType,
+			folderOptionsExcludeFolderNote,
+			folderOptionsPaths,
+			tagOptionsTags,
+			tagOptionsIncludeNested,
+			inlineJsOptionsCode,
+			fileJsOptionsPath,
+			dynamicEmptyLabel,
+		} = settings;
 		this.options =
 			settings.optionsType === "manual"
 				? settings.manualOptions
 				: await getDynamicOptions({
 						plugin: this.plugin,
-						settings,
 						ctx: this.ctx,
+						dynamicEmptyLabel,
+						dynamicOptionsType,
+						fileJsOptionsPath,
+						folderOptionsExcludeFolderNote,
+						folderOptionsPaths,
+						inlineJsOptionsCode,
+						tagOptionsIncludeNested,
+						tagOptionsTags,
 				  });
-		if (this.component instanceof Select) {
+		if (this.component instanceof SelectComponent) {
 			this.component.selectEl.classList.remove("better-properties-mod-loader");
 			this.component.selectEl.empty();
 		}
@@ -159,7 +126,6 @@ class SelectTypeComponent extends PropertyWidgetComponentNew<"select", string> {
 		this.component.setValue(parsed);
 		this.component.onChange((v) => {
 			this.setValue(v);
-			this.renderAux();
 		});
 
 		this.onFocus = () => {
@@ -177,14 +143,21 @@ class SelectTypeComponent extends PropertyWidgetComponentNew<"select", string> {
 	}
 }
 
-class Select extends ComboboxComponent<Option> {
+export class SelectComponent extends ComboboxComponent<Option> {
+	selectContainerEl: HTMLDivElement;
 	constructor(
 		public plugin: BetterProperties,
 		public containerEl: HTMLElement,
 		public property: string,
-		public isCreateAllowed: boolean
+		public isCreateAllowed: boolean,
+		public sourcePath: string
 	) {
 		super(containerEl);
+
+		this.selectContainerEl = containerEl.createDiv({
+			cls: "better-properties-select-container",
+		});
+		this.selectContainerEl.insertAdjacentElement("afterbegin", this.selectEl);
 	}
 
 	getValueFromOption(option: Option): string {
@@ -218,6 +191,45 @@ class Select extends ComboboxComponent<Option> {
 		const el = super.createSelectEl(containerEl);
 		el.classList.add("better-properties-select");
 		return el;
+	}
+
+	validateOption(value: string): boolean {
+		if (!value) return true;
+		return !!this.options.find((o) => o.value === value);
+	}
+
+	createAuxEl(containerEl: HTMLElement): HTMLElement {
+		const el = super.createAuxEl(containerEl);
+		this.selectContainerEl.insertAdjacentElement("beforeend", el);
+
+		const value = this.getValue();
+		if (
+			!this.validateOption(value) ||
+			!(value.startsWith("[[") && value.endsWith("]]"))
+		) {
+			return el;
+		}
+		const file = getFirstLinkPathDest(
+			this.plugin.app.metadataCache,
+			this.sourcePath,
+			value
+		);
+
+		const tooltip = file
+			? text("common.openFile", { fileName: file.name })
+			: obsidianText("interface.empty-state.create-new-file");
+
+		const cmp = new ExtraButtonComponent(containerEl)
+			.setTooltip(tooltip)
+			.setIcon("link" satisfies Icon);
+		cmp.extraSettingsEl.addEventListener("click", (e) => {
+			this.plugin.app.workspace.openLinkText(
+				value.slice(2, -2),
+				this.sourcePath,
+				Keymap.isModEvent(e)
+			);
+		});
+		return cmp.extraSettingsEl;
 	}
 
 	setValue(value: string): this {
@@ -256,6 +268,7 @@ class Select extends ComboboxComponent<Option> {
 				.setTitle("Set empty")
 				.onClick(() => {
 					this.setValue("");
+					this.onChanged();
 				});
 		});
 
@@ -291,154 +304,3 @@ class Select extends ComboboxComponent<Option> {
 		return menu;
 	}
 }
-
-const getDynamicOptions = async ({
-	plugin,
-	settings,
-	ctx,
-}: {
-	plugin: BetterProperties;
-	settings: PropertySettings["select"];
-	ctx: PropertyRenderContext;
-}): Promise<Option[]> => {
-	/**
-	 * TODO
-	 * Add option to have backgrounds, like by getting the color from a property in the note
-	 */
-
-	let options: Option[] = [];
-
-	if (settings?.dynamicOptionsType === "filesInFolder") {
-		options = getFolderFilesOptions({
-			plugin,
-			excludeFolderNote: !!settings.folderOptionsExcludeFolderNote,
-			sourcePath: ctx.sourcePath,
-			propertyName: ctx.key,
-			folderOptionsPaths: settings.folderOptionsPaths ?? [],
-		});
-	}
-	if (settings?.dynamicOptionsType === "filesFromTag") {
-		options = getTagOptions({
-			plugin,
-			tags: settings.tagOptionsTags ?? [],
-			includeNested: settings.tagOptionsIncludeNested ?? false,
-			sourcePath: ctx.sourcePath,
-		});
-	}
-
-	if (
-		settings?.dynamicOptionsType === "filesFromInlineJs" &&
-		settings?.inlineJsOptionsCode
-	) {
-		const { success, data } = await tryRunInlineCode(
-			plugin,
-			settings.inlineJsOptionsCode
-		);
-		if (success) {
-			options = data;
-		}
-	}
-
-	if (
-		settings?.dynamicOptionsType === "filesFromJsFile" &&
-		settings?.fileJsOptionsPath
-	) {
-		const { success, data } = await tryRunFileCode(
-			plugin,
-			settings.fileJsOptionsPath
-		);
-		if (success) {
-			options = data;
-		}
-	}
-
-	if (settings?.dynamicEmptyLabel) {
-		options.unshift({
-			value: "",
-			label: settings.dynamicEmptyLabel,
-		});
-	}
-
-	return options;
-};
-
-const getFolderFilesOptions = ({
-	plugin,
-	excludeFolderNote,
-	sourcePath,
-	folderOptionsPaths,
-}: {
-	plugin: BetterProperties;
-	excludeFolderNote: boolean;
-	sourcePath: string;
-	propertyName: string;
-	folderOptionsPaths: string[];
-}): Option[] => {
-	const opts = (folderOptionsPaths ?? []).reduce((acc, path) => {
-		const folderPath = path === "" || path === undefined ? "/" : path;
-		const folder = plugin.app.vault.getFolderByPath(folderPath);
-		if (!folder) {
-			return [];
-		}
-		const options = folder.children.reduce((acc, cur) => {
-			if (!(cur instanceof TFile) || cur.extension.toLowerCase() !== "md")
-				return acc;
-			if (excludeFolderNote && folder.name === cur.basename) {
-				return acc;
-			}
-			const link = plugin.app.fileManager.generateMarkdownLink(cur, sourcePath);
-			acc.push({
-				value: link,
-				label: cur.basename,
-			});
-			return acc;
-		}, [] as Option[]);
-		return [...acc, ...options];
-	}, [] as Option[]);
-	return opts;
-};
-
-const getTagOptions = ({
-	plugin,
-	tags,
-	includeNested,
-	sourcePath,
-}: {
-	plugin: BetterProperties;
-	tags: string[];
-	includeNested: boolean;
-	sourcePath: string;
-}): Option[] => {
-	const options: Option[] = [];
-
-	const addOption = (file: TFile) => {
-		options.push({
-			value: plugin.app.fileManager.generateMarkdownLink(file, sourcePath),
-			label: file.basename,
-		});
-	};
-
-	iterateFileMetadata({
-		vault: plugin.app.vault,
-		metadataCache: plugin.app.metadataCache,
-		callback: ({ file, metadata }) => {
-			if (!metadata) return;
-			const fileTags = getAllTags(metadata, false);
-			if (!fileTags) return;
-			if (!includeNested) {
-				const fileTagsSet = new Set(fileTags);
-				const isMatch = tags.some((t) => fileTagsSet.has(t));
-				if (!isMatch) return;
-				addOption(file);
-				return;
-			}
-			const isMatch = fileTags.some((fTag) =>
-				tags.some((tag) => tag === fTag || fTag.startsWith(`${tag}/`))
-			);
-			if (!isMatch) return;
-			addOption(file);
-		},
-	});
-
-	return options;
-};

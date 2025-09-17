@@ -20,9 +20,11 @@ import { dateCustomPropertyType } from "./DateCustom";
 import { syncTryCatch } from "~/lib/utils";
 import { sliderPropertyType } from "./Slider";
 import { timePropertyType } from "./Time";
+import { multiSelectPropertyType } from "./MultiSelect";
 
 export const getCustomPropertyTypesArr = (): CustomPropertyType[] => [
 	selectPropertyType,
+	multiSelectPropertyType,
 	togglePropertyType,
 	// titlePropertyType,
 	markdownPropertyType,

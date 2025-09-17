@@ -12,6 +12,7 @@ import { Icon } from "~/lib/types/icons";
 export abstract class ComboboxComponent<Option> extends ValueComponent<string> {
 	options: Option[] = [];
 	selectEl: HTMLDivElement;
+	auxEl: HTMLElement | undefined;
 
 	value: string = "";
 	positionOffset: number = 5;
@@ -29,6 +30,13 @@ export abstract class ComboboxComponent<Option> extends ValueComponent<string> {
 		!isEmpty && this.selectEl.classList.remove(emptyCls);
 	}
 
+	validateOption(value: string): boolean {
+		return (
+			value === "" ||
+			this.options.some((opt) => this.getValueFromOption(opt) === value)
+		);
+	}
+
 	getValue(): string {
 		return this.value;
 	}
@@ -38,12 +46,7 @@ export abstract class ComboboxComponent<Option> extends ValueComponent<string> {
 		this.selectEl.textContent = value;
 		this.setEmptyClass(value === "");
 		this?.auxEl?.remove();
-		if (
-			value !== "" &&
-			!this.options.some((v) => this.getValueFromOption(v) === value)
-		) {
-			this.auxEl = this.createAuxEl(this.containerEl);
-		}
+		this.auxEl = this.createAuxEl(this.containerEl);
 		return this;
 	}
 
@@ -64,6 +67,8 @@ export abstract class ComboboxComponent<Option> extends ValueComponent<string> {
 		this.onChanged();
 	}
 
+	menuOptionFilter: (opt: Option) => boolean = () => true;
+
 	createSelectEl(containerEl: HTMLElement): HTMLDivElement {
 		const selectEl = containerEl.createDiv({
 			cls: "better-properties-combobox-select",
@@ -78,6 +83,7 @@ export abstract class ComboboxComponent<Option> extends ValueComponent<string> {
 		const initMenu = () => {
 			const menu = this.createMenu();
 			this.options.forEach((opt) => {
+				if (!this.menuOptionFilter(opt)) return;
 				menu.addSectionItem("body", (item) => {
 					this.onRenderMenuItem(item, opt);
 				});
@@ -99,14 +105,17 @@ export abstract class ComboboxComponent<Option> extends ValueComponent<string> {
 		return selectEl;
 	}
 
-	auxEl: HTMLElement | undefined;
-
 	createAuxEl(containerEl: HTMLElement): HTMLElement {
-		const el = new ExtraButtonComponent(containerEl)
-			.setTooltip(`Invalid value: "${this.getValue()}"`)
-			.setIcon("lucide-alert-circle" satisfies Icon).extraSettingsEl;
-		el.classList.add("better-properties-mod-error");
-		return el;
+		const value = this.getValue();
+		if (!this.validateOption(value)) {
+			const el = new ExtraButtonComponent(containerEl)
+				.setTooltip(`Invalid value: "${this.getValue()}"`)
+				.setIcon("lucide-alert-circle" satisfies Icon).extraSettingsEl;
+			el.classList.add("better-properties-mod-error");
+			return el;
+		}
+
+		return createDiv();
 	}
 
 	onRenderMenuItem(item: MenuItem, option: Option): void {
