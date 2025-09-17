@@ -703,3 +703,18 @@ div.metadata-content {
 	gap: var(--size-2-2);
 	width: 100%;
 }
+
+.better-properties-numeric-container {
+	width: 100%;
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var(--size-2-3);
+	& .better-properties-numeric-result {
+		font-size: var(--metadata-input-font-size);
+	}
+
+	& input.metadata-input.metadata-input-number[type="text"] {
+		width: fit-content;
+	}
+}

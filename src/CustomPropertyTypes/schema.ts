@@ -13,6 +13,7 @@ import { dateCustomSettingsSchema } from "./DateCustom";
 import { sliderSettingsSchema } from "./Slider";
 import { timeSettingsSchema } from "./Time";
 import { multiSelectSettingsSchema } from "./MultiSelect";
+import { numericSettingsSchema } from "./Numeric";
 
 type SettingsBase = v.ObjectSchema<
 	Record<string, PropertyTypeSchema>,
@@ -44,6 +45,7 @@ export const propertySettingsSchema = v.object({
 	datecustom: dateCustomSettingsSchema,
 	slider: sliderSettingsSchema,
 	time: timeSettingsSchema,
+	numeric: numericSettingsSchema,
 }) satisfies SettingsBase;
 
 export const getDefaultPropertySettings =

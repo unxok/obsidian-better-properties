@@ -43,6 +43,15 @@
 				}
 			}
 		},
+		"numeric": {
+			"name": "Numeric",
+			"settings": {
+				"decimalPlaces": {
+					"title": "Decimal places",
+					"desc": "How many decimal places to round the number to."
+				}
+			}
+		},
 		"color": {
 			"name": "Color"
 		},

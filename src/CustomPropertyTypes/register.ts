@@ -21,6 +21,7 @@ import { syncTryCatch } from "~/lib/utils";
 import { sliderPropertyType } from "./Slider";
 import { timePropertyType } from "./Time";
 import { multiSelectPropertyType } from "./MultiSelect";
+import { numericPropertyType } from "./Numeric";
 
 export const getCustomPropertyTypesArr = (): CustomPropertyType[] => [
 	selectPropertyType,
@@ -35,6 +36,7 @@ export const getCustomPropertyTypesArr = (): CustomPropertyType[] => [
 	dateCustomPropertyType,
 	sliderPropertyType,
 	timePropertyType,
+	numericPropertyType,
 ];
 
 export const getCustomPropertyTypesRecord = (): Record<
