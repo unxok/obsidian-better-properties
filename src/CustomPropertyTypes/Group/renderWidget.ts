@@ -53,7 +53,9 @@ class GroupTypeComponent extends PropertyWidgetComponentNew<
 		const container = this.el.createDiv({
 			cls: "better-properties-property-value-inner better-properties-mod-group metadata-container",
 			attr: {
-				tabindex: "0",
+				"tabindex": "0",
+				"data-better-properties-showindentguide":
+					!!this.plugin.app.vault.getConfig("showIndentGuide"),
 			},
 		});
 

@@ -247,7 +247,7 @@ body {
 			width: unset !important;
 		} */
 
-		& div.cm-gutters {
+		&[data-better-properties-showLineNumber="false"] div.cm-gutters {
 			display: none !important;
 		}
 		& div.cm-scroller {
@@ -348,7 +348,7 @@ body {
 		}
 	}
 
-	&::before {
+	&:has([data-better-properties-showindentguide="true"])::before {
 		content: "";
 		position: absolute;
 		left: calc(
@@ -716,5 +716,23 @@ div.metadata-content {
 
 	& input.metadata-input.metadata-input-number[type="text"] {
 		width: fit-content;
+	}
+}
+
+.metadata-property[data-better-properties-hide-key="true"]
+	> .metadata-property-key {
+	display: none;
+}
+
+.better-properties-bpjs {
+	&.better-properties-bpjs-code {
+		& .metadata-property {
+			width: fit-content;
+			display: inline-flex;
+			& > .metadata-property-value {
+				width: fit-content;
+				flex: 0 0 auto;
+			}
+		}
 	}
 }

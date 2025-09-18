@@ -31,9 +31,11 @@ import { showPropertySettingsModal } from "~/CustomPropertyTypes/settings";
 import { patchMetadataCache } from "~/MetadataCache";
 import * as v from "valibot";
 import { openRenameModal } from "~/MetadataEditor/propertyEditorMenu/rename";
+import { registerBpJsCodeProcessors } from "~/bpjs";
 export class BetterProperties extends Plugin {
 	settings: BetterPropertiesSettings = getDefaultSettings();
 	disabledTypeWidgets: Record<string, PropertyWidget> = {};
+	codePrefix = "bpjs:"; // TODO make configurable
 
 	async onload(): Promise<void> {
 		await this.loadSettings();
@@ -56,6 +58,13 @@ export class BetterProperties extends Plugin {
 		window.CodeMirror.defineMode("script", (config) =>
 			window.CodeMirror.getMode(config, "javascript")
 		);
+
+		registerBpJsCodeProcessors(this);
+		this.registerEvent(
+			this.app.vault.on("config-changed", () => {
+				this.refreshPropertyEditors();
+			})
+		);
 	}
 
 	rebuildLeaves(): void {
@@ -69,12 +78,7 @@ export class BetterProperties extends Plugin {
 			if (!(leaf.view instanceof MarkdownView)) return;
 			const me = leaf.view.metadataEditor;
 			if (!me) return;
-			me.synchronize(
-				me.properties.reduce((acc, { key, value }) => {
-					acc[key] = value;
-					return acc;
-				}, {} as Record<string, unknown>)
-			);
+			leaf.rebuildView();
 		});
 	}
 

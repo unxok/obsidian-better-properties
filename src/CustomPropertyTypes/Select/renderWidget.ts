@@ -265,7 +265,7 @@ export class SelectComponent extends ComboboxComponent<Option> {
 		menu.addSectionItem("footer", (item) => {
 			item
 				.setIcon("lucide-trash-2" satisfies Icon)
-				.setTitle("Set empty")
+				.setTitle(obsidianText("interface.menu.remove"))
 				.onClick(() => {
 					this.setValue("");
 					this.onChanged();

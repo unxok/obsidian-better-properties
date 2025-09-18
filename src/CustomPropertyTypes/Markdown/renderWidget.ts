@@ -50,6 +50,10 @@ class MarkdownTypeComponent extends PropertyWidgetComponentNew<
 		this.onFocus = () => {
 			this.embeddedMarkdownEditor.focus();
 		};
+
+		if (!plugin.app.vault.getConfig("showLineNumber")) {
+			el.setAttribute("data-better-properties-showLineNumber", "false");
+		}
 	}
 
 	getValue(): string {
