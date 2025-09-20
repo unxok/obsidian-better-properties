@@ -198,6 +198,15 @@
 				}
 			}
 		},
+		"array": {
+			"name": "Array",
+			"settings": {
+				"hideAddButton": {
+					"title": "Hide \"Add property\" button",
+					"desc": "Whether to hide the button used to add properties to this array."
+				}
+			}
+		},
 		"markdown": {
 			"name": "Markdown"
 		},

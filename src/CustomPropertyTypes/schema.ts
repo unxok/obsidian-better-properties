@@ -14,6 +14,7 @@ import { sliderSettingsSchema } from "./Slider";
 import { timeSettingsSchema } from "./Time";
 import { multiSelectSettingsSchema } from "./MultiSelect";
 import { numericSettingsSchema } from "./Numeric";
+import { arraySettingsSchema } from "./Array";
 
 type SettingsBase = v.ObjectSchema<
 	Record<string, PropertyTypeSchema>,
@@ -32,6 +33,7 @@ export const propertySettingsSchema = v.object({
 			suggestions: v.optional(v.array(v.string())),
 		})
 	),
+	array: arraySettingsSchema,
 	select: selectSettingsSchema,
 	multiselect: multiSelectSettingsSchema,
 	toggle: toggleSettingsSchema,

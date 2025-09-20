@@ -115,6 +115,7 @@ export class BpJsApi {
 				property,
 				path,
 				callback: () => {
+					this.component.unload();
 					this.empty();
 					this.run(this.code);
 				},
@@ -157,13 +158,16 @@ export class BpJsApi {
 			property,
 			path,
 			callback: () => {
-				cmp.propertyEl?.remove();
-				this.renderProperty({
-					el,
-					property,
-					hideKey,
-					path,
-				});
+				// cmp.propertyEl?.remove();
+				// this.renderProperty({
+				// 	el,
+				// 	property,
+				// 	hideKey,
+				// 	path,
+				// });
+				this.component.unload();
+				this.empty();
+				this.run(this.code);
 			},
 		});
 

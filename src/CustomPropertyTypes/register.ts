@@ -22,8 +22,10 @@ import { sliderPropertyType } from "./Slider";
 import { timePropertyType } from "./Time";
 import { multiSelectPropertyType } from "./MultiSelect";
 import { numericPropertyType } from "./Numeric";
+import { arrayPropertyType } from "./Array";
 
 export const getCustomPropertyTypesArr = (): CustomPropertyType[] => [
+	arrayPropertyType,
 	selectPropertyType,
 	multiSelectPropertyType,
 	togglePropertyType,

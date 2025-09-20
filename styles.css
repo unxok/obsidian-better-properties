@@ -154,6 +154,20 @@ body {
 		}
 	}
 
+	&[data-property-type="better-properties:array"] {
+		&
+			> .metadata-container
+			> .better-properties-property-object-properties
+			> .metadata-property
+			> .metadata-property-key {
+			--metadata-label-width: fit-content;
+
+			& > .metadata-property-key-input {
+				display: none;
+			}
+		}
+	}
+
 	&[data-property-type="better-properties:datecustom"] {
 		padding: var(--input-padding);
 		height: var(--input-height);
