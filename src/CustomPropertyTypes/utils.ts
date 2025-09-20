@@ -66,7 +66,6 @@ export const setPropertySettings = ({
 	property: string;
 	settings: PropertySettings;
 }): void => {
-	// TODO will need to add checking for dotkey when groups are added
 	const lower = property.toLowerCase();
 	if (!plugin.settings.propertySettings) {
 		plugin.settings.propertySettings = {};

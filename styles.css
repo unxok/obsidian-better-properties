@@ -298,17 +298,17 @@ body {
 
 .metadata-property:has(
 		> .metadata-property-key
-			> .better-properties-properties-group-collapse-indicator[data-better-properties-is-collapsed]
+			> .better-properties-properties-object-collapse-indicator[data-better-properties-is-collapsed]
 	) {
 	.metadata-property-value {
 		display: none;
 	}
-	.better-properties-properties-group-collapse-indicator {
+	.better-properties-properties-object-collapse-indicator {
 		--better-properties-collapse-opacity: 1;
 	}
 }
 
-.metadata-property:has(.better-properties-mod-group) {
+.metadata-property:has(.better-properties-mod-object) {
 	display: flex;
 	flex-direction: column;
 	position: relative;
@@ -324,7 +324,7 @@ body {
 		background-color: var(--metadata-input-background);
 	}
 
-	.better-properties-properties-group-collapse-indicator {
+	.better-properties-properties-object-collapse-indicator {
 		display: flex;
 		justify-content: center;
 		align-items: center;
@@ -360,14 +360,14 @@ body {
 		background-color: var(--indentation-guide-color);
 	}
 
-	.better-properties-property-value-inner.better-properties-mod-group.metadata-container {
+	.better-properties-property-value-inner.better-properties-mod-object.metadata-container {
 		display: flex;
 		flex-direction: column;
 		width: 100%;
 		margin-inline-start: var(--better-properties-indent-size-2x);
 		margin-block-end: 0px;
 
-		div.better-properties-property-group-add-property.metadata-add-button.text-icon-button {
+		div.better-properties-property-object-add-property.metadata-add-button.text-icon-button {
 			width: fit-content;
 		}
 

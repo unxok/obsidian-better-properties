@@ -77,7 +77,7 @@ My goal is to not _need_ to create official documentation for the features of th
   - [Properties: let the user customize the way Dates/Times are displayed (independently from OS)](https://forum.obsidian.md/t/properties-let-the-user-customize-the-way-dates-times-are-displayed-independently-from-os/64139/108)
   - [Date & time property type doesn’t display or edit seconds](https://forum.obsidian.md/t/date-time-property-type-doesnt-display-or-edit-seconds/104154/3)
 - [ ] Date Range `NOT COMMITTED`
-  - You can achieve this with a "group" type and sub-properties name like "from" and "to", so I'm unsure if there's a strong need for this.
+  - You can achieve this with a "object" type and sub-properties name like "from" and "to", so I'm unsure if there's a strong need for this.
 - [x] Select
 - [x] Group
 - [ ] Image `NOT COMMITTED`

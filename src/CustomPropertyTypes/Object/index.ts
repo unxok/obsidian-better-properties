@@ -5,9 +5,9 @@ import { renderSettings } from "./renderSettings";
 import { renderWidget } from "./renderWidget";
 import * as v from "valibot";
 
-export const groupPropertyType: CustomPropertyType = {
-	type: "group",
-	name: () => text("customPropertyTypes.group.name"),
+export const objectPropertyType: CustomPropertyType = {
+	type: "object",
+	name: () => text("customPropertyTypes.object.name"),
 	icon: "lucide-braces",
 	validate: (v) =>
 		v === null ||
@@ -18,7 +18,7 @@ export const groupPropertyType: CustomPropertyType = {
 	renderWidget,
 };
 
-export const groupSettingsSchema = v.optional(
+export const objectSettingsSchema = v.optional(
 	v.object({
 		hideAddButton: v.optional(v.boolean()),
 		collapsed: v.optional(v.boolean()), // not frontend facing

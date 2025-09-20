@@ -12,7 +12,7 @@ import {
 	PropertyWidget,
 } from "obsidian-typings";
 // import { createdPropertyType } from "./Created";
-import { groupPropertyType } from "./Group";
+import { objectPropertyType } from "./Object";
 import { triggerPropertyTypeChange } from "./utils";
 import { colorPropertyType } from "./Color";
 import { ratingPropertyType } from "./Rating";
@@ -30,7 +30,7 @@ export const getCustomPropertyTypesArr = (): CustomPropertyType[] => [
 	// titlePropertyType,
 	markdownPropertyType,
 	// createdPropertyType,
-	groupPropertyType,
+	objectPropertyType,
 	colorPropertyType,
 	ratingPropertyType,
 	dateCustomPropertyType,

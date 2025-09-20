@@ -6,7 +6,7 @@ import { toggleSettingsSchema } from "./Toggle";
 import { titleSettingsSchema } from "./Title";
 import { markdownSettingsSchema } from "./Markdown";
 import { createdSettingsSchema } from "./Created";
-import { groupSettingsSchema } from "./Group";
+import { objectSettingsSchema } from "./Object";
 import { colorSettingsSchema } from "./Color";
 import { ratingSettingsSchema } from "./Rating";
 import { dateCustomSettingsSchema } from "./DateCustom";
@@ -39,7 +39,7 @@ export const propertySettingsSchema = v.object({
 	markdown: markdownSettingsSchema,
 	created: createdSettingsSchema,
 	// modified: v.optional(v.object({})),
-	group: groupSettingsSchema,
+	object: objectSettingsSchema,
 	color: colorSettingsSchema,
 	rating: ratingSettingsSchema,
 	datecustom: dateCustomSettingsSchema,

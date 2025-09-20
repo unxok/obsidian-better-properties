@@ -27,8 +27,8 @@ export const renderSettings: CustomPropertyType["renderSettings"] = ({
 	});
 
 	new Setting(tabContentEl)
-		.setName(text("customPropertyTypes.group.settings.hideAddButton.title"))
-		.setDesc(text("customPropertyTypes.group.settings.hideAddButton.desc"))
+		.setName(text("customPropertyTypes.object.settings.hideAddButton.title"))
+		.setDesc(text("customPropertyTypes.object.settings.hideAddButton.desc"))
 		.addToggle((cmp) => {
 			cmp.setValue(!!settings.hideAddButton).onChange((b) => {
 				settings.hideAddButton = b;

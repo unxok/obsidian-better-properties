@@ -189,12 +189,12 @@
 		"multiSelect": {
 			"name": "Multi-Select"
 		},
-		"group": {
-			"name": "Group",
+		"object": {
+			"name": "Object",
 			"settings": {
 				"hideAddButton": {
 					"title": "Hide \"Add property\" button",
-					"desc": "Whether to hide the button used to add properties to this group."
+					"desc": "Whether to hide the button used to add properties to this object."
 				}
 			}
 		},

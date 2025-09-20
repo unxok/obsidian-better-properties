@@ -12,7 +12,7 @@ import { PropertyRenderContext } from "obsidian-typings";
 import { arrayMove, makeDraggable } from "~/lib/utils";
 import { PropertyComponent } from "~/classes/PropertyComponent";
 
-export const typeKey = "group" satisfies CustomTypeKey;
+export const typeKey = "object" satisfies CustomTypeKey;
 
 export const renderWidget: CustomPropertyType["renderWidget"] = ({
 	plugin,
@@ -24,10 +24,10 @@ export const renderWidget: CustomPropertyType["renderWidget"] = ({
 };
 
 class GroupTypeComponent extends PropertyWidgetComponentNew<
-	"group",
+	"object",
 	Record<string, unknown>
 > {
-	type = "group" as const;
+	type = "object" as const;
 	parseValue = (v: unknown) => {
 		if (typeof v !== "object" || !v) return {} as Record<string, unknown>;
 		return v as Record<string, unknown>;
@@ -51,7 +51,7 @@ class GroupTypeComponent extends PropertyWidgetComponentNew<
 		this.renderCollapseIndicator(settings);
 
 		const container = this.el.createDiv({
-			cls: "better-properties-property-value-inner better-properties-mod-group metadata-container",
+			cls: "better-properties-property-value-inner better-properties-mod-object metadata-container",
 			attr: {
 				"tabindex": "0",
 				"data-better-properties-showindentguide":
@@ -60,7 +60,7 @@ class GroupTypeComponent extends PropertyWidgetComponentNew<
 		});
 
 		const propertiesEl = container.createDiv({
-			cls: "better-properties-property-group-properties",
+			cls: "better-properties-property-object-properties",
 		});
 
 		const renderSub = (itemKey: string, itemValue: unknown) => {
@@ -78,7 +78,7 @@ class GroupTypeComponent extends PropertyWidgetComponentNew<
 
 		if (!settings.hideAddButton) {
 			const addPropertyEl = container.createDiv({
-				cls: "better-properties-property-group-add-property metadata-add-button text-icon-button",
+				cls: "better-properties-property-object-add-property metadata-add-button text-icon-button",
 			});
 			setIcon(
 				addPropertyEl.createSpan({ cls: "text-button-icon" }),
@@ -106,7 +106,8 @@ class GroupTypeComponent extends PropertyWidgetComponentNew<
 	}
 
 	renderCollapseIndicator(settings: ReturnType<typeof this.getSettings>): void {
-		const collapseCls = "better-properties-properties-group-collapse-indicator";
+		const collapseCls =
+			"better-properties-properties-object-collapse-indicator";
 		const keyEl = this.el.parentElement?.querySelector(
 			".metadata-property-key"
 		);
@@ -208,7 +209,7 @@ class SubPropertyComponent extends PropertyComponent {
 
 		if (alreadyExists) {
 			const matchedEl: HTMLElement | null | undefined = this.containerEl
-				.closest(".metadata-container:not(.better-properties-mod-group)")
+				.closest(".metadata-container:not(.better-properties-mod-object)")
 				?.querySelector(
 					`.metadata-property[data-property-key="${newKeyWithDots}" i]`
 				);
