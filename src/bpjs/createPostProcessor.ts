@@ -4,7 +4,7 @@ import {
 	Component,
 } from "obsidian";
 import BetterProperties from "~/main";
-import { BpJsApi } from ".";
+import { BpJsApi } from "./api";
 
 export const createPostProcessor = (
 	plugin: BetterProperties

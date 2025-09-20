@@ -10,7 +10,7 @@ import { syntaxTree } from "@codemirror/language";
 import { EditorSelection, Range } from "@codemirror/state";
 import { Component, editorInfoField, TFile } from "obsidian";
 import BetterProperties from "~/main";
-import { BpJsApi } from ".";
+import { BpJsApi } from "./api";
 
 class InlineCodeWidget extends WidgetType {
 	constructor(
