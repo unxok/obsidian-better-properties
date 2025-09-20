@@ -20,6 +20,11 @@ export class BpJsApi {
 		this.styleEl = this.el.createEl("style");
 	}
 
+	public empty(): void {
+		this.el.empty();
+		this.styleEl?.empty();
+	}
+
 	public get file(): TFile {
 		const f = this.plugin.app.vault.getFileByPath(this.sourcePath);
 		if (!f) {
@@ -32,47 +37,13 @@ export class BpJsApi {
 		return require("obsidian");
 	}
 
-	getMetadata(path?: string): CachedMetadata | null {
-		const { metadataCache, vault } = this.plugin.app;
-		const file = path ? vault.getFileByPath(path) : null;
-		if (path && !file) {
-			throw new Error(`Failed to get metadata: File not found at "${path}"`);
-		}
-		return metadataCache.getFileCache(file ?? this.file);
-	}
-
-	getProperty({
-		property,
-		path,
-		subscribe,
-	}: {
-		property: string;
-		path?: string;
-		subscribe?: boolean;
-	}): unknown {
-		const metadata = this.getMetadata(path);
-		// if (!metadata) return; //TODO should this throw?
-		if (subscribe) {
-			this.subscribeProperty({
-				property,
-				path,
-				callback: () => {
-					this.el.empty();
-					this.run(this.code);
-				},
-			});
-		}
-
-		return metadata?.frontmatter?.[property];
-	}
-
-	subscribeProperty({
-		property,
+	public subscribe({
 		callback,
+		property,
 		path,
 	}: {
-		property: string;
 		callback: () => void;
+		property?: string;
 		path?: string;
 	}): void {
 		const { plugin, component } = this;
@@ -80,22 +51,22 @@ export class BpJsApi {
 
 		const maybeFile = path ? vault.getFileByPath(path) : null;
 		if (path && !maybeFile) {
-			throw new Error(
-				`Failed to subscribe to property: File not found at path "${path}"`
-			);
+			throw new Error(`Failed to subscribe: File not found at path "${path}"`);
 		}
 
 		const file = maybeFile ?? this.file;
 
-		const metadataTypeManagerEventRef = metadataTypeManager.on(
-			"changed",
-			(key) => {
-				if (key?.toLowerCase() !== property.toLowerCase()) return;
-				callback();
-				metadataTypeManager.offref(metadataTypeManagerEventRef);
-			}
-		);
-		component.registerEvent(metadataTypeManagerEventRef);
+		if (property) {
+			const metadataTypeManagerEventRef = metadataTypeManager.on(
+				"changed",
+				(key) => {
+					if (key?.toLowerCase() !== property.toLowerCase()) return;
+					callback();
+					metadataTypeManager.offref(metadataTypeManagerEventRef);
+				}
+			);
+			component.registerEvent(metadataTypeManagerEventRef);
+		}
 
 		const metadataCacheEventRef = metadataCache.on("changed", (f) => {
 			if (f !== file) return;
@@ -119,7 +90,41 @@ export class BpJsApi {
 		component.registerEvent(vaultDeleteEventRef);
 	}
 
-	renderProperty({
+	public getMetadata(path?: string): CachedMetadata | null {
+		const { metadataCache, vault } = this.plugin.app;
+		const file = path ? vault.getFileByPath(path) : null;
+		if (path && !file) {
+			throw new Error(`Failed to get metadata: File not found at "${path}"`);
+		}
+		return metadataCache.getFileCache(file ?? this.file);
+	}
+
+	public getProperty({
+		property,
+		path,
+		subscribe,
+	}: {
+		property: string;
+		path?: string;
+		subscribe?: boolean;
+	}): unknown {
+		const metadata = this.getMetadata(path);
+		// if (!metadata) return; //TODO should this throw?
+		if (subscribe) {
+			this.subscribe({
+				property,
+				path,
+				callback: () => {
+					this.empty();
+					this.run(this.code);
+				},
+			});
+		}
+
+		return metadata?.frontmatter?.[property];
+	}
+
+	public renderProperty({
 		property,
 		el,
 		hideKey,
@@ -148,7 +153,7 @@ export class BpJsApi {
 			cmp.keyInputEl.value = property;
 		});
 
-		this.subscribeProperty({
+		this.subscribe({
 			property,
 			path,
 			callback: () => {
@@ -165,7 +170,7 @@ export class BpJsApi {
 		cmp.render();
 	}
 
-	async import(path: string): Promise<unknown> {
+	public async import(path: string): Promise<unknown> {
 		const { vault } = this.plugin.app;
 		const lowerPath = path.toLowerCase();
 		const dotSections = lowerPath.split(".");
@@ -190,6 +195,14 @@ export class BpJsApi {
 			);
 		}
 
+		const vaultModifyEventRef = vault.on("modify", (f) => {
+			if (f !== file) return;
+			vault.offref(vaultModifyEventRef);
+			this.empty();
+			this.run(this.code);
+		});
+		this.component.registerEvent(vaultModifyEventRef);
+
 		const content = await vault.cachedRead(file);
 
 		if (extension === "js") {
@@ -206,7 +219,7 @@ export class BpJsApi {
 		}
 
 		if (extension === "css") {
-			this.styleEl = this.el.createEl("style");
+			this.styleEl = this.el.parentElement!.createEl("style");
 			this.styleEl.innerHTML = content;
 
 			// TODO is there a way to get this to work? I would like to avoid innerHTML if possible
@@ -237,7 +250,7 @@ export class BpJsApi {
 			this.el.textContent = error;
 			return;
 		}
-		if (!data) return;
+		if (data === undefined || data === null) return;
 		this.el.textContent = data?.toString();
 	}
 }
