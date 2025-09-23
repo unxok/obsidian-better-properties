@@ -60,6 +60,7 @@ My goal is to not _need_ to create official documentation for the features of th
 
 **note:** Types that have a reserved keyword are marked with an asterisk (\*)
 
+- [ ] Array
 - [ ] Background `NOT COMMITTED`
   - Does it make sense to have this feature when they are plenty of other plugins dedicated to it? Also it's relatively easy to accomplish with CSS snippets and the `cssclasses` property
 - [ ] Banner `NOT COMMITTED`
@@ -75,8 +76,6 @@ My goal is to not _need_ to create official documentation for the features of th
   - [Date & time property type doesn’t display or edit seconds](https://forum.obsidian.md/t/date-time-property-type-doesnt-display-or-edit-seconds/104154/3)
 - [ ] Date Range `NOT COMMITTED`
   - You can achieve this with a "object" type and sub-properties name like "from" and "to", so I'm unsure if there's a strong need for this.
-- [x] Select
-- [x] Group
 - [ ] Image `NOT COMMITTED`
   - [New property type: media](https://forum.obsidian.md/t/new-property-type-media/99259/1)
   - Is this necessary since you can do an embed with the "Markdown" type
@@ -86,12 +85,13 @@ My goal is to not _need_ to create official documentation for the features of th
   - Unsure if useful enough. Same note as "Created" type above
 - [x] Multiselect
 - [x] Numeric
+- [x] Object
 - [ ] Progress
+- [x] Rating
 - [ ] Relation
   - [Add support for automatic, bidirectional and separately named list properties](https://forum.obsidian.md/t/add-support-for-automatic-bidirectional-and-separately-named-list-properties/76175/4)
 - [x] Select
 - [x] Slider
-- [x] Rating
 - [ ] Tags Category
   - [Add a property type for tags / multiple tag-based properties](https://forum.obsidian.md/t/add-a-property-type-for-tags-multiple-tag-based-properties/63810/15)
   - [Properties: Recognize tags in text property when formatted as “#tags”](https://forum.obsidian.md/t/properties-recognize-tags-in-text-property-when-formatted-as-tags/63812/40)
@@ -143,4 +143,4 @@ My goal is to not _need_ to create official documentation for the features of th
 - [x] Option to disable chosen property types
 - [ ] Option to modify default icon for chosen property types
 - [ ] Full link-recognition in property values
-- [ ] Render property within note content as codeblock or inline-codeblock
+- [x] Render property within note content as codeblock or inline-codeblock
