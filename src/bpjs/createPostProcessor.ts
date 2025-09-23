@@ -30,7 +30,7 @@ export const createPostProcessor = (
 		const component = new Component();
 		mdrc.addChild(component);
 		plugin.addChild(component);
-		const api = new BpJsApi(plugin, spanEl, ctx.sourcePath, component);
+		const api = new BpJsApi(plugin, spanEl, ctx.sourcePath, component, code);
 		api.run(code);
 	};
 	return processor;

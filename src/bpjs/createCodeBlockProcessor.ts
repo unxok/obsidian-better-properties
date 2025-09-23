@@ -17,12 +17,16 @@ export const createCodeBlockProcessor = (
 	) => {
 		el.classList.add("better-properties-bpjs-codeblock");
 		const mdrc = new MarkdownRenderChild(el);
+		mdrc.onunload = () => {
+			console.log("mdrc unloaded");
+		};
 		ctx.addChild(mdrc);
 		const component = new Component();
 		mdrc.addChild(component);
 		plugin.addChild(component);
-		const api = new BpJsApi(plugin, el, ctx.sourcePath, component);
+		const api = new BpJsApi(plugin, el, ctx.sourcePath, component, source);
 		api.run(source);
+		// api.monitorSubsribedPaths();
 	};
 
 	const BPJS = "bpjs";

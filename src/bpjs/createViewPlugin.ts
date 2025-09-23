@@ -28,9 +28,9 @@ class InlineCodeWidget extends WidgetType {
 			dom.remove();
 			cmp.unload();
 		};
-		const api = new BpJsApi(this.plugin, undefined, this.file.path, cmp);
 
 		const code = this.codeText.slice(this.plugin.codePrefix.length);
+		const api = new BpJsApi(this.plugin, undefined, this.file.path, cmp, code);
 		api.run(code);
 
 		const field = this.view.state.field(editorInfoField);

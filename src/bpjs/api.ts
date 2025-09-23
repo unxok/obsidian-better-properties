@@ -6,18 +6,21 @@ import BetterProperties from "~/main";
 
 export class BpJsApi {
 	public el: HTMLElement;
-	public code: string = "";
 	public styleEl: HTMLStyleElement | undefined;
+
+	public subscribedPaths: Set<string> = new Set();
 
 	constructor(
 		public plugin: BetterProperties,
 		el: HTMLElement | undefined,
 		public sourcePath: string,
-		public component: Component
+		public component: Component,
+		public code: string
 	) {
 		this.el = el?.createSpan() ?? createSpan();
 		this.el.classList.add("better-properties-bpjs");
 		this.styleEl = this.el.createEl("style");
+		plugin.register(() => this.component.unload());
 	}
 
 	public empty(): void {
@@ -35,6 +38,33 @@ export class BpJsApi {
 
 	public get obsidian() {
 		return require("obsidian");
+	}
+
+	addSubscription(path: string): void {
+		console.log("adding: ", path);
+		this.subscribedPaths.add(path);
+	}
+
+	monitorSubsribedPaths(): void {
+		console.log("subbed paths: ", this.subscribedPaths);
+		const files = [...this.subscribedPaths].map((path) => {
+			const f = this.plugin.app.vault.getFileByPath(path);
+			if (!f) {
+				throw new Error(`File not found at path "${path}"`);
+			}
+			return f;
+		});
+
+		files.forEach((f) => {
+			console.log("subbed: ", f.path);
+			const ref = this.plugin.app.vault.on("modify", async (file) => {
+				if (file !== f) return;
+				this.plugin.app.vault.offref(ref);
+				this.component.unload();
+				await this.run(this.code);
+			});
+			this.component.registerEvent(ref);
+		});
 	}
 
 	public subscribe({
@@ -174,6 +204,35 @@ export class BpJsApi {
 		cmp.render();
 	}
 
+	subscribePath(path: string, callback: () => void): void {
+		// if (this.subscribedPaths.has(path)) {
+		// 	console.log("path already subbed");
+		// 	return;
+		// }
+
+		// this.subscribedPaths.add(path);
+
+		const { vault } = this.plugin.app;
+		const file = vault.getFileByPath(path);
+		if (!file) {
+			throw new Error(
+				`Failed to import module: File not found at path "${path}"`
+			);
+		}
+
+		const ref = vault.on("modify", (f) => {
+			console.log("modify");
+
+			if (f !== file) return;
+			callback();
+			vault.offref(ref);
+		});
+		this.component.register(() => {
+			console.log("removing ref");
+			ref.e.off(ref.name, ref.fn);
+		});
+	}
+
 	public async import(path: string): Promise<unknown> {
 		const { vault } = this.plugin.app;
 		const lowerPath = path.toLowerCase();
@@ -199,13 +258,15 @@ export class BpJsApi {
 			);
 		}
 
-		const vaultModifyEventRef = vault.on("modify", (f) => {
+		const ref = vault.on("modify", async (f) => {
 			if (f !== file) return;
-			vault.offref(vaultModifyEventRef);
+			vault.offref(ref);
+			this.component.unload();
+			this.component.load();
 			this.empty();
-			this.run(this.code);
+			await this.run(this.code);
 		});
-		this.component.registerEvent(vaultModifyEventRef);
+		this.component.registerEvent(ref);
 
 		const content = await vault.cachedRead(file);
 
@@ -213,6 +274,7 @@ export class BpJsApi {
 			const module: {
 				exports?: unknown;
 			} = {};
+
 			eval(content); // should set module.exports
 			if (module.exports === undefined) {
 				throw new Error(
@@ -223,6 +285,9 @@ export class BpJsApi {
 		}
 
 		if (extension === "css") {
+			if (this.styleEl) {
+				this.styleEl.remove();
+			}
 			this.styleEl = this.el.parentElement!.createEl("style");
 			this.styleEl.innerHTML = content;
 
@@ -241,7 +306,7 @@ export class BpJsApi {
 
 	async run(code: string): Promise<void> {
 		this.el.empty();
-		this.code = code;
+		// this.code = code;
 		const { success, data, error } = await tryCatch(async () => {
 			const fn = eval(code);
 			if (typeof fn !== "function") {
