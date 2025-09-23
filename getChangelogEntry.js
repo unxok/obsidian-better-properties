@@ -8,5 +8,10 @@ const regex = new RegExp(
 	"^##\\s*" + escaped + "\\b[\\r\\n]+([\\s\\S]*?)(?=^##\\s|\\Z)",
 	"gms"
 );
-const entry = regex.exec(changelogContent)?.[1] ?? "No changelog entry found";
-console.log("# Changelog\n" + entry);
+const entry = regex.exec(changelogContent)?.[1];
+if (!entry) {
+	throw new Error(
+		`No changelog entry found for version "${version}" in changelog.md`
+	);
+}
+console.log("## Changelog\n" + entry);
