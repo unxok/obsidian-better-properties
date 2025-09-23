@@ -241,7 +241,6 @@ class ModifiedSelectComponent extends SelectComponent {
 				return;
 			e.preventDefault();
 			const prevItem = this.owner.items[this.owner.items.length - 1];
-			console.log("prev: ", prevItem);
 			prevItem?.selectEl.focus();
 		});
 
