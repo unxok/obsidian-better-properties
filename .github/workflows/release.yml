@@ -22,6 +22,12 @@ jobs:
           npm install
           npm run build
 
+      - name: Generate release notes from changelog
+        id: notes
+        run: |
+          node ./getChangelogEntry.js > RELEASE_NOTES.md
+          echo "file=RELEASE_NOTES.md" >> "$GITHUB_OUTPUT"
+
       - name: Create release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -30,5 +36,6 @@ jobs:
 
           gh release create "$tag" \
             --title="$tag" \
+            --notes-file "${{ steps.notes.outputs.file }}" \
             --draft \
             main.js manifest.json styles.css
