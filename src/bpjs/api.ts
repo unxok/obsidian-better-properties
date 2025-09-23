@@ -1,6 +1,9 @@
 import { Component, TFile, CachedMetadata } from "obsidian";
 import { PropertyComponent } from "~/classes/PropertyComponent";
-import { updateNestedObject } from "~/CustomPropertyTypes/utils";
+import {
+	findKeyValueByDotNotation,
+	updateNestedObject,
+} from "~/CustomPropertyTypes/utils";
 import { tryCatch } from "~/lib/utils";
 import BetterProperties from "~/main";
 
@@ -40,33 +43,6 @@ export class BpJsApi {
 		return require("obsidian");
 	}
 
-	addSubscription(path: string): void {
-		console.log("adding: ", path);
-		this.subscribedPaths.add(path);
-	}
-
-	monitorSubsribedPaths(): void {
-		console.log("subbed paths: ", this.subscribedPaths);
-		const files = [...this.subscribedPaths].map((path) => {
-			const f = this.plugin.app.vault.getFileByPath(path);
-			if (!f) {
-				throw new Error(`File not found at path "${path}"`);
-			}
-			return f;
-		});
-
-		files.forEach((f) => {
-			console.log("subbed: ", f.path);
-			const ref = this.plugin.app.vault.on("modify", async (file) => {
-				if (file !== f) return;
-				this.plugin.app.vault.offref(ref);
-				this.component.unload();
-				await this.run(this.code);
-			});
-			this.component.registerEvent(ref);
-		});
-	}
-
 	public subscribe({
 		callback,
 		property,
@@ -87,12 +63,15 @@ export class BpJsApi {
 		const file = maybeFile ?? this.file;
 
 		if (property) {
+			const parentProperty = property.split(".")[0];
 			const metadataTypeManagerEventRef = metadataTypeManager.on(
 				"changed",
 				(key) => {
-					if (key?.toLowerCase() !== property.toLowerCase()) return;
-					callback();
+					if (key?.toLowerCase() !== parentProperty.toLowerCase()) return;
 					metadataTypeManager.offref(metadataTypeManagerEventRef);
+					this.component.unload();
+					this.component.load();
+					callback();
 				}
 			);
 			component.registerEvent(metadataTypeManagerEventRef);
@@ -100,22 +79,31 @@ export class BpJsApi {
 
 		const metadataCacheEventRef = metadataCache.on("changed", (f) => {
 			if (f !== file) return;
-			callback();
 			metadataCache.offref(metadataCacheEventRef);
+			this.component._events = this.component._events.filter(
+				(ev) => ev !== metadataCacheEventRef
+			);
+			callback();
 		});
 		component.registerEvent(metadataCacheEventRef);
 
 		const vaultRenameEventRef = vault.on("rename", (f) => {
 			if (f !== file) return;
-			callback();
 			vault.offref(vaultRenameEventRef);
+			this.component._events = this.component._events.filter(
+				(ev) => ev !== vaultRenameEventRef
+			);
+			callback();
 		});
 		component.registerEvent(vaultRenameEventRef);
 
 		const vaultDeleteEventRef = vault.on("delete", (f) => {
 			if (f !== file) return;
-			callback();
 			vault.offref(vaultDeleteEventRef);
+			this.component._events = this.component._events.filter(
+				(ev) => ev !== vaultDeleteEventRef
+			);
+			callback();
 		});
 		component.registerEvent(vaultDeleteEventRef);
 	}
@@ -140,9 +128,14 @@ export class BpJsApi {
 	}): unknown {
 		const metadata = this.getMetadata(path);
 		// if (!metadata) return; //TODO should this throw?
+		const { key, value } = findKeyValueByDotNotation(
+			property,
+			metadata?.frontmatter ?? {}
+		);
 		if (subscribe) {
+			console.log("split key: ", key?.split(".")[0]);
 			this.subscribe({
-				property,
+				property: key?.split(".")[0],
 				path,
 				callback: () => {
 					this.component.unload();
@@ -152,7 +145,7 @@ export class BpJsApi {
 			});
 		}
 
-		return metadata?.frontmatter?.[property];
+		return value;
 	}
 
 	public renderProperty({
@@ -166,6 +159,7 @@ export class BpJsApi {
 		hideKey?: boolean;
 		path?: string;
 	}): void {
+		console.log("rendering: ", property);
 		const { plugin } = this;
 		const sourcePath: string = path ?? this.sourcePath;
 		const value = this.getProperty({ property, path });
@@ -188,49 +182,17 @@ export class BpJsApi {
 			property,
 			path,
 			callback: () => {
-				// cmp.propertyEl?.remove();
-				// this.renderProperty({
-				// 	el,
-				// 	property,
-				// 	hideKey,
-				// 	path,
-				// });
-				this.component.unload();
-				this.empty();
-				this.run(this.code);
+				cmp.propertyEl?.remove();
+				this.renderProperty({
+					el,
+					property,
+					hideKey,
+					path,
+				});
 			},
 		});
 
 		cmp.render();
-	}
-
-	subscribePath(path: string, callback: () => void): void {
-		// if (this.subscribedPaths.has(path)) {
-		// 	console.log("path already subbed");
-		// 	return;
-		// }
-
-		// this.subscribedPaths.add(path);
-
-		const { vault } = this.plugin.app;
-		const file = vault.getFileByPath(path);
-		if (!file) {
-			throw new Error(
-				`Failed to import module: File not found at path "${path}"`
-			);
-		}
-
-		const ref = vault.on("modify", (f) => {
-			console.log("modify");
-
-			if (f !== file) return;
-			callback();
-			vault.offref(ref);
-		});
-		this.component.register(() => {
-			console.log("removing ref");
-			ref.e.off(ref.name, ref.fn);
-		});
 	}
 
 	public async import(path: string): Promise<unknown> {

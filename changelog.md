@@ -2,6 +2,12 @@
 
 Each release should include an entry detailing the changes made since the last release. Some specific details may be omitted for brevity.
 
+## 0.1.8
+
+### Bug fixes
+
+- Fixed hot-reload issues with bpjs blocks using `api.renderProperty()`
+
 ## 0.1.7
 
 ### New
