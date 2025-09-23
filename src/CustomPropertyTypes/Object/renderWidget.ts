@@ -69,8 +69,8 @@ class GroupTypeComponent extends PropertyWidgetComponentNew<
 				propertiesEl,
 				itemKey,
 				itemValue,
-				this.ctx,
-				parsed
+				this.ctx
+				// parsed
 			);
 			this.subProperties.push(sub);
 			sub.render();
@@ -158,9 +158,9 @@ class SubPropertyComponent extends PropertyComponent {
 		containerEl: HTMLElement,
 		key: string,
 		value: unknown,
-		public parentCtx: PropertyRenderContext,
-		public parentValue: Record<string, unknown>
-	) {
+		public parentCtx: PropertyRenderContext
+	) // public parentValue: Record<string, unknown>
+	{
 		super(
 			plugin,
 			containerEl,
@@ -168,6 +168,16 @@ class SubPropertyComponent extends PropertyComponent {
 			value,
 			parentCtx.sourcePath
 		);
+	}
+
+	get parentValue(): Record<string, unknown> {
+		const file = this.plugin.app.vault.getFileByPath(this.sourcePath);
+		if (!file) {
+			throw new Error(`File not found at path "${this.sourcePath}"`);
+		}
+		const { frontmatter } =
+			this.plugin.app.metadataCache.getFileCache(file) ?? {};
+		return frontmatter?.[this.parentCtx.key] ?? {};
 	}
 
 	onChangeCallback: (v: unknown) => void = (value) => {
