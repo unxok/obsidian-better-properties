@@ -26,12 +26,9 @@ This plugin adds many different properties-related features, such as new propert
 - [Docs](#docs)
 - [Features](#features)
 
-<div style="display: flex; gap: 5px; flex-wrap: wrap;">
-
-![property types example](./demo-assets/new-types.png)
-
-![property types example](./demo-assets/property-menu.png)
-
+<div style="display: flex; gap: 5px; flex-wrap: wrap; align-items: top;">
+  <img src="https://github.com/unxok/obsidian-better-properties/blob/main/demo-assets/new-types.png" width="305" />
+  <img src="https://github.com/unxok/obsidian-better-properties/blob/main/demo-assets/property-menu.png" width="240" />
 </div>
 
 ## Installation
