@@ -31,6 +31,7 @@ export const propertySettingsSchema = v.object({
 			// onloadScript: z.string(),
 			alias: v.optional(v.string()),
 			suggestions: v.optional(v.array(v.string())),
+			collapsed: v.optional(v.boolean()),
 		})
 	),
 	array: arraySettingsSchema,

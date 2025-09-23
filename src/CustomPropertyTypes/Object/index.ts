@@ -21,6 +21,5 @@ export const objectPropertyType: CustomPropertyType = {
 export const objectSettingsSchema = v.optional(
 	v.object({
 		hideAddButton: v.optional(v.boolean()),
-		collapsed: v.optional(v.boolean()), // not frontend facing
 	})
 ) satisfies PropertyTypeSchema;

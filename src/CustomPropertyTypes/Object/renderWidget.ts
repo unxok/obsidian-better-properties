@@ -48,7 +48,6 @@ class GroupTypeComponent extends PropertyWidgetComponentNew<
 	render(): void {
 		const parsed = this.parseValue(this.value);
 		const settings = this.getSettings();
-		this.renderCollapseIndicator(settings);
 
 		const container = this.el.createDiv({
 			cls: "better-properties-property-value-inner better-properties-mod-object metadata-container",
@@ -105,41 +104,6 @@ class GroupTypeComponent extends PropertyWidgetComponentNew<
 		};
 	}
 
-	renderCollapseIndicator(settings: ReturnType<typeof this.getSettings>): void {
-		const collapseCls =
-			"better-properties-properties-object-collapse-indicator";
-		const keyEl = this.el.parentElement?.querySelector(
-			".metadata-property-key"
-		);
-
-		const existingCollapseIndicator: HTMLElement | undefined | null =
-			keyEl?.querySelector(`& > .${collapseCls}`);
-
-		existingCollapseIndicator?.remove();
-
-		const collapseIndicator = keyEl?.createDiv({
-			cls: collapseCls,
-		});
-		if (collapseIndicator) {
-			setIcon(collapseIndicator, "lucide-chevron-down" satisfies Icon);
-
-			const setAttr = (isCollapsed: boolean) => {
-				const attr = "data-better-properties-is-collapsed";
-				isCollapsed
-					? collapseIndicator.setAttribute(attr, "true")
-					: collapseIndicator.removeAttribute(attr);
-			};
-
-			setAttr(!!settings.collapsed);
-
-			collapseIndicator.addEventListener("click", () => {
-				settings.collapsed = !settings.collapsed;
-				setAttr(settings.collapsed);
-				this.setSettings({ ...settings });
-			});
-		}
-	}
-
 	getValue(): Record<string, unknown> {
 		return this.parseValue(this.value);
 	}
@@ -158,9 +122,8 @@ class SubPropertyComponent extends PropertyComponent {
 		containerEl: HTMLElement,
 		key: string,
 		value: unknown,
-		public parentCtx: PropertyRenderContext
-	) // public parentValue: Record<string, unknown>
-	{
+		public parentCtx: PropertyRenderContext // public parentValue: Record<string, unknown>
+	) {
 		super(
 			plugin,
 			containerEl,

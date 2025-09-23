@@ -24,6 +24,5 @@ export const arrayPropertyType: CustomPropertyType = {
 export const arraySettingsSchema = v.optional(
 	v.object({
 		hideAddButton: v.optional(v.boolean()),
-		collapsed: v.optional(v.boolean()), // not frontend facing
 	})
 ) satisfies PropertyTypeSchema;

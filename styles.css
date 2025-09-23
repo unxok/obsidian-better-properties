@@ -310,16 +310,22 @@ body {
 }
 
 .metadata-property:has(
-		> .metadata-property-key
-			> .better-properties-properties-object-collapse-indicator[data-better-properties-is-collapsed]
+		> .metadata-property-key > [data-better-properties-is-collapsed]
 	) {
 	.metadata-property-value {
 		display: none;
 	}
-	.better-properties-properties-object-collapse-indicator {
+	/* .better-properties-properties-property-collapse-indicator {
+		--better-properties-collapse-opacity: 1;
+	} */
+}
+
+/* .metadata-property {
+	--better-properties-collapse-opacity: 0;
+	&:hover {
 		--better-properties-collapse-opacity: 1;
 	}
-}
+} */
 
 .metadata-property:has(.better-properties-mod-object) {
 	display: flex;
@@ -329,36 +335,8 @@ body {
 	--better-properties-indent-size-2x: calc(var(--list-indent-editing) * 2);
 	--better-properties-collapse-opacity: 0;
 
-	&:hover {
-		--better-properties-collapse-opacity: 1;
-	}
-
 	> .metadata-property-value:focus-within {
 		background-color: var(--metadata-input-background);
-	}
-
-	.better-properties-properties-object-collapse-indicator {
-		display: flex;
-		justify-content: center;
-		align-items: center;
-		margin: auto 0;
-		opacity: var(--better-properties-collapse-opacity);
-
-		svg.svg-icon {
-			color: var(--nav-collapse-icon-color);
-			/* stroke-width: 4px;
-			width: 10px;
-			height: 10px; */
-			transition: transform 100ms ease-in-out;
-		}
-
-		&[data-better-properties-is-collapsed] {
-			transform: rotate(calc(var(--direction) * 90deg));
-
-			svg.svg-icon {
-				color: var(--collapse-icon-color-collapsed);
-			}
-		}
 	}
 
 	&:has([data-better-properties-showindentguide="true"])::before {
@@ -755,6 +733,31 @@ div.metadata-content {
 				width: fit-content;
 				flex: 0 0 auto;
 			}
+		}
+	}
+}
+
+.better-properties-properties-property-collapse-indicator {
+	display: none;
+	justify-content: center;
+	align-items: center;
+	height: var(--input-height);
+
+	svg.svg-icon {
+		color: var(--nav-collapse-icon-color);
+		transition: transform 100ms ease-in-out;
+	}
+
+	.metadata-property:hover > .metadata-property-key > & {
+		display: flex;
+	}
+
+	&[data-better-properties-is-collapsed] {
+		transform: rotate(calc(var(--direction) * 90deg));
+		display: flex;
+
+		svg.svg-icon {
+			color: var(--collapse-icon-color-collapsed);
 		}
 	}
 }

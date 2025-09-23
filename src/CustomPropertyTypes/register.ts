@@ -1,5 +1,10 @@
 import BetterProperties from "~/main";
-import { CustomPropertyType, CustomTypeKey, getPropertyTypeSettings } from ".";
+import {
+	CustomPropertyType,
+	CustomTypeKey,
+	getPropertyTypeSettings,
+	PropertySettings,
+} from ".";
 import { selectPropertyType } from "./Select";
 import { Notice, parseYaml, setIcon } from "obsidian";
 import { customPropertyTypePrefix, monkeyAroundKey } from "~/lib/constants";
@@ -13,7 +18,7 @@ import {
 } from "obsidian-typings";
 // import { createdPropertyType } from "./Created";
 import { objectPropertyType } from "./Object";
-import { triggerPropertyTypeChange } from "./utils";
+import { setPropertyTypeSettings, triggerPropertyTypeChange } from "./utils";
 import { colorPropertyType } from "./Color";
 import { ratingPropertyType } from "./Rating";
 import { dateCustomPropertyType } from "./DateCustom";
@@ -23,6 +28,7 @@ import { timePropertyType } from "./Time";
 import { multiSelectPropertyType } from "./MultiSelect";
 import { numericPropertyType } from "./Numeric";
 import { arrayPropertyType } from "./Array";
+import { Icon } from "~/lib/types/icons";
 
 export const getCustomPropertyTypesArr = (): CustomPropertyType[] => [
 	arrayPropertyType,
@@ -91,6 +97,20 @@ export const wrapAllPropertyTypeWidgets = (plugin: BetterProperties) => {
 						plugin,
 						property: ctx.key,
 						type: "general",
+					});
+
+					const setSettings = (s: GeneralSettings) =>
+						setPropertyTypeSettings({
+							plugin,
+							property: ctx.key,
+							type: "general",
+							typeSettings: s,
+						});
+
+					renderCollapseIndicator({
+						propertyValueEl: containerEl,
+						settings,
+						setSettings,
 					});
 
 					if (settings.icon) {
@@ -219,4 +239,49 @@ export const sortAndFilterRegisteredTypeWidgets = (
 
 	plugin.app.metadataTypeManager.registeredTypeWidgets = sortedWidgets;
 	plugin.app.metadataTypeManager.trigger("changed");
+};
+
+type GeneralSettings = NonNullable<PropertySettings["general"]>;
+
+const renderCollapseIndicator = ({
+	settings,
+	setSettings,
+	propertyValueEl,
+}: {
+	propertyValueEl: HTMLElement;
+	settings: GeneralSettings;
+	setSettings: (s: GeneralSettings) => void;
+}) => {
+	const collapseCls =
+		"better-properties-properties-property-collapse-indicator";
+	const keyEl = propertyValueEl.parentElement?.querySelector(
+		".metadata-property-key"
+	);
+
+	const existingCollapseIndicator: HTMLElement | undefined | null =
+		keyEl?.querySelector(`& > .${collapseCls}`);
+
+	existingCollapseIndicator?.remove();
+
+	const collapseIndicator = keyEl?.createDiv({
+		cls: collapseCls,
+	});
+	if (collapseIndicator) {
+		setIcon(collapseIndicator, "lucide-chevron-down" satisfies Icon);
+
+		const setAttr = (isCollapsed: boolean) => {
+			const attr = "data-better-properties-is-collapsed";
+			isCollapsed
+				? collapseIndicator.setAttribute(attr, "true")
+				: collapseIndicator.removeAttribute(attr);
+		};
+
+		setAttr(!!settings.collapsed);
+
+		collapseIndicator.addEventListener("click", () => {
+			settings.collapsed = !settings.collapsed;
+			setAttr(settings.collapsed);
+			setSettings({ ...settings });
+		});
+	}
 };

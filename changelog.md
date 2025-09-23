@@ -4,6 +4,10 @@ Each release should include an entry detailing the changes made since the last r
 
 ## 0.1.8
 
+### New
+
+- Made all property types able to be collapsed
+
 ### Bug fixes
 
 - Fixed hot-reload issues with bpjs blocks using `api.renderProperty()`
