@@ -1,7 +1,7 @@
 {
 	"id": "obsidian-better-properties",
 	"name": "Better Properties",
-	"version": "0.1.6",
+	"version": "0.1.7",
 	"minAppVersion": "1.9.1",
 	"description": "Upgrades Obsidian properties with new types, features, and more!",
 	"author": "Unxok",
