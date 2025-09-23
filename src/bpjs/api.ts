@@ -133,7 +133,6 @@ export class BpJsApi {
 			metadata?.frontmatter ?? {}
 		);
 		if (subscribe) {
-			console.log("split key: ", key?.split(".")[0]);
 			this.subscribe({
 				property: key?.split(".")[0],
 				path,
@@ -159,7 +158,6 @@ export class BpJsApi {
 		hideKey?: boolean;
 		path?: string;
 	}): void {
-		console.log("rendering: ", property);
 		const { plugin } = this;
 		const sourcePath: string = path ?? this.sourcePath;
 		const value = this.getProperty({ property, path });
