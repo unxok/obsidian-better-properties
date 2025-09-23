@@ -4,10 +4,12 @@ Each release should include an entry detailing the changes made since the last r
 
 ## 0.1.7
 
-- test 1
-- test 2
+### New
 
-## 0.1.6
+- Setup fully automated releases through github actions with changelog entries
 
-- should not get picked up
-- laskdjf
+### Bug fixes
+
+- Fixed styling and rendering of Multiselect type when items should overflow to more than one line
+- Fixed sub-properties within the Object type storing a stale reference of the its parent Object's value
+- Fixed hot-reload issues with bpjs blocks that use `api.import()`
