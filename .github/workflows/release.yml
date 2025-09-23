@@ -25,7 +25,7 @@ jobs:
       - name: Generate release notes from changelog
         id: notes
         run: |
-          node ./getChangelogEntry.js > RELEASE_NOTES.md
+          node ./getChangelogEntry.mjs > RELEASE_NOTES.md
           echo "file=RELEASE_NOTES.md" >> "$GITHUB_OUTPUT"
 
       - name: Create release
