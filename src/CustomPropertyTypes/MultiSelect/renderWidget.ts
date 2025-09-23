@@ -132,6 +132,11 @@ class MultiSelectComponent extends ValueComponent<string[]> {
 		this.itemsContainerEl = containerEl.createDiv({
 			cls: "better-properties-multiselect-items-container",
 		});
+		this.itemsContainerEl.addEventListener("click", (e) => {
+			if (e.target !== this.itemsContainerEl) return;
+			this.trailingItem = this.createTrailingItem();
+			this.trailingItem.selectEl.click();
+		});
 	}
 
 	getValue(): string[] {
@@ -140,10 +145,7 @@ class MultiSelectComponent extends ValueComponent<string[]> {
 
 	setValue(value: string[]): this {
 		this.set = new Set(value);
-		if (this.trailingItem) {
-			this.trailingItem.selectEl.remove();
-		}
-		this.trailingItem = this.createTrailingItem();
+		// this.trailingItem = this.createTrailingItem();
 		return this;
 	}
 
@@ -166,7 +168,9 @@ class MultiSelectComponent extends ValueComponent<string[]> {
 		[...this.set].forEach((v, i) => {
 			this.items.push(this.createItem(v, i));
 		});
-		this.trailingItem = this.createTrailingItem();
+		if (this.trailingItem) {
+			this.trailingItem.selectContainerEl.remove();
+		}
 	}
 
 	focus(): void {
@@ -176,7 +180,11 @@ class MultiSelectComponent extends ValueComponent<string[]> {
 	}
 
 	createTrailingItem(): SelectComponent {
-		return this.createItem("", this.set.size || 1);
+		if (this.trailingItem) {
+			this.trailingItem.selectContainerEl.remove();
+		}
+		const item = this.createItem("", this.set.size);
+		return item;
 	}
 
 	createItem(value: string, index: number): SelectComponent {
@@ -205,6 +213,7 @@ class MultiSelectComponent extends ValueComponent<string[]> {
 			arr[index] = v;
 			this.setValue(arr);
 			this.onChanged();
+			this.render();
 		});
 
 		return cmp;

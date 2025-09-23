@@ -115,7 +115,7 @@ export abstract class ComboboxComponent<Option> extends ValueComponent<string> {
 			return el;
 		}
 
-		return createDiv();
+		return createDiv({ cls: "better-properties-select-aux" });
 	}
 
 	onRenderMenuItem(item: MenuItem, option: Option): void {
