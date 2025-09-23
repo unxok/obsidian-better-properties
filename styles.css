@@ -96,8 +96,7 @@ body {
 		gap: var(--size-4-1);
 		padding: var(--input-padding);
 		width: 100%;
-		min-width: fit-content;
-		text-wrap: nowrap;
+		max-width: 100%;
 	}
 
 	&[data-property-type="better-properties:toggle"] {
@@ -635,6 +634,10 @@ div.metadata-content {
 	&:has(.data-better-properties-combobox-mod-empty) {
 		width: 100%;
 	}
+
+	& > .better-properties-select-aux:empty {
+		display: none;
+	}
 }
 
 .better-properties-combobox-select {
@@ -714,8 +717,13 @@ div.metadata-content {
 
 .better-properties-multiselect-items-container {
 	display: flex;
-	gap: var(--size-2-2);
+	align-items: center;
+	flex-wrap: wrap;
+	gap: var(--size-2-3);
 	width: 100%;
+	height: 100%;
+	max-width: 100%;
+	/* padding-inline-end: 3ch; */
 }
 
 .better-properties-numeric-container {

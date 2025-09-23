@@ -67,8 +67,8 @@ class GroupTypeComponent extends PropertyWidgetComponentNew<
 				"#",
 				itemValue,
 				index,
-				this.ctx,
-				parsed
+				this.ctx
+				// parsed
 			);
 			this.subProperties.push(sub);
 			sub.render();
@@ -157,9 +157,9 @@ class SubPropertyComponent extends PropertyComponent {
 		key: string,
 		value: unknown,
 		public index: number,
-		public parentCtx: PropertyRenderContext,
-		public parentValue: unknown[]
-	) {
+		public parentCtx: PropertyRenderContext
+	) // public parentValue: unknown[]
+	{
 		super(
 			plugin,
 			containerEl,
@@ -167,6 +167,16 @@ class SubPropertyComponent extends PropertyComponent {
 			value,
 			parentCtx.sourcePath
 		);
+	}
+
+	get parentValue(): unknown[] {
+		const file = this.plugin.app.vault.getFileByPath(this.sourcePath);
+		if (!file) {
+			throw new Error(`File not found at path "${this.sourcePath}"`);
+		}
+		const { frontmatter } =
+			this.plugin.app.metadataCache.getFileCache(file) ?? {};
+		return frontmatter?.[this.parentCtx.key] ?? [];
 	}
 
 	override createKeyInputEl(keyEl: HTMLDivElement): HTMLInputElement {
