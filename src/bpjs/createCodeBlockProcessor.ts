@@ -17,9 +17,6 @@ export const createCodeBlockProcessor = (
 	) => {
 		el.classList.add("better-properties-bpjs-codeblock");
 		const mdrc = new MarkdownRenderChild(el);
-		mdrc.onunload = () => {
-			console.log("mdrc unloaded");
-		};
 		ctx.addChild(mdrc);
 		const component = new Component();
 		mdrc.addChild(component);
