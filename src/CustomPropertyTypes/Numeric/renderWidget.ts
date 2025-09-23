@@ -39,7 +39,6 @@ class NumericTypeComponent extends PropertyWidgetComponentNew<
 		this.numericComponent = new NumericComponent(el, settings.decimalPlaces)
 			.setValue(this.parseValue(value))
 			.onChange((n) => {
-				console.log("change");
 				this.ctx.onChange(n);
 			});
 
