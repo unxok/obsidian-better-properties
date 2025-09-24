@@ -93,6 +93,9 @@
 				}
 			}
 		},
+		"relation": {
+			"name": "Relation"
+		},
 		"datecustom": {
 			"name": "Date custom",
 			"settings": {

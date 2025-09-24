@@ -29,6 +29,7 @@ import { multiSelectPropertyType } from "./MultiSelect";
 import { numericPropertyType } from "./Numeric";
 import { arrayPropertyType } from "./Array";
 import { Icon } from "~/lib/types/icons";
+import { relationPropertyType } from "./Relation";
 
 export const getCustomPropertyTypesArr = (): CustomPropertyType[] => [
 	arrayPropertyType,
@@ -41,6 +42,7 @@ export const getCustomPropertyTypesArr = (): CustomPropertyType[] => [
 	objectPropertyType,
 	colorPropertyType,
 	ratingPropertyType,
+	relationPropertyType,
 	dateCustomPropertyType,
 	sliderPropertyType,
 	timePropertyType,

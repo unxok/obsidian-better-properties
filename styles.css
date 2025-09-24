@@ -206,6 +206,10 @@ body {
 		}
 	}
 
+	&[data-property-type="better-properties:relation"] {
+		/* padding: var(--input-padding); */
+		height: var(--input-height);
+	}
 	&[data-property-type="better-properties:rating"] {
 		padding: var(--input-padding);
 		height: var(--input-height);

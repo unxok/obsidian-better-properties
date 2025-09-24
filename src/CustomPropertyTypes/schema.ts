@@ -15,6 +15,7 @@ import { timeSettingsSchema } from "./Time";
 import { multiSelectSettingsSchema } from "./MultiSelect";
 import { numericSettingsSchema } from "./Numeric";
 import { arraySettingsSchema } from "./Array";
+import { relationSettingsSchema } from "./Relation";
 
 type SettingsBase = v.ObjectSchema<
 	Record<string, PropertyTypeSchema>,
@@ -45,6 +46,7 @@ export const propertySettingsSchema = v.object({
 	object: objectSettingsSchema,
 	color: colorSettingsSchema,
 	rating: ratingSettingsSchema,
+	relation: relationSettingsSchema,
 	datecustom: dateCustomSettingsSchema,
 	slider: sliderSettingsSchema,
 	time: timeSettingsSchema,

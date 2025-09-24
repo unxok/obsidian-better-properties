@@ -1,4 +1,8 @@
-import { Events, Workspace as BaseWorkspace } from "obsidian";
+import {
+	Events,
+	Workspace as BaseWorkspace,
+	MetadataCache as BaseMetadataCache,
+} from "obsidian";
 import {
 	MetadataTypeManager as BaseMetadataTypeManager,
 	MetadataEditor as BaseMetadataEditor,
@@ -41,6 +45,29 @@ declare module "obsidian" {
 
 	interface MetadataTypeManager extends BaseMetadataTypeManager {
 		on(name: "changed", cb: (property: string | undefined) => void): EventRef;
+	}
+
+	interface MetadataCache extends BaseMetadataCache {
+		on(
+			name: "better-properties:relation-changed",
+			cb: (data: {
+				file: TFile;
+				property: string;
+				oldValue: string[];
+				value: string[];
+				relatedProperty: string;
+			}) => void
+		): EventRef;
+		trigger(
+			name: "better-properties:relation-changed",
+			data: {
+				file: TFile;
+				property: string;
+				oldValue: string[];
+				value: string[];
+				relatedProperty: string;
+			}
+		);
 	}
 
 	interface Menu {
