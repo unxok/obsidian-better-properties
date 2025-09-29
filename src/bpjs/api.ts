@@ -52,6 +52,7 @@ export class BpJsApi {
 		property?: string;
 		path?: string;
 	}): void {
+		return;
 		const { plugin, component } = this;
 		const { metadataCache, metadataTypeManager, vault } = plugin.app;
 
@@ -218,15 +219,15 @@ export class BpJsApi {
 			);
 		}
 
-		const ref = vault.on("modify", async (f) => {
-			if (f !== file) return;
-			vault.offref(ref);
-			this.component.unload();
-			this.component.load();
-			this.empty();
-			await this.run(this.code);
-		});
-		this.component.registerEvent(ref);
+		// const ref = vault.on("modify", async (f) => {
+		// 	if (f !== file) return;
+		// 	vault.offref(ref);
+		// 	this.component.unload();
+		// 	this.component.load();
+		// 	this.empty();
+		// 	await this.run(this.code);
+		// });
+		// this.component.registerEvent(ref);
 
 		const content = await vault.cachedRead(file);
 
