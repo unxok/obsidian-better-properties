@@ -388,9 +388,11 @@ export const copyIcons = () => {
  * Improved version of obsidian's `getAllTags()` function
  */
 export const getAllTags = (
+	/**	The metadata of a note */
 	cachedMetadata: CachedMetadata,
+	/** Whether to include a hashtag in the returned tags */
 	includeHashTag: boolean
-) => {
+): string[] => {
 	const tags = new Set<string>();
 
 	cachedMetadata.tags?.forEach(({ tag }) => {
@@ -423,6 +425,9 @@ export const compareFunc = new Intl.Collator(undefined, {
 	numeric: false,
 }).compare;
 
+/**
+ * Adds event listeners to an element to make it draggable to reorder within a parent
+ */
 export const makeDraggable = ({
 	itemEl,
 	dragHandleEl,
@@ -430,10 +435,28 @@ export const makeDraggable = ({
 	itemsQuerySelector,
 	onDragEnd,
 }: {
+	/**
+	 * The element which is moved when dragged
+	 */
 	itemEl: HTMLElement;
+	/**
+	 * The element which is used to drag the item. Should be a child of `itemEl`
+	 */
 	dragHandleEl: HTMLElement;
+	/**
+	 * The element which contains `itemEl`
+	 */
 	parentEl: HTMLElement;
+	/**
+	 * The selector used to get all the other item elements in `parentEl`
+	 */
 	itemsQuerySelector: string;
+	/**
+	 * Callback that runs after the dragged item is dropped. This callback should do some mechanism which triggers a re-render of the parent's items
+	 * @param oldIndex The original index of `itemEl` before it was dragged and dropped
+	 * @param newIndex The new index of `itemEl` after it has been dragged and dropped
+	 * @returns
+	 */
 	onDragEnd: (oldIndex: number, newIndex: number) => void;
 }) => {
 	dragHandleEl.addEventListener("mousedown", (mousedownEvent) => {
@@ -523,4 +546,58 @@ export const makeDraggable = ({
 		document.addEventListener("mousemove", onMouseMove);
 		document.addEventListener("mouseup", onMouseUp);
 	});
+};
+
+/**
+ * Parse a CSV style string into a 2D array of strings
+ * @param csv - The text to parse as a CSV
+ * @param delimiter The column delimeter character. Default ","
+ * @returns
+ */
+export const parseCsv = (csv: string, delimiter = ","): string[][] => {
+	const rows: string[][] = [];
+	let currentRow: string[] = [];
+	let currentValue = "";
+	let insideQuotes = false;
+
+	for (let i = 0; i < csv.length; i++) {
+		const char = csv[i];
+		const nextChar = csv[i + 1];
+
+		if (char === '"') {
+			// escaped quote: add one and skip next
+			if (insideQuotes && nextChar === '"') {
+				currentValue += '"';
+				i++;
+				continue;
+			}
+			insideQuotes = !insideQuotes;
+			continue;
+		}
+		if (char === delimiter && !insideQuotes) {
+			currentRow.push(currentValue);
+			currentValue = "";
+			continue;
+		}
+		// end of row
+		if (!insideQuotes && (char === "\n" || char === "\r")) {
+			// skip \r in \r\n combos
+			if (char === "\r" && nextChar === "\n") i++;
+			currentRow.push(currentValue);
+			rows.push(currentRow);
+			currentRow = [];
+			currentValue = "";
+			continue;
+		}
+
+		currentValue += char;
+	}
+
+	// 🧹 Push last row if file doesn’t end with newline
+	if (currentValue.length > 0 || currentRow.length > 0) {
+		currentRow.push(currentValue);
+		rows.push(currentRow);
+	}
+
+	return rows;
 };
