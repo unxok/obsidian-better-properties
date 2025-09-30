@@ -199,6 +199,7 @@ export class BpJsApi {
 			"css",
 			"json",
 			"csv",
+			"tsv",
 			"yaml",
 			"txt",
 			"md",
@@ -273,7 +274,7 @@ export class BpJsApi {
 			return JSON.parse(content);
 		}
 
-		if (extension === "csv") {
+		if (extension === "csv" || extension === "tsv") {
 			const delimiter = typeof data === "string" ? data : ",";
 			return parseCsv(content, delimiter);
 		}
