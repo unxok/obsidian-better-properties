@@ -7,6 +7,8 @@ Each release should include an entry detailing the changes made since the last r
 ### New
 
 - When importing a JS file in a bpjs block with `api.import(file)`, the JS file can optionally use the syntax `export default` rather than `module.exports =`
+- bpjs blocks can now use `api.import()` with the following file types: `.js`, `.css`, `.json`, `.yaml`, `.csv`, `.tsv`, `.md`, and `.txt`. Note, for `.csv` and `.tsv` you pass a second paramater for a custom delimeter character, for example: `api.import("data.csv", ";")`
+- bpjs blocks can now use `api.markdown({text, element?})` to render plain text to markdown
 
 ### Fixed
 
