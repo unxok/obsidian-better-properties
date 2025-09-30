@@ -68,7 +68,7 @@ interface Multiselect {
 export class MultiselectComponent extends resolveMultiSelectPrototype(app) {
 	isInputElSuggestAdded: boolean = false;
 	addSuggestCallback:
-		| ((inputEl: HTMLDivElement, index: number) => InputSuggest<any>) // TODO is it possible to not use `any` here? It seems like a fine usage though
+		| ((inputEl: HTMLDivElement, index: number) => InputSuggest<any>)
 		| undefined;
 	constructor(parentEl: HTMLElement | Setting) {
 		const el = parentEl instanceof HTMLElement ? parentEl : parentEl.controlEl;
