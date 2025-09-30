@@ -37,18 +37,6 @@ class InlineCodeWidget extends WidgetType {
 		const code = this.codeText.slice(this.plugin.codePrefix.length);
 		const api = new BpJsApi(this.plugin, undefined, this.file.path, cmp, code);
 		api.run(code);
-
-		const field = this.view.state.field(editorInfoField);
-		if (field.editor?.inTableCell) {
-			// TODO prevent click from focusing within editor and placing cursor it
-			// does not work
-			// api.el.addEventListener("click", (e) => {
-			// 	e.preventDefault();
-			// 	e.stopImmediatePropagation();
-			// 	e.stopPropagation();
-			// });
-		}
-
 		api.el.classList.add("better-properties-bpjs-code");
 
 		return api.el;
@@ -77,9 +65,6 @@ class InlineCodeWidget extends WidgetType {
 	}
 
 	eq(widget: InlineCodeWidget): boolean {
-		// return false;
-		// TODO need to check position in doc as well
-
 		return widget.codeText === this.codeText;
 	}
 }
@@ -119,10 +104,6 @@ export const createInlineCodePlugin = (plugin: BetterProperties) => {
 						to,
 						enter: (node) => {
 							const names = node.name.split("_");
-							// console.log("node names: ", names);
-							// if (names.includes("HyperMD-header")) {
-							// 	console.log("header node: ", node.node);
-							// }
 							if (
 								!names.includes("inline-code") &&
 								names.includes("formatting")
@@ -163,7 +144,6 @@ export const createInlineCodePlugin = (plugin: BetterProperties) => {
 
 							let widget = Decoration.replace({
 								widget: new InlineCodeWidget(codeText, plugin, file, view),
-								// side: 1,
 							}).range(node.from, node.to);
 							widgets.push(widget);
 						},
@@ -178,9 +158,6 @@ export const createInlineCodePlugin = (plugin: BetterProperties) => {
 	);
 	return inlineCodePlugin;
 };
-
-// Finally, add the plugin to your CodeMirror instance
-// export const inlineCodeExtension = [createInlineCodePlugin];
 
 const selectionAndRangeOverlap = (
 	selection: EditorSelection,
