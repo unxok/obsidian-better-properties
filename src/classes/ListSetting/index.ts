@@ -2,8 +2,6 @@ import { ButtonComponent, Setting } from "obsidian";
 import { Icon } from "~/lib/types/icons";
 import { arrayMove, clampNumber } from "~/lib/utils";
 
-// TODO set up keyboard controls for dragging
-
 export class ListSetting<T> extends Setting {
 	itemsContainerEl: HTMLElement;
 	items: Item<T>[] = [];
