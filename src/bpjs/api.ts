@@ -1,10 +1,17 @@
-import { Component, TFile, CachedMetadata, debounce } from "obsidian";
+import {
+	Component,
+	TFile,
+	CachedMetadata,
+	debounce,
+	parseYaml,
+	MarkdownRenderer,
+} from "obsidian";
 import { PropertyComponent } from "~/classes/PropertyComponent";
 import {
 	findKeyValueByDotNotation,
 	updateNestedObject,
 } from "~/CustomPropertyTypes/utils";
-import { tryCatch } from "~/lib/utils";
+import { parseCsv, tryCatch } from "~/lib/utils";
 import BetterProperties from "~/main";
 
 export const setupBpJsListeners = (plugin: BetterProperties) => {
@@ -161,7 +168,23 @@ export class BpJsApi {
 		cmp.render();
 	}
 
-	public async import(path: string): Promise<unknown> {
+	public async markdown({
+		text,
+		el = this.el,
+	}: {
+		text: string;
+		el?: HTMLElement;
+	}): Promise<void> {
+		await MarkdownRenderer.render(
+			this.plugin.app,
+			text,
+			el,
+			this.sourcePath,
+			this.component
+		);
+	}
+
+	public async import(path: string, data: unknown): Promise<unknown> {
 		const { vault } = this.plugin.app;
 		const lowerPath = path.toLowerCase();
 		const dotSections = lowerPath.split(".");
@@ -171,7 +194,15 @@ export class BpJsApi {
 			);
 		}
 
-		const allowedExtensions = ["js", "css"] as const;
+		const allowedExtensions = [
+			"js",
+			"css",
+			"json",
+			"csv",
+			"yaml",
+			"txt",
+			"md",
+		] as const;
 		const extension = dotSections.reverse()[0].toLowerCase() as
 			| (typeof allowedExtensions)[number]
 			| (string & {});
@@ -226,6 +257,7 @@ export class BpJsApi {
 			}
 			this.styleEl = this.el.parentElement!.createEl("style");
 			this.styleEl.innerHTML = content;
+			return;
 
 			// TODO is there a way to get this to work? I would like to avoid innerHTML if possible
 			// this.el.createEl("link", {
@@ -237,12 +269,26 @@ export class BpJsApi {
 			// });
 		}
 
-		// TODO? allow importing json and csv files
+		if (extension === "json") {
+			return JSON.parse(content);
+		}
+
+		if (extension === "csv") {
+			const delimiter = typeof data === "string" ? data : ",";
+			return parseCsv(content, delimiter);
+		}
+
+		if (extension === "yaml") {
+			return parseYaml(content);
+		}
+
+		if (extension === "md" || extension === "txt") {
+			return content;
+		}
 	}
 
 	async run(code: string): Promise<void> {
 		this.el.empty();
-		// this.code = code;
 		const { success, data, error } = await tryCatch(async () => {
 			const fn = eval(code);
 			if (typeof fn !== "function") {
