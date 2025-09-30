@@ -2,6 +2,20 @@
 
 Each release should include an entry detailing the changes made since the last release. Some specific details may be omitted for brevity.
 
+## 0.1.9
+
+### New
+
+- ....
+
+### Fixed
+
+- ...
+
+### Other
+
+- removed the "script" codeblock processor (was used for prototyping)
+
 ## 0.1.8
 
 Not much done in this release, but it's the first release since creating the [Better Properties Docs](https://better-properties.unxok.com) site!
