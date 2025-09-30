@@ -101,10 +101,12 @@ export class BpJsApi {
 	public getMetadata({
 		path,
 		subscribe = true,
-	}: {
-		path?: string;
-		subscribe?: boolean;
-	}): CachedMetadata | null {
+	}:
+		| {
+				path?: string;
+				subscribe?: boolean;
+		  }
+		| undefined = {}): CachedMetadata | null {
 		const { metadataCache, vault } = this.plugin.app;
 		const maybeFile = path ? vault.getFileByPath(path) : null;
 		if (path && !maybeFile) {
