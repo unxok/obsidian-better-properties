@@ -274,8 +274,13 @@ export class BpJsApi {
 			return JSON.parse(content);
 		}
 
-		if (extension === "csv" || extension === "tsv") {
+		if (extension === "csv") {
 			const delimiter = typeof data === "string" ? data : ",";
+			return parseCsv(content, delimiter);
+		}
+
+		if (extension === "tsv") {
+			const delimiter = typeof data === "string" ? data : "\t";
 			return parseCsv(content, delimiter);
 		}
 
