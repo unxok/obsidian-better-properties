@@ -22,10 +22,13 @@ import { patchMetadataCache } from "~/MetadataCache";
 import * as v from "valibot";
 import { openRenameModal } from "~/MetadataEditor/propertyEditorMenu/rename";
 import { registerBpJsCodeProcessors } from "~/bpjs";
+import { BpJsApi, setupBpJsListeners } from "~/bpjs/api";
 export class BetterProperties extends Plugin {
 	settings: BetterPropertiesSettings = getDefaultSettings();
 	disabledTypeWidgets: Record<string, PropertyWidget> = {};
 	codePrefix = "bpjs:"; // TODO make configurable
+
+	bpjsInstances: Set<BpJsApi> = new Set();
 
 	async onload(): Promise<void> {
 		await this.loadSettings();
@@ -38,11 +41,12 @@ export class BetterProperties extends Plugin {
 			customizePropertyEditorMenu(this);
 			patchMetadataEditor(this);
 			patchMetadataCache(this);
+			setupBpJsListeners(this);
+			registerBpJsCodeProcessors(this);
+
 			this.rebuildLeaves();
 		});
 		this.handlePropertyLabelWidth();
-
-		registerBpJsCodeProcessors(this);
 		this.registerEvent(
 			this.app.vault.on("config-changed", () => {
 				this.refreshPropertyEditors();
@@ -137,9 +141,9 @@ export class BetterProperties extends Plugin {
 
 	onunload(): void {
 		unregisterCustomPropertyTypeWidgets(this);
-		window.CodeMirror.defineMode("script", (config) =>
-			window.CodeMirror.getMode(config, "null")
-		);
+		this.bpjsInstances.forEach((bpjs) => {
+			bpjs.component.unload();
+		});
 	}
 
 	async onExternalSettingsChange() {

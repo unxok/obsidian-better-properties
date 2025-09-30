@@ -44,7 +44,7 @@ declare module "obsidian" {
 	}
 
 	interface MetadataTypeManager extends BaseMetadataTypeManager {
-		on(name: "changed", cb: (property: string | undefined) => void): EventRef;
+		on(name: "changed", cb: (property: string) => void): EventRef;
 	}
 
 	interface MetadataCache extends BaseMetadataCache {

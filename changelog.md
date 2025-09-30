@@ -6,11 +6,16 @@ Each release should include an entry detailing the changes made since the last r
 
 ### New
 
-- ....
+- When importing a JS file in a bpjs block with `api.import(file)`, the JS file can optionally use the syntax `export default` rather than `module.exports =`
 
 ### Fixed
 
-- ...
+- bpjs blocks will now show as plain text in Source Mode
+- bpjs blocks will now auto-refresh when:
+  - Any property's type changes
+  - A "subscribed" file changes
+    - Any file imported with `api.import(file)`
+    - The file from the path passed to `api.getMetadata({property, file})`, `api.getProperty({property, file})`, or `api.renderProperty({property, file})`. If no file path is passed, then the file they are rendered in is used instead. Note you can opt out of auto-refresh by passing `subscribe: false`, for example: `api.getProperty({property: "status", subscribe: false})`
 
 ### Other
 

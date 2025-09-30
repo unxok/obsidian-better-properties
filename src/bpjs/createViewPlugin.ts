@@ -8,7 +8,12 @@ import {
 } from "@codemirror/view";
 import { syntaxTree } from "@codemirror/language";
 import { EditorSelection, Range } from "@codemirror/state";
-import { Component, editorInfoField, TFile } from "obsidian";
+import {
+	Component,
+	editorInfoField,
+	editorLivePreviewField,
+	TFile,
+} from "obsidian";
 import BetterProperties from "~/main";
 import { BpJsApi } from "./api";
 
@@ -91,10 +96,10 @@ export const createInlineCodePlugin = (plugin: BetterProperties) => {
 			}
 
 			update(update: ViewUpdate) {
-				// if (!update.state.field(editorLivePreviewField)) {
-				// 	this.decorations = Decoration.none;
-				// 	return;
-				// }
+				if (!update.state.field(editorLivePreviewField)) {
+					this.decorations = Decoration.none;
+					return;
+				}
 				if (
 					!(update.docChanged || update.selectionSet || update.viewportChanged)
 				)
