@@ -81,7 +81,7 @@ export class BpJsApi {
 		plugin.bpjsInstances.add(this);
 	}
 
-	public empty(): void {
+	empty(): void {
 		this.el.empty();
 		this.styleEl?.empty();
 	}
