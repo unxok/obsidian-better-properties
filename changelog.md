@@ -4,6 +4,8 @@ Each release should include an entry detailing the changes made since the last r
 
 ## 0.1.9
 
+Lots of `bpjs` updates!
+
 ### New
 
 - When importing a JS file in a bpjs block with `api.import(file)`, the JS file can optionally use the syntax `export default` rather than `module.exports =`
