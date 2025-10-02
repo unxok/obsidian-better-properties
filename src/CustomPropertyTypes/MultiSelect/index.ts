@@ -37,27 +37,7 @@ export const multiSelectSettingsSchema = v.optional(
 					bgColor: v.optional(v.string()),
 					textColor: v.optional(v.string()),
 				})
-			),
-			[
-				{
-					value: "",
-					label: "none",
-					bgColor: "var(--better-properties-select-gray)",
-				},
-				{
-					value: "apples",
-					label: "ApPLeS",
-					bgColor: "var(--better-properties-select-red)",
-				},
-				{
-					value: "bananas",
-					bgColor: "var(--better-properties-select-yellow)",
-				},
-				{
-					value: "watermelon",
-					bgColor: "var(--better-properties-select-watermelon)",
-				},
-			]
+			)
 		),
 		dynamicOptionsType: v.optional(
 			v.union([

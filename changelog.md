@@ -11,6 +11,7 @@ This should be the last release before the beta annoucement🎉
 
 - Hidden properties visiblity has been fixed when the "Show hidden" button is toggled on.
 - ColorTextComponent's hidden color input is now correctly positioned within it's parent.
+- Removed default options when opening settings for the first time for a Select or Multi-Select
 
 ## 0.1.9
 
