@@ -1,6 +1,21 @@
 # Changelog
 
-Each release should include an entry detailing the changes made since the last release. Some specific details may be omitted for brevity.
+Each release should include an entry detailing the changes made since the last
+release. Some specific details may be omitted for brevity.
+
+## 0.1.10
+
+### New
+
+- ...
+
+### Fixed
+
+- Hidden properties visiblity has been fixed when the "Show hidden" button is toggled on.
+
+### Other
+
+- ...
 
 ## 0.1.9
 

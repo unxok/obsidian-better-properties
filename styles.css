@@ -668,9 +668,6 @@ div.metadata-content {
 	flex: auto;
 }
 
-[data-better-properties-hidden="true"] {
-	display: none;
-}
 .better-properties-searchable-menu.menu {
 	/* TODO can't get user-select:text to work anywhere in here */
 	user-select: text;
