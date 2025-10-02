@@ -5,18 +5,12 @@ release. Some specific details may be omitted for brevity.
 
 ## 0.1.10
 
-### New
-
-- ...
+This should be the last release before the beta annoucement🎉
 
 ### Fixed
 
 - Hidden properties visiblity has been fixed when the "Show hidden" button is toggled on.
 - ColorTextComponent's hidden color input is now correctly positioned within it's parent.
-
-### Other
-
-- ...
 
 ## 0.1.9
 
