@@ -569,12 +569,12 @@ div.metadata-content {
 	align-items: center;
 	gap: var(--size-2-2);
 	& > .better-properties-color-text-component-colors-container {
+		position: relative;
 		& > input[type="color"] {
 			opacity: 0;
 			position: absolute;
-			left: 50%;
-			top: 50%;
-			transform: translate(-50%, -50%);
+			left: 0;
+			top: 0;
 			pointer-events: none;
 		}
 	}
