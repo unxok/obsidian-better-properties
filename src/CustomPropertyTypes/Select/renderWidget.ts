@@ -103,7 +103,7 @@ class SelectTypeComponent extends PropertyWidgetComponentNew<"select", string> {
 		} = settings;
 		this.options =
 			settings.optionsType === "manual"
-				? settings.manualOptions
+				? settings.manualOptions ?? []
 				: await getDynamicOptions({
 						plugin: this.plugin,
 						ctx: this.ctx,

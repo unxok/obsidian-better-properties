@@ -80,7 +80,7 @@ class MultiSelectTypeComponent extends PropertyWidgetComponentNew<
 		} = settings;
 		this.options =
 			settings.optionsType === "manual"
-				? settings.manualOptions
+				? settings.manualOptions ?? []
 				: await getDynamicOptions({
 						plugin: this.plugin,
 						ctx: this.ctx,
