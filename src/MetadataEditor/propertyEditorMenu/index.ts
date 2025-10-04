@@ -4,7 +4,7 @@ import { Icon } from "~/lib/types/icons";
 import { deleteProperty } from "~/lib/utils";
 import { openDeleteModal } from "./delete";
 import { openRenameModal } from "./rename";
-import { Menu, MenuItem, MenuSeparator, Notice } from "obsidian";
+import { Menu, MenuItem, MenuSeparator } from "obsidian";
 import { openChangeIconModal } from "./icon";
 import { obsidianText } from "~/i18next/obsidian";
 import { text } from "~/i18next";
