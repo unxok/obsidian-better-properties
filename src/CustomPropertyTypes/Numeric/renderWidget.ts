@@ -17,11 +17,11 @@ export const renderWidget: CustomPropertyType["renderWidget"] = ({
 
 class NumericTypeComponent extends PropertyWidgetComponentNew<
 	"numeric",
-	string
+	number
 > {
 	type = "numeric" as const;
 	parseValue = (v: unknown) => {
-		return v?.toString() ?? "";
+		return Number(v);
 	};
 
 	numericComponent: NumericComponent;
@@ -47,7 +47,7 @@ class NumericTypeComponent extends PropertyWidgetComponentNew<
 		};
 	}
 
-	getValue(): string {
+	getValue(): number {
 		return this.numericComponent.getValue();
 	}
 
@@ -59,14 +59,14 @@ class NumericTypeComponent extends PropertyWidgetComponentNew<
 	}
 }
 
-class NumericComponent extends ValueComponent<string> {
+class NumericComponent extends ValueComponent<number> {
 	mexp: Mexp = new Mexp();
 	textComponent: TextComponent;
 	numericContainerEl: HTMLDivElement;
 	resultEl: HTMLDivElement;
 
-	value: string | undefined;
-	onChangeCallback: (v: string) => void = () => {};
+	value: number | undefined;
+	onChangeCallback: (v: number | undefined) => void = () => {};
 	isTyping: boolean = false;
 	showResultAttr: string = "data-better-properties-show-result";
 
@@ -92,7 +92,7 @@ class NumericComponent extends ValueComponent<string> {
 		);
 	}
 
-	onChange(cb: (value: string) => void): this {
+	onChange(cb: (value: number | undefined) => void): this {
 		this.onChangeCallback = cb;
 		return this;
 	}
@@ -115,19 +115,19 @@ class NumericComponent extends ValueComponent<string> {
 		});
 	}
 
-	setValue(value: string): this {
-		const str =
+	setValue(value: number): this {
+		const n =
 			this.decimalPlaces !== undefined
-				? Number(value).toFixed(this.decimalPlaces)
+				? Number(value.toFixed(this.decimalPlaces))
 				: value;
-		this.value = str;
-		this.textComponent.setValue(str);
+		this.value = n;
+		this.textComponent.setValue(n.toLocaleString());
 		this.resultEl.textContent = "";
 		return this;
 	}
 
-	getValue(): string {
-		return this.value ?? "";
+	getValue(): number {
+		return this.value ?? 0;
 	}
 
 	createTextComponent(containerEl: HTMLElement): TextComponent {
@@ -141,14 +141,14 @@ class NumericComponent extends ValueComponent<string> {
 			const v = cmp.inputEl.value;
 			const result = this.evaluate(v);
 			if (!result.success) return;
-			this.setValue(result.data.toLocaleString());
+			this.setValue(result.data);
 			this.onChanged();
 		};
 
 		cmp.inputEl.classList.add("metadata-input", "metadata-input-number");
 
-		cmp.inputEl.addEventListener("click", () => {
-			commitValue();
+		cmp.inputEl.addEventListener("focus", () => {
+			cmp.setValue(this.getValue().toString());
 		});
 
 		cmp.inputEl.addEventListener("blur", () => {
