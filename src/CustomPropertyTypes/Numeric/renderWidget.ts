@@ -103,7 +103,7 @@ class NumericComponent extends ValueComponent<string> {
 
 	evaluate(expr: string): TryCatchResult<number> {
 		return syncTryCatch(() => {
-			return this.mexp.eval(expr, [
+			return this.mexp.eval(expr.replaceAll(",", "."), [
 				{
 					token: "x",
 					value: this.getValue(),
@@ -134,14 +134,14 @@ class NumericComponent extends ValueComponent<string> {
 		const cmp = new TextComponent(containerEl);
 		cmp.onChange((v) => {
 			const { success, data, error } = this.evaluate(v);
-			this.resultEl.textContent = success ? data.toString() : error;
+			this.resultEl.textContent = success ? data.toLocaleString() : error;
 		});
 
 		const commitValue = () => {
 			const v = cmp.inputEl.value;
 			const result = this.evaluate(v);
 			if (!result.success) return;
-			this.setValue(result.data.toString());
+			this.setValue(result.data.toLocaleString());
 			this.onChanged();
 		};
 
