@@ -157,27 +157,12 @@ body {
 		&
 			> .metadata-container
 			> .better-properties-property-object-properties
-			> .metadata-property {
-			/* &:hover
-				> .metadata-property-key
-				> .better-properties-properties-property-collapse-indicator {
+			> .metadata-property
+			> .metadata-property-key {
+			--metadata-label-width: fit-content;
+
+			& > .metadata-property-key-input {
 				display: none;
-
-				&[data-better-properties-is-collapsed="true"] {
-					display: flex;
-				}
-			} */
-
-			& > .metadata-property-key {
-				--metadata-label-width: fit-content;
-
-				/* &:hover > .better-properties-properties-property-collapse-indicator {
-					display: flex;
-				} */
-
-				& > .metadata-property-key-input {
-					display: none;
-				}
 			}
 		}
 	}
