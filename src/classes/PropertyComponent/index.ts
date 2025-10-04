@@ -33,15 +33,14 @@ export class PropertyComponent extends ValueComponent<unknown> {
 		this.keyWithoutDots = key.split(".").reverse()[0];
 	}
 
-	render(): this {
+	render(): PropertyWidgetComponentBase {
 		this.propertyEl = this.createPropertyEl();
 		this.keyEl = this.createKeyEl(this.propertyEl);
 		this.iconEl = this.createIconEl(this.keyEl);
 		this.keyInputEl = this.createKeyInputEl(this.keyEl);
 		this.valueEl = this.createValueEl(this.propertyEl);
 		this.mismatchEl = this.createMismatchEl(this.propertyEl, this.valueEl);
-		this.renderWidget(this.valueEl, this.getTypeInfo().inferred);
-		return this;
+		return this.renderWidget(this.valueEl, this.getTypeInfo().inferred);
 	}
 
 	setValue(value: unknown): this {
@@ -130,7 +129,7 @@ export class PropertyComponent extends ValueComponent<unknown> {
 						.setTitle(obsidianText("properties.option-property-type"))
 						.setIcon("lucide-info" satisfies Icon);
 					item.setSubmenu();
-					// sub items are added elsewhere in src2/MetadataEditor
+					// sub items are added elsewhere in src/MetadataEditor
 				})
 				.addItem((item) =>
 					item

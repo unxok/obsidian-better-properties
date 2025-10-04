@@ -12,6 +12,10 @@ export type PropertySettings = Prettify<
 >;
 export type CustomTypeKey = keyof PropertySettings;
 
+export type ModifiedPropertyRenderContext = PropertyRenderContext & {
+	index?: number;
+};
+
 export type CustomPropertyType = {
 	type: CustomTypeKey;
 	icon: Icon;
@@ -21,7 +25,7 @@ export type CustomPropertyType = {
 		plugin: BetterProperties;
 		el: HTMLElement;
 		value: unknown;
-		ctx: PropertyRenderContext;
+		ctx: ModifiedPropertyRenderContext;
 	}): PropertyValueComponent;
 	reservedKeys?: string[];
 

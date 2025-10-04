@@ -1,5 +1,5 @@
 import { setIcon } from "obsidian";
-import { CustomPropertyType } from "../types";
+import { CustomPropertyType, ModifiedPropertyRenderContext } from "../types";
 import {
 	PropertyWidgetComponentNew,
 	triggerPropertyTypeChange,
@@ -7,7 +7,11 @@ import {
 import { Icon } from "~/lib/types/icons";
 import BetterProperties from "~/main";
 import { obsidianText } from "~/i18next/obsidian";
-import { PropertyRenderContext } from "obsidian-typings";
+import {
+	PropertyRenderContext,
+	PropertyWidget,
+	PropertyWidgetComponentBase,
+} from "obsidian-typings";
 import { arrayMove, makeDraggable } from "~/lib/utils";
 import { PropertyComponent } from "~/classes/PropertyComponent";
 
@@ -17,10 +21,10 @@ export const renderWidget: CustomPropertyType["renderWidget"] = ({
 	ctx,
 	value,
 }) => {
-	return new GroupTypeComponent(plugin, el, value, ctx);
+	return new ArrayTypeComponent(plugin, el, value, ctx);
 };
 
-class GroupTypeComponent extends PropertyWidgetComponentNew<
+class ArrayTypeComponent extends PropertyWidgetComponentNew<
 	"array",
 	unknown[]
 > {
@@ -42,9 +46,11 @@ class GroupTypeComponent extends PropertyWidgetComponentNew<
 		this.render();
 	}
 
-	render(): void {
+	render(focusLastItem?: boolean): void {
 		const parsed = this.parseValue(this.value);
 		const settings = this.getSettings();
+
+		this.el.empty();
 
 		const container = this.el.createDiv({
 			cls: "better-properties-property-value-inner better-properties-mod-object metadata-container",
@@ -59,18 +65,21 @@ class GroupTypeComponent extends PropertyWidgetComponentNew<
 			cls: "better-properties-property-object-properties",
 		});
 
-		const renderSub = (itemValue: unknown, index: number) => {
+		const renderSub = (
+			itemValue: unknown,
+			index: number
+		): PropertyWidgetComponentBase => {
 			const sub = new SubPropertyComponent(
 				this.plugin,
 				propertiesEl,
-				"#",
+				index.toString(),
 				itemValue,
 				index,
 				this.ctx
 				// parsed
 			);
 			this.subProperties.push(sub);
-			sub.render();
+			return sub.render();
 		};
 
 		if (!settings.hideAddButton) {
@@ -86,12 +95,17 @@ class GroupTypeComponent extends PropertyWidgetComponentNew<
 				text: obsidianText("properties.label-add-property-button"),
 			});
 			addPropertyEl.addEventListener("click", () => {
-				renderSub(null, parsed.length);
+				// renderSub(null, parsed.length);
+				const v = this.getValue();
+				this.value = [...v, null];
+				this.render(true);
 			});
 		}
 
 		parsed.forEach((itemValue, index) => {
-			renderSub(itemValue, index);
+			const widgetComponent = renderSub(itemValue, index);
+			if (!(focusLastItem && index === parsed.length - 1)) return;
+			widgetComponent.focus();
 		});
 
 		this.onFocus = () => {
@@ -143,6 +157,7 @@ class SubPropertyComponent extends PropertyComponent {
 	}
 
 	override createKeyInputEl(keyEl: HTMLDivElement): HTMLInputElement {
+		// create the keyEl without a value nor any event listeners
 		return keyEl.createEl("input", {
 			cls: "metadata-property-key-input",
 			type: "text",
@@ -155,7 +170,7 @@ class SubPropertyComponent extends PropertyComponent {
 	}
 
 	onChangeCallback = (value: unknown) => {
-		const newParentValue = [...this.parentValue];
+		const newParentValue = this.parentValue;
 		newParentValue[this.index] = value;
 		this.parentCtx.onChange(newParentValue);
 	};
@@ -200,5 +215,22 @@ class SubPropertyComponent extends PropertyComponent {
 		});
 
 		return iconEl;
+	}
+
+	renderWidget(
+		valueEl: HTMLDivElement,
+		widget: PropertyWidget
+	): PropertyWidgetComponentBase {
+		valueEl.empty();
+		return widget.render(valueEl, this.value, {
+			app: this.plugin.app,
+			blur: () => {},
+			key: this.key,
+			onChange: (value: unknown) => {
+				this.onChangeCallback(value);
+			},
+			sourcePath: this.sourcePath,
+			index: this.index,
+		} as ModifiedPropertyRenderContext);
 	}
 }

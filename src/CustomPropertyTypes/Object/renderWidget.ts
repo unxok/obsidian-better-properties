@@ -1,5 +1,9 @@
 import { displayTooltip, setIcon } from "obsidian";
-import { CustomPropertyType, CustomTypeKey } from "../types";
+import {
+	CustomPropertyType,
+	CustomTypeKey,
+	ModifiedPropertyRenderContext,
+} from "../types";
 import {
 	flashElement,
 	PropertyWidgetComponentNew,
@@ -122,7 +126,7 @@ class SubPropertyComponent extends PropertyComponent {
 		containerEl: HTMLElement,
 		key: string,
 		value: unknown,
-		public parentCtx: PropertyRenderContext // public parentValue: Record<string, unknown>
+		public parentCtx: ModifiedPropertyRenderContext
 	) {
 		super(
 			plugin,
@@ -140,6 +144,15 @@ class SubPropertyComponent extends PropertyComponent {
 		}
 		const { frontmatter } =
 			this.plugin.app.metadataCache.getFileCache(file) ?? {};
+
+		if (this.parentCtx.index !== undefined) {
+			// object is within an array, so do this to properly get the object value
+			const trueParentKeyArr = this.parentCtx.key.split(".");
+			trueParentKeyArr.pop();
+			const trueParentKey = trueParentKeyArr.join(".");
+			return frontmatter?.[trueParentKey]?.[this.parentCtx.index] ?? {};
+		}
+
 		return frontmatter?.[this.parentCtx.key] ?? {};
 	}
 
