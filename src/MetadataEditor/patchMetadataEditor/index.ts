@@ -4,7 +4,7 @@ import { MetadataEditor } from "obsidian-typings";
 import { monkeyAroundKey } from "~/lib/constants";
 import { Icon } from "~/lib/types/icons";
 import BetterProperties from "~/main";
-import { patchMetadataEditorProperty } from "./patchMetadataEditorProperty";
+// import { patchMetadataEditorProperty } from "./patchMetadataEditorProperty";
 import { text } from "~/i18next";
 
 export const patchMetadataEditor = (plugin: BetterProperties) => {
@@ -12,7 +12,7 @@ export const patchMetadataEditor = (plugin: BetterProperties) => {
 		plugin
 	) as PatchedMetadataEditor;
 
-	patchMetadataEditorProperty(plugin, mdePrototype);
+	// patchMetadataEditorProperty(plugin, mdePrototype);
 
 	mdePrototype.createMoreButtonEl = function () {
 		return createMoreButtonEl(this);
