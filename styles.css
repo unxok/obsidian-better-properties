@@ -489,7 +489,8 @@ div.setting-item.better-properties-list-setting {
 	color: var(--text-warning);
 }
 
-.multi-select-container {
+/* TODO I think this was leftover from testing stuff... leaving here for now just in case */
+/* .multi-select-container {
 	--width: 40ch;
 	.setting-item-control > & {
 		width: var(--width);
@@ -499,7 +500,7 @@ div.setting-item.better-properties-list-setting {
 		padding: var(--pill-padding-y) 0;
 		text-align: start;
 	}
-}
+} */
 
 div.metadata-content {
 	&[data-better-properties-show-hidden="false"]
@@ -683,6 +684,11 @@ div.metadata-content {
 			background-color: transparent;
 			user-select: text;
 		}
+	}
+
+	& .menu-group {
+		max-height: 50vh;
+		overflow-y: auto;
 	}
 
 	.menu-item.is-disabled[data-section="body"] {
