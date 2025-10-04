@@ -1,0 +1,77 @@
+import TypeGetMetadata from "./(method types)/getMetadata/type.mdx";
+import TypeGetProperty from "./(method types)/getProperty/type.mdx";
+import TypeRenderProperty from "./(method types)/renderProperty/type.mdx";
+import TypeMarkdown from "./(method types)/markdown/type.mdx";
+import TypeImport from "./(method types)/import/type.mdx";
+import { InfoButton } from "~/components/common/InfoButton";
+
+## bpjs
+
+Custom JavaScript execution is provided through the use of _Better Properties JavaScript_ (bpjs) blocks.
+
+### Syntax
+
+You can choose to render bpjs blocks through inline code or code blocks. For inline code, start the block with `bpjs:`. For code blocks, set the language to `bpjs`. Then provide a function (specifically an [ES6 arrow function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/Arrow_functions)). Here's some minimal examples:
+
+````md
+## Inline code
+
+`bpjs: () => "Hello world"`
+
+## Code block
+
+```bpjs
+() => "Hello world"
+```
+````
+
+The function can be async or synchronous and can accept one argument, which is the block's instance of the `BpJsApi`. You can also access the api with the keyword `this`.
+
+```js
+async (api) => {
+  console.log(api === this); // true
+};
+```
+
+### Rendering
+
+If you return anything other than `null` or `undefined`, the result will be parsed to a string and displayed as the content of the rendered block.
+
+```md
+| before                       | after   |
+| ---------------------------- | ------- |
+| `bpjs: () => "Hi"`           | Hi      |
+| `bpjs: () => 55`             | 55      |
+| `bpjs: () => ["one", "two"]` | one,two |
+| `bpjs: () => false`          | false   |
+| `bpjs: () => undefined`      |         |
+| `bpjs: () => null`           |         |
+| `bpjs: () => {}`             |         |
+```
+
+For more control over what's rendered, use `api.el`.
+
+```js
+(api) => {
+  api.el.createDiv({ text: "Hi" });
+};
+```
+
+### API
+
+Below are useful properties and method of the API. For the full definition, see [`bpjs/api.ts`](https://github.com/unxok/obsidian-better-properties/blob/main/src/bpjs/api.ts).
+
+| Name           | Type                                                                                                     | Description                                                                                                        |
+| -------------- | -------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| el             | [`HTMLElement`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement)                            | The blocks rendered element. It's parent is a `div.block-language-bpjs`.                                           |
+| styleEl        | [`HTMLStyleElement`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLStyleElement)                  | The style element which `api.import("*.css")` inserts styles into.                                                 |
+| plugin         | [`BetterProperties`](https://github.com/unxok/obsidian-better-properties/blob/main/src/Plugin/plugin.ts) | The Better Properties plugin instance.                                                                             |
+| sourcePath     | `string`                                                                                                 | The path to the file which rendered the bpjs block.                                                                |
+| file           | [`TFile`](https://docs.obsidian.md/Reference/TypeScript+API/TFile)                                       | The file found by `api.sourcepath`.                                                                                |
+| component      | [`Component`](https://docs.obsidian.md/Reference/TypeScript+API/Component)                               | This Component will be unloaded when the block unmounts the DOM and when the Better Properties plugin is unloaded. |
+| obsidian       | [`Obsidian API`](https://github.com/obsidianmd/obsidian-api)                                             | The Obsidian API package that is provided to plugins.                                                              |
+| getMetadata    | <InfoButton label={<code>function</code>} content={<TypeGetMetadata />} />                               | Get the cached metadata of a file.                                                                                 |
+| getProperty    | <InfoButton label={<code>function</code>} content={<TypeGetProperty />} />                               | Get the value of a property.                                                                                       |
+| renderProperty | <InfoButton label={<code>function</code>} content={<TypeRenderProperty />} />                            | Renders a property with it's assigned type widget.                                                                 |
+| markdown       | <InfoButton label={<code>async function</code>} content={<TypeMarkdown />} />                            | Render markdown text as HTML.                                                                                      |
+| import         | <InfoButton label={<code>async function</code>} content={<TypeImport />} />                              | Import a file. Behaviors differ depending on the file type.                                                        |

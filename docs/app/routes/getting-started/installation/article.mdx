@@ -1,0 +1,37 @@
+import { InfoButton } from "~/components/common/InfoButton";
+
+## Installation
+
+**Pre installation checklist**
+
+- ✅ Use consistent casing in property names
+  - Most features within this plugin (and in Obsidian in general) will treat two property names to be the same if they only differ in the casing of their names, i.e. `myproperty` is equivalent to `MyProperty`. However, this is not 100% consistent across the app, so try to use consistent casing between uses of a property name.
+- ✅ **Don't** use a dot (`.`) in property names.
+  - Better Properties and Obsidian itself (Bases for example) treat property names with dots in them as if they are a "nested property" (see [Object property type](/features/property-types#object)). Because of this, make sure your existing property names don't have a dot in them.
+- ✅ **Dont** use a hastag (`#`) as a sub-property name in object properties.
+  - Better Properties uses the syntax `<parent>.#` to store the type and settings for the sub-properties of [Array type](/features/property-types#array) properties, so using a hashtag as a sub-property name in an object may cause unexpected behaviors.
+
+Ready to get started? Use one of the options below!
+
+If you enjoy this plugin, please consider giving it a [star on github](https://github.com/unxok/obsidian-better-properties) and/or [buying me a coffee](https://buymeacoffee.com/unxok)&lt;3
+
+### BRAT
+
+1. Download the [Beta Reviewers Auto-update Tester (BRAT)](https://github.com/TfTHacker/obsidian42-brat) plugin from the [Obsidian community plugins directory](obsidian://show-plugin?id=obsidian42-brat) and enable it.
+2. Choose one of the following:
+   - automatic
+     1. Click [this link](obsidian://brat?plugin=unxok/obsidian-better-properties) then press the `Add plugin` button.
+   - manual
+     1. Go to the BRAT plugin settings and click the `Add beta plugin` button.
+     2. Paste the following: https://github.com/unxok/obsidian-better-properties.
+     3. Click the `Add plugin` button.
+
+### Manual
+
+1. Open your vault's community plugins folder (default at `YOUR_VAULT/.obsidian/plugins`) and create a folder named `better-properties`.
+2. Go to the Better Properties [releases page](https://github.com/unxok/obsidian-better-properties/releases)
+3. Download `main.js`, `manifest.json`, and `styles.css`. Ensure they are placed in the folder you made in step one.
+
+### Community plugins directory
+
+Sorry, you won't find it there. Once I submit the plugin for official review, it will be added there if approved.

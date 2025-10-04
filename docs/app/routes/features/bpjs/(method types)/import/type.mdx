@@ -1,0 +1,42 @@
+import { InfoButton } from "~/components/common/InfoButton";
+import DataContent from "./dataContent.mdx";
+
+#### Arguments
+
+| Name                                                                  | Type                  | Default   |
+| --------------------------------------------------------------------- | --------------------- | --------- |
+| <InfoButton label="path" content="The path to the file to import." /> | `string`              | -         |
+| <InfoButton label="data" content={<DataContent />} />                 | `string \| undefined` | undefined |
+
+#### Returns
+
+`Promise<T>` - Depends on the file extension in the provided path:
+
+- `.js` - `unknown` - File contents will be executed as JavaScript. If the file exports a default, it will be returned. Default exports can be in ES6 syntax (`export default myVar`) or CommonJS syntax (`module.exports = myVar`)
+- `.css` - `void` - File contents will be read as CSS and inserted into `api.styleEl`. These styles will only affect elements within `api.el`.
+- `.json` - `object` - File contents will be parsed to JSON and returned.
+- `.yaml` - `object` - File contents will be parsed as YAML to JSON and returned.
+- `.csv` - `string[][]` - File contents will be parsed as a CSV to a two dimensional string array.
+- `.tsv` - `string[][]` - File contents will be parsed as a CSV to a two dimensional string array.
+- `.md` - `string` - File contents will be returned.
+- `.txt` - `string` - File contents will be returned.
+
+#### Examples
+
+```js
+const exportedVar = await api.import("path/to/file.js");
+
+await api.import("path/to/file.css");
+
+const json = await api.import("path/to/file.json");
+const jsonFromYaml = await api.import("path/to/file.json");
+
+const twoDimensionalArray = await api.import("path/to/file.csv");
+
+// with custom delimiter
+const twoDimensionalArray = await api.import("path/to/file.tsv", ";");
+
+const noteContent = await api.import("path/to/note.md");
+
+const txtContent = await api.import("path/to/file.txt");
+```

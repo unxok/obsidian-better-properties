@@ -1,0 +1,32 @@
+import { InfoButton } from "~/components/common/InfoButton";
+import Options from "./options.mdx";
+
+#### Arguments
+
+| Name    | Type                                                                 | Default |
+| ------- | -------------------------------------------------------------------- | ------- |
+| options | <InfoButton label={<code>{"object"}</code>} content={<Options />} /> | -       |
+
+#### Returns
+
+[`PropertyWidgetComponentBase<T>`](https://github.com/Fevol/obsidian-typings/blob/release/obsidian-catalyst/1.9.12/src/obsidian/internals/MetadataTypeManager/PropertyWidgetComponentBase.d.ts)
+
+#### Examples
+
+```js
+api.renderProperty({ property: "myProperty" });
+
+api.renderProperty({ property: "myProperty", hideKey: true });
+
+api.renderProperty({ property: "myProperty", el: api.el.createDiv() });
+
+api.renderProperty({ property: "myProperty", path: "path/to/note.md" });
+
+api.renderProperty({ property: "myProperty", subscribe: false });
+
+api.renderProperty({
+  property: "myProperty",
+  path: "path/to/note.md",
+  subscribe: false,
+});
+```

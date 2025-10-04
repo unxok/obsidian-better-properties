@@ -1,0 +1,166 @@
+import { Alert, AlertTitle, AlertDescription } from "~/components/ui/alert";
+import { CircleAlert } from "lucide-react";
+
+## Property types
+
+Better Properties add numerous additional property types. If you have an idea for a new type, let me know by [opening a feature request](https://github.com/unxok/obsidian-better-properties/issues/new?template=feature_request.md).
+
+_Note:_ as of now, specific built-in property types are left untouched. Generally, I would prefer to keep it that way. But, this could change if there's enough of a reason to justify doing it.
+
+![Property types](/property-menu-showcase.png)
+
+### Array
+
+A list of values where each "sub-property" share the same type and settings. Each sub-property is rendered as if it's a property named `<parent>.#` (i.e. `favorite quotes.#`) but without the property name being shown.
+
+![Array example](/type-array-example.png)
+
+```yaml
+---
+favorite quotes:
+  - Goodbye everyone, I'll remember you all in therapy.
+  - No Patrick, mayonaise is not an instrument.
+---
+```
+
+### Color
+
+A color input combined with a text input. Using the color picker will choose a color as a hex value. Using the text input will allow any valid [CSS color](https://developer.mozilla.org/en-US/docs/Web/CSS/color_value).
+
+![Color example](/type-color-example.png)
+
+```yaml
+---
+eye color: "#0b4660"
+---
+```
+
+### Date custom
+
+A date input where the displayed date can be set to a custom format.
+
+The actual value written to the note's fronmatter will be `YYYY-MM-DD` or `YYYY-MM-DD[T]HH:MM:SS`.
+
+![Date custom example](/type-datecustom-example.png)
+
+```yaml
+---
+start date: 2025-10-15
+---
+```
+
+### Markdown
+
+A live-preview markdown editor. It is the same editor that is used in the body of notes.
+
+![Markdown example](/type-markdown-example.png)
+
+```yaml
+---
+pangram: A *quick* brown fox **jumps** over the ==lazy== dog
+---
+```
+
+### Multi-Select
+
+Similar to the built-in [list type](https://help.obsidian.md/properties#List), but it does not allow duplicates, has customizable dynamic or manually defined options, and more.
+
+![Multi-Select example](/type-multiselect-example.png)
+
+```yaml
+---
+fruits:
+  - bananas
+  - grapes
+---
+```
+
+### Numeric
+
+An input which is evaulated as a mathematical expression and can be rounded to a configurable number of decimal places. The variable `x` can be used to represent the current value.
+
+![Numeric example before](/type-numeric-example-before.png)
+![Numeric example after](/type-numeric-example-after.png)
+
+```yaml
+---
+savings: "25807.82"
+---
+```
+
+### Object
+
+Renders an object of keys and values as sub-properties nested within the parent property. Each sub-property is rendered as if it's a property named `<parent>.<sub_property>`, i.e. `project.status`.
+
+![Object example](/type-object-example.png)
+
+```yaml
+---
+project:
+  status: in progress
+  stakeholders:
+    - Sandy
+    - Patrick
+    - Mr. Krabs
+---
+```
+
+### Rating
+
+A group of icons which act as an input where you select a value along a scale. The icon and count can be customized.
+
+![Rating example](/type-rating-example.png)
+
+```yaml
+---
+quality: 3
+---
+```
+
+### Select
+
+A select input where dynamic or manually defined options are available to select for the value. Colors and labels for options can be customized.
+
+![Select example](/type-select-example.png)
+
+```yaml
+---
+status: in progress
+---
+```
+
+### Slider
+
+A slider input. The lower and upper limits can be customized.
+
+![Slider example](/type-slider-example.png)
+
+```yaml
+---
+current HP: 18
+---
+```
+
+### Time
+
+A time input.
+
+![Time example](/type-time-example.png)
+
+```yaml
+---
+bedtime: 01:30
+---
+```
+
+### Toggle
+
+A toggle input. It has only two states (`true` or `false`), unlike the built-in [Checkbox type](https://help.obsidian.md/properties#Checkbox) which technically has three.
+
+![Toggle example](/type-toggle-example.png)
+
+```yaml
+---
+reviewed: true
+---
+```

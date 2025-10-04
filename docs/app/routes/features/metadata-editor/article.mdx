@@ -1,0 +1,73 @@
+## Metadata Editor
+
+The Metadata Editor refers to the "container" for the rendered properties of a note. This by itself is a built-in to Obsidian.
+
+Below, a CSS snippet (among others) has been added to add an orange border around the Metadata Editor.
+
+![In-note Metadata Editor](/metadata-editor.png)
+
+Better Properties augments the Metadata Editor to add the features below.
+
+### More button
+
+Opens the menu shown below. Right now there's only these two options, but I have some ideas for more. If you think of something, let me know by [opening a feature request](https://github.com/unxok/obsidian-better-properties/issues/new?template=feature_request.md).
+
+![More button menu](/metadata-editor-more-button.png)
+
+#### Show hidden
+
+Toggles the visibility of properties marked as "hidden" in their general property settings.
+
+![Show hidden demo](/metadata-editor-more-button-show-hidden.gif)
+
+#### Sort
+
+Sorts the note's properties by the chosen sorting option.
+
+![Sort options](/metadata-editor-more-button-sort-options.png)
+
+### Resizable label width
+
+Click and drag the border (which is default invisible) between the name and value of a property to resize the width of all property labels in the Metadata Editor. Double click it to reset it back to the default.
+
+![Resizable label width demo](/metadata-editor-resizable-label.gif)
+
+This customized width is saved to the plugin settings and applied to all notes.
+
+### Collapsible properties
+
+When hovering over the name of a property, a collapse indicator will show which can be used to hide the value of that property.
+
+![Collapsible properties demo](/metadata-editor-collapsible-properties.gif)
+
+### Property Menu
+
+When clicking the icon for a given property, the following menu will be shown. This by itself is built-in to Obsidian.
+
+![Property Menu](/metadata-editor-property-menu.png)
+
+Better Properties augments this menu by adding or changing the following items.
+
+#### Property type
+
+This built-in item has it's submenu changed such that the types are listed in alphabetical order and types added by the plugin have their icon in your accent color.
+
+#### Settings
+
+This new item opens the settings for the given property. This can also be opened by using the command `Bett Properties: Open property settings`.
+
+Switching to a different tab or closing the modal will save and apply the changed settings.
+
+![Property settings modal](/property-settings-modal.png)
+
+#### Rename
+
+This new item allows you to mass-update the property name in every note it's used in. The property settings of the previous name will be transferred to the new name.
+
+#### Icon
+
+This new item allows you to override the type icon to shown for this property in the Metadata Editor.
+
+#### Delete
+
+This new item allows you to delete the given property from all notes. A confirmation modal will show before doing the deletion, but be careful because the _deletion is irreversible_

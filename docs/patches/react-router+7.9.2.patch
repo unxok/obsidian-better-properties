@@ -1,0 +1,130 @@
+diff --git a/node_modules/react-router/dist/development/chunk-TMI4QPZX.mjs b/node_modules/react-router/dist/development/chunk-TMI4QPZX.mjs
+index 2cff4f8..0536df0 100644
+--- a/node_modules/react-router/dist/development/chunk-TMI4QPZX.mjs
++++ b/node_modules/react-router/dist/development/chunk-TMI4QPZX.mjs
+@@ -9475,6 +9475,7 @@ var Form = React10.forwardRef(
+ Form.displayName = "Form";
+ function ScrollRestoration({
+   getKey,
++  getScrollContainer,
+   storageKey,
+   ...props
+ }) {
+@@ -9482,7 +9483,7 @@ function ScrollRestoration({
+   let { basename } = React10.useContext(NavigationContext);
+   let location = useLocation();
+   let matches = useMatches();
+-  useScrollRestoration({ getKey, storageKey });
++  useScrollRestoration({ getKey, getScrollContainer, storageKey });
+   let ssrKey = React10.useMemo(
+     () => {
+       if (!remixContext || !getKey) return null;
+@@ -9501,7 +9502,7 @@ function ScrollRestoration({
+   if (!remixContext || remixContext.isSpaMode) {
+     return null;
+   }
+-  let restoreScroll = ((storageKey2, restoreKey) => {
++  let restoreScroll = ((storageKey2, restoreKey, getScrollContainer2) => {
+     if (!window.history.state || !window.history.state.key) {
+       let key = Math.random().toString(32).slice(2);
+       window.history.replaceState({ key }, "");
+@@ -9510,7 +9511,8 @@ function ScrollRestoration({
+       let positions = JSON.parse(sessionStorage.getItem(storageKey2) || "{}");
+       let storedY = positions[restoreKey || window.history.state.key];
+       if (typeof storedY === "number") {
+-        window.scrollTo(0, storedY);
++        let scrollContainer = getScrollContainer2?.() ?? window;
++        scrollContainer.scrollTo(0, storedY);
+       }
+     } catch (error) {
+       console.error(error);
+@@ -9525,7 +9527,7 @@ function ScrollRestoration({
+       dangerouslySetInnerHTML: {
+         __html: `(${restoreScroll})(${JSON.stringify(
+           storageKey || SCROLL_RESTORATION_STORAGE_KEY
+-        )}, ${JSON.stringify(ssrKey)})`
++        )}, ${JSON.stringify(ssrKey)}, ${JSON.stringify(getScrollContainer)})`
+       }
+     }
+   );
+@@ -9780,6 +9782,7 @@ function getScrollRestorationKey(location, matches, basename, getKey) {
+ }
+ function useScrollRestoration({
+   getKey,
++  getScrollContainer,
+   storageKey
+ } = {}) {
+   let { router } = useDataRouterContext3("useScrollRestoration" /* UseScrollRestoration */);
+@@ -9800,7 +9803,7 @@ function useScrollRestoration({
+     React10.useCallback(() => {
+       if (navigation.state === "idle") {
+         let key = getScrollRestorationKey(location, matches, basename, getKey);
+-        savedScrollPositions[key] = window.scrollY;
++        savedScrollPositions[key] = getScrollContainer?.()?.scrollTop ?? window.scrollY;
+       }
+       try {
+         sessionStorage.setItem(
+@@ -9831,7 +9834,7 @@ function useScrollRestoration({
+     React10.useLayoutEffect(() => {
+       let disableScrollRestoration = router?.enableScrollRestoration(
+         savedScrollPositions,
+-        () => window.scrollY,
++         () => getScrollContainer?.()?.scrollTop ?? window.scrollY,
+         getKey ? (location2, matches2) => getScrollRestorationKey(location2, matches2, basename, getKey) : void 0
+       );
+       return () => disableScrollRestoration && disableScrollRestoration();
+@@ -9840,8 +9843,9 @@ function useScrollRestoration({
+       if (restoreScrollPosition === false) {
+         return;
+       }
++      let scrollContainer = getScrollContainer?.() ?? window;
+       if (typeof restoreScrollPosition === "number") {
+-        window.scrollTo(0, restoreScrollPosition);
++        scrollContainer.scrollTo(0, restoreScrollPosition);
+         return;
+       }
+       try {
+@@ -9865,7 +9869,7 @@ function useScrollRestoration({
+       if (preventScrollReset === true) {
+         return;
+       }
+-      window.scrollTo(0, 0);
++      scrollContainer.scrollTo(0, 0);
+     }, [location, restoreScrollPosition, preventScrollReset]);
+   }
+ }
+diff --git a/node_modules/react-router/dist/development/index-react-server-client-2EDmGlsZ.d.mts b/node_modules/react-router/dist/development/index-react-server-client-2EDmGlsZ.d.mts
+index 0f0ddfb..a8602b4 100644
+--- a/node_modules/react-router/dist/development/index-react-server-client-2EDmGlsZ.d.mts
++++ b/node_modules/react-router/dist/development/index-react-server-client-2EDmGlsZ.d.mts
+@@ -1704,6 +1704,10 @@ type ScrollRestorationProps = ScriptsProps & {
+      * ```
+      */
+     getKey?: GetScrollRestorationKeyFunction;
++    /**
++     * Get the element that will be used as the scroll element.
++     */
++    getScrollContainer?: () => HTMLElement | null;
+     /**
+      * The key to use for storing scroll positions in [`sessionStorage`](https://developer.mozilla.org/en-US/docs/Web/API/Window/sessionStorage).
+      * Defaults to `"react-router-scroll-positions"`.
+@@ -1745,7 +1749,7 @@ type ScrollRestorationProps = ScriptsProps & {
+  * @returns A [`<script>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/script)
+  * tag that restores scroll positions on navigation.
+  */
+-declare function ScrollRestoration({ getKey, storageKey, ...props }: ScrollRestorationProps): React.JSX.Element | null;
++declare function ScrollRestoration({ getKey, getScrollContainer, storageKey, ...props }: ScrollRestorationProps): React.JSX.Element | null;
+ declare namespace ScrollRestoration {
+     var displayName: string;
+ }
+@@ -2277,8 +2281,9 @@ declare function useFetchers(): (Fetcher & {
+  * `sessionStorage`. Defaults to `"react-router-scroll-positions"`.
+  * @returns {void}
+  */
+-declare function useScrollRestoration({ getKey, storageKey, }?: {
++declare function useScrollRestoration({ getKey, getScrollContainer, storageKey, }?: {
+     getKey?: GetScrollRestorationKeyFunction;
++    getScrollContainer?: () => HTMLElement | null;
+     storageKey?: string;
+ }): void;
+ /**
