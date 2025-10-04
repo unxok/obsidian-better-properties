@@ -190,6 +190,18 @@ export class SelectComponent extends ComboboxComponent<Option> {
 	createSelectEl(containerEl: HTMLElement): HTMLDivElement {
 		const el = super.createSelectEl(containerEl);
 		el.classList.add("better-properties-select");
+
+		el.addEventListener(
+			"click",
+			(e) => {
+				if (!this.openLinkedFile) return;
+				if (!Keymap.isModEvent(e)) return;
+				e.stopImmediatePropagation();
+				this.openLinkedFile(e);
+			},
+			{ capture: true }
+		);
+
 		return el;
 	}
 
@@ -197,6 +209,8 @@ export class SelectComponent extends ComboboxComponent<Option> {
 		if (!value) return true;
 		return !!this.options.find((o) => o.value === value);
 	}
+
+	openLinkedFile: undefined | ((e: PointerEvent | MouseEvent) => void);
 
 	createAuxEl(containerEl: HTMLElement): HTMLElement {
 		const el = super.createAuxEl(containerEl);
@@ -207,6 +221,7 @@ export class SelectComponent extends ComboboxComponent<Option> {
 			!this.validateOption(value) ||
 			!(value.startsWith("[[") && value.endsWith("]]"))
 		) {
+			this.openLinkedFile = undefined;
 			return el;
 		}
 		const file = getFirstLinkPathDest(
@@ -222,12 +237,15 @@ export class SelectComponent extends ComboboxComponent<Option> {
 		const cmp = new ExtraButtonComponent(containerEl)
 			.setTooltip(tooltip)
 			.setIcon("link" satisfies Icon);
-		cmp.extraSettingsEl.addEventListener("click", (e) => {
+		this.openLinkedFile = (e) => {
 			this.plugin.app.workspace.openLinkText(
 				value.slice(2, -2),
 				this.sourcePath,
 				Keymap.isModEvent(e)
 			);
+		};
+		cmp.extraSettingsEl.addEventListener("click", (e) => {
+			this.openLinkedFile?.(e);
 		});
 		return cmp.extraSettingsEl;
 	}
