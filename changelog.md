@@ -5,17 +5,25 @@ release. Some specific details may be omitted for brevity.
 
 ## 0.1.11
 
+7 bugs and 3 feature requests completed. Thank you so much to everyone opening issues<3
+
 ### New
 
-- Property value collapse indicators now display only when hovering over the type icon. [#30](https://github.com/unxok/obsidian-better-properties/issues/30).
+- Property value collapse indicators now display only when hovering over the type icon. [#30](https://github.com/unxok/obsidian-better-properties/issues/30)
+- Array sub-properties now have a remove button next to their collapse indicator to more easily remove them. [#30](https://github.com/unxok/obsidian-better-properties/issues/30)
+- Pressing "Enter" while inside an Array sub-property that isn't an Array or Object will create a new sub-property and focus within it. [#29](https://github.com/unxok/obsidian-better-properties/issues/29)
+- Numeric will now always store a number and will display the number formatted according to locale while not actively typing within it.
+- Select and Multi-Select items that are links will now open the linked file in a new tab on `Ctrl + click`. [#25](https://github.com/unxok/obsidian-better-properties/issues/25)
 
 ### Fixed
 
-- ...
-
-### Other
-
-- ...
+- Arrays containing Object sub-properties now behave correctly when a sub-property is updated. [#16](https://github.com/unxok/obsidian-better-properties/issues/16)
+- Clicking the "Add property" button within an Array now behaves properly. [#28](https://github.com/unxok/obsidian-better-properties/issues/28)
+- The property menu for Array sub-properties no longer shows the "Rename" and "Delete" option. [#33](https://github.com/unxok/obsidian-better-properties/issues/33)
+- When using "Files from tag" for Selects and Multi-Selects, the tags entered in the "Tag(s)" setting can optionally start with a hashtag (#). [#24](https://github.com/unxok/obsidian-better-properties/issues/24)
+- Clicking Enter while the cursor is inside a property's name input will now correctly move focus to the value editor. [#18](https://github.com/unxok/obsidian-better-properties/issues/18)
+- Numeric will now treat commas (,) as decimal points (.) while typing an expression. [#34](https://github.com/unxok/obsidian-better-properties/issues/34)
+- List properties no longer have unnecessary added height. [#31](https://github.com/unxok/obsidian-better-properties/issues/31)
 
 ## 0.1.10
 
