@@ -202,9 +202,17 @@ export class PropertyComponent extends ValueComponent<unknown> {
 	}
 
 	createValueEl(propertyEl: HTMLDivElement): HTMLDivElement {
-		return propertyEl.createDiv({
+		const el = propertyEl.createDiv({
 			cls: "metadata-property-value",
 		});
+
+		el.addEventListener("keydown", (e) => {
+			if (e.key !== "Enter") return;
+			if (!(e.target instanceof HTMLElement)) return;
+			e.target.blur();
+		});
+
+		return el;
 	}
 
 	createMismatchEl(

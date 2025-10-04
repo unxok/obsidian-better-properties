@@ -1005,6 +1005,8 @@ export const getTagOptions = ({
 }): SelectOption[] => {
 	const options: SelectOption[] = [];
 
+	const tagsWithHashtags = tags.map((t) => (t.startsWith("#") ? t : "#" + t));
+
 	const addOption = (file: TFile) => {
 		options.push({
 			value: plugin.app.fileManager.generateMarkdownLink(file, sourcePath),
@@ -1017,18 +1019,21 @@ export const getTagOptions = ({
 		metadataCache: plugin.app.metadataCache,
 		callback: ({ file, metadata }) => {
 			if (!metadata) return;
+			// TODO obsidian-typings shows that the output here doesn't include hashtags, when it in fact does include them-- need to open PR to fix
 			const fileTags = getAllTags(metadata);
+			console.log("fileTags: ", fileTags);
 			if (!fileTags) return;
+			let isMatch = false;
 			if (!includeNested) {
 				const fileTagsSet = new Set(fileTags);
-				const isMatch = tags.some((t) => fileTagsSet.has(t));
-				if (!isMatch) return;
-				addOption(file);
-				return;
+				isMatch = tagsWithHashtags.some((t) => fileTagsSet.has(t));
+			} else {
+				isMatch = fileTags.some((fTag) =>
+					tagsWithHashtags.some(
+						(tag) => tag === fTag || fTag.startsWith(`${tag}/`)
+					)
+				);
 			}
-			const isMatch = fileTags.some((fTag) =>
-				tags.some((tag) => tag === fTag || fTag.startsWith(`${tag}/`))
-			);
 			if (!isMatch) return;
 			addOption(file);
 		},

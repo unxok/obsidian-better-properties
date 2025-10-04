@@ -1,9 +1,6 @@
 import { setIcon } from "obsidian";
 import { CustomPropertyType, ModifiedPropertyRenderContext } from "../types";
-import {
-	PropertyWidgetComponentNew,
-	triggerPropertyTypeChange,
-} from "../utils";
+import { PropertyWidgetComponentNew } from "../utils";
 import { Icon } from "~/lib/types/icons";
 import BetterProperties from "~/main";
 import { obsidianText } from "~/i18next/obsidian";
@@ -35,6 +32,8 @@ class ArrayTypeComponent extends PropertyWidgetComponentNew<
 	};
 
 	subProperties: SubPropertyComponent[] = [];
+	metadataContainerEl: HTMLDivElement | undefined;
+	propertiesEl: HTMLDivElement | undefined;
 
 	constructor(
 		plugin: BetterProperties,
@@ -46,11 +45,11 @@ class ArrayTypeComponent extends PropertyWidgetComponentNew<
 		this.render();
 	}
 
-	render(focusLastItem?: boolean): void {
+	render(): void {
 		const parsed = this.parseValue(this.value);
 		const settings = this.getSettings();
 
-		this.el.empty();
+		if (this.metadataContainerEl) this.metadataContainerEl.remove();
 
 		const container = this.el.createDiv({
 			cls: "better-properties-property-value-inner better-properties-mod-object metadata-container",
@@ -60,23 +59,23 @@ class ArrayTypeComponent extends PropertyWidgetComponentNew<
 					!!this.plugin.app.vault.getConfig("showIndentGuide"),
 			},
 		});
+		this.metadataContainerEl = container;
 
 		const propertiesEl = container.createDiv({
 			cls: "better-properties-property-object-properties",
 		});
+		this.propertiesEl = propertiesEl;
 
 		const renderSub = (
 			itemValue: unknown,
 			index: number
 		): PropertyWidgetComponentBase => {
 			const sub = new SubPropertyComponent(
-				this.plugin,
+				this,
 				propertiesEl,
 				index.toString(),
 				itemValue,
-				index,
-				this.ctx
-				// parsed
+				index
 			);
 			this.subProperties.push(sub);
 			return sub.render();
@@ -95,17 +94,12 @@ class ArrayTypeComponent extends PropertyWidgetComponentNew<
 				text: obsidianText("properties.label-add-property-button"),
 			});
 			addPropertyEl.addEventListener("click", () => {
-				// renderSub(null, parsed.length);
-				const v = this.getValue();
-				this.value = [...v, null];
-				this.render(true);
+				this.createAndFocusNewItem();
 			});
 		}
 
 		parsed.forEach((itemValue, index) => {
-			const widgetComponent = renderSub(itemValue, index);
-			if (!(focusLastItem && index === parsed.length - 1)) return;
-			widgetComponent.focus();
+			renderSub(itemValue, index);
 		});
 
 		this.onFocus = () => {
@@ -114,6 +108,24 @@ class ArrayTypeComponent extends PropertyWidgetComponentNew<
 			);
 			el?.focus();
 		};
+	}
+
+	createAndFocusNewItem(): void {
+		if (!this.propertiesEl) {
+			throw new Error("propertiesEl is undefined");
+		}
+		const v = this.getValue();
+		this.value = [...v, null];
+		const sub = new SubPropertyComponent(
+			this,
+			this.propertiesEl,
+			v.length.toString(),
+			null,
+			v.length
+		);
+		this.subProperties.push(sub);
+		const widget = sub.render();
+		widget.focus();
 	}
 
 	getValue(): unknown[] {
@@ -130,30 +142,40 @@ class ArrayTypeComponent extends PropertyWidgetComponentNew<
 }
 class SubPropertyComponent extends PropertyComponent {
 	constructor(
-		plugin: BetterProperties,
+		public owner: ArrayTypeComponent,
 		containerEl: HTMLElement,
 		key: string,
 		value: unknown,
-		public index: number,
-		public parentCtx: PropertyRenderContext // public parentValue: unknown[]
+		public index: number
 	) {
 		super(
-			plugin,
+			owner.plugin,
 			containerEl,
-			parentCtx.key + "." + key,
+			owner.ctx.key + "." + key,
 			value,
-			parentCtx.sourcePath
+			owner.ctx.sourcePath
 		);
 	}
 
-	get parentValue(): unknown[] {
-		const file = this.plugin.app.vault.getFileByPath(this.sourcePath);
-		if (!file) {
-			throw new Error(`File not found at path "${this.sourcePath}"`);
-		}
-		const { frontmatter } =
-			this.plugin.app.metadataCache.getFileCache(file) ?? {};
-		return frontmatter?.[this.parentCtx.key] ?? [];
+	override render(): PropertyWidgetComponentBase {
+		const widgetComponent = super.render();
+
+		const removeEl = this.keyEl?.createSpan({
+			cls: "better-properties-array-sub-remove",
+			attr: {
+				"role": "button",
+				"aria-label": "Remove property",
+			},
+		});
+
+		if (!removeEl) return widgetComponent;
+
+		setIcon(removeEl, "lucide-trash-2" satisfies Icon);
+		removeEl?.addEventListener("click", () => {
+			this.remove();
+		});
+
+		return widgetComponent;
 	}
 
 	override createKeyInputEl(keyEl: HTMLDivElement): HTMLInputElement {
@@ -170,26 +192,36 @@ class SubPropertyComponent extends PropertyComponent {
 	}
 
 	onChangeCallback = (value: unknown) => {
-		const newParentValue = this.parentValue;
-		newParentValue[this.index] = value;
-		this.parentCtx.onChange(newParentValue);
-	};
+		if (value === "" || value === undefined || value === null) {
+			this.remove();
+			return;
+		}
+		const newParentValue = [...this.owner.getValue()];
 
-	updateParent(cb: (oldParentValue: unknown[]) => unknown[]): void {
-		const newParentValue = cb(this.parentValue);
-		this.parentCtx.onChange(newParentValue);
-		triggerPropertyTypeChange(this.plugin.app.metadataTypeManager, this.key);
-	}
+		const oldValue = newParentValue[this.index];
+		const normalizedOld =
+			typeof oldValue === "object" ? JSON.stringify(oldValue) : oldValue;
+
+		const normalizedNew =
+			typeof value === "object" ? JSON.stringify(value) : value;
+
+		if (normalizedOld === normalizedNew) {
+			return;
+		}
+
+		newParentValue[this.index] = value;
+
+		this.owner.ctx.onChange(newParentValue);
+		this.owner.value = newParentValue;
+	};
 
 	override remove(): void {
 		super.remove();
-		this.parentCtx.onChange(
-			this.parentValue.filter((_, i) => i !== this.index)
-		);
-		triggerPropertyTypeChange(
-			this.plugin.app.metadataTypeManager,
-			this.parentCtx.key
-		);
+		const newParentValue = this.owner
+			.getValue()
+			.filter((_, i) => i !== this.index);
+		this.owner.ctx.onChange(newParentValue);
+		this.owner.value = newParentValue;
 	}
 
 	override updateKey(_newKey: string): void {
@@ -207,14 +239,39 @@ class SubPropertyComponent extends PropertyComponent {
 			parentEl: this.containerEl,
 			itemsQuerySelector: "& > .metadata-property",
 			onDragEnd: (oldIndex, newIndex) => {
-				this.updateParent((prev) => {
-					const entries = Object.values(prev);
-					return arrayMove(entries, oldIndex, newIndex);
-				});
+				const parentValue = this.owner.getValue();
+				const newParentValue = arrayMove(parentValue, oldIndex, newIndex);
+				this.owner.ctx.onChange(newParentValue);
+				this.owner.value = newParentValue;
 			},
 		});
 
 		return iconEl;
+	}
+
+	createValueEl(propertyEl: HTMLDivElement): HTMLDivElement {
+		const el = super.createValueEl(propertyEl);
+		el.addEventListener("keydown", async (e) => {
+			if (e.key !== "Enter") return;
+			const isLast = this.index === this.owner.getValue().length - 1;
+			if (!(e.key === "Enter" && isLast && e.target instanceof HTMLElement)) {
+				return;
+			}
+			const nearestMetadataPropertyEl = e.target.closest(".metadata-property");
+			const containedByObjectSelector =
+				'.metadata-property-value[data-property-type="better-properties:object"] > .metadata-container > .better-properties-property-object-properties >';
+			const isContainedByObject = nearestMetadataPropertyEl?.matches(
+				`${containedByObjectSelector} &`
+			);
+			const isContainedByArray = nearestMetadataPropertyEl?.matches(
+				`${containedByObjectSelector} .metadata-property > .metadata-property-value[data-property-type="better-properties:array"] > .metadata-container > .better-properties-property-object-properties > &`
+			);
+
+			// TODO there's probably a more efficient way to do this?
+			if (isContainedByObject || isContainedByArray) return;
+			this.owner.createAndFocusNewItem();
+		});
+		return el;
 	}
 
 	renderWidget(
