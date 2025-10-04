@@ -1021,7 +1021,6 @@ export const getTagOptions = ({
 			if (!metadata) return;
 			// TODO obsidian-typings shows that the output here doesn't include hashtags, when it in fact does include them-- need to open PR to fix
 			const fileTags = getAllTags(metadata);
-			console.log("fileTags: ", fileTags);
 			if (!fileTags) return;
 			let isMatch = false;
 			if (!includeNested) {
