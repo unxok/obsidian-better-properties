@@ -32,14 +32,8 @@ import "./index.css";
 import "./starry-night.css";
 import { cn } from "./lib/utils";
 import { RightSidebar, TocProvider } from "./components/common/TocSidebar";
-import { Coffee, ExternalLink, PanelLeft, PanelRight } from "lucide-react";
+import { Coffee, PanelLeft, PanelRight } from "lucide-react";
 import { Button, buttonVariants } from "./components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "./components/ui/dropdown-menu";
 import { GithubIcon } from "./components/common/GithubIcon";
 
 export const Layout = ({ children }: { children: ReactNode }): ReactNode => {
@@ -95,12 +89,6 @@ export const Layout = ({ children }: { children: ReactNode }): ReactNode => {
 const LeftSidebar = (): ReactNode => {
   return (
     <Sidebar collapsible="offcanvas">
-      {/* <SidebarHeader>
-					<h1 className='text-lg text-nowrap font-mono font-semibold flex items-center gap-[0.75ch] pt-4'>
-						<Logo />
-						<span>Better Properties</span>
-					</h1>
-				</SidebarHeader> */}
       <SidebarHeader>
         <header className="hidden w-full justify-center py-1 lg:flex">
           <H1 />
@@ -113,7 +101,12 @@ const LeftSidebar = (): ReactNode => {
           >
             <Coffee />
           </a>
-          <GithubButton />
+          <a
+            href="https://github.com/unxok/obsidian-better-properties"
+            className={buttonVariants({ variant: "ghost", size: "icon" })}
+          >
+            <GithubIcon />
+          </a>
           <ThemeSwitcher />
         </div>
       </SidebarHeader>
@@ -198,30 +191,6 @@ const NavLink = ({
   />
 );
 
-const GithubButton = (): ReactNode => (
-  <DropdownMenu>
-    <DropdownMenuTrigger asChild>
-      <Button title="Github links" variant={"ghost"} size={"icon"}>
-        <GithubIcon />
-      </Button>
-    </DropdownMenuTrigger>
-    <DropdownMenuContent align="end">
-      <DropdownMenuItem asChild>
-        <a href="https://github.com/unxok/obsidian-better-properties-docs">
-          <span>Docs</span>
-          <ExternalLink />
-        </a>
-      </DropdownMenuItem>
-      <DropdownMenuItem asChild>
-        <a href="https://github.com/unxok/obsidian-better-properties">
-          <span>Plugin</span>
-          <ExternalLink />
-        </a>
-      </DropdownMenuItem>
-    </DropdownMenuContent>
-  </DropdownMenu>
-);
-
 const Header = ({
   toggleLeftSidebar,
   toggleRightSidebar,
@@ -255,6 +224,5 @@ const H1 = ({ className }: { className?: string }) => (
       <span className="sr-only">Better Properties</span>
       <Logo height={32} className="mb-0.5 w-full" />
     </Link>
-    {/* <span>Better Properties Docs</span> */}
   </h1>
 );
