@@ -762,3 +762,20 @@ div.metadata-content {
 		}
 	}
 }
+
+.better-properties-array-sub-remove {
+	display: none;
+	justify-content: center;
+	align-items: center;
+	height: var(--input-height);
+	color: var(--text-error);
+	opacity: 0.5;
+
+	&:hover {
+		opacity: 1;
+	}
+
+	.metadata-property > .metadata-property-key:hover > & {
+		display: flex;
+	}
+}

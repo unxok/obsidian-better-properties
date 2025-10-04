@@ -1,10 +1,10 @@
 import BetterProperties from "~/main";
 import { PatchedMetadataEditor } from ".";
-import { around, dedupe } from "monkey-around";
+// import { around, dedupe } from "monkey-around";
 import { Constructor, MarkdownView } from "obsidian";
-import { monkeyAroundKey } from "~/lib/constants";
-import { refreshPropertyEditor } from "..";
-import { MetadataEditorProperty } from "obsidian-typings";
+// import { monkeyAroundKey } from "~/lib/constants";
+// import { refreshPropertyEditor } from "..";
+// import { MetadataEditorProperty } from "obsidian-typings";
 
 export const patchMetadataEditorProperty = (
 	plugin: BetterProperties,
@@ -30,9 +30,6 @@ export const patchMetadataEditorProperty = (
 	metadataEditor.propertyListEl = createDiv();
 	metadataEditor.containerEl = createDiv();
 	metadataEditor.app = app;
-	// metadataEditor.save = () => {
-	// 	console.log("save called");
-	// };
 	metadataEditor.properties = [];
 	metadataEditor.rendered = [];
 	metadataEditor.headingEl = createDiv();
@@ -45,20 +42,22 @@ export const patchMetadataEditorProperty = (
 	const MetadataEditorPropertyPrototype = Object.getPrototypeOf(
 		metadataEditor.rendered[0]
 	) as (typeof metadataEditor.rendered)[0];
-	// console.log("row proto: ", MetadataEditorPropertyPrototype);
 
-	const removePatch = around(MetadataEditorPropertyPrototype, {
-		handleUpdateKey(old) {
-			return dedupe(monkeyAroundKey, old, function (newKey) {
-				// @ts-ignore
-				const that = this as MetadataEditorProperty;
+	MetadataEditorPropertyPrototype; // stops no-unused-variables rule
 
-				const returnValue = old.call(that, newKey);
-				refreshPropertyEditor(plugin, newKey);
-				return returnValue;
-			});
-		},
-	});
+	// I don't this is actually needed. And it causes issues with focusing the valueEl when pressing Enter withint the keyInputEl.
+	// const removePatch = around(MetadataEditorPropertyPrototype, {
+	// 	handleUpdateKey(old) {
+	// 		return dedupe(monkeyAroundKey, old, function (newKey) {
+	// 			// @ts-ignore
+	// 			const that = this as MetadataEditorProperty;
 
-	plugin.register(removePatch);
+	// 			const returnValue = old.call(that, newKey);
+	// 			refreshPropertyEditor(plugin, newKey);
+	// 			return returnValue;
+	// 		});
+	// 	},
+	// });
+
+	// plugin.register(removePatch);
 };
