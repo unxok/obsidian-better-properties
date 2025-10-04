@@ -20,6 +20,7 @@ export const onFilePropertyMenu = (
 	const { metadataTypeManager } = plugin.app;
 
 	const trueProperty = getTrueProperty(property);
+	const isArraySubProperty = trueProperty !== property;
 
 	const found = menu.items.find((item) => {
 		if (item instanceof MenuSeparator) return false;
@@ -47,49 +48,46 @@ export const onFilePropertyMenu = (
 		});
 	}
 
-	menu
-		.addItem((item) =>
-			item
-				.setSection("action")
-				.setTitle(obsidianText("interface.settings"))
-				.setIcon("lucide-settings" satisfies Icon)
-				.onClick(() => {
-					showPropertySettingsModal({ plugin, property: trueProperty });
-				})
-		)
-		.addItem((item) =>
+	menu.addItem((item) =>
+		item
+			.setSection("action")
+			.setTitle(obsidianText("interface.settings"))
+			.setIcon("lucide-settings" satisfies Icon)
+			.onClick(() => {
+				showPropertySettingsModal({ plugin, property: trueProperty });
+			})
+	);
+
+	if (!isArraySubProperty) {
+		menu.addItem((item) =>
 			item
 				.setSection("action")
 				.setTitle(obsidianText("interface.menu.rename"))
 				.setIcon("lucide-pen" satisfies Icon)
-				.onClick(async () => {
-					if (property !== trueProperty) {
-						new Notice("Array sub-properties cannot be renamed.");
-						return;
-					}
+				.onClick(() => {
 					openRenameModal({ plugin, property });
 				})
-		)
-		.addItem((item) =>
-			item
-				.setSection("action")
-				.setTitle(text("common.icon"))
-				.setIcon("lucide-badge-info" satisfies Icon)
-				.onClick(async () => {
-					openChangeIconModal({ plugin, property: trueProperty });
-				})
-		)
-		.addItem((item) =>
+		);
+	}
+
+	menu.addItem((item) =>
+		item
+			.setSection("action")
+			.setTitle(text("common.icon"))
+			.setIcon("lucide-badge-info" satisfies Icon)
+			.onClick(() => {
+				openChangeIconModal({ plugin, property: trueProperty });
+			})
+	);
+
+	if (!isArraySubProperty) {
+		menu.addItem((item) =>
 			item
 				.setSection("danger")
 				.setWarning(true)
 				.setTitle(obsidianText("interface.delete-action-short-name"))
 				.setIcon("lucide-x-circle" satisfies Icon)
 				.onClick(async () => {
-					if (property !== trueProperty) {
-						new Notice("Array sub-properties cannot be deleted.");
-						return;
-					}
 					if (plugin.settings.confirmPropertyDelete ?? true) {
 						openDeleteModal({ plugin, property });
 						return;
@@ -100,6 +98,7 @@ export const onFilePropertyMenu = (
 					});
 				})
 		);
+	}
 
 	menu.sort();
 };
