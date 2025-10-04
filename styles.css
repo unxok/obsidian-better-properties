@@ -158,7 +158,7 @@ body {
 			> .metadata-container
 			> .better-properties-property-object-properties
 			> .metadata-property {
-			&:hover
+			/* &:hover
 				> .metadata-property-key
 				> .better-properties-properties-property-collapse-indicator {
 				display: none;
@@ -166,14 +166,14 @@ body {
 				&[data-better-properties-is-collapsed="true"] {
 					display: flex;
 				}
-			}
+			} */
 
 			& > .metadata-property-key {
 				--metadata-label-width: fit-content;
 
-				&:hover > .better-properties-properties-property-collapse-indicator {
+				/* &:hover > .better-properties-properties-property-collapse-indicator {
 					display: flex;
-				}
+				} */
 
 				& > .metadata-property-key-input {
 					display: none;
@@ -764,7 +764,7 @@ div.metadata-content {
 		transition: transform 100ms ease-in-out;
 	}
 
-	.metadata-property:hover > .metadata-property-key > & {
+	.metadata-property > .metadata-property-key:hover > & {
 		display: flex;
 	}
 
