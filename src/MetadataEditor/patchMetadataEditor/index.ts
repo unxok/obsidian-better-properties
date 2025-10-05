@@ -92,7 +92,10 @@ const createMoreButtonEl = (that: PatchedMetadataEditor) => {
 		that.moreButtonEl.createSpan({ cls: "text-button-icon" }),
 		"lucide-ellipsis" satisfies Icon
 	);
-	that.moreButtonEl.createSpan({ cls: "text-button-label", text: "More" });
+	that.moreButtonEl.createSpan({
+		cls: "text-button-label",
+		text: text("common.more"),
+	});
 
 	const sortProperties = (
 		sortFn: (

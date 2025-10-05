@@ -21,7 +21,8 @@
 		"areYouSure": "Are you sure?",
 		"icon": "Icon",
 		"import": "Import",
-		"reset": "Reset"
+		"reset": "Reset",
+		"more": "More"
 	},
 	"datetime": {
 		"date": "Date",
