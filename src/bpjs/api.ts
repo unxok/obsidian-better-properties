@@ -259,17 +259,8 @@ export class BpJsApi {
 				this.styleEl.remove();
 			}
 			this.styleEl = this.el.parentElement!.createEl("style");
-			this.styleEl.innerHTML = content;
+			this.styleEl.textContent = content;
 			return;
-
-			// TODO is there a way to get this to work? I would like to avoid innerHTML if possible
-			// this.el.createEl("link", {
-			// 	href: path,
-			// 	type: "text/css",
-			// 	attr: {
-			// 		rel: "stylesheet",
-			// 	},
-			// });
 		}
 
 		if (extension === "json") {
@@ -339,11 +330,11 @@ class InlinePropertyComponent extends PropertyComponent {
 		});
 	}
 
-	render(): this {
-		super.render();
+	override render() {
+		const widget = super.render();
 		if (this.hideKey) {
 			this.propertyEl?.setAttribute("data-better-properties-hide-key", "true");
 		}
-		return this;
+		return widget;
 	}
 }

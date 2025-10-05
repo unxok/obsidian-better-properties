@@ -9,3 +9,5 @@ For documentation, check out the [Better Properties Docs](https://better-propert
 ![property menu](/demo-assets/property-menu.png)
 
 ![properties](/demo-assets/properties.png)
+
+## Community Plugins submission prep

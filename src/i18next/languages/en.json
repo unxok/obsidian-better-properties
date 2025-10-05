@@ -165,7 +165,7 @@
 							},
 							"includeNestedTags": {
 								"title": "Include Nested Tags",
-								"desc": "Whether to include files containing a nested tag of one of the selected tags. For example, whether to include a note with the tag \"food/fruit\" when \"food\" is a selected tag."
+								"desc": "Whether to include notes containing a nested tag of one of the selected tags. For example, whether to include a note with the tag \"food/fruit\" when \"food\" is a selected tag."
 							}
 						},
 						"filesFromInlineJs": {
