@@ -32,6 +32,7 @@ import { BpJsApi, setupBpJsListeners } from "~/bpjs/api";
 import { around, dedupe } from "monkey-around";
 import { monkeyAroundKey } from "~/lib/constants";
 import { getTrueProperty } from "~/CustomPropertyTypes/utils";
+import { patchCanvas } from "~/Canvas";
 
 const patchMetadataTypeManager = (plugin: BetterProperties): void => {
 	const removePatch = around(plugin.app.metadataTypeManager, {
@@ -75,6 +76,7 @@ export class BetterProperties extends Plugin {
 			patchMetadataCache(this);
 			setupBpJsListeners(this);
 			registerBpJsCodeProcessors(this);
+			patchCanvas(this);
 
 			this.rebuildLeaves();
 		});

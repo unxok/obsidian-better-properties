@@ -21,7 +21,8 @@
 		"areYouSure": "Are you sure?",
 		"icon": "Icon",
 		"import": "Import",
-		"reset": "Reset"
+		"reset": "Reset",
+		"more": "More"
 	},
 	"datetime": {
 		"date": "Date",
@@ -54,6 +55,9 @@
 		},
 		"color": {
 			"name": "Color"
+		},
+		"icon": {
+			"name": "Icon"
 		},
 		"slider": {
 			"name": "Slider",
