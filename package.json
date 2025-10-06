@@ -23,16 +23,15 @@
 		"esbuild": "0.25.5",
 		"luxon": "3.5.0",
 		"obsidian": "latest",
+		"obsidian-typings": "obsidian-public-latest",
 		"tslib": "2.7.0",
 		"typescript": "5.8.3",
-		"vite": "6.3.5",
-		"vite-bundle-analyzer": "1.2.1",
-		"obsidian-typings": "obsidian-public-latest"
+		"vite": "6.3.6",
+		"vite-bundle-analyzer": "1.2.1"
 	},
 	"dependencies": {
 		"math-expression-evaluator": "2.0.7",
 		"monkey-around": "3.0.0",
-		"valibot": "1.1.0",
-		"zod": "3.23.8"
+		"valibot": "1.1.0"
 	}
 }
