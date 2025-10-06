@@ -15,7 +15,7 @@ For documentation, check out the [Better Properties Docs](https://better-propert
 ### Adhere to the [Style guide](https://help.obsidian.md/style-guide#Directions)
 
 - [x] Terminology and grammar
-- This heading has no text under it...
+  - This heading has no text under it...
 - [x] Language style
 - [x] Terms
 - [x] Product names
@@ -52,7 +52,7 @@ For documentation, check out the [Better Properties Docs](https://better-propert
   - [x] Only use headings under settings if you have more than one section
   - [x] Avoid "settings" in settings headings
   - [x] Use sentence case in UI
-  - [x] Use setHeading instead of a <h1>, <h2>
+  - [x] Use setHeading instead of a `<h1>`, `<h2>`
 - [x] Security
   - [x] Avoid innerHTML, outerHTML and insertAdjacentHTML
 - [x] Resource management
@@ -78,7 +78,6 @@ For documentation, check out the [Better Properties Docs](https://better-propert
 - [x] TypeScript
   - [x] Prefer const and let over var
   - [x] Prefer async/await over Promise
-- [ ]
 
 ### Obsidian October plugin self-critique checklist
 
@@ -137,7 +136,7 @@ Complete this section if you have isDesktopOnly set to false in your manifest.
 
 #### Performance
 
-- [ ] Do optimize your plugin's load time. Detailed guide.
+- [x] Do optimize your plugin's load time. Detailed guide.
 - [x] Don't iterate all files to find a file or folder by its path. Learn more.
 - [x] If you want your plugins to be compatible with Obsidian 1.7.2+, update your plugin to work with DeferredViews. Detailed guide.
 - [x] If you're using moment, make sure you're doing import { moment} from 'obsidian' so that you don't import another copy.
@@ -150,5 +149,5 @@ Complete this section if you have isDesktopOnly set to false in your manifest.
 - [x] Don't include the word "setting" or "option" in setting headings. Learn more.
   - Used "options" or "options" a few times for settings talking specifically about a Select/Mult-Select's available options, so I think that's fine.
 - [x] Do use sentence case in all text in UI elements to be consistent with rest of Obsidian UI. Learn more.
-- [x] Don't use <h1> or <h2> for setting header. Use Obsidian API instead. Learn more.
+- [x] Don't use `<h1>` or `<h2>` for setting header. Use Obsidian API instead. Learn more.
 - [x] Don't do console.log unless they are absolutely necessarily. Remove testing console logs that are not needed for production.
