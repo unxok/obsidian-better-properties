@@ -79,7 +79,7 @@ For documentation, check out the [Better Properties Docs](https://better-propert
   - [x] Prefer const and let over var
   - [x] Prefer async/await over Promise
 
-### Obsidian October plugin self-critique checklist
+### [Obsidian October plugin self-critique checklist](https://docs.obsidian.md/oo/plugin)
 
 #### Releasing and naming
 
