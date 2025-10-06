@@ -86,6 +86,9 @@ body {
 		width: 100%;
 		min-width: fit-content;
 		text-wrap: nowrap;
+		.metadata-property:has(&) {
+			--input-radius: unset;
+		}
 	}
 
 	&[data-property-type="better-properties:multiselect"] {
@@ -110,7 +113,6 @@ body {
 	&[data-property-type="better-properties:color"] {
 		padding: var(--input-padding);
 		height: var(--input-height);
-		/* font-size: var(--metadata-input-font-size); */
 		width: 100%;
 
 		& > .better-properties-color-text-component-container {
@@ -206,17 +208,16 @@ body {
 		}
 	}
 
-	&[data-property-type="better-properties:relation"] {
-		/* padding: var(--input-padding); */
+	/* &[data-property-type="better-properties:relation"] {
 		height: var(--input-height);
-	}
+	} */
+
 	&[data-property-type="better-properties:rating"] {
 		padding: var(--input-padding);
 		height: var(--input-height);
 
 		& > .better-properties-rating-container {
 			display: flex;
-			/* flex-wrap: wrap; */
 			justify-content: center;
 			align-items: center;
 
@@ -300,10 +301,6 @@ body {
 	}
 }
 
-.metadata-property:has(.dropdown) {
-	--input-radius: unset;
-}
-
 .metadata-property:has(
 		> .metadata-property-value
 			> &[data-property-type="better-properties:rating"]
@@ -319,17 +316,7 @@ body {
 	.metadata-property-value {
 		display: none;
 	}
-	/* .better-properties-properties-property-collapse-indicator {
-		--better-properties-collapse-opacity: 1;
-	} */
 }
-
-/* .metadata-property {
-	--better-properties-collapse-opacity: 0;
-	&:hover {
-		--better-properties-collapse-opacity: 1;
-	}
-} */
 
 .metadata-property:has(.better-properties-mod-object) {
 	display: flex;
@@ -383,7 +370,7 @@ body {
 div.setting-item.better-properties-list-setting {
 	flex-direction: column;
 	align-items: start;
-	--item-width: 100%;
+	--better-properties-item-width: 100%;
 
 	& > div.setting-item-control {
 		width: 100%;
@@ -391,7 +378,7 @@ div.setting-item.better-properties-list-setting {
 		align-items: start;
 
 		& > .better-properties-list-setting-items-container {
-			width: var(--item-width);
+			width: var(--better-properties-item-width);
 			margin-inline-start: auto;
 
 			& input,
@@ -405,8 +392,6 @@ div.setting-item.better-properties-list-setting {
 			}
 
 			& .setting-item[data-dragged-over]:not([data-is-dragged="true"]) {
-				/* border-top: 2px solid var(--interactive-accent); */
-				/* box-shadow: inset 0px 4px 0px 0px var(--interactive-accent); */
 				position: relative;
 				&::after {
 					content: "";
@@ -442,8 +427,6 @@ div.setting-item.better-properties-list-setting {
 	&.better-properties-mod-active {
 		position: relative;
 		--better-properties-active-text: "active";
-		/* text-decoration: underline;
-		text-underline-offset: 2px; */
 	}
 
 	&.better-properties-mod-active::after {
@@ -476,10 +459,6 @@ div.setting-item.better-properties-list-setting {
 	justify-content: center;
 	align-items: center;
 	gap: var(--size-2-2);
-
-	/* & .better-properties-dropdown-link-button {
-		display: inline-flex;
-	} */
 }
 
 .better-properties-mod-warning {
@@ -488,19 +467,6 @@ div.setting-item.better-properties-list-setting {
 	gap: 1ch;
 	color: var(--text-warning);
 }
-
-/* TODO I think this was leftover from testing stuff... leaving here for now just in case */
-/* .multi-select-container {
-	--width: 40ch;
-	.setting-item-control > & {
-		width: var(--width);
-	}
-
-	& .multi-select-input {
-		padding: var(--pill-padding-y) 0;
-		text-align: start;
-	}
-} */
 
 div.metadata-content {
 	&[data-better-properties-show-hidden="false"]
@@ -588,7 +554,6 @@ div.metadata-content {
 	width: var(--swatch-width);
 	border-radius: var(--swatch-radius);
 	box-shadow: var(--swatch-shadow);
-	/* margin: calc(var(--swatch-width) / 2); */
 	caret-color: transparent;
 	color: transparent;
 	cursor: var(--cursor);
@@ -625,7 +590,6 @@ div.metadata-content {
 
 .better-properties-combobox-select {
 	display: flex;
-	/* min-height: var(--input-height); */
 	align-items: center;
 	gap: var(--size-2-1);
 	min-width: 0;
@@ -708,7 +672,6 @@ div.metadata-content {
 	width: 100%;
 	height: 100%;
 	max-width: 100%;
-	/* padding-inline-end: 3ch; */
 }
 
 .better-properties-numeric-container {
@@ -784,4 +747,26 @@ div.metadata-content {
 	.metadata-property > .metadata-property-key:hover > & {
 		display: flex;
 	}
+}
+
+.better-properties-mod-hidden {
+	&,
+	&.metadata-property-key-input {
+		display: none;
+	}
+}
+
+div.better-properties-mod-hidden {
+	display: none;
+}
+
+.better-properties-draggable-item-clone {
+	width: var(--better-properties-width);
+	height: var(--better-properties-height);
+}
+
+.drag-reorder-ghost {
+	left: var(--better-properties-left);
+	top: var(--better-properties-top);
+	transform: var(--better-properties-transform);
 }

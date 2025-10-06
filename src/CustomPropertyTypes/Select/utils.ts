@@ -1,7 +1,15 @@
 import { iterateFileMetadata, tryCatch } from "~/lib/utils";
 import BetterProperties from "~/main";
 import { PropertySettings } from "../types";
-import { Setting, Menu, Notice, MenuItem, getAllTags, TFile } from "obsidian";
+import {
+	Setting,
+	Menu,
+	Notice,
+	MenuItem,
+	getAllTags,
+	TFile,
+	normalizePath,
+} from "obsidian";
 import { ColorTextComponent } from "~/classes/ColorTextComponent";
 import { ComboboxComponent, SearchableMenu } from "~/classes/ComboboxComponent";
 import { FileSuggest } from "~/classes/InputSuggest/FileSuggest";
@@ -23,15 +31,15 @@ export type SelectOption = NonNullable<SelectSettings["manualOptions"]>[number];
 // prettier-ignore
 export const selectOptionInlineCodeTemplate = 
 `async (props) => {
-	const fooOption = {
-		value: "foo",
-		label: "bar", // optional
-		bgColor: "green", // optional
+	const appleOption = {
+		value: "apple",
+		label: "Apple", // optional
+		bgColor: "red", // optional
 	};
-	const fizzOption = {
-		value: "fizz",
+	const bananaoption = {
+		value: "banana",
 	};
-	const arr = [fooOption, fizzOption];
+	const arr = [appleOption, bananaoption];
 	return arr;
 };`
 
@@ -88,9 +96,10 @@ export const tryRunFileCode = async (
 	filePath: string
 ) => {
 	return tryCatch(async () => {
-		const file = plugin.app.vault.getFileByPath(filePath);
+		const normalPath = normalizePath(filePath);
+		const file = plugin.app.vault.getFileByPath(normalPath);
 		if (!file) {
-			throw new Error(`File not found at path "${filePath}"`);
+			throw new Error(`File not found at path "${normalPath}"`);
 		}
 
 		if (!file.extension.toLowerCase().endsWith("js")) {
@@ -553,7 +562,7 @@ export const renderFilesFromInlineJsSettings = ({
 		.addTextArea((cmp) => {
 			cmp
 				.setValue(settings.inlineJsOptionsCode ?? "")
-				.setPlaceholder('(props) => [{value: "foo"}]')
+				.setPlaceholder('(props) => [{value: "apple"}]')
 				.onChange((v) => {
 					settings.inlineJsOptionsCode = v;
 				});

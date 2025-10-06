@@ -83,7 +83,7 @@ export class ColorTextComponent extends ValueComponent<string> {
 	}
 
 	setColorCssVar(value: string) {
-		this.colorsContainerEl.style.setProperty("--better-properties-bg", value);
+		this.colorsContainerEl.setCssProps({ "--better-properties-bg": value });
 	}
 }
 

@@ -231,8 +231,7 @@ export class PropertyComponent extends ValueComponent<unknown> {
 		setIcon(mismatchEl, "lucide-alert-triangle" satisfies Icon);
 
 		if (expected.type === inferred.type) {
-			// usually I would use an attr here, but this is how built-in properties do it
-			mismatchEl.style.setProperty("display", "none");
+			mismatchEl.classList.add("better-properties-mod-hidden");
 		}
 
 		mismatchEl.addEventListener("click", () => {

@@ -277,7 +277,7 @@ export class SelectComponent extends ComboboxComponent<Option> {
 			menu.addSectionItem("footer", (item) => {
 				this.createOptionItem = item;
 				item.setIcon("lucide-plus" satisfies Icon);
-				this.createOptionItem.dom.style.setProperty("display", "none");
+				this.createOptionItem.dom.classList.add("better-properties-mod-hidden");
 			});
 		}
 		menu.addSectionItem("footer", (item) => {
@@ -301,11 +301,15 @@ export class SelectComponent extends ComboboxComponent<Option> {
 
 				const newOption = search.getValue();
 				if (!newOption) {
-					this.createOptionItem.dom.style.setProperty("display", "none");
+					this.createOptionItem.dom.classList.add(
+						"better-properties-mod-hidden"
+					);
 					return;
 				}
 
-				this.createOptionItem.dom.style.removeProperty("display");
+				this.createOptionItem.dom.classList.remove(
+					"better-properties-mod-hidden"
+				);
 				this.createOptionItem
 					.setTitle(`Create option "${newOption}"`)
 					.onClick(() => {

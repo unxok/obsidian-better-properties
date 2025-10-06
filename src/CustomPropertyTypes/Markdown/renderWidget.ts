@@ -1,8 +1,10 @@
 import { obsidianText } from "~/i18next/obsidian";
 import { CustomPropertyType } from "../types";
 import { PropertyWidgetComponentNew } from "../utils";
-// import { EmbeddableMarkdownEditor } from "~/Classes/EmbeddableMarkdownEditor/original";
-import { EmbeddableMarkdownEditor } from "~/classes/EmbeddableMarkdownEditor";
+import {
+	TEmbeddableMarkdownEditor,
+	createEmbeddableMarkdownEditor,
+} from "~/classes/EmbeddableMarkdownEditor";
 import { PropertyRenderContext } from "obsidian-typings";
 import BetterProperties from "~/main";
 
@@ -22,7 +24,7 @@ class MarkdownTypeComponent extends PropertyWidgetComponentNew<
 	type = "markdown" as const;
 	parseValue = (v: unknown) => v?.toString() ?? "";
 
-	embeddedMarkdownEditor: EmbeddableMarkdownEditor;
+	embeddedMarkdownEditor: TEmbeddableMarkdownEditor;
 
 	constructor(
 		plugin: BetterProperties,
@@ -33,10 +35,10 @@ class MarkdownTypeComponent extends PropertyWidgetComponentNew<
 		super(plugin, el, value, ctx);
 
 		const parsed = this.parseValue(value);
-		this.embeddedMarkdownEditor = new EmbeddableMarkdownEditor(
-			plugin.app,
-			el,
-			{
+		this.embeddedMarkdownEditor = createEmbeddableMarkdownEditor({
+			app: plugin.app,
+			container: el,
+			options: {
 				value: parsed,
 				onBlur: (editor) => {
 					const val = editor.editor?.getValue() ?? "";
@@ -44,8 +46,8 @@ class MarkdownTypeComponent extends PropertyWidgetComponentNew<
 				},
 				placeholder: obsidianText("properties.label-no-value"),
 			},
-			ctx.sourcePath
-		);
+			filePath: ctx.sourcePath,
+		});
 
 		this.onFocus = () => {
 			this.embeddedMarkdownEditor.focus();

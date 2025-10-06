@@ -151,15 +151,15 @@ export class BetterProperties extends Plugin {
 	handlePropertyLabelWidth(): void {
 		this.updateSettings((prev) => ({
 			...prev,
-			defaultLabelWidth: document.body.style.getPropertyValue(
+			defaultLabelWidth: document.body.getCssPropertyValue(
 				"---metadata-label-width"
 			),
 		}));
 		const updateDomMetadataLabelWidth = (width: number | undefined) => {
-			document.body.style.setProperty(
-				"--metadata-label-width",
-				width === undefined ? this.settings.defaultLabelWidth : width + "px"
-			);
+			document.body.setCssProps({
+				"--metadata-label-width":
+					width === undefined ? this.settings.defaultLabelWidth : width + "px",
+			});
 		};
 		this.app.workspace.on(
 			"better-properties:property-label-width-change",
