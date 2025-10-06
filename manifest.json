@@ -1,8 +1,8 @@
 {
 	"id": "better-properties",
 	"name": "Better Properties",
-	"version": "0.1.11",
-	"minAppVersion": "1.9.1",
+	"version": "1.0.0",
+	"minAppVersion": "1.9.14",
 	"description": "Adds new property types and other property-related upgrades and features.",
 	"author": "Unxok",
 	"authorUrl": "https://github.com/unxok",

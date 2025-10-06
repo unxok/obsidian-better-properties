@@ -3,6 +3,18 @@
 Each release should include an entry detailing the changes made since the last
 release. Some specific details may be omitted for brevity.
 
+## 1.0.0
+
+Not many user-facing changes this time, but I wanted to submit BP to the community plugins directory to hopefully get it approved before the end of the year. Fingers crossed🤞
+
+### Fixed
+
+- Dynamic Multi-/Selects now update their options after renaming a file. [#41](https://github.com/unxok/obsidian-better-properties/issues/41)
+
+### Other
+
+- Updated many parts of the plugin to ensure adherence to the different obsidian guidelines.
+
 ## 0.1.11
 
 7 bugs and 3 feature requests completed. Thank you so much to everyone opening issues<3
