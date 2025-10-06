@@ -383,7 +383,7 @@ body {
 div.setting-item.better-properties-list-setting {
 	flex-direction: column;
 	align-items: start;
-	--item-width: 100%;
+	--better-properties-item-width: 100%;
 
 	& > div.setting-item-control {
 		width: 100%;
@@ -391,7 +391,7 @@ div.setting-item.better-properties-list-setting {
 		align-items: start;
 
 		& > .better-properties-list-setting-items-container {
-			width: var(--item-width);
+			width: var(--better-properties-item-width);
 			margin-inline-start: auto;
 
 			& input,
@@ -784,4 +784,26 @@ div.metadata-content {
 	.metadata-property > .metadata-property-key:hover > & {
 		display: flex;
 	}
+}
+
+.better-properties-mod-hidden {
+	&,
+	&.metadata-property-key-input {
+		display: none;
+	}
+}
+
+div.better-properties-mod-hidden {
+	display: none;
+}
+
+.better-properties-draggable-item-clone {
+	width: var(--better-properties-width);
+	height: var(--better-properties-height);
+}
+
+.drag-reorder-ghost {
+	left: var(--better-properties-left);
+	top: var(--better-properties-top);
+	transform: var(--better-properties-transform);
 }

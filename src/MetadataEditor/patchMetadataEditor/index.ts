@@ -248,7 +248,7 @@ const createLabelWidthResizerEl = (that: PatchedMetadataEditor) => {
 				initialWidth = getInitialWidth();
 			}
 			const newWidth = initialWidth + diff;
-			containerEl.style.setProperty("--metadata-label-width", newWidth + "px");
+			containerEl.setCssProps({ "--metadata-label-width": newWidth + "px" });
 			initialX = e.pageX;
 			initialWidth = newWidth;
 		},
@@ -264,22 +264,23 @@ const createLabelWidthResizerEl = (that: PatchedMetadataEditor) => {
 			.querySelector(".metadata-property-key")
 			?.getBoundingClientRect()?.width;
 		if (labelWidth === undefined) return;
-		document.body.style.setProperty(
-			"--metadata-label-width",
-			labelWidth + "px"
-		);
+		document.body.setCssProps({
+			"--metadata-label-width": labelWidth + "px",
+		});
 
 		app.workspace.trigger(
 			"better-properties:property-label-width-change",
 			labelWidth
 		);
 
-		containerEl.style.removeProperty("--metadata-label-width");
+		containerEl.setCssProps({ "--metadata-label-width": "" });
 		document.getElementById("better-properties-drag-overlay")?.remove();
 	});
 
 	labelWidthResizerEl.addEventListener("dblclick", () => {
-		document.body.style.removeProperty("--metadata-label-width");
+		document.body.setCssProps({
+			"--metadata-label-width": "",
+		});
 		app.workspace.trigger(
 			"better-properties:property-label-width-change",
 			undefined

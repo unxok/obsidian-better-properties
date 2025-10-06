@@ -11,3 +11,5 @@ For documentation, check out the [Better Properties Docs](https://better-propert
 ![properties](/demo-assets/properties.png)
 
 ## Community Plugins submission prep
+
+- [x] https://help.obsidian.md/style-guide#Directions

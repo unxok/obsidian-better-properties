@@ -31,12 +31,15 @@ export const openRenameModal = ({
 							"metadataEditor.propertyMenu.rename.newPropertyNamePlaceholder"
 						)
 					);
-				const warningEl = frag.createEl("p", {
-					cls: "better-properties-mod-warning",
-				});
-				setIcon(warningEl.createSpan(), "lucide-alert-circle" satisfies Icon);
-				warningEl.createSpan({
-					text: text("metadataEditor.propertyMenu.rename.nameExistsWarning", {
+				// const warningEl = frag.createEl("p", {
+				// 	cls: "better-properties-mod-warning",
+				// });
+				const warningEl = createCallout({
+					parentEl: frag,
+					type: "warning",
+					icon: "lucide-alert-triangle",
+					title: "Existing property name",
+					desc: text("metadataEditor.propertyMenu.rename.nameExistsWarning", {
 						property,
 					}),
 				});
@@ -66,7 +69,7 @@ export const openRenameModal = ({
 				textCmp.onChange((v) => {
 					if (!renameBtn) return;
 					if (v === property) {
-						warningEl.style.setProperty("display", "none");
+						warningEl.classList.add("better-properties-mod-hidden");
 						renameBtn.setDisabled(true);
 						return;
 					}
@@ -76,10 +79,10 @@ export const openRenameModal = ({
 						v
 					);
 					if (!existing) {
-						warningEl.style.setProperty("display", "none");
+						warningEl.classList.add("better-properties-mod-hidden");
 						return;
 					}
-					warningEl.style.removeProperty("display");
+					warningEl.classList.remove("better-properties-mod-hidden");
 				});
 
 				textCmp.onChanged();
@@ -87,4 +90,35 @@ export const openRenameModal = ({
 		);
 
 	modal.open();
+};
+
+const createCallout = ({
+	parentEl,
+	type,
+	icon,
+	title,
+	desc,
+}: {
+	parentEl: HTMLElement | DocumentFragment;
+	type: string;
+	icon: Icon;
+	title: string;
+	desc: string;
+}) => {
+	const calloutEl = parentEl.createDiv({
+		cls: "callout",
+		attr: {
+			"data-callout": type,
+		},
+	});
+	const titleEl = calloutEl.createDiv({
+		cls: "callout-title",
+		attr: { dir: "auto" },
+	});
+	setIcon(titleEl.createDiv({ cls: "callout-icon" }), icon);
+	titleEl.createDiv({ cls: "callout-title-inner", text: title });
+	calloutEl
+		.createDiv({ cls: "callout-content" })
+		.createEl("p", { text: desc, attr: { dir: "auto" } });
+	return calloutEl;
 };

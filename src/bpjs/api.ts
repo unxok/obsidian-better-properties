@@ -5,6 +5,7 @@ import {
 	debounce,
 	parseYaml,
 	MarkdownRenderer,
+	normalizePath,
 } from "obsidian";
 import { PropertyComponent } from "~/classes/PropertyComponent";
 import {
@@ -108,8 +109,9 @@ export class BpJsApi {
 		  }
 		| undefined = {}): CachedMetadata | null {
 		const { metadataCache, vault } = this.plugin.app;
-		const maybeFile = path ? vault.getFileByPath(path) : null;
-		if (path && !maybeFile) {
+		const normalPath = path ? normalizePath(path) : undefined;
+		const maybeFile = normalPath ? vault.getFileByPath(normalPath) : null;
+		if (normalPath && !maybeFile) {
 			throw new Error(`Failed to get metadata: File not found at "${path}"`);
 		}
 		const trueFile = maybeFile ?? this.file;
@@ -188,11 +190,12 @@ export class BpJsApi {
 
 	public async import(path: string, data: unknown): Promise<unknown> {
 		const { vault } = this.plugin.app;
-		const lowerPath = path.toLowerCase();
+		const normalPath = normalizePath(path);
+		const lowerPath = normalPath.toLowerCase();
 		const dotSections = lowerPath.split(".");
 		if (dotSections.length < 2) {
 			throw new Error(
-				`Failed to import module: No file extension was provided in the path "${path}"`
+				`Failed to import module: No file extension was provided in the path "${normalPath}"`
 			);
 		}
 
@@ -223,10 +226,10 @@ export class BpJsApi {
 				`Failed to import module: Got extension ".${extension}". Allowed extensions are ${allowedExtensionsString}`
 			);
 		}
-		const file = vault.getFileByPath(path);
+		const file = vault.getFileByPath(normalPath);
 		if (!file) {
 			throw new Error(
-				`Failed to import module: File not found at path "${path}"`
+				`Failed to import module: File not found at path "${normalPath}"`
 			);
 		}
 

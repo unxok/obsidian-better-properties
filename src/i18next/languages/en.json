@@ -270,7 +270,7 @@
 			}
 		},
 		"typesTabGroup": {
-			"name": "Type settings",
+			"name": "Type specific",
 			"unsupportedTypeTitle": "Unsupported type",
 			"unsupportedTypeDesc": "The assigned type of \"{{widget.type}}\" is not supported for type-specific settings. This is likely because it is a built-in type or it was added by a different plugin than Better Properties"
 		}
@@ -296,7 +296,7 @@
 				"modalTitle": "Rename property",
 				"modalDesc": "Enter a new name to change all instances of the \"{{property}}\" property in all notes' properties and this plugin's settings",
 				"newPropertyNamePlaceholder": "new property name",
-				"nameExistsWarning": "Warning: The name you entered already exists. If you continue, the existing configuration for that name will be overwritten with the configuration from \"{{property}}\""
+				"nameExistsWarning": "The name you entered already exists. If you continue, the existing configuration for that name will be overwritten with the configuration from \"{{property}}\""
 			}
 		}
 	}

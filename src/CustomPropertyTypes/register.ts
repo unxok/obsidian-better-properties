@@ -169,15 +169,15 @@ export const wrapAllPropertyTypeWidgets = (plugin: BetterProperties) => {
 								".better-properties-metadata-property-alias-input"
 							) as HTMLInputElement | undefined | null;
 							if (existing) {
-								existing.style.removeProperty("display");
+								existing.classList.remove("better-properties-mod-hidden");
 							}
 							const aliasEl =
 								existing ?? (keyInputEl.cloneNode() as HTMLInputElement);
 							keyInputEl.insertAdjacentElement("afterend", aliasEl);
-							keyInputEl.style.display = "none";
+							keyInputEl.classList.add("better-properties-mod-hidden");
 							keyInputEl.addEventListener("blur", () => {
-								keyInputEl.style.display = "none";
-								aliasEl.style.removeProperty("display");
+								keyInputEl.classList.add("better-properties-mod-hidden");
+								aliasEl.classList.remove("better-properties-mod-hidden");
 							});
 							aliasEl.value = settings.alias;
 							aliasEl.classList.add(
@@ -185,8 +185,8 @@ export const wrapAllPropertyTypeWidgets = (plugin: BetterProperties) => {
 							);
 							aliasEl.setAttribute("aria-disabled", "true");
 							aliasEl.addEventListener("focus", () => {
-								aliasEl.style.display = "none";
-								keyInputEl.style.removeProperty("display");
+								aliasEl.classList.add("better-properties-mod-hidden");
+								keyInputEl.classList.remove("better-properties-mod-hidden");
 								keyInputEl.focus();
 							});
 						}

@@ -466,7 +466,7 @@ export const makeDraggable = ({
 		let isSetupDone = false;
 
 		const { width, height, left, top } = itemEl.getBoundingClientRect();
-		let otherPropertyElsPositions: {
+		let otherItemElsPositions: {
 			top: number;
 			bottom: number;
 			el: Element;
@@ -487,20 +487,25 @@ export const makeDraggable = ({
 			}
 			if (!hasDragged) return;
 			if (!isSetupDone) {
-				const propertyElClone = itemEl.cloneNode(true);
+				const itemElClone = itemEl.cloneNode(true);
 				itemEl.classList.add(dragGhostHiddenClass);
-				if (!(propertyElClone instanceof HTMLElement)) {
+				if (!(itemElClone instanceof HTMLElement)) {
 					throw new Error("Cloned property element is not an HTMLElement");
 				}
-				propertyElClone.style.width = width + "px";
-				propertyElClone.style.height = height + "px";
-				dragGhostEl.appendChild(propertyElClone);
+				itemElClone.classList.add("better-properties-draggable-item-clone");
+				itemElClone.setCssProps({
+					"--better-properties-width": width + "px",
+					"--better-properties-height": height + "px",
+				});
+				dragGhostEl.appendChild(itemElClone);
+				// TODO this centers cursor over icon, but native properties drag from the exact point the mouse went down
+				dragGhostEl.setCssProps({
+					"--better-properties-left": `calc(${left}px - var(--icon-size))`,
+					"--better-properties-top": `calc(${top}px - var(--icon-size))`,
+				});
 				window.activeDocument.body.appendChild(dragGhostEl);
 				window.activeDocument.body.classList.add("is-grabbing");
 				isSetupDone = true;
-				// TODO this centers cursor over icon, but native properties drag from the exact point the mouse went down
-				dragGhostEl.style.left = `calc(${left}px - var(--icon-size))`;
-				dragGhostEl.style.top = `calc(${top}px - var(--icon-size))`;
 
 				parentEl.querySelectorAll(itemsQuerySelector)?.forEach((el, i) => {
 					if (el === itemEl) {
@@ -508,14 +513,16 @@ export const makeDraggable = ({
 						currentIndex = i;
 					}
 					const { top, bottom } = el.getBoundingClientRect();
-					otherPropertyElsPositions.push({ top, bottom, el });
+					otherItemElsPositions.push({ top, bottom, el });
 				});
 			}
-			dragGhostEl.style.transform = `translate(${
-				mousemoveEvent.pageX - left
-			}px, ${mousemoveEvent.pageY - top}px)`;
+			dragGhostEl.setCssProps({
+				"--better-properties-transform": `translate(${
+					mousemoveEvent.pageX - left
+				}px, ${mousemoveEvent.pageY - top}px)`,
+			});
 
-			otherPropertyElsPositions.forEach(({ top, bottom, el }, i) => {
+			otherItemElsPositions.forEach(({ top, bottom, el }, i) => {
 				const middle = (top + bottom) / 2;
 				const shouldSwapUp = i < currentIndex && mousemoveEvent.pageY < middle;
 				const shouldSwapDown =
@@ -525,8 +532,8 @@ export const makeDraggable = ({
 					shouldSwapUp ? "beforebegin" : "afterend",
 					itemEl
 				);
-				otherPropertyElsPositions = arrayMove(
-					otherPropertyElsPositions,
+				otherItemElsPositions = arrayMove(
+					otherItemElsPositions,
 					currentIndex,
 					i
 				);

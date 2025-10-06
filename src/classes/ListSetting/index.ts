@@ -121,7 +121,9 @@ export class ListSetting<T> extends Setting {
 	}
 
 	setItemWidth(cssWidthUnits: string): this {
-		this.settingEl.style.setProperty("--item-width", cssWidthUnits);
+		this.settingEl.setCssProps({
+			"--better-properties-item-width": cssWidthUnits,
+		});
 		return this;
 	}
 
