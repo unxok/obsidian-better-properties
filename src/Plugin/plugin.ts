@@ -1,10 +1,4 @@
-import {
-	Modal,
-	ButtonComponent,
-	Plugin,
-	MarkdownView,
-	MetadataTypeManager,
-} from "obsidian";
+import { Modal, ButtonComponent, Plugin, MarkdownView } from "obsidian";
 import {
 	BetterPropertiesSettings,
 	betterPropertiesSettingsSchema,
@@ -29,30 +23,7 @@ import * as v from "valibot";
 import { openRenameModal } from "~/MetadataEditor/propertyEditorMenu/rename";
 import { registerBpJsCodeProcessors } from "~/bpjs";
 import { BpJsApi, setupBpJsListeners } from "~/bpjs/api";
-import { around, dedupe } from "monkey-around";
-import { monkeyAroundKey } from "~/lib/constants";
-import { getTrueProperty } from "~/CustomPropertyTypes/utils";
-
-const patchMetadataTypeManager = (plugin: BetterProperties): void => {
-	const removePatch = around(plugin.app.metadataTypeManager, {
-		getAssignedWidget(old) {
-			return dedupe(monkeyAroundKey, old, function (property) {
-				// @ts-expect-error
-				const that: MetadataTypeManager = this;
-				return old.call(that, getTrueProperty(property));
-			});
-		},
-		setType(old) {
-			return dedupe(monkeyAroundKey, old, function (property, type) {
-				// @ts-expect-error
-				const that: MetadataTypeManager = this;
-				return old.call(that, getTrueProperty(property), type);
-			});
-		},
-	});
-
-	plugin.register(removePatch);
-};
+import { patchMetadataTypeManager } from "~/MetadataTypeManager/patchMetadataTypeManager";
 
 export class BetterProperties extends Plugin {
 	settings: BetterPropertiesSettings = getDefaultSettings();
