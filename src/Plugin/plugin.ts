@@ -1,4 +1,15 @@
-import { Modal, ButtonComponent, Plugin, MarkdownView } from "obsidian";
+import {
+	Modal,
+	ButtonComponent,
+	Plugin,
+	MarkdownView,
+	BasesView,
+	BasesViewRegistration,
+	QueryController,
+	Constructor,
+	FilterWidgetWrapper,
+	ToggleComponent,
+} from "obsidian";
 import {
 	BetterPropertiesSettings,
 	betterPropertiesSettingsSchema,
@@ -15,7 +26,12 @@ import {
 	customizePropertyEditorMenu,
 	patchMetadataEditor,
 } from "~/MetadataEditor";
-import { PropertyWidget } from "obsidian-typings";
+import {
+	BasesPluginInstance,
+	PropertyWidget,
+	TypedWorkspaceLeaf,
+	ViewType,
+} from "obsidian-typings";
 import { PropertySuggestModal } from "~/classes/InputSuggest/PropertySuggest";
 import { showPropertySettingsModal } from "~/CustomPropertyTypes/settings";
 import { patchMetadataCache } from "~/MetadataCache";
@@ -24,11 +40,144 @@ import { openRenameModal } from "~/MetadataEditor/propertyEditorMenu/rename";
 import { registerBpJsCodeProcessors } from "~/bpjs";
 import { BpJsApi, setupBpJsListeners } from "~/bpjs/api";
 import { patchMetadataTypeManager } from "~/MetadataTypeManager/patchMetadataTypeManager";
+import { around, dedupe } from "monkey-around";
+import { customPropertyTypePrefix, monkeyAroundKey } from "~/lib/constants";
+import { Icon } from "~/lib/types/icons";
+
+const BASES_VIEW_TYPE: string = "bases";
+
+const test = (plugin: BetterProperties) => {
+	const basesPlugin = plugin.app.internalPlugins.getEnabledPluginById("bases");
+	if (!basesPlugin) {
+		throw new Error("Bases plugin not enabled");
+	}
+	const removePatch = around(basesPlugin, {
+		getRegistration(old) {
+			return dedupe(monkeyAroundKey, old, function (name) {
+				// @ts-expect-error
+				const that = this as typeof basesPlugin;
+				console.log("getRegistration, this: ", that);
+
+				const registration = old.call(that, name);
+				const removeRegistrationPatch = around(registration, {
+					factory: (old) => {
+						return dedupe(monkeyAroundKey, old, (controller, containerEl) => {
+							console.log("controller: ", controller);
+
+							const removeControllerPatch = around(controller, {
+								getWidgetForIdent(old) {
+									return dedupe(monkeyAroundKey, old, function (identity) {
+										// @ts-expect-error
+										const that = this as typeof controller;
+										const widget = old.call(that, identity);
+										if (identity === "toggleTest") {
+											console.log("widget: ", widget);
+										}
+										if (widget !== "unknown") return widget;
+
+										const assignedWidget =
+											plugin.app.metadataTypeManager.getAssignedWidget(
+												identity
+											);
+										if (!assignedWidget?.startsWith(customPropertyTypePrefix))
+											return widget;
+										return assignedWidget;
+									});
+								},
+							});
+							plugin.register(removeControllerPatch);
+
+							const MockContext: typeof controller.mockContext =
+								Object.getPrototypeOf(controller.mockContext);
+
+							const removeMockContextPatch = around(MockContext, {
+								cacheProps(old) {
+									return dedupe(monkeyAroundKey, old, function () {
+										// @ts-expect-error
+										const that = this as typeof MockContext;
+										const toReturn = old.call(that);
+
+										try {
+											Object.entries(that.cachedProps).forEach(
+												([property, details]) => {
+													if (details.icon !== "lucide-file-question") return;
+													const widgetName =
+														plugin.app.metadataTypeManager.getAssignedWidget(
+															property
+														);
+													// console.log(property, widgetName);
+													if (!widgetName?.startsWith(customPropertyTypePrefix))
+														return;
+													const widget =
+														plugin.app.metadataTypeManager.getWidget(
+															widgetName
+														);
+													// details.icon = widget.icon;
+													const detailsConstructor = Object.getPrototypeOf(
+														Object.getPrototypeOf(details)
+													).constructor as Constructor<typeof details>;
+													class Details extends detailsConstructor {
+														// value = undefined;
+														type = "text";
+														constructor() {
+															super();
+															this.icon = widget.icon;
+														}
+													}
+
+													that.cachedProps[property] = new Details();
+													if (property === "toggleTest") {
+														console.log(that.cachedProps[property]);
+													}
+												}
+											);
+										} catch (e) {
+											console.error(e);
+										}
+
+										return toReturn;
+									});
+								},
+							});
+							plugin.register(removeMockContextPatch);
+
+							return old(controller, containerEl);
+						});
+					},
+				});
+				plugin.register(removeRegistrationPatch);
+
+				return registration;
+			});
+		},
+	});
+
+	plugin.register(removePatch);
+};
+
+class FilterPropertyTypeWidgetBase {
+	icon: string = "lucide-file-question";
+	type: string = "Any";
+
+	constructor() {}
+
+	toString(): string {
+		return this.type;
+	}
+
+	equals(
+		a?: FilterPropertyTypeWidgetBase,
+		b?: FilterPropertyTypeWidgetBase
+	): boolean {
+		return a === b || !!(a && b && a.equals(b));
+	}
+}
 
 export class BetterProperties extends Plugin {
 	settings: BetterPropertiesSettings = getDefaultSettings();
 	disabledTypeWidgets: Record<string, PropertyWidget> = {};
 	codePrefix = "bpjs:"; // TODO make configurable
+	isProxied: boolean = false;
 
 	bpjsInstances: Set<BpJsApi> = new Set();
 
@@ -48,6 +197,7 @@ export class BetterProperties extends Plugin {
 			registerBpJsCodeProcessors(this);
 
 			this.rebuildLeaves();
+			test(this);
 		});
 		this.handlePropertyLabelWidth();
 		this.registerEvent(

@@ -2,12 +2,14 @@ import {
 	Events,
 	Workspace as BaseWorkspace,
 	MetadataCache as BaseMetadataCache,
+	BasesViewRegistration,
 } from "obsidian";
 import {
 	MetadataTypeManager as BaseMetadataTypeManager,
 	MetadataEditor as BaseMetadataEditor,
 	PropertyEntryData,
 	PropertyWidget,
+	BasesView,
 } from "obsidian-typings";
 
 declare module "obsidian" {
@@ -72,5 +74,33 @@ declare module "obsidian" {
 
 	interface Menu {
 		scrollEl: HTMLDivElement;
+	}
+
+	interface FilterWidgetWrapper {
+		data: unknown;
+		icon: string;
+		type: string;
+		equals(data: unknown): boolean;
+		looseEquals(data: unknown): boolean;
+		renderTo(containerEl: HTMLElement, data: unknown): void;
+		keys(): string[];
+		objectAccess(): void;
+	}
+
+	interface QueryController {
+		mockContext: {
+			cachedProps: Record<string, FilterWidgetWrapper>;
+			cacheProps(): unknown;
+		};
+
+		getWidgetForIdent(identity: string): string;
+	}
+}
+
+declare module "obsidian-typings" {
+	interface BasesPluginInstance {
+		registrations: Record<string, BasesViewRegistration>;
+
+		getRegistration(name: string): BasesViewRegistration;
 	}
 }
