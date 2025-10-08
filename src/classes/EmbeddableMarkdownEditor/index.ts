@@ -200,33 +200,17 @@ export const createEmbeddableMarkdownEditor = ({
 
 			this.set(options.value || "", true);
 
-			/**
-			 * When the EMDE is the active editor, clicking into the note editor in the same leaf as the EMDE will not
-			 * set `Workspace.activeEditor` to the note editor's view; it will remain locked to the EMDE.
-			 *
-			 * That's why later we'll use this manually set the activeEditor back to the note view when the EMDE is blurred.
-			 */
-			let containgMarkdownView: MarkdownView | null = null;
-
-			window.setTimeout(() => {
-				app.workspace.iterateAllLeaves((leaf) => {
-					if (!(leaf.view instanceof MarkdownView)) return;
-					if (!leaf.containerEl.contains(this.containerEl)) return;
-					containgMarkdownView = leaf.view;
-				});
-			}, 0);
-
 			// Execute onBlur when the editor loses focus
 			this.editor!.cm.contentDOM.addEventListener("blur", async () => {
 				if (app.workspace.activeEditor === this.owner) {
-					if (containgMarkdownView === null) {
+					const view = this.getContainingView();
+					if (view === null) {
 						throw new Error(
 							"The MarkdownView containing this editor was not found"
 						);
 					}
-					// @ts-expect-error
-					app.workspace._activeEditor = containgMarkdownView;
-					app.workspace.activeEditor = containgMarkdownView;
+					app.workspace._activeEditor = view;
+					app.workspace.activeEditor = view;
 				}
 
 				this.app.keymap.popScope(this.scope);
@@ -237,7 +221,7 @@ export const createEmbeddableMarkdownEditor = ({
 			// This allows for the editorCommands to actually work
 			this.editor!.cm.contentDOM.addEventListener("focusin", async () => {
 				this.app.keymap.pushScope(this.scope);
-				// this.app.workspace.activeEditor = this.owner;
+				this.getContainingView();
 
 				if (this.options.onFocus === defaultProperties.onFocus) return;
 				this.options.onFocus(this);
@@ -254,8 +238,6 @@ export const createEmbeddableMarkdownEditor = ({
 					),
 				});
 			}
-
-			// test
 		}
 
 		get value() {
@@ -360,6 +342,23 @@ export const createEmbeddableMarkdownEditor = ({
 		onload() {
 			super.onload();
 			if (this.options.focus) this.editor!.focus();
+		}
+
+		/**
+		 * When the EMDE is the active editor, clicking into the note editor in the same leaf as the EMDE will not
+		 * set `Workspace.activeEditor` to the note editor's view; it will remain locked to the EMDE.
+		 *
+		 * That's why elsewhere we'll use this to manually set the activeEditor back to the note view when the EMDE is blurred.
+		 */
+		// let containgMarkdownView: MarkdownView | null = null;
+		getContainingView(): MarkdownView | null {
+			let containingView: MarkdownView | null = null;
+			app.workspace.iterateAllLeaves((leaf) => {
+				if (!(leaf.view instanceof MarkdownView)) return;
+				if (!leaf.containerEl.contains(this.containerEl)) return;
+				containingView = leaf.view;
+			});
+			return containingView;
 		}
 	}
 

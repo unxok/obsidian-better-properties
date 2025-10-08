@@ -23,10 +23,7 @@ declare module "obsidian" {
 			callback: (newWidth: number | undefined) => void
 		): EventRef;
 
-		// trigger(
-		// 	name: "better-properties:property-label-width-change",
-		// 	width: number | undefined
-		// ): void;
+		_activeEditor: BaseWorkspace["activeEditor"];
 	}
 
 	interface AbstractInputSuggest<T> extends PopoverSuggest<T> {
