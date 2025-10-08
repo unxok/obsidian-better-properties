@@ -468,6 +468,16 @@ div.setting-item.better-properties-list-setting {
 	color: var(--text-warning);
 }
 
+@keyframes delayed-accent-bg {
+	from {
+		background-color: transparent;
+	}
+
+	to {
+		background-color: hsl(var(--accent-h) var(--accent-s) var(--accent-l));
+	}
+}
+
 div.metadata-content {
 	&[data-better-properties-show-hidden="false"]
 		> div.metadata-properties
@@ -489,7 +499,10 @@ div.metadata-content {
 
 			&:hover::after,
 			&[data-is-dragging]::after {
-				background-color: hsl(var(--accent-h) var(--accent-s) var(--accent-l));
+				animation-name: delayed-accent-bg;
+				animation-duration: 500ms;
+				animation-iteration-count: 1;
+				animation-fill-mode: forwards;
 			}
 
 			&::after {
