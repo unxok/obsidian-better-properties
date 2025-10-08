@@ -8,6 +8,7 @@ import {
 	TFile,
 	Vault,
 } from "obsidian";
+import { triggerPropertyTypeChange } from "~/CustomPropertyTypes/utils";
 import BetterProperties from "~/main";
 import { BetterPropertiesSettings } from "~/Plugin/settings";
 
@@ -332,7 +333,7 @@ export const renameProperty = async ({
 		plugin.app.metadataTypeManager.getAssignedWidget(property) ?? "text";
 	plugin.app.metadataTypeManager.setType(newProperty, assignedType);
 	plugin.app.metadataTypeManager.unsetType(property);
-	iterativelyProcessFrontmatter({
+	await iterativelyProcessFrontmatter({
 		fileManager: plugin.app.fileManager,
 		vault: plugin.app.vault,
 		process: (fm) => {
@@ -340,16 +341,19 @@ export const renameProperty = async ({
 			const key = findKey(fm, property);
 			if (!key) return;
 			const value = fm[key];
+			delete fm[key];
 			if (Array.isArray(value)) {
 				fm[newProperty] = [...value];
+				return;
 			}
 			if (typeof value === "object") {
 				fm[newProperty] = { ...value };
+				return;
 			}
 			if (typeof value !== "object") {
 				fm[newProperty] = value;
+				return;
 			}
-			delete fm[key];
 		},
 		afterProcess: async ({ success, error }) => {
 			if (success) {
@@ -367,6 +371,7 @@ export const renameProperty = async ({
 			console.error(msg + "\n" + error);
 		},
 	});
+	triggerPropertyTypeChange(plugin.app.metadataTypeManager, newProperty);
 };
 
 /**
