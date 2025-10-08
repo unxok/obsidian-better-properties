@@ -133,6 +133,10 @@ export const wrapAllPropertyTypeWidgets = (plugin: BetterProperties) => {
 
 					if (settings.defaultValue && !value) {
 						const update = (value: unknown) => {
+							/**
+							 * The timeout is necessary because otherwise the entire file's contents will be emptied.
+							 * I don't exactly know why this happens.
+							 */
 							window.setTimeout(() => {
 								ctx.onChange(value);
 								triggerPropertyTypeChange(
