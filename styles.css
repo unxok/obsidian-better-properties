@@ -478,6 +478,16 @@ div.setting-item.better-properties-list-setting {
 	}
 }
 
+/* Same threshold as built-in style to make .metadata-properties flex-wrap   */
+@container (width < 250px) {
+	.metadata-container
+		> .metadata-content
+		> .metadata-properties
+		> .better-properties-label-width-resizer {
+		display: none;
+	}
+}
+
 div.metadata-content {
 	&[data-better-properties-show-hidden="false"]
 		> div.metadata-properties
