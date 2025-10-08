@@ -213,7 +213,7 @@ const createLabelWidthResizerEl = (that: PatchedMetadataEditor) => {
 
 	let initialX = 0;
 
-	labelWidthResizerEl.addEventListener("dragstart", (e) => {
+	labelWidthResizerEl.addEventListener("dragstart", async (e) => {
 		labelWidthResizerEl.setAttribute("data-is-dragging", "true");
 		initialX = e.pageX;
 		if (!e.dataTransfer) return;
@@ -230,6 +230,9 @@ const createLabelWidthResizerEl = (that: PatchedMetadataEditor) => {
 			// e.dataTransfer && (e.dataTransfer.dropEffect = "copy");
 		});
 
+		/**
+		 * The timeout is needed because otherwise the overlayEl seems to interupt the drag event and cancels it
+		 */
 		window.setTimeout(() => {
 			document.body.appendChild(overlayEl);
 		}, 0);
