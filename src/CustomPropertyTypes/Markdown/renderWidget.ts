@@ -2,7 +2,7 @@ import { obsidianText } from "~/i18next/obsidian";
 import { CustomPropertyType } from "../types";
 import { PropertyWidgetComponentNew } from "../utils";
 import {
-	TEmbeddableMarkdownEditor,
+	EmbeddableMarkdownEditor,
 	createEmbeddableMarkdownEditor,
 } from "~/classes/EmbeddableMarkdownEditor";
 import { PropertyRenderContext } from "obsidian-typings";
@@ -24,7 +24,7 @@ class MarkdownTypeComponent extends PropertyWidgetComponentNew<
 	type = "markdown" as const;
 	parseValue = (v: unknown) => v?.toString() ?? "";
 
-	embeddedMarkdownEditor: TEmbeddableMarkdownEditor;
+	embeddedMarkdownEditor: EmbeddableMarkdownEditor;
 
 	constructor(
 		plugin: BetterProperties,
