@@ -5,6 +5,7 @@ import {
 	ModifiedPropertyRenderContext,
 } from "../types";
 import {
+	findKeyValueByDotNotation,
 	flashElement,
 	PropertyWidgetComponentNew,
 	triggerPropertyTypeChange,
@@ -153,7 +154,14 @@ class SubPropertyComponent extends PropertyComponent {
 			return frontmatter?.[trueParentKey]?.[this.parentCtx.index] ?? {};
 		}
 
-		return frontmatter?.[this.parentCtx.key] ?? {};
+		const { value } = findKeyValueByDotNotation(
+			this.parentCtx.key,
+			frontmatter ?? {}
+		);
+		return typeof value === "object" && value !== null && value !== undefined
+			? value
+			: {};
+		// return frontmatter?.[this.parentCtx.key] ?? {};
 	}
 
 	onChangeCallback: (v: unknown) => void = (value) => {
