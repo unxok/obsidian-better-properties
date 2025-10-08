@@ -725,6 +725,7 @@ div.metadata-content {
 	justify-content: center;
 	align-items: center;
 	height: var(--input-height);
+	padding-inline-end: var(--size-2-2);
 
 	svg.svg-icon {
 		color: var(--nav-collapse-icon-color);
