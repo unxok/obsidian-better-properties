@@ -247,7 +247,6 @@ body {
 
 	&[data-property-type="better-properties:markdown"] {
 		padding: var(--input-padding);
-		font-size: var(--metadata-input-font-size);
 
 		&:has(.collapse-indicator.collapse-icon) {
 			padding: 0 16px; /* 10px is width of svg-icon and 5px is padding-inline-end of .collapse-indicator plus an extra 1px for space... unfortunately these are manually defined in default stylesheet */
@@ -258,6 +257,7 @@ body {
 
 		& > .cm-s-obsidian.mod-cm6.node-insert-event.is-live-preview {
 			width: 100%;
+			font-size: var(--metadata-input-font-size);
 		}
 
 		& div.cm-scroller {
@@ -277,6 +277,11 @@ body {
 			display: inline-block;
 			line-height: var(--line-height-normal);
 		}
+
+		/* & .cm-line {
+			font-size: var(--metadata-input-font-size);
+		} */
+
 		& div[role="textbox"] {
 			text-wrap: wrap;
 			white-space: pre-line;
@@ -780,43 +785,48 @@ div.better-properties-mod-hidden {
 	transform: var(--better-properties-transform);
 }
 
-@layer style-settings {
-	.better-properties-style-settings--filled-rating
-		.better-properties-rating-checkbox[aria-checked="true"]
-		> svg {
-		fill: var(--text-accent);
+.better-properties-select-close {
+	cursor: var(--cursor);
+	border-radius: var(--radius-s);
+	margin-top: 0.125rem;
+	align-items: center;
+	--icon-size: var(--icon-xs);
+	--icon-stroke: var(--icon-xs-stroke-width);
+	display: none; /* hidden by default */
+
+	&:hover {
+		color: var(--interactive-hover);
 	}
 
-	.better-properties-select-close {
-		cursor: var(--cursor);
-		border-radius: var(--radius-s);
-		margin-top: 0.125rem;
+	/* visible in Multi-Selects by default */
+	[data-property-type="better-properties:multiselect"] & {
 		display: flex;
-		align-items: center;
-		--icon-size: var(--icon-xs);
-		--icon-stroke: var(--icon-xs-stroke-width);
+	}
+}
 
-		&:hover {
-			color: var(--interactive-hover);
-		}
+.better-properties-style-settings--filled-rating
+	.better-properties-rating-checkbox[aria-checked="true"]
+	> svg {
+	fill: var(--text-accent);
+}
 
-		.better-properties-select-close-visibility-mod-multi-select-only & {
-			display: none;
-			[data-property-type="better-properties:multiselect"] & {
-				display: flex;
-			}
+.better-properties-select-close {
+	.better-properties-select-close-visibility-mod-multi-select-only & {
+		display: none;
+		[data-property-type="better-properties:multiselect"] & {
+			display: flex;
 		}
+	}
 
-		.better-properties-select-close-visibility-mod-select-only & {
-			display: none;
-			[data-property-type="better-properties:select"] & {
-				display: flex;
-			}
+	.better-properties-select-close-visibility-mod-select-only & {
+		display: none;
+		[data-property-type="better-properties:select"] & {
+			display: flex;
 		}
+	}
 
-		.better-properties-select-close-visibility-mod-never & {
-			display: none;
-		}
+	.better-properties-select-close-visibility-mod-never & {
+		display: none;
 	}
 }
 

@@ -227,9 +227,6 @@ export const createEmbeddableMarkdownEditor = ({
 				this.options.onFocus(this);
 			});
 
-			// this.editorEl.classList.remove("markdown-source-view");
-			this.editorEl.classList.add("mod-cm6");
-
 			if (options.cls) this.editorEl.classList.add(options.cls);
 			if (options.cursorLocation) {
 				this.editor!.cm.dispatch({
