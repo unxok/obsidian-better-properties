@@ -251,7 +251,6 @@ export class SelectComponent extends ComboboxComponent<Option> {
 	}
 
 	setValue(value: string): this {
-		super.setValue(value);
 		const option = this.options.find((opt) => {
 			return opt.value === value;
 		});
@@ -264,6 +263,7 @@ export class SelectComponent extends ComboboxComponent<Option> {
 		this.selectEl.setCssProps({
 			"--better-properties-select-bg": option?.bgColor ?? selectColors.gray,
 		});
+		super.setValue(value);
 
 		return this;
 	}

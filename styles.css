@@ -786,6 +786,38 @@ div.better-properties-mod-hidden {
 		> svg {
 		fill: var(--text-accent);
 	}
+
+	.better-properties-select-close {
+		cursor: var(--cursor);
+		border-radius: var(--radius-s);
+		margin-top: 0.125rem;
+		display: flex;
+		align-items: center;
+		--icon-size: var(--icon-xs);
+		--icon-stroke: var(--icon-xs-stroke-width);
+
+		&:hover {
+			color: var(--interactive-hover);
+		}
+
+		.better-properties-select-close-visibility-mod-multi-select-only & {
+			display: none;
+			[data-property-type="better-properties:multiselect"] & {
+				display: flex;
+			}
+		}
+
+		.better-properties-select-close-visibility-mod-select-only & {
+			display: none;
+			[data-property-type="better-properties:select"] & {
+				display: flex;
+			}
+		}
+
+		.better-properties-select-close-visibility-mod-never & {
+			display: none;
+		}
+	}
 }
 
 /******************** STYLE SETTINGS ********************/
@@ -800,5 +832,22 @@ settings:
 		title: Filled Rating icon
 		description: If enabled, the icon used in Rating properties will be filled with your vault's accent color
 		type: class-toggle
+	-
+		id: better-properties-style-settings--select-close-visibility
+		title: Select close button visibility
+		description: When to show the close button for Select properties
+		type: class-select
+		allowEmpty: false
+		default: better-properties-select-close-visibility-mod-multi-select-only
+		options:
+			-
+				label: Show in Multi-Selects only
+				value: better-properties-select-close-visibility-mod-multi-select-only
+			-
+				label: Show in Selects only
+				value: better-properties-select-close-visibility-mod-select-only
+			-
+				label: Never show
+				value: better-properties-select-close-visibility-mod-never
 
 */
