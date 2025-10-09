@@ -5,6 +5,7 @@ import {
 	MenuPositionDef,
 	MenuSeparator,
 	SearchComponent,
+	setIcon,
 	ValueComponent,
 } from "obsidian";
 import { Icon } from "~/lib/types/icons";
@@ -22,6 +23,7 @@ export abstract class ComboboxComponent<Option> extends ValueComponent<string> {
 	constructor(public containerEl: HTMLElement) {
 		super();
 		this.selectEl = this.createSelectEl(containerEl);
+		this.createCloseButton(this.selectEl);
 	}
 
 	setEmptyClass(isEmpty: boolean): void {
@@ -44,6 +46,7 @@ export abstract class ComboboxComponent<Option> extends ValueComponent<string> {
 	setValue(value: string): this {
 		this.value = value;
 		this.selectEl.textContent = value;
+		this.createCloseButton(this.selectEl);
 		this.setEmptyClass(value === "");
 		this?.auxEl?.remove();
 		this.auxEl = this.createAuxEl(this.containerEl);
@@ -92,6 +95,7 @@ export abstract class ComboboxComponent<Option> extends ValueComponent<string> {
 		};
 
 		selectEl.addEventListener("click", (e) => {
+			if (e.defaultPrevented) return;
 			e.preventDefault();
 			initMenu();
 		});
@@ -103,6 +107,17 @@ export abstract class ComboboxComponent<Option> extends ValueComponent<string> {
 		});
 
 		return selectEl;
+	}
+
+	createCloseButton(selectEl: HTMLDivElement): void {
+		selectEl.createDiv("better-properties-select-close", (el) => {
+			setIcon(el, "lucide-x" satisfies Icon);
+			el.addEventListener("click", (e) => {
+				e.preventDefault();
+				this.setValue("");
+				this.onChanged();
+			});
+		});
 	}
 
 	createAuxEl(containerEl: HTMLElement): HTMLElement {
