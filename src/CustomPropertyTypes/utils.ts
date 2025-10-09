@@ -18,7 +18,7 @@ export const getTrueProperty = (property: string) => {
 		.split(".")
 		.map((part) => {
 			const n = Number(part);
-			if (Number.isNaN(n)) return part;
+			if (part === "" || Number.isNaN(n)) return part;
 			return "#";
 		})
 		.join(".");
