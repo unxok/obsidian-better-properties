@@ -779,3 +779,26 @@ div.better-properties-mod-hidden {
 	top: var(--better-properties-top);
 	transform: var(--better-properties-transform);
 }
+
+@layer style-settings {
+	.better-properties-style-settings--filled-rating
+		.better-properties-rating-checkbox[aria-checked="true"]
+		> svg {
+		fill: var(--text-accent);
+	}
+}
+
+/******************** STYLE SETTINGS ********************/
+
+/* @settings
+
+name: Better Properties
+id: better-properties
+settings:
+	-
+		id: better-properties-style-settings--filled-rating
+		title: Filled Rating icon
+		description: If enabled, the icon used in Rating properties will be filled with your vault's accent color
+		type: class-toggle
+
+*/

@@ -41,6 +41,7 @@ export class BetterProperties extends Plugin {
 		sortAndFilterRegisteredTypeWidgets(this);
 		this.setupCommands();
 		this.app.workspace.onLayoutReady(async () => {
+			this.app.workspace.trigger("parse-style-settings");
 			customizePropertyEditorMenu(this);
 			patchMetadataEditor(this);
 			patchMetadataCache(this);
