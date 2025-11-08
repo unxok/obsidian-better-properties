@@ -14,7 +14,7 @@ declare module "obsidian" {
 	interface Workspace extends BaseWorkspace {
 		on(
 			name: "better-properties:file-property-menu",
-			callback: (menu: Menu, property: string) => void,
+			callback: (menu: Menu, property: string, show: () => void) => void,
 			ctx?: unknown
 		): EventRef;
 

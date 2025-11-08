@@ -36,6 +36,10 @@ export type NestedPaths<T, Prefix extends string = ""> = {
 		: `${Prefix}${K}`;
 }[keyof T & string];
 
+export type EventWithTarget<E extends Element> = Event & {
+	target: E | null;
+};
+
 export type TryCatchResult<T> =
 	| {
 			success: true;

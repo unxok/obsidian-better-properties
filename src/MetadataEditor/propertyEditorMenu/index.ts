@@ -12,10 +12,11 @@ import { customPropertyTypePrefix } from "~/lib/constants";
 import { MetadataTypeManager } from "obsidian-typings";
 import { getTrueProperty } from "~/CustomPropertyTypes/utils";
 
-export const onFilePropertyMenu = (
+export const onFilePropertyMenu = async (
 	plugin: BetterProperties,
 	menu: Menu,
-	property: string
+	property: string,
+	show: () => void
 ) => {
 	const { metadataTypeManager } = plugin.app;
 
@@ -26,27 +27,28 @@ export const onFilePropertyMenu = (
 		if (item instanceof MenuSeparator) return false;
 		return !!item.submenu;
 	}) as MenuItem | undefined;
-	found?.setSection("action");
 
-	if (found) {
-		recreateTypeOptionsSubmenu({
-			found,
-			metadataTypeManager,
-			property,
-		});
-	}
+	// for built-in property menus, the "Property Type" menu doens't have a submenu until being shown
+	// if (found) {
+	// 	recreateTypeOptionsSubmenu({
+	// 		found,
+	// 		metadataTypeManager,
+	// 		property,
+	// 	});
+	// }
 
-	const isReserved = Object.values(
-		metadataTypeManager.registeredTypeWidgets
-	).some(({ reservedKeys }) => {
-		return reservedKeys?.includes(property);
-	});
-	if (found && isReserved) {
-		found.submenu?.items?.forEach((item) => {
-			if (item instanceof MenuSeparator) return;
-			item.setDisabled(true);
-		});
-	}
+	// const isReserved = Object.values(
+	// 	metadataTypeManager.registeredTypeWidgets
+	// ).some(({ reservedKeys }) => {
+	// 	return reservedKeys?.includes(property);
+	// });
+
+	// if (found && isReserved) {
+	// 	found.submenu?.items?.forEach((item) => {
+	// 		if (item instanceof MenuSeparator) return;
+	// 		item.setDisabled(true);
+	// 	});
+	// }
 
 	menu.addItem((item) =>
 		item
@@ -100,7 +102,24 @@ export const onFilePropertyMenu = (
 		);
 	}
 
+	// sorts sections alphabetically
 	menu.sort();
+	// empty strings are sorted to beginning, so we manually move it back to the front so the Property Type item is back at the beginning
+	menu.sections = ["", ...menu.sections.filter((id) => id !== "")];
+	show();
+
+	console.log(menu);
+	const propertyTypeItem = menu.items.find(
+		(item) => item instanceof MenuItem && !item.section
+	);
+	console.log("found: ", propertyTypeItem);
+	if (!(propertyTypeItem instanceof MenuItem)) return;
+
+	recreateTypeOptionsSubmenu({
+		found: propertyTypeItem,
+		metadataTypeManager,
+		property,
+	});
 };
 
 const recreateTypeOptionsSubmenu = ({
@@ -112,7 +131,7 @@ const recreateTypeOptionsSubmenu = ({
 	metadataTypeManager: MetadataTypeManager;
 	property: string;
 }) => {
-	found.submenu!.items.forEach((item) => {
+	found.submenu?.items.forEach((item) => {
 		(item as MenuItem).dom.remove();
 	});
 
@@ -129,6 +148,7 @@ const recreateTypeOptionsSubmenu = ({
 	Object.values(metadataTypeManager.registeredTypeWidgets).forEach((widget) => {
 		if (widget.reservedKeys) return;
 		submenu.addItem((item) => {
+			console.log("adding item");
 			const isBuiltin = !widget.type.startsWith(customPropertyTypePrefix);
 			item.onClick(() => {
 				metadataTypeManager.setType(property, widget.type);

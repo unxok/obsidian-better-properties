@@ -11,8 +11,8 @@ export const customizePropertyEditorMenu = (plugin: BetterProperties) => {
 	plugin.registerEvent(
 		plugin.app.workspace.on(
 			"better-properties:file-property-menu",
-			(menu, property) => {
-				onFilePropertyMenu(plugin, menu, property);
+			(menu, property, show) => {
+				onFilePropertyMenu(plugin, menu, property, show);
 			}
 		)
 	);

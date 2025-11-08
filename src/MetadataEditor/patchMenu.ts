@@ -24,15 +24,18 @@ export const patchMenu = (plugin: BetterProperties) => {
 					"div.metadata-property[data-property-key]"
 				)!;
 				const property = container.getAttribute("data-property-key") ?? "";
-				const toReturn = exit();
-				// trigger after running old() because "Property type" item only exists once menu opens
+
 				plugin.app.workspace.trigger(
 					"better-properties:file-property-menu",
 					that,
-					property
+					property,
+					() => {
+						console.log("should show");
+						old.call(that, e);
+					}
 				);
 
-				return toReturn;
+				return that;
 			});
 		},
 	});
