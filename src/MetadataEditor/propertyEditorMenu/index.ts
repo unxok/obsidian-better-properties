@@ -4,7 +4,7 @@ import { Icon } from "~/lib/types/icons";
 import { deleteProperty } from "~/lib/utils";
 import { openDeleteModal } from "./delete";
 import { openRenameModal } from "./rename";
-import { Menu, MenuItem, MenuSeparator } from "obsidian";
+import { Menu, MenuItem } from "obsidian";
 import { openChangeIconModal } from "./icon";
 import { obsidianText } from "~/i18next/obsidian";
 import { text } from "~/i18next";
@@ -22,33 +22,6 @@ export const onFilePropertyMenu = async (
 
 	const trueProperty = getTrueProperty(property);
 	const isArraySubProperty = trueProperty !== property;
-
-	const found = menu.items.find((item) => {
-		if (item instanceof MenuSeparator) return false;
-		return !!item.submenu;
-	}) as MenuItem | undefined;
-
-	// for built-in property menus, the "Property Type" menu doens't have a submenu until being shown
-	// if (found) {
-	// 	recreateTypeOptionsSubmenu({
-	// 		found,
-	// 		metadataTypeManager,
-	// 		property,
-	// 	});
-	// }
-
-	// const isReserved = Object.values(
-	// 	metadataTypeManager.registeredTypeWidgets
-	// ).some(({ reservedKeys }) => {
-	// 	return reservedKeys?.includes(property);
-	// });
-
-	// if (found && isReserved) {
-	// 	found.submenu?.items?.forEach((item) => {
-	// 		if (item instanceof MenuSeparator) return;
-	// 		item.setDisabled(true);
-	// 	});
-	// }
 
 	menu.addItem((item) =>
 		item
