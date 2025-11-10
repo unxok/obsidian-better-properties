@@ -622,7 +622,8 @@ div.metadata-content {
 	}
 
 	&:focus-within,
-	&:active {
+	&:active,
+	&:hover {
 		outline: 3px solid var(--background-modifier-border-focus);
 	}
 
