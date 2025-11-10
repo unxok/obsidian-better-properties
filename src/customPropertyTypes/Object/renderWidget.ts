@@ -4,11 +4,7 @@ import {
 	CustomTypeKey,
 	ModifiedPropertyRenderContext,
 } from "../types";
-import {
-	findKeyValueByDotNotation,
-	flashElement,
-	PropertyWidgetComponent,
-} from "../utils";
+import { PropertyWidgetComponent } from "../utils";
 import { Icon } from "~/lib/types/icons";
 import BetterProperties from "~/main";
 import { obsidianText } from "~/i18next/obsidian";
@@ -16,6 +12,8 @@ import { PropertyRenderContext } from "obsidian-typings";
 import {
 	arrayMove,
 	EventWithTarget,
+	findKeyValueByDotNotation,
+	flashElement,
 	iterateFileMetadata,
 	makeDraggable,
 } from "~/lib/utils";

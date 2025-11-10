@@ -1,11 +1,12 @@
 import BetterProperties from "~/main";
 import { CustomPropertyType } from "../types";
+import { getPropertyTypeSettings } from "../utils";
 import {
 	findKeyValueByDotNotation,
-	getPropertyTypeSettings,
+	getFirstLinkPathDest,
+	iterateFileMetadata,
 	updateNestedObject,
-} from "../utils";
-import { getFirstLinkPathDest, iterateFileMetadata } from "~/lib/utils";
+} from "~/lib/utils";
 import { TFile } from "obsidian";
 import { typeKey } from ".";
 import { customPropertyTypePrefix } from "~/lib/constants";

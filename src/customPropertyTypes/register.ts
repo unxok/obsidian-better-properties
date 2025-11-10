@@ -18,11 +18,11 @@ import {
 } from "obsidian-typings";
 // import { createdPropertyType } from "./Created";
 import { objectPropertyType } from "./Object";
-import { setPropertyTypeSettings, triggerPropertyTypeChange } from "./utils";
+import { setPropertyTypeSettings } from "./utils";
 import { colorPropertyType } from "./Color";
 import { ratingPropertyType } from "./Rating";
 import { dateCustomPropertyType } from "./DateCustom";
-import { syncTryCatch } from "~/lib/utils";
+import { syncTryCatch, triggerPropertyTypeChange } from "~/lib/utils";
 import { sliderPropertyType } from "./Slider";
 import { timePropertyType } from "./Time";
 import { multiSelectPropertyType } from "./MultiSelect";

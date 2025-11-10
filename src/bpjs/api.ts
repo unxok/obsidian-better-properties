@@ -10,9 +10,10 @@ import {
 import { PropertyComponent } from "~/classes/PropertyComponent";
 import {
 	findKeyValueByDotNotation,
+	parseCsv,
+	tryCatch,
 	updateNestedObject,
-} from "~/customPropertyTypes/utils";
-import { parseCsv, tryCatch } from "~/lib/utils";
+} from "~/lib/utils";
 import BetterProperties from "~/main";
 
 export const setupBpJsListeners = (plugin: BetterProperties) => {
@@ -164,10 +165,10 @@ export class BpJsApi {
 			hideKey
 		);
 
-		cmp.onKeyChange(() => {
+		cmp.onKeyChange = async () => {
 			if (!cmp.keyInputEl) return;
 			cmp.keyInputEl.value = property;
-		});
+		};
 
 		cmp.render();
 	}

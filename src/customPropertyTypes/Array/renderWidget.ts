@@ -1,6 +1,6 @@
 import { Menu, setIcon } from "obsidian";
 import { CustomPropertyType, ModifiedPropertyRenderContext } from "../types";
-import { PropertyWidgetComponent, triggerPropertyTypeChange } from "../utils";
+import { PropertyWidgetComponent } from "../utils";
 import { Icon } from "~/lib/types/icons";
 import BetterProperties from "~/main";
 import { obsidianText } from "~/i18next/obsidian";
@@ -9,7 +9,11 @@ import {
 	PropertyWidget,
 	PropertyWidgetComponentBase,
 } from "obsidian-typings";
-import { arrayMove, makeDraggable } from "~/lib/utils";
+import {
+	arrayMove,
+	makeDraggable,
+	triggerPropertyTypeChange,
+} from "~/lib/utils";
 import { PropertyComponent } from "~/classes/PropertyComponent";
 import { customPropertyTypePrefix } from "~/lib/constants";
 

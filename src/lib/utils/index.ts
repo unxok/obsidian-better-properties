@@ -4,11 +4,11 @@ import {
 	FileManager,
 	getIconIds,
 	MetadataCache,
+	MetadataTypeManager,
 	Notice,
 	TFile,
 	Vault,
 } from "obsidian";
-import { triggerPropertyTypeChange } from "~/customPropertyTypes/utils";
 import BetterProperties from "~/main";
 import { BetterPropertiesSettings } from "~/Plugin/settings";
 
@@ -616,4 +616,123 @@ export const parseCsv = (csv: string, delimiter = ","): string[][] => {
 	}
 
 	return rows;
+};
+
+export const findKeyValueByDotNotation = (
+	key: string,
+	obj: Record<string, any>
+): {
+	key: string | undefined;
+	value: Record<string, unknown> | undefined;
+} => {
+	const keys = key.toLowerCase().split(".");
+
+	let currentValue = obj;
+	let currentKey: string | undefined = undefined;
+	for (const k of keys) {
+		if (typeof currentValue !== "object")
+			return {
+				key: undefined,
+				value: undefined,
+			};
+		const foundKey = Object.keys(currentValue ?? {}).find(
+			(objKey) => objKey.toLowerCase() === k
+		);
+
+		if (!foundKey)
+			return {
+				key: undefined,
+				value: undefined,
+			};
+		currentKey = foundKey;
+		currentValue = currentValue[foundKey];
+	}
+	return {
+		key: currentKey,
+		value: currentValue,
+	};
+};
+
+export const updateNestedObject = (
+	obj: Record<string, unknown>,
+	key: string,
+	value: unknown
+): Record<string, unknown> => {
+	const keys = key.split(".");
+	let current = obj;
+
+	for (let i = 0; i < keys.length - 1; i++) {
+		const k = keys[i];
+
+		if (k === "") {
+			return obj;
+		}
+
+		// ensure the current level exists and is an object
+		if (!current[k] || typeof current[k] !== "object") {
+			current[k] = {};
+		}
+
+		current = current[k] as Record<string, unknown>;
+	}
+
+	// update final key
+	current[keys[keys.length - 1]] = value;
+
+	return obj;
+};
+
+export const flashElement = (el: HTMLElement, timeout?: number) => {
+	const isFlashingClass = "is-flashing";
+	el.classList.add(isFlashingClass);
+	window.setTimeout(() => {
+		el.classList.remove(isFlashingClass);
+	}, timeout ?? 1000);
+};
+
+export const triggerPropertyTypeChange = (
+	metadataTypeManager: MetadataTypeManager,
+	property: string
+) => {
+	metadataTypeManager.trigger("changed", property.toLowerCase());
+	// TODO this function isn't really needed since I now handle nested keys (ex: parent.child) in Group/registerListeners.ts
+};
+
+export const parseWikilink = (
+	wikilink: string
+): {
+	path: string;
+	alias: string;
+} => {
+	let path = "";
+	let alias = "";
+
+	let isPastPipe = false;
+	const chars = wikilink.split("");
+	chars.forEach((char, index) => {
+		if (
+			index === 0 ||
+			index === 1 ||
+			index === chars.length - 1 ||
+			index === chars.length - 2
+		)
+			return;
+		if (char === "|") {
+			isPastPipe = true;
+			return;
+		}
+		if (isPastPipe) {
+			path += char;
+			return;
+		}
+		alias += char;
+	});
+
+	path = path.trim();
+	alias = alias.trim();
+
+	return {
+		path,
+		alias,
+	};
 };

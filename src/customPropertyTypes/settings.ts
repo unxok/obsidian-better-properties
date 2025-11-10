@@ -3,7 +3,6 @@ import { VerticalTabModal } from "~/classes/VerticalTabModal";
 import BetterProperties from "~/main";
 import {
 	deletePropertySettings,
-	findKeyValueByDotNotation,
 	getPropertySettings,
 	getPropertyTypeSettings,
 	setPropertySettings,
@@ -12,7 +11,11 @@ import {
 } from "./utils";
 import { CustomPropertyType, CustomTypeKey, PropertySettings } from "./types";
 import { getCustomPropertyTypesRecord } from "./register";
-import { iterateFileMetadata, tryCatch } from "~/lib/utils";
+import {
+	findKeyValueByDotNotation,
+	iterateFileMetadata,
+	tryCatch,
+} from "~/lib/utils";
 import { refreshPropertyEditor } from "~/MetadataEditor";
 import { Icon } from "~/lib/types/icons";
 import { propertySettingsSchema } from "./schema";

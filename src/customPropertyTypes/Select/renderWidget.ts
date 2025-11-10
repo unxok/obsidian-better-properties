@@ -1,7 +1,7 @@
 import { DropdownComponent, Keymap, Menu, MenuItem, setIcon } from "obsidian";
 import { CustomPropertyType, PropertySettings } from "../types";
-import { parseWikilink, PropertyWidgetComponent } from "../utils";
-import { getFirstLinkPathDest } from "~/lib/utils";
+import { PropertyWidgetComponent } from "../utils";
+import { getFirstLinkPathDest, parseWikilink } from "~/lib/utils";
 import BetterProperties from "~/main";
 import { PropertyRenderContext } from "obsidian-typings";
 import { obsidianText } from "~/i18next/obsidian";
