@@ -100,6 +100,12 @@ export abstract class ComboboxComponent<Option> extends ValueComponent<string> {
 			initMenu();
 		});
 
+		selectEl.addEventListener("contextmenu", (e) => {
+			if (e.defaultPrevented) return;
+			e.preventDefault();
+			initMenu();
+		});
+
 		selectEl.addEventListener("keydown", (e) => {
 			if (e.key !== " ") return;
 			e.preventDefault();

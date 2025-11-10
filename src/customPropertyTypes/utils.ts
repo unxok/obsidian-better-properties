@@ -278,3 +278,42 @@ export const triggerPropertyTypeChange = (
 	metadataTypeManager.trigger("changed", property.toLowerCase());
 	// TODO this function isn't really needed since I now handle nested keys (ex: parent.child) in Group/registerListeners.ts
 };
+
+export const parseWikilink = (
+	wikilink: string
+): {
+	path: string;
+	alias: string;
+} => {
+	let path = "";
+	let alias = "";
+
+	let isPastPipe = false;
+	const chars = wikilink.split("");
+	chars.forEach((char, index) => {
+		if (
+			index === 0 ||
+			index === 1 ||
+			index === chars.length - 1 ||
+			index === chars.length - 2
+		)
+			return;
+		if (char === "|") {
+			isPastPipe = true;
+			return;
+		}
+		if (isPastPipe) {
+			path += char;
+			return;
+		}
+		alias += char;
+	});
+
+	path = path.trim();
+	alias = alias.trim();
+
+	return {
+		path,
+		alias,
+	};
+};

@@ -1,17 +1,10 @@
-import {
-	DropdownComponent,
-	ExtraButtonComponent,
-	Keymap,
-	MenuItem,
-	setIcon,
-} from "obsidian";
+import { DropdownComponent, Keymap, Menu, MenuItem, setIcon } from "obsidian";
 import { CustomPropertyType, PropertySettings } from "../types";
-import { PropertyWidgetComponent } from "../utils";
+import { parseWikilink, PropertyWidgetComponent } from "../utils";
 import { getFirstLinkPathDest } from "~/lib/utils";
 import BetterProperties from "~/main";
 import { PropertyRenderContext } from "obsidian-typings";
 import { obsidianText } from "~/i18next/obsidian";
-import { text } from "~/i18next";
 import { selectColors } from "~/lib/constants";
 import { ComboboxComponent, SearchableMenu } from "~/classes/ComboboxComponent";
 import { Icon } from "~/lib/types/icons";
@@ -180,24 +173,13 @@ export class SelectComponent extends ComboboxComponent<Option> {
 			text: label || value,
 		});
 		innerEl.setCssProps({
-			"--better-properties-select-bg": bgColor ?? selectColors.gray,
+			"--better-properties-select-bg": bgColor ?? selectColors.transparent,
 		});
 	}
 
 	createSelectEl(containerEl: HTMLElement): HTMLDivElement {
 		const el = super.createSelectEl(containerEl);
 		el.classList.add("better-properties-select");
-
-		el.addEventListener(
-			"click",
-			(e) => {
-				if (!this.openLinkedFile) return;
-				if (!Keymap.isModEvent(e)) return;
-				e.stopImmediatePropagation();
-				this.openLinkedFile(e);
-			},
-			{ capture: true }
-		);
 
 		return el;
 	}
@@ -208,44 +190,6 @@ export class SelectComponent extends ComboboxComponent<Option> {
 	}
 
 	openLinkedFile: undefined | ((e: PointerEvent | MouseEvent) => void);
-
-	createAuxEl(containerEl: HTMLElement): HTMLElement {
-		const el = super.createAuxEl(containerEl);
-		this.selectContainerEl.insertAdjacentElement("beforeend", el);
-
-		const value = this.getValue();
-		if (
-			!this.validateOption(value) ||
-			!(value.startsWith("[[") && value.endsWith("]]"))
-		) {
-			this.openLinkedFile = undefined;
-			return el;
-		}
-		const file = getFirstLinkPathDest(
-			this.plugin.app.metadataCache,
-			this.sourcePath,
-			value
-		);
-
-		const tooltip = file
-			? text("common.openFile", { fileName: file.name })
-			: obsidianText("interface.empty-state.create-new-file");
-
-		const cmp = new ExtraButtonComponent(containerEl)
-			.setTooltip(tooltip)
-			.setIcon("link" satisfies Icon);
-		this.openLinkedFile = (e) => {
-			this.plugin.app.workspace.openLinkText(
-				value.slice(2, -2),
-				this.sourcePath,
-				Keymap.isModEvent(e)
-			);
-		};
-		cmp.extraSettingsEl.addEventListener("click", (e) => {
-			this.openLinkedFile?.(e);
-		});
-		return cmp.extraSettingsEl;
-	}
 
 	setValue(value: string): this {
 		const option = this.options.find((opt) => {
@@ -258,9 +202,92 @@ export class SelectComponent extends ComboboxComponent<Option> {
 			this.setEmptyClass(false);
 		}
 		this.selectEl.setCssProps({
-			"--better-properties-select-bg": option?.bgColor ?? selectColors.gray,
+			"--better-properties-select-bg":
+				option?.bgColor ?? selectColors.transparent,
 		});
 		super.setValue(value);
+
+		if (value.startsWith("[[") && value.endsWith("]]")) {
+			const dest = getFirstLinkPathDest(
+				this.plugin.app.metadataCache,
+				this.sourcePath,
+				value
+			);
+			if (dest) {
+				this.selectEl.textContent = "";
+				const parsed = parseWikilink(value);
+				const linktext = parsed.alias || parsed.path;
+				const linkEl = this.selectEl.createDiv({
+					cls: "metadata-link-inner internal-link",
+					text: linktext,
+					attr: {
+						"data-href": dest.path,
+					},
+				});
+
+				linkEl.addEventListener("click", async (e) => {
+					if (e.shiftKey) {
+						return;
+					}
+					e.preventDefault();
+					const isModEvent = Keymap.isModEvent(e);
+					if (isModEvent) {
+						await this.plugin.app.workspace.openLinkText(
+							dest.path,
+							this.sourcePath,
+							isModEvent
+						);
+						return;
+					}
+
+					new Menu()
+						.addItem((item) =>
+							item
+								.setIcon("lucide-file" satisfies Icon)
+								.setTitle("Follow link")
+								.onClick(async (e) => {
+									await this.plugin.app.workspace.openLinkText(
+										dest.path,
+										this.sourcePath,
+										Keymap.isModEvent(e)
+									);
+								})
+						)
+						.addItem((item) =>
+							item
+								.setIcon("lucide-chevron-down-circle" satisfies Icon)
+								.setTitle("Change value")
+								.onClick(() => {
+									this.selectContainerEl.click();
+								})
+						)
+						.showAtMouseEvent(e);
+				});
+
+				linkEl.addEventListener("contextmenu", (e) => {
+					e.preventDefault();
+					const linkMenu = new Menu().addSections([
+						"title",
+						"correction",
+						"spellcheck",
+						"open",
+						"selection",
+						"clipboard",
+						"action",
+						"view",
+						"info",
+						"",
+						"danger",
+					]);
+					this.plugin.app.workspace.handleLinkContextMenu(
+						linkMenu,
+						linktext,
+						dest.path
+					);
+					linkMenu.showAtMouseEvent(e);
+				});
+			}
+		}
 
 		return this;
 	}
