@@ -8,7 +8,7 @@ import {
 	TFile,
 	Vault,
 } from "obsidian";
-import { triggerPropertyTypeChange } from "~/CustomPropertyTypes/utils";
+import { triggerPropertyTypeChange } from "~/customPropertyTypes/utils";
 import BetterProperties from "~/main";
 import { BetterPropertiesSettings } from "~/Plugin/settings";
 

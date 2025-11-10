@@ -1,5 +1,5 @@
 import BetterProperties from "~/main";
-import { showPropertySettingsModal } from "~/CustomPropertyTypes/settings";
+import { showPropertySettingsModal } from "~/customPropertyTypes/settings";
 import { Icon } from "~/lib/types/icons";
 import { deleteProperty } from "~/lib/utils";
 import { openDeleteModal } from "./delete";
@@ -10,7 +10,7 @@ import { obsidianText } from "~/i18next/obsidian";
 import { text } from "~/i18next";
 import { customPropertyTypePrefix } from "~/lib/constants";
 import { MetadataTypeManager } from "obsidian-typings";
-import { getTrueProperty } from "~/CustomPropertyTypes/utils";
+import { getTrueProperty } from "~/customPropertyTypes/utils";
 
 export const onFilePropertyMenu = async (
 	plugin: BetterProperties,

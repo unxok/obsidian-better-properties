@@ -1,6 +1,6 @@
 import { FuzzyMatch, FuzzySuggestModal, setIcon } from "obsidian";
 import { InputSuggest, Suggestion } from "..";
-import { getPropertyTypeSettings } from "~/CustomPropertyTypes";
+import { getPropertyTypeSettings } from "~/customPropertyTypes";
 import BetterProperties from "~/main";
 import { Icon } from "~/lib/types/icons";
 

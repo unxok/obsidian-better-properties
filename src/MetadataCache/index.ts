@@ -1,6 +1,6 @@
 import { around, dedupe } from "monkey-around";
 import { MetadataCache } from "obsidian";
-import { getPropertyTypeSettings } from "~/CustomPropertyTypes";
+import { getPropertyTypeSettings } from "~/customPropertyTypes";
 import { monkeyAroundKey } from "~/lib/constants";
 import BetterProperties from "~/main";
 

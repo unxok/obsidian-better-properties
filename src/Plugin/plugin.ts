@@ -10,14 +10,14 @@ import {
 	sortAndFilterRegisteredTypeWidgets,
 	unregisterCustomPropertyTypeWidgets,
 	wrapAllPropertyTypeWidgets,
-} from "~/CustomPropertyTypes/register";
+} from "~/customPropertyTypes/register";
 import {
 	customizePropertyEditorMenu,
 	patchMetadataEditor,
 } from "~/MetadataEditor";
 import { PropertyWidget } from "obsidian-typings";
 import { PropertySuggestModal } from "~/classes/InputSuggest/PropertySuggest";
-import { showPropertySettingsModal } from "~/CustomPropertyTypes/settings";
+import { showPropertySettingsModal } from "~/customPropertyTypes/settings";
 import { patchMetadataCache } from "~/MetadataCache";
 import * as v from "valibot";
 import { openRenameModal } from "~/MetadataEditor/propertyEditorMenu/rename";

@@ -1,13 +1,13 @@
 import { Prettify } from "~/lib/utils";
 import * as v from "valibot";
-import { propertySettingsSchema } from "~/CustomPropertyTypes";
+import { propertySettingsSchema } from "~/customPropertyTypes";
 import { PluginSettingTab, Setting } from "obsidian";
 import { BetterProperties } from "./plugin";
 import { Icon } from "~/lib/types/icons";
 import { obsidianText } from "~/i18next/obsidian";
 import { MultiselectComponent } from "~/classes/MultiSelect";
 import { PropertyTypeSuggest } from "~/classes/InputSuggest/PropertyTypeSuggest";
-import { sortAndFilterRegisteredTypeWidgets } from "~/CustomPropertyTypes/register";
+import { sortAndFilterRegisteredTypeWidgets } from "~/customPropertyTypes/register";
 
 export const betterPropertiesSettingsSchema = v.object({
 	propertySettings: v.optional(

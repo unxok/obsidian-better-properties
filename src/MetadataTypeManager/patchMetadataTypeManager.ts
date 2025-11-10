@@ -1,5 +1,5 @@
 import { around, dedupe } from "monkey-around";
-import { getTrueProperty } from "~/CustomPropertyTypes/utils";
+import { getTrueProperty } from "~/customPropertyTypes/utils";
 import { monkeyAroundKey } from "~/lib/constants";
 import BetterProperties from "~/main";
 

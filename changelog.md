@@ -3,6 +3,24 @@
 Each release should include an entry detailing the changes made since the last
 release. Some specific details may be omitted for brevity.
 
+## 1.0.1
+
+### New
+
+- Object type sub-properties now show suggestions for the property name. [#42](https://github.com/unxok/obsidian-better-properties/issues/42)
+- Added slight delay before showing the property key resizer handle. [#52](https://github.com/unxok/obsidian-better-properties/issues/52) [#35](https://github.com/unxok/obsidian-better-properties/issues/35)
+- Added slight amount of padding at the end of the property collapse indicator. [#52](https://github.com/unxok/obsidian-better-properties/issues/52)
+- Added integration with the [Style Settings](https://github.com/mgmeyers/obsidian-style-settings) plugin.
+- Array type properties now show a button to set its sub-properties' type if it hasn't been set yet.
+
+### Fixed
+
+- The property menu now behaves as expected when using the "Use native menus" Obsidian setting. [#65](https://github.com/unxok/obsidian-better-properties/issues/65)
+- The property key resizer will now not show up when the view is too thin and the properties are organized into a fully vertical orientation. [#52](https://github.com/unxok/obsidian-better-properties/issues/52)
+- Renaming array-like properties (List, Array, Multi-Select) now correctly retains the value of the property. [#51](https://github.com/unxok/obsidian-better-properties/issues/51)
+- Renaming a sub-property which is an Object where its parent is also an Object now behaves correctly. [#46](https://github.com/unxok/obsidian-better-properties/issues/46)
+- Property key resizer handle can longer be dragged past the edges of the Metadata Editor. [#52](https://github.com/unxok/obsidian-better-properties/issues/52)
+
 ## 1.0.0
 
 Not many user-facing changes this time, but I wanted to submit BP to the community plugins directory to hopefully get it approved before the end of the year. Fingers crossed🤞

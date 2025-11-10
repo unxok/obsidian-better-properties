@@ -11,7 +11,7 @@ import { PropertyComponent } from "~/classes/PropertyComponent";
 import {
 	findKeyValueByDotNotation,
 	updateNestedObject,
-} from "~/CustomPropertyTypes/utils";
+} from "~/customPropertyTypes/utils";
 import { parseCsv, tryCatch } from "~/lib/utils";
 import BetterProperties from "~/main";
 
