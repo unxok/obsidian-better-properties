@@ -146,7 +146,7 @@ export class SelectComponent extends ComboboxComponent<Option> {
 		public sourcePath: string
 	) {
 		super(containerEl);
-		this.selectContainerEl = containerEl;
+		this.selectContainerEl = containerEl.createDiv();
 		this.selectContainerEl.insertAdjacentElement("afterbegin", this.selectEl);
 	}
 
