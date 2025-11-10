@@ -214,16 +214,19 @@ export class SelectComponent extends ComboboxComponent<Option> {
 				value
 			);
 			if (dest) {
-				this.selectEl.textContent = "";
+				if (this.selectEl.firstChild?.nodeType === Node.TEXT_NODE) {
+					this.selectEl.firstChild.remove();
+				}
 				const parsed = parseWikilink(value);
 				const linktext = parsed.alias || parsed.path;
-				const linkEl = this.selectEl.createDiv({
+				const linkEl = createDiv({
 					cls: "metadata-link-inner internal-link",
 					text: linktext,
 					attr: {
 						"data-href": dest.path,
 					},
 				});
+				this.selectEl.insertAdjacentElement("afterbegin", linkEl);
 
 				linkEl.addEventListener("click", async (e) => {
 					if (e.shiftKey) {

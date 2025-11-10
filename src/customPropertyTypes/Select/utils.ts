@@ -282,7 +282,7 @@ export const renderManualOptionsSetting = ({
 						return acc;
 					}, [] as typeof options);
 					combobox.addOptions(options);
-					combobox.setValue(opt.bgColor ?? selectColors.gray);
+					combobox.setValue(opt.bgColor ?? selectColors.transparent);
 					combobox.onChange((v) => {
 						opt.bgColor = v;
 					});
@@ -851,7 +851,7 @@ class SelectColorCombobox extends ComboboxComponent<{
 			text: label,
 		});
 		innerEl.setCssProps({
-			"--better-properties-select-bg": value ?? selectColors.gray,
+			"--better-properties-select-bg": value ?? selectColors.transparent,
 		});
 	}
 
