@@ -1,6 +1,6 @@
 import { TextComponent, ValueComponent } from "obsidian";
 import { CustomPropertyType } from "../types";
-import { PropertyWidgetComponentNew } from "../utils";
+import { PropertyWidgetComponent } from "../utils";
 import { PropertyRenderContext } from "obsidian-typings";
 import BetterProperties from "~/main";
 import Mexp from "math-expression-evaluator";
@@ -15,10 +15,7 @@ export const renderWidget: CustomPropertyType["renderWidget"] = ({
 	return new NumericTypeComponent(plugin, el, value, ctx);
 };
 
-class NumericTypeComponent extends PropertyWidgetComponentNew<
-	"numeric",
-	number
-> {
+class NumericTypeComponent extends PropertyWidgetComponent<"numeric", number> {
 	type = "numeric" as const;
 	parseValue = (v: unknown) => {
 		return Number(v);

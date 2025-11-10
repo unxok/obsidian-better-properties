@@ -1,6 +1,6 @@
 import { obsidianText } from "~/i18next/obsidian";
 import { CustomPropertyType } from "../types";
-import { PropertyWidgetComponentNew } from "../utils";
+import { PropertyWidgetComponent } from "../utils";
 import { PropertyRenderContext } from "obsidian-typings";
 import BetterProperties from "~/main";
 
@@ -15,7 +15,7 @@ export const renderWidget: CustomPropertyType["renderWidget"] = ({
 	return new TimeTypeComponent(plugin, el, value, ctx);
 };
 
-class TimeTypeComponent extends PropertyWidgetComponentNew<"time", string> {
+class TimeTypeComponent extends PropertyWidgetComponent<"time", string> {
 	type = "time" as const;
 	parseValue = (v: unknown) => v?.toString() ?? "";
 

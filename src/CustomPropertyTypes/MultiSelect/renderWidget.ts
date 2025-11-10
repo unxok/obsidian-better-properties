@@ -1,6 +1,6 @@
 import { ValueComponent } from "obsidian";
 import { CustomPropertyType } from "../types";
-import { PropertyWidgetComponentNew } from "../utils";
+import { PropertyWidgetComponent } from "../utils";
 import { PropertyRenderContext } from "obsidian-typings";
 import BetterProperties from "~/main";
 import { SelectComponent } from "../Select/renderWidget";
@@ -17,7 +17,7 @@ export const renderWidget: CustomPropertyType["renderWidget"] = ({
 	return new MultiSelectTypeComponent(plugin, el, value, ctx);
 };
 
-class MultiSelectTypeComponent extends PropertyWidgetComponentNew<
+class MultiSelectTypeComponent extends PropertyWidgetComponent<
 	"multiselect",
 	string[]
 > {

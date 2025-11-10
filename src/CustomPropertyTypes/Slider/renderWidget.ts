@@ -1,6 +1,6 @@
 import { SliderComponent } from "obsidian";
 import { CustomPropertyType } from "../types";
-import { PropertyWidgetComponentNew } from "../utils";
+import { PropertyWidgetComponent } from "../utils";
 import { clampNumber } from "~/lib/utils";
 import { PropertyRenderContext } from "obsidian-typings";
 import BetterProperties from "~/main";
@@ -14,7 +14,7 @@ export const renderWidget: CustomPropertyType["renderWidget"] = ({
 	return new SliderTypeComponent(plugin, el, value, ctx);
 };
 
-class SliderTypeComponent extends PropertyWidgetComponentNew<"slider", number> {
+class SliderTypeComponent extends PropertyWidgetComponent<"slider", number> {
 	type = "slider" as const;
 	parseValue = (v: unknown) => {
 		const n = Number(v);

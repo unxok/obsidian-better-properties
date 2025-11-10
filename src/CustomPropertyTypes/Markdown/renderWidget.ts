@@ -1,6 +1,6 @@
 import { obsidianText } from "~/i18next/obsidian";
 import { CustomPropertyType } from "../types";
-import { PropertyWidgetComponentNew } from "../utils";
+import { PropertyWidgetComponent } from "../utils";
 import {
 	EmbeddableMarkdownEditor,
 	createEmbeddableMarkdownEditor,
@@ -17,7 +17,7 @@ export const renderWidget: CustomPropertyType["renderWidget"] = ({
 	return new MarkdownTypeComponent(plugin, el, value, ctx);
 };
 
-class MarkdownTypeComponent extends PropertyWidgetComponentNew<
+class MarkdownTypeComponent extends PropertyWidgetComponent<
 	"markdown",
 	string
 > {

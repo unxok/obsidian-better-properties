@@ -1,5 +1,5 @@
 import { CustomPropertyType } from "../types";
-import { PropertyWidgetComponentNew } from "../utils";
+import { PropertyWidgetComponent } from "../utils";
 import { ColorTextComponent } from "~/classes/ColorTextComponent";
 import BetterProperties from "~/main";
 import { PropertyRenderContext } from "obsidian-typings";
@@ -13,7 +13,7 @@ export const renderWidget: CustomPropertyType["renderWidget"] = ({
 	return new ColorTypeComponent(plugin, el, value, ctx);
 };
 
-class ColorTypeComponent extends PropertyWidgetComponentNew<"color", string> {
+class ColorTypeComponent extends PropertyWidgetComponent<"color", string> {
 	type = "color" as const;
 	parseValue = (v: unknown) => v?.toString() ?? "";
 

@@ -1,6 +1,6 @@
 import { setIcon, ValueComponent } from "obsidian";
 import { CustomPropertyType } from "../types";
-import { PropertyWidgetComponentNew } from "../utils";
+import { PropertyWidgetComponent } from "../utils";
 import { Icon } from "~/lib/types/icons";
 import { clampNumber } from "~/lib/utils";
 import { PropertyRenderContext } from "obsidian-typings";
@@ -15,7 +15,7 @@ export const renderWidget: CustomPropertyType["renderWidget"] = ({
 	return new RatingTypeComponent(plugin, el, value, ctx);
 };
 
-class RatingTypeComponent extends PropertyWidgetComponentNew<"rating", number> {
+class RatingTypeComponent extends PropertyWidgetComponent<"rating", number> {
 	type = "rating" as const;
 	parseValue = (v: unknown) => {
 		const n = Number(v);

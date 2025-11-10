@@ -1,6 +1,6 @@
 import { ToggleComponent } from "obsidian";
 import { CustomPropertyType } from "../types";
-import { PropertyWidgetComponentNew } from "../utils";
+import { PropertyWidgetComponent } from "../utils";
 import { PropertyRenderContext } from "obsidian-typings";
 import BetterProperties from "~/main";
 
@@ -13,10 +13,7 @@ export const renderWidget: CustomPropertyType["renderWidget"] = ({
 	return new ToggleTypeComponent(plugin, el, value, ctx);
 };
 
-class ToggleTypeComponent extends PropertyWidgetComponentNew<
-	"toggle",
-	boolean
-> {
+class ToggleTypeComponent extends PropertyWidgetComponent<"toggle", boolean> {
 	type = "toggle" as const;
 	parseValue = (v: unknown) => !!v;
 

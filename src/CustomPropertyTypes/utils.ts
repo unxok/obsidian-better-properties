@@ -147,23 +147,8 @@ export const updatePropertyTypeSettings = <T extends CustomTypeKey>({
 	setPropertySettings({ plugin, property, settings });
 };
 
-export class PropertyWidgetComponent implements PropertyWidgetComponentBase {
-	constructor(
-		public type: CustomTypeKey | (string & {}),
-		public containerEl: HTMLElement,
-		public setValue: (value: unknown) => void,
-		public onFocus: () => void
-	) {}
-
-	focus(): void {
-		this.onFocus();
-	}
-}
-
-export abstract class PropertyWidgetComponentNew<
-	Type extends CustomTypeKey,
-	Value
-> implements PropertyWidgetComponent
+export abstract class PropertyWidgetComponent<Type extends CustomTypeKey, Value>
+	implements PropertyWidgetComponentBase
 {
 	containerEl: HTMLElement;
 	onFocus: () => void = () => {

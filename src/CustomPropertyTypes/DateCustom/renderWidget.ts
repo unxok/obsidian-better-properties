@@ -1,6 +1,6 @@
 import { moment, setIcon } from "obsidian";
 import { CustomPropertyType } from "../types";
-import { PropertyWidgetComponentNew } from "../utils";
+import { PropertyWidgetComponent } from "../utils";
 import { obsidianText } from "~/i18next/obsidian";
 import { PropertyRenderContext } from "obsidian-typings";
 import BetterProperties from "~/main";
@@ -14,10 +14,7 @@ export const renderWidget: CustomPropertyType["renderWidget"] = ({
 	return new DateTypeComponent(plugin, el, value, ctx);
 };
 
-class DateTypeComponent extends PropertyWidgetComponentNew<
-	"datecustom",
-	string
-> {
+class DateTypeComponent extends PropertyWidgetComponent<"datecustom", string> {
 	type = "datecustom" as const;
 	parseValue = (v: unknown) => v?.toString() ?? "";
 

@@ -1,5 +1,5 @@
 import { CustomPropertyType } from "../types";
-import { PropertyWidgetComponentNew } from "../utils";
+import { PropertyWidgetComponent } from "../utils";
 import { PropertyRenderContext } from "obsidian-typings";
 import BetterProperties from "~/main";
 import { MultiselectComponent } from "~/classes/MultiSelect";
@@ -16,7 +16,7 @@ export const renderWidget: CustomPropertyType["renderWidget"] = ({
 	return new RelationTypeComponent(plugin, el, value, ctx);
 };
 
-class RelationTypeComponent extends PropertyWidgetComponentNew<
+class RelationTypeComponent extends PropertyWidgetComponent<
 	"relation",
 	string[]
 > {

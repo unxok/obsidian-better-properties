@@ -6,7 +6,7 @@ import {
 	setIcon,
 } from "obsidian";
 import { CustomPropertyType, PropertySettings } from "../types";
-import { PropertyWidgetComponentNew } from "../utils";
+import { PropertyWidgetComponent } from "../utils";
 import { getFirstLinkPathDest } from "~/lib/utils";
 import BetterProperties from "~/main";
 import { PropertyRenderContext } from "obsidian-typings";
@@ -29,7 +29,7 @@ export const renderWidget: CustomPropertyType["renderWidget"] = ({
 	return new SelectTypeComponent(plugin, el, value, ctx);
 };
 
-class SelectTypeComponent extends PropertyWidgetComponentNew<"select", string> {
+class SelectTypeComponent extends PropertyWidgetComponent<"select", string> {
 	type = "select" as const;
 	parseValue = (v: unknown) => v?.toString() ?? "";
 
