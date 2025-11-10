@@ -147,16 +147,13 @@ export class SelectComponent extends ComboboxComponent<Option> {
 	selectContainerEl: HTMLDivElement;
 	constructor(
 		public plugin: BetterProperties,
-		public containerEl: HTMLElement,
+		public containerEl: HTMLDivElement,
 		public property: string,
 		public isCreateAllowed: boolean,
 		public sourcePath: string
 	) {
 		super(containerEl);
-
-		this.selectContainerEl = containerEl.createDiv({
-			cls: "better-properties-select-container",
-		});
+		this.selectContainerEl = containerEl;
 		this.selectContainerEl.insertAdjacentElement("afterbegin", this.selectEl);
 	}
 
