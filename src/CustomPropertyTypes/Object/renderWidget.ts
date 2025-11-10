@@ -1,4 +1,4 @@
-import { displayTooltip, setIcon } from "obsidian";
+import { App, displayTooltip, setIcon } from "obsidian";
 import {
 	CustomPropertyType,
 	CustomTypeKey,
@@ -7,15 +7,20 @@ import {
 import {
 	findKeyValueByDotNotation,
 	flashElement,
-	PropertyWidgetComponentNew,
-	triggerPropertyTypeChange,
+	PropertyWidgetComponent,
 } from "../utils";
 import { Icon } from "~/lib/types/icons";
 import BetterProperties from "~/main";
 import { obsidianText } from "~/i18next/obsidian";
 import { PropertyRenderContext } from "obsidian-typings";
-import { arrayMove, makeDraggable } from "~/lib/utils";
+import {
+	arrayMove,
+	EventWithTarget,
+	iterateFileMetadata,
+	makeDraggable,
+} from "~/lib/utils";
 import { PropertyComponent } from "~/classes/PropertyComponent";
+import { InputSuggest, Suggestion } from "~/classes/InputSuggest";
 
 export const typeKey = "object" satisfies CustomTypeKey;
 
@@ -28,7 +33,7 @@ export const renderWidget: CustomPropertyType["renderWidget"] = ({
 	return new GroupTypeComponent(plugin, el, value, ctx);
 };
 
-class GroupTypeComponent extends PropertyWidgetComponentNew<
+class GroupTypeComponent extends PropertyWidgetComponent<
 	"object",
 	Record<string, unknown>
 > {
@@ -83,6 +88,9 @@ class GroupTypeComponent extends PropertyWidgetComponentNew<
 		if (!settings.hideAddButton) {
 			const addPropertyEl = container.createDiv({
 				cls: "better-properties-property-object-add-property metadata-add-button text-icon-button",
+				attr: {
+					tabindex: "0",
+				},
 			});
 			setIcon(
 				addPropertyEl.createSpan({ cls: "text-button-icon" }),
@@ -93,6 +101,11 @@ class GroupTypeComponent extends PropertyWidgetComponentNew<
 				text: obsidianText("properties.label-add-property-button"),
 			});
 			addPropertyEl.addEventListener("click", () => {
+				renderSub("", null);
+			});
+			addPropertyEl.addEventListener("keydown", (e) => {
+				if (e.key !== " ") return;
+				e.preventDefault();
 				renderSub("", null);
 			});
 		}
@@ -161,10 +174,11 @@ class SubPropertyComponent extends PropertyComponent {
 		return typeof value === "object" && value !== null && value !== undefined
 			? value
 			: {};
-		// return frontmatter?.[this.parentCtx.key] ?? {};
 	}
 
 	onChangeCallback: (v: unknown) => void = (value) => {
+		this.setValue(value);
+
 		this.parentCtx.onChange({
 			...this.parentValue,
 			[this.keyWithoutDots]: value,
@@ -176,20 +190,23 @@ class SubPropertyComponent extends PropertyComponent {
 	): void {
 		const newParentValue = cb(this.parentValue);
 		this.parentCtx.onChange(newParentValue);
-		triggerPropertyTypeChange(this.plugin.app.metadataTypeManager, this.key);
 	}
 
 	override remove(): void {
+		super.remove();
 		this.updateParent((prev) => ({
 			...prev,
 			[this.keyWithoutDots]: undefined,
 		}));
 	}
 
-	override updateKey(newKey: string): void {
-		const newKeyWithDots = this.parentCtx.key + "." + newKey;
+	isChanged: boolean = false;
 
-		if (newKey === this.keyWithoutDots) return;
+	async onKeyChange(
+		newKey: string,
+		e: EventWithTarget<HTMLInputElement>
+	): Promise<void> {
+		const newKeyWithDots = this.parentCtx.key + "." + newKey;
 
 		// key made empty, so remove it
 		if (newKey === "") {
@@ -197,11 +214,16 @@ class SubPropertyComponent extends PropertyComponent {
 			return;
 		}
 
+		// key wasn't changed, do nothing
+		if (newKey === this.keyWithoutDots) return;
+
 		const alreadyExists = Object.keys(this.parentValue).some(
 			(k) => k.toLowerCase() === newKey.toLowerCase()
 		);
 
 		if (alreadyExists) {
+			e.preventDefault();
+			// highlight the existing property for given key
 			const matchedEl: HTMLElement | null | undefined = this.containerEl
 				.closest(".metadata-container:not(.better-properties-mod-object)")
 				?.querySelector(
@@ -209,10 +231,13 @@ class SubPropertyComponent extends PropertyComponent {
 				);
 			matchedEl && flashElement(matchedEl);
 
+			// if focus has left the key input, just remove it
 			if (!this.keyInputEl?.isActiveElement()) {
 				this.remove();
 				return;
 			}
+
+			// cursor is still in key input, so show tooltip
 			displayTooltip(
 				this.propertyEl!,
 				obsidianText("properties.msg-duplicate-property-name"),
@@ -223,30 +248,34 @@ class SubPropertyComponent extends PropertyComponent {
 			return;
 		}
 
+		const oldKeyWithoutDots = this.keyWithoutDots;
+		this.setKey(newKey);
+
 		// newly added property
-		if (this.keyWithoutDots === "") {
+		if (oldKeyWithoutDots === "") {
 			this.updateParent((prev) => {
 				return { ...prev, [newKey]: null };
 			});
+			this.setKey(newKey);
 			return;
 		}
 
 		// key is renamed
 		this.updateParent((prev) => {
-			return Object.entries(prev).reduce((acc, [k, v]) => {
-				if (k !== this.keyWithoutDots) {
+			const newValue = Object.entries(prev).reduce((acc, [k, v]) => {
+				if (k !== oldKeyWithoutDots) {
 					acc[k] = v;
 					return acc;
 				}
 				acc[newKey] = v;
 				return acc;
 			}, {} as Record<string, unknown>);
+			return newValue;
 		});
 	}
 
 	createIconEl(valueEl: HTMLDivElement): HTMLSpanElement {
 		const iconEl = super.createIconEl(valueEl);
-
 		if (!this.propertyEl) return iconEl;
 
 		makeDraggable({
@@ -264,5 +293,85 @@ class SubPropertyComponent extends PropertyComponent {
 		});
 
 		return iconEl;
+	}
+
+	override createKeyInputEl(keyEl: HTMLDivElement): HTMLInputElement {
+		const keyInputEl = super.createKeyInputEl(keyEl);
+
+		new SubPropertySuggest(
+			this.plugin.app,
+			keyInputEl,
+			this.parentCtx.key,
+			Object.keys(this.parentValue),
+			this.keyWithoutDots
+		).onSelect((n) => {
+			keyInputEl.value = n;
+		});
+
+		if (this.keyWithoutDots === "") {
+			keyInputEl.focus();
+		}
+
+		return keyInputEl;
+	}
+}
+
+class SubPropertySuggest extends InputSuggest<string> {
+	constructor(
+		app: App,
+		textInputEl: HTMLDivElement | HTMLInputElement,
+		public parentProperty: string,
+		public existingKeys: string[],
+		public currentKey: string
+	) {
+		super(app, textInputEl);
+	}
+
+	override open() {
+		super.open();
+		this.suggestEl.classList.add("mod-property-key");
+	}
+
+	getSuggestions(query: string): string[] {
+		const suggestions = new Set<string>();
+
+		iterateFileMetadata({
+			vault: this.app.vault,
+			metadataCache: this.app.metadataCache,
+			callback: ({ metadata }) => {
+				if (!metadata?.frontmatter) return;
+				const { value } = findKeyValueByDotNotation(
+					this.parentProperty,
+					metadata.frontmatter
+				);
+				if (!value) return;
+				Object.keys(value).forEach((k) => {
+					if (k === "#" || !Number.isNaN(Number(k))) return;
+					suggestions.add(k);
+				});
+			},
+		});
+
+		const existing = new Set(this.existingKeys);
+		existing.delete(this.currentKey);
+		const withoutExisting = suggestions.difference(existing);
+		if (!query) return [...withoutExisting];
+
+		const lower = query.toLowerCase();
+		return [...withoutExisting].filter((n) =>
+			n.toLowerCase().startsWith(lower)
+		);
+	}
+
+	parseSuggestion(value: string): Suggestion {
+		const widgetType = this.app.metadataTypeManager.getAssignedWidget(value);
+		const icon =
+			this.app.metadataTypeManager.registeredTypeWidgets[widgetType ?? "text"]
+				?.icon ?? "lucide-text";
+
+		return {
+			title: value,
+			icon,
+		};
 	}
 }

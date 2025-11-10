@@ -1,6 +1,6 @@
-import { setIcon } from "obsidian";
+import { Menu, setIcon } from "obsidian";
 import { CustomPropertyType, ModifiedPropertyRenderContext } from "../types";
-import { PropertyWidgetComponentNew } from "../utils";
+import { PropertyWidgetComponent, triggerPropertyTypeChange } from "../utils";
 import { Icon } from "~/lib/types/icons";
 import BetterProperties from "~/main";
 import { obsidianText } from "~/i18next/obsidian";
@@ -11,6 +11,7 @@ import {
 } from "obsidian-typings";
 import { arrayMove, makeDraggable } from "~/lib/utils";
 import { PropertyComponent } from "~/classes/PropertyComponent";
+import { customPropertyTypePrefix } from "~/lib/constants";
 
 export const renderWidget: CustomPropertyType["renderWidget"] = ({
 	plugin,
@@ -21,10 +22,7 @@ export const renderWidget: CustomPropertyType["renderWidget"] = ({
 	return new ArrayTypeComponent(plugin, el, value, ctx);
 };
 
-class ArrayTypeComponent extends PropertyWidgetComponentNew<
-	"array",
-	unknown[]
-> {
+class ArrayTypeComponent extends PropertyWidgetComponent<"array", unknown[]> {
 	type = "array" as const;
 	parseValue = (v: unknown): unknown[] => {
 		if (Array.isArray(v)) return v;
@@ -65,6 +63,59 @@ class ArrayTypeComponent extends PropertyWidgetComponentNew<
 			cls: "better-properties-property-object-properties",
 		});
 		this.propertiesEl = propertiesEl;
+
+		const subKey = this.ctx.key + ".#";
+		const subAssignedType =
+			this.plugin.app.metadataTypeManager.getAssignedWidget(subKey);
+		if (subAssignedType === null) {
+			const setTypeEl = propertiesEl.createDiv({
+				cls: "better-properties-set-type-button menu-item tappable has-submenu",
+			});
+			setIcon(
+				setTypeEl.createDiv({
+					cls: "menu-item-icon",
+				}),
+				"lucide-info" satisfies Icon
+			);
+
+			setTypeEl.createDiv({
+				cls: "menu-item-title",
+				text: obsidianText("properties.option-property-type"),
+			});
+
+			setIcon(
+				setTypeEl.createDiv({
+					cls: "menu-item-icon mod-submenu",
+				}),
+				"lucide-chevron-right" satisfies Icon
+			);
+
+			const handleClick = (e: MouseEvent): void => {
+				const menu = new Menu();
+				const { metadataTypeManager } = this.plugin.app;
+
+				Object.values(metadataTypeManager.registeredTypeWidgets).forEach(
+					(widget) => {
+						if (widget.reservedKeys) return;
+						menu.addItem((item) => {
+							item
+								.setIcon(widget.icon)
+								.setTitle(widget.name())
+								.onClick(() => {
+									metadataTypeManager.setType(subKey, widget.type);
+									triggerPropertyTypeChange(metadataTypeManager, this.ctx.key);
+								});
+							if (!widget.type.startsWith(customPropertyTypePrefix)) return;
+							item.dom.setAttribute("data-is-better-properties", "true");
+						});
+					}
+				);
+
+				menu.showAtMouseEvent(e);
+			};
+
+			setTypeEl.addEventListener("click", (e) => handleClick(e));
+		}
 
 		const renderSub = (
 			itemValue: unknown,
