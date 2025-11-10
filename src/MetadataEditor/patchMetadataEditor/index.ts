@@ -6,6 +6,7 @@ import { Icon } from "~/lib/types/icons";
 import BetterProperties from "~/main";
 // import { patchMetadataEditorProperty } from "./patchMetadataEditorProperty";
 import { text } from "~/i18next";
+import { clampNumber } from "~/lib/utils";
 
 export const patchMetadataEditor = (plugin: BetterProperties) => {
 	const mdePrototype = resolveMetadataEditorPrototype(
@@ -212,10 +213,14 @@ const createLabelWidthResizerEl = (that: PatchedMetadataEditor) => {
 	labelWidthResizerEl.draggable = true;
 
 	let initialX = 0;
+	let lastX = 0;
+	let maxX = 0;
 
 	labelWidthResizerEl.addEventListener("dragstart", async (e) => {
 		labelWidthResizerEl.setAttribute("data-is-dragging", "true");
+		lastX = e.pageX;
 		initialX = e.pageX;
+		maxX = that.propertyListEl.getBoundingClientRect().width;
 		if (!e.dataTransfer) return;
 		e.dataTransfer.effectAllowed = "move";
 		e.dataTransfer.dropEffect = "move";
@@ -246,13 +251,13 @@ const createLabelWidthResizerEl = (that: PatchedMetadataEditor) => {
 
 	const onDrag = debounce(
 		(e: MouseEvent) => {
-			const diff = e.pageX - initialX;
+			const diff = e.pageX - lastX;
 			if (initialWidth === undefined) {
 				initialWidth = getInitialWidth();
 			}
-			const newWidth = initialWidth + diff;
+			const newWidth = clampNumber(initialWidth + diff, 0, maxX);
 			containerEl.setCssProps({ "--metadata-label-width": newWidth + "px" });
-			initialX = e.pageX;
+			lastX = initialWidth + diff !== newWidth ? lastX : e.pageX;
 			initialWidth = newWidth;
 		},
 		5,
@@ -263,6 +268,7 @@ const createLabelWidthResizerEl = (that: PatchedMetadataEditor) => {
 
 	labelWidthResizerEl.addEventListener("dragend", () => {
 		labelWidthResizerEl.removeAttribute("data-is-dragging");
+
 		const labelWidth = containerEl
 			.querySelector(".metadata-property-key")
 			?.getBoundingClientRect()?.width;
