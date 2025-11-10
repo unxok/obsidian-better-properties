@@ -2,7 +2,7 @@ body {
 	--better-properties-select-opactiy: 1;
 	--better-properties-select-saturation: 55%;
 	--better-properties-select-lightness: 30%;
-	--better-properties-select-bg: var(--better-properties-select-gray);
+	--better-properties-select-bg: var(--better-properties-select-transparent);
 
 	&.theme-light {
 		--better-properties-select-saturation: 80%;
@@ -632,20 +632,6 @@ div.metadata-content {
 		width: 100%;
 		height: 100%;
 	}
-
-	& > .better-properties-combobox-select-close {
-		cursor: var(--cursor);
-		color: rgb(var(--mono-rgb-100));
-		border-radius: var(--radius-s);
-		display: var(--better-properties-close-display);
-		align-items: center;
-		--icon-size: var(--icon-xs);
-		--icon-stroke: var(--icon-xs-stroke-width);
-
-		&:hover {
-			color: rgb(var(--mono-rgb-0));
-		}
-	}
 }
 
 .better-properties-combobox-search {
@@ -801,7 +787,8 @@ div.better-properties-mod-hidden {
 	display: none; /* hidden by default */
 
 	&:hover {
-		color: var(--interactive-hover);
+		/* color: var(--interactive-hover); */
+		color: var(--pill-color-remove-hover);
 	}
 
 	/* visible in Multi-Selects by default */
