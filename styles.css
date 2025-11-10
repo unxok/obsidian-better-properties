@@ -316,6 +316,11 @@ body {
 	--better-properties-indent-size-2x: calc(var(--list-indent-editing) * 2);
 	--better-properties-collapse-opacity: 0;
 
+	.metadata-property {
+		/* TODO I can't see a way to not hardcode this */
+		--input-border-width-focus: 2px;
+	}
+
 	> .metadata-property-value:focus-within {
 		background-color: var(--metadata-input-background);
 	}
@@ -827,6 +832,26 @@ div.better-properties-mod-hidden {
 
 	.better-properties-select-close-visibility-mod-never & {
 		display: none;
+	}
+}
+
+.better-properties-property-object-properties
+	> .better-properties-set-type-button.menu-item.tappable.has-submenu {
+	display: none;
+
+	&:last-child {
+		--better-properties-color: var(--text-faint);
+		color: var(--better-properties-color);
+		display: flex;
+		width: fit-content;
+
+		&:hover {
+			--better-properties-color: inherit;
+		}
+
+		.menu-item-icon {
+			color: var(--better-properties-color);
+		}
 	}
 }
 
