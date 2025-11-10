@@ -12,6 +12,9 @@ release. Some specific details may be omitted for brevity.
 - Added slight amount of padding at the end of the property collapse indicator. [#52](https://github.com/unxok/obsidian-better-properties/issues/52)
 - Added integration with the [Style Settings](https://github.com/mgmeyers/obsidian-style-settings) plugin.
 - Array type properties now show a button to set its sub-properties' type if it hasn't been set yet.
+- Selects now show an outline on hover.
+- Selects now render wikilinks as clickable links. `click` opens a menu to choose to follow link or change value, `Shift + click` opens menu to change value, and `Ctrl + click` opens the link in a new tab.
+- Selects default color is now transparent (used to be gray).
 
 ### Fixed
 
