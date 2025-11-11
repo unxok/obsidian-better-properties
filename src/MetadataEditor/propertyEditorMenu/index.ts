@@ -8,7 +8,10 @@ import { Menu, MenuItem } from "obsidian";
 import { openChangeIconModal } from "./icon";
 import { obsidianText } from "~/i18next/obsidian";
 import { text } from "~/i18next";
-import { customPropertyTypePrefix } from "~/lib/constants";
+import {
+	customPropertyTypePrefix,
+	reservedBuiltinPropertyNames,
+} from "~/lib/constants";
 import { MetadataTypeManager } from "obsidian-typings";
 import { getTrueProperty } from "~/customPropertyTypes/utils";
 
@@ -81,11 +84,9 @@ export const onFilePropertyMenu = async (
 	menu.sections = ["", ...menu.sections.filter((id) => id !== "")];
 	show();
 
-	console.log(menu);
 	const propertyTypeItem = menu.items.find(
 		(item) => item instanceof MenuItem && !item.section
 	);
-	console.log("found: ", propertyTypeItem);
 	if (!(propertyTypeItem instanceof MenuItem)) return;
 
 	recreateTypeOptionsSubmenu({
@@ -118,10 +119,23 @@ const recreateTypeOptionsSubmenu = ({
 	const BETTER_PROPERTIES = "better-properties";
 	submenu.addSections([OBSIDIAN, BETTER_PROPERTIES]);
 
-	Object.values(metadataTypeManager.registeredTypeWidgets).forEach((widget) => {
-		if (widget.reservedKeys) return;
+	const assignedType = metadataTypeManager.getAssignedWidget(property);
+	const widgets = Object.values(metadataTypeManager.registeredTypeWidgets);
+	const isReserved =
+		reservedBuiltinPropertyNames.includes(property) ||
+		widgets.some((w) => w.reservedKeys?.includes(property));
+
+	widgets.forEach((widget) => {
+		const isMatch = assignedType === widget.type;
+		if (!isMatch && widget.reservedKeys) return;
 		submenu.addItem((item) => {
-			console.log("adding item");
+			if (isReserved) {
+				item.setDisabled(true);
+			}
+			if (isMatch) {
+				item.setChecked(true);
+			}
+
 			const isBuiltin = !widget.type.startsWith(customPropertyTypePrefix);
 			item.onClick(() => {
 				metadataTypeManager.setType(property, widget.type);
@@ -134,10 +148,6 @@ const recreateTypeOptionsSubmenu = ({
 
 			// TODO make this an optional in settings
 			// item.setSection(isBuiltin ? OBSIDIAN : BETTER_PROPERTIES);
-
-			if (metadataTypeManager.getAssignedWidget(property) === widget.type) {
-				item.setChecked(true);
-			}
 		});
 	});
 };

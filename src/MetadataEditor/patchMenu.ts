@@ -30,7 +30,6 @@ export const patchMenu = (plugin: BetterProperties) => {
 					that,
 					property,
 					() => {
-						console.log("should show");
 						old.call(that, e);
 					}
 				);
