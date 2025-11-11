@@ -39,7 +39,7 @@ class ChangelogView extends ItemView {
 		const changelogContent = latest.markdown.replace(
 			"# Changelog",
 			`# Changelog ${getVersion(this.app)}` +
-				"\nExtracted from [changelog.md on github](https://github.com/unxok/obsidian-better-properties/changelog.md)\n"
+				"\nExtracted from [changelog.md on github](https://github.com/unxok/obsidian-better-properties/blob/main/changelog.md)\n"
 		);
 		MarkdownRenderer.render(
 			this.app,
