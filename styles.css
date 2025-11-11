@@ -539,6 +539,10 @@ div.metadata-content {
 	color: var(--text-accent);
 }
 
+.better-properties-text-error {
+	color: var(--text-error);
+}
+
 .better-properties-mod-error {
 	color: var(--text-error);
 
