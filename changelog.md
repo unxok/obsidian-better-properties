@@ -3,10 +3,14 @@
 Each release should include an entry detailing the changes made since the last
 release. Some specific details may be omitted for brevity.
 
-## 1.0.1
+## 1.1.0
+
+some text here...
 
 ### New
 
+- Added a "Welcome" modal which is displayed only after installing the plugin.
+- Added a "What's new" view which is displayed after updating the plugin.
 - Object type sub-properties now show suggestions for the property name. [#42](https://github.com/unxok/obsidian-better-properties/issues/42)
 - Added slight delay before showing the property key resizer handle. [#52](https://github.com/unxok/obsidian-better-properties/issues/52) [#35](https://github.com/unxok/obsidian-better-properties/issues/35)
 - Added slight amount of padding at the end of the property collapse indicator. [#52](https://github.com/unxok/obsidian-better-properties/issues/52)
