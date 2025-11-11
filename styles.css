@@ -788,6 +788,7 @@ div.better-properties-mod-hidden {
 	align-items: center;
 	--icon-size: var(--icon-xs);
 	--icon-stroke: var(--icon-xs-stroke-width);
+	color: var(--pill-color-remove);
 	display: none; /* hidden by default */
 
 	&:hover {
