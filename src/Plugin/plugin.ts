@@ -16,15 +16,14 @@ import {
 	patchMetadataEditor,
 } from "~/MetadataEditor";
 import { PropertyWidget } from "obsidian-typings";
-import { PropertySuggestModal } from "~/classes/InputSuggest/PropertySuggest";
-import { showPropertySettingsModal } from "~/customPropertyTypes/settings";
 import { patchMetadataCache } from "~/MetadataCache";
 import * as v from "valibot";
-import { openRenameModal } from "~/MetadataEditor/propertyEditorMenu/rename";
 import { registerBpJsCodeProcessors } from "~/bpjs";
 import { BpJsApi, setupBpJsListeners } from "~/bpjs/api";
 import { patchMetadataTypeManager } from "~/MetadataTypeManager/patchMetadataTypeManager";
 import { WelcomeModal } from "~/welcomeModal";
+import { handleChangelogView } from "~/changelog";
+import { registerCommands } from "./commands";
 
 export class BetterProperties extends Plugin {
 	settings: BetterPropertiesSettings = getDefaultSettings();
@@ -39,11 +38,12 @@ export class BetterProperties extends Plugin {
 			new WelcomeModal(this).open();
 		}
 		this.addSettingTab(new BetterPropertiesSettingsTab(this));
+		handleChangelogView(this);
 		patchMetadataTypeManager(this);
 		registerCustomPropertyTypeWidgets(this);
 		wrapAllPropertyTypeWidgets(this);
 		sortAndFilterRegisteredTypeWidgets(this);
-		this.setupCommands();
+		registerCommands(this);
 		this.app.workspace.onLayoutReady(async () => {
 			this.app.workspace.trigger("parse-style-settings");
 			customizePropertyEditorMenu(this);
@@ -74,53 +74,6 @@ export class BetterProperties extends Plugin {
 			const me = leaf.view.metadataEditor;
 			if (!me) return;
 			leaf.rebuildView();
-		});
-	}
-
-	setupCommands(): void {
-		this.addCommand({
-			id: "refresh-property-editors",
-			name: "Refresh Property Editors",
-			callback: () => {
-				this.refreshPropertyEditors();
-			},
-		});
-		this.addCommand({
-			id: "rebuild-views",
-			name: "Rebuild views",
-			callback: () => {
-				this.rebuildLeaves();
-			},
-		});
-		this.addCommand({
-			id: "open-property-settings",
-			name: "Open property settings",
-			callback: () => {
-				const modal = new PropertySuggestModal(this);
-				modal.onChooseItem = (item) => {
-					modal.close();
-					showPropertySettingsModal({
-						plugin: this,
-						property: item.name,
-					});
-				};
-				modal.open();
-			},
-		});
-		this.addCommand({
-			id: "rename-property",
-			name: "Rename property",
-			callback: () => {
-				const modal = new PropertySuggestModal(this);
-				modal.onChooseItem = (item) => {
-					modal.close();
-					openRenameModal({
-						plugin: this,
-						property: item.name,
-					});
-				};
-				modal.open();
-			},
 		});
 	}
 
