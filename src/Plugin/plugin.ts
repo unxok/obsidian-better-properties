@@ -24,6 +24,7 @@ import { openRenameModal } from "~/MetadataEditor/propertyEditorMenu/rename";
 import { registerBpJsCodeProcessors } from "~/bpjs";
 import { BpJsApi, setupBpJsListeners } from "~/bpjs/api";
 import { patchMetadataTypeManager } from "~/MetadataTypeManager/patchMetadataTypeManager";
+import { WelcomeModal } from "~/welcomeModal";
 
 export class BetterProperties extends Plugin {
 	settings: BetterPropertiesSettings = getDefaultSettings();
@@ -34,6 +35,9 @@ export class BetterProperties extends Plugin {
 
 	async onload(): Promise<void> {
 		await this.loadSettings();
+		if (!this.settings.hideWelcomeModal) {
+			new WelcomeModal(this).open();
+		}
 		this.addSettingTab(new BetterPropertiesSettingsTab(this));
 		patchMetadataTypeManager(this);
 		registerCustomPropertyTypeWidgets(this);
