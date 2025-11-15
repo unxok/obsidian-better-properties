@@ -21,7 +21,6 @@ import * as v from "valibot";
 import { registerBpJsCodeProcessors } from "~/bpjs";
 import { BpJsApi, setupBpJsListeners } from "~/bpjs/api";
 import { patchMetadataTypeManager } from "~/MetadataTypeManager/patchMetadataTypeManager";
-import { WelcomeModal } from "~/welcomeModal";
 import { handleChangelogView } from "~/changelog";
 import { registerCommands } from "./commands";
 
@@ -34,9 +33,6 @@ export class BetterProperties extends Plugin {
 
 	async onload(): Promise<void> {
 		await this.loadSettings();
-		if (!this.settings.hideWelcomeModal) {
-			new WelcomeModal(this).open();
-		}
 		this.addSettingTab(new BetterPropertiesSettingsTab(this));
 		handleChangelogView(this);
 		patchMetadataTypeManager(this);

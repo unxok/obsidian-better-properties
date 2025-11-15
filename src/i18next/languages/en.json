@@ -299,10 +299,5 @@
 				"nameExistsWarning": "The name you entered already exists. If you continue, the existing configuration for that name will be overwritten with the configuration from \"{{property}}\""
 			}
 		}
-	},
-	"welcomeMessageModal": {
-		"title": "Welcome to Better Properties",
-		"content": "Before you start, please make sure to read the following:\n- Do *not* use a single hashtag (#) as a property name.\n  - ✔ \\#hash\n  - ❌ #\n- Do *not* use *only* numbers for a property name.\n  - ✔ 22nd\n  - ❌ 22\n- Do *not* use periods (.) in property names.\n  - ✔ docs-obsidian\n  - ❌ docs.obsidian\n\nThese limitations may or may not be be removed eventually. Unexpected behavior may occur if you do not abide by them.\n\nThe documentation for this plugin can be found at [better-properties.unxok.com](https://better-properties.unxok.com)",
-		"checkboxLabel": "I understand the above"
 	}
 }
