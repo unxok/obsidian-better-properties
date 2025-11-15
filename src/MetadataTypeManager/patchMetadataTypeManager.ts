@@ -9,17 +9,20 @@ export const patchMetadataTypeManager = (plugin: BetterProperties): void => {
 			return dedupe(monkeyAroundKey, old, function (property) {
 				// @ts-expect-error
 				const that: MetadataTypeManager = this;
-				return old.call(that, getTrueProperty(property));
+				return old.call(
+					that,
+					getTrueProperty(property, plugin.app.metadataTypeManager)
+				);
 			});
 		},
-		setType(old) {
-			return dedupe(monkeyAroundKey, old, function (property, type) {
-				// @ts-expect-error
-				const that: MetadataTypeManager = this;
-				return old.call(that, getTrueProperty(property), type);
-			});
-		},
+		// TODO 2025-11-14 I am pretty sure this isn't needed, but I'm going to leave it commented out for now
+		// setType(old) {
+		// 	return dedupe(monkeyAroundKey, old, function (property, type) {
+		// 		// @ts-expect-error
+		// 		const that: MetadataTypeManager = this;
+		// 		return old.call(that, getTrueProperty(property), type);
+		// 	});
+		// },
 	});
-
 	plugin.register(removePatch);
 };

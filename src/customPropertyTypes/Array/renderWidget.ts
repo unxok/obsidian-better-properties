@@ -207,6 +207,7 @@ class SubPropertyComponent extends PropertyComponent {
 			owner.plugin,
 			containerEl,
 			owner.ctx.key + "." + key,
+			// owner.ctx.key + ".#",
 			value,
 			owner.ctx.sourcePath
 		);

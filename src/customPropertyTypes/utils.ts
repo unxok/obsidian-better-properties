@@ -8,16 +8,26 @@ import {
 } from "obsidian-typings";
 import { customPropertyTypePrefix } from "~/lib/constants";
 import { NonNullishObject } from "~/lib/utils";
+import { MetadataTypeManager } from "obsidian";
 
 /**
  * Array sub-properties are in the format `<parent>.<index>`. This function replaces the index with a `#` to properly get/set settings for the sub-property
  */
-export const getTrueProperty = (property: string) => {
+export const getTrueProperty = (
+	property: string,
+	metadataTypeManager: MetadataTypeManager
+) => {
+	if (!property.includes(".")) return property;
 	return property
 		.split(".")
-		.map((part) => {
+		.map((part, i, arr) => {
+			if (i === 0) return part;
 			const n = Number(part);
 			if (part === "" || Number.isNaN(n)) return part;
+			const isParentArray =
+				metadataTypeManager.assignedWidgets[arr[i - 1]]?.widget ===
+				customPropertyTypePrefix + "array";
+			if (!isParentArray) return part;
 			return "#";
 		})
 		.join(".");
@@ -30,7 +40,10 @@ export const getPropertySettings = ({
 	plugin: BetterProperties;
 	property: string;
 }): NonNullishObject<PropertySettings> => {
-	const lower = getTrueProperty(property).toLowerCase();
+	const lower = getTrueProperty(
+		property,
+		plugin.app.metadataTypeManager
+	).toLowerCase();
 	if (!plugin.settings.propertySettings) {
 		plugin.settings.propertySettings = {};
 	}
@@ -62,7 +75,10 @@ export const deletePropertySettings = ({
 	plugin: BetterProperties;
 	property: string;
 }) => {
-	const lower = getTrueProperty(property).toLowerCase();
+	const lower = getTrueProperty(
+		property,
+		plugin.app.metadataTypeManager
+	).toLowerCase();
 	if (!plugin.settings.propertySettings) {
 		plugin.settings.propertySettings = {};
 	}
@@ -79,7 +95,10 @@ export const setPropertySettings = ({
 	property: string;
 	settings: PropertySettings;
 }): void => {
-	const lower = getTrueProperty(property).toLowerCase();
+	const lower = getTrueProperty(
+		property,
+		plugin.app.metadataTypeManager
+	).toLowerCase();
 	if (!plugin.settings.propertySettings) {
 		plugin.settings.propertySettings = {};
 	}

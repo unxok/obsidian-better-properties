@@ -23,7 +23,10 @@ export const onFilePropertyMenu = async (
 ) => {
 	const { metadataTypeManager } = plugin.app;
 
-	const trueProperty = getTrueProperty(property);
+	const trueProperty = getTrueProperty(
+		property,
+		plugin.app.metadataTypeManager
+	);
 	const isArraySubProperty = trueProperty !== property;
 
 	menu.addItem((item) =>
