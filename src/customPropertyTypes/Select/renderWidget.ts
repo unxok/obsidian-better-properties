@@ -261,7 +261,7 @@ export class SelectComponent extends ComboboxComponent<Option> {
 								.setIcon("lucide-chevron-down-circle" satisfies Icon)
 								.setTitle("Change value")
 								.onClick(() => {
-									this.selectContainerEl.click();
+									this.selectEl.click();
 								})
 						)
 						.showAtMouseEvent(e);
