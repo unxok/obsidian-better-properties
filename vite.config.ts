@@ -2,14 +2,24 @@ import { UserConfig, defineConfig } from "vite";
 import path from "path";
 import builtins from "builtin-modules";
 // import { analyzer } from "vite-bundle-analyzer";
+import { viteStaticCopy } from "vite-plugin-static-copy";
 
 export default defineConfig(async ({ mode }) => {
 	const { resolve } = path;
 	const prod = mode === "production";
 
+	const vaultPluginDir = "vault/.obsidian/plugins/better-properties";
 	return {
 		plugins: [
-			// analyzer()
+			// analyzer(),
+			viteStaticCopy({
+				targets: [
+					{
+						src: "manifest.json",
+						dest: vaultPluginDir,
+					},
+				],
+			}),
 		],
 		resolve: {
 			alias: {
@@ -19,7 +29,6 @@ export default defineConfig(async ({ mode }) => {
 		build: {
 			lib: {
 				entry: resolve(__dirname, "src/main.ts"),
-				cssFileName: "styles",
 				name: "main",
 				fileName: () => "main.js",
 				formats: ["cjs"],
@@ -27,17 +36,16 @@ export default defineConfig(async ({ mode }) => {
 			minify: prod,
 			sourcemap: prod ? false : "inline",
 			cssCodeSplit: false,
-			// cssCodeSplit: true,
 			emptyOutDir: false,
+			cssMinify: false,
 			outDir: "",
 			rollupOptions: {
 				input: {
 					main: resolve(__dirname, "src/main.ts"),
 				},
 				output: {
-					entryFileNames: "main.js",
-					assetFileNames: "styles.css",
-					// assetFileNames: "[name].css",/
+					entryFileNames: vaultPluginDir + "/main.js",
+					assetFileNames: vaultPluginDir + "/styles.css",
 				},
 				external: [
 					"obsidian",
@@ -55,12 +63,7 @@ export default defineConfig(async ({ mode }) => {
 					"@lezer/lr",
 					...builtins,
 				],
-				onwarn(warning, warn) {
-					// suppress eval warnings
-					if (warning.code === "EVAL") return;
-					warn(warning);
-				},
 			},
 		},
-	} as UserConfig;
+	} satisfies UserConfig;
 });
