@@ -9,7 +9,8 @@
 		"tsc": "tsc",
 		"build": "npm run changelog && vite build",
 		"version": "node version-bump.mjs && git add manifest.json versions.json",
-		"release": "git tag -a %npm_config_tag% -m '%npm_config_tag%' && git push origin %npm_config_tag%"
+		"release": "git tag -a %npm_config_tag% -m '%npm_config_tag%' && git push origin %npm_config_tag%",
+		"test": "vitest"
 	},
 	"keywords": [],
 	"author": "Unxok",
@@ -23,12 +24,13 @@
 		"builtin-modules": "3.3.0",
 		"esbuild": "0.25.5",
 		"luxon": "3.5.0",
-		"obsidian": "latest",
-		"obsidian-typings": "obsidian-public-latest",
+		"obsidian": "^1.10.3",
+		"obsidian-typings": "^4.63.0",
 		"tslib": "2.7.0",
 		"typescript": "5.8.3",
 		"vite": "6.3.6",
-		"vite-bundle-analyzer": "1.2.1"
+		"vite-bundle-analyzer": "1.2.1",
+		"vitest": "^4.0.16"
 	},
 	"dependencies": {
 		"math-expression-evaluator": "2.0.7",

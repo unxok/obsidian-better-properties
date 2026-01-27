@@ -23,8 +23,9 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export async function loader({ context }: Route.LoaderArgs) {
-  // TODO catch errors
   const token = context.cloudflare.env["GITHUB_PAT"];
+
+  // TODO catch errors
   const res = await fetch(
     "https://api.github.com/repos/unxok/obsidian-better-properties/issues",
     {

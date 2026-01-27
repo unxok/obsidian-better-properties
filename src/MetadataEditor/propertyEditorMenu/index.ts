@@ -141,6 +141,7 @@ const recreateTypeOptionsSubmenu = ({
 
 			const isBuiltin = !widget.type.startsWith(customPropertyTypePrefix);
 			item.onClick(() => {
+				console.log(property, widget.type);
 				metadataTypeManager.setType(property, widget.type);
 			});
 			item.setTitle(widget.name()).setIcon(widget.icon);

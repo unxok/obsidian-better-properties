@@ -164,12 +164,15 @@ export class PropertyComponent extends ValueComponent<unknown> {
 					widgets.forEach((widget) => {
 						const isSelected = widget.type === assignedType;
 						const isReserved = !!widget.reservedKeys;
+						console.log(!isSelected && isReserved);
 						if (!isSelected && isReserved) return;
 						sub.addItem((item) =>
 							item
 								.setTitle(widget.name())
 								.setIcon(widget.icon)
 								.onClick(() => {
+									console.log("click");
+									console.log("setting ", this.key, " to ", widget.type);
 									metadataTypeManager.setType(this.key, widget.type);
 								})
 								.setDisabled(isAssignedReserved)

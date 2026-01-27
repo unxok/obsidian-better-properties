@@ -9,7 +9,6 @@ some text here...
 
 ### New
 
-- Added a "Welcome" modal which is displayed only after installing the plugin.
 - Added a "What's new" view which is displayed after updating the plugin.
 - Object type sub-properties now show suggestions for the property name. [#42](https://github.com/unxok/obsidian-better-properties/issues/42)
 - Added slight delay before showing the property key resizer handle. [#52](https://github.com/unxok/obsidian-better-properties/issues/52) [#35](https://github.com/unxok/obsidian-better-properties/issues/35)
@@ -27,6 +26,8 @@ some text here...
 - Renaming array-like properties (List, Array, Multi-Select) now correctly retains the value of the property. [#51](https://github.com/unxok/obsidian-better-properties/issues/51)
 - Renaming a sub-property which is an Object where its parent is also an Object now behaves correctly. [#46](https://github.com/unxok/obsidian-better-properties/issues/46)
 - Property key resizer handle can longer be dragged past the edges of the Metadata Editor. [#52](https://github.com/unxok/obsidian-better-properties/issues/52)
+- Object sub-properties names now behave correctly when only numbers are used in the name. [#54](https://github.com/unxok/obsidian-better-properties/issues/54)
+- Object and Array sub-properties now properly remove themselves if the name is left empty.
 
 ## 1.0.0
 

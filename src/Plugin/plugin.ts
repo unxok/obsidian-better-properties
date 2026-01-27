@@ -1,4 +1,14 @@
-import { Modal, ButtonComponent, Plugin, MarkdownView } from "obsidian";
+import {
+	Modal,
+	ButtonComponent,
+	Plugin,
+	MarkdownView,
+	PopoverSuggest,
+	App,
+	setIcon,
+	SearchComponent,
+	Menu,
+} from "obsidian";
 import {
 	BetterPropertiesSettings,
 	betterPropertiesSettingsSchema,
@@ -23,6 +33,15 @@ import { BpJsApi, setupBpJsListeners } from "~/bpjs/api";
 import { patchMetadataTypeManager } from "~/MetadataTypeManager/patchMetadataTypeManager";
 import { handleChangelogView } from "~/changelog";
 import { registerCommands } from "./commands";
+import { fixBasesFilters } from "~/Base/fixBasesFilters";
+import {
+	InputSuggest,
+	AbstractSearchSuggest,
+	Suggestion,
+} from "~/classes/InputSuggest";
+import { around, dedupe } from "monkey-around";
+import { monkeyAroundKey } from "~/lib/constants";
+import { ComboboxComponentNew } from "~/classes/ComboboxComponent";
 
 export class BetterProperties extends Plugin {
 	settings: BetterPropertiesSettings = getDefaultSettings();
@@ -40,6 +59,7 @@ export class BetterProperties extends Plugin {
 		wrapAllPropertyTypeWidgets(this);
 		sortAndFilterRegisteredTypeWidgets(this);
 		registerCommands(this);
+		fixBasesFilters(this);
 		this.app.workspace.onLayoutReady(async () => {
 			this.app.workspace.trigger("parse-style-settings");
 			customizePropertyEditorMenu(this);
@@ -56,6 +76,38 @@ export class BetterProperties extends Plugin {
 				this.refreshPropertyEditors();
 			})
 		);
+
+		// testing
+		this.registerMarkdownCodeBlockProcessor("test", (source, el, ctx) => {
+			// console.log("menu: ", Menu);
+			// const clickableEl = el.createDiv({
+			// 	cls: "clickable-icon",
+			// 	text: "click me",
+			// });
+			// const searchSuggest = new SampleSearchSuggest(this, clickableEl).onSelect(
+			// 	(v) => {
+			// 		console.log("selected: ", v);
+			// 	}
+			// );
+
+			const combobox = new ComboboxComponentNew<string>(this, el)
+				.parseSuggestion((title) => ({ title }))
+				.getOptions(async (q) => {
+					await new Promise((res) => window.setTimeout(res, 2000));
+					const arr = ["apples", "oranges", "grapes", "bananas", "watermelons"];
+					if (!q) return arr;
+					const lower = q.toLowerCase();
+					return arr.filter((s) => s.toLowerCase().includes(lower));
+				})
+				.onSelect((value) => {
+					console.log("selected: ", value);
+					combobox.clickableEl.textContent = value;
+				})
+				.onCreate(() => {});
+
+			combobox.getStringFromOption = (o) => o;
+			combobox.clickableEl.textContent = "click mee";
+		});
 	}
 
 	rebuildLeaves(): void {
@@ -159,5 +211,43 @@ export class BetterProperties extends Plugin {
 		const newSettings = cb(this.settings);
 		this.settings = { ...newSettings };
 		await this.saveSettings();
+	}
+}
+
+class SampleSearchSuggest extends AbstractSearchSuggest<string> {
+	getSuggestions(query: string): string[] {
+		const arr0 = ["apples", "oranges", "bananas", "grapes"];
+		const arr = [
+			...arr0,
+			// ...arr0,
+			// ...arr0,
+			// ...arr0,
+			// ...arr0,
+			// ...arr0,
+			// ...arr0,
+			// ...arr0,
+			// ...arr0,
+			// ...arr0,
+			// ...arr0,
+			// ...arr0,
+			// ...arr0,
+			// ...arr0,
+			// ...arr0,
+			// ...arr0,
+			// ...arr0,
+		];
+		if (!query) return arr;
+		const lower = query.toLowerCase();
+
+		const filtered = arr.filter((s) => s.toLowerCase().includes(lower));
+		if (filtered.length > 0) return filtered;
+		// return [`No results for "${query}"`];
+		return [""];
+	}
+
+	parseSuggestion(suggestion: string): Suggestion {
+		return {
+			title: suggestion,
+		};
 	}
 }

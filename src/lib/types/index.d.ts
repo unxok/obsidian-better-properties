@@ -2,12 +2,14 @@ import {
 	Events,
 	Workspace as BaseWorkspace,
 	MetadataCache as BaseMetadataCache,
+	BasesViewFactory,
 } from "obsidian";
 import {
 	MetadataTypeManager as BaseMetadataTypeManager,
 	MetadataEditor as BaseMetadataEditor,
 	PropertyEntryData,
 	PropertyWidget,
+	ViewFactory,
 } from "obsidian-typings";
 
 declare module "obsidian" {
@@ -27,6 +29,7 @@ declare module "obsidian" {
 	}
 
 	interface AbstractInputSuggest<T> extends PopoverSuggest<T> {
+		// TODO open PR to obsidian-typings. Currently have to manually enter this in package
 		showSuggestions: (suggestions: T[]) => void;
 	}
 
@@ -69,5 +72,26 @@ declare module "obsidian" {
 
 	interface Menu {
 		scrollEl: HTMLDivElement;
+	}
+
+	interface QueryController {
+		getWidgetForIdent(identity: string): string;
+		mockContext: {
+			cacheProps(): unknown;
+			cachedProps: Record<
+				string,
+				{
+					icon: string;
+				}
+			>;
+		};
+	}
+}
+
+declare module "obsidian-typings" {
+	interface BasesPluginInstance {
+		getRegistration(name: string): {
+			factory: BasesViewFactory;
+		};
 	}
 }

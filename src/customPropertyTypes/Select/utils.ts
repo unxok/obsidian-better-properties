@@ -904,14 +904,14 @@ export const getDynamicOptions = async ({
 }: {
 	plugin: BetterProperties;
 	ctx: PropertyRenderContext;
-	dynamicOptionsType: SelectSettings["dynamicOptionsType"];
-	folderOptionsExcludeFolderNote: SelectSettings["folderOptionsExcludeFolderNote"];
-	folderOptionsPaths: SelectSettings["folderOptionsPaths"];
-	tagOptionsTags: SelectSettings["tagOptionsTags"];
-	tagOptionsIncludeNested: SelectSettings["tagOptionsIncludeNested"];
-	inlineJsOptionsCode: SelectSettings["inlineJsOptionsCode"];
-	fileJsOptionsPath: SelectSettings["fileJsOptionsPath"];
-	dynamicEmptyLabel: SelectSettings["dynamicEmptyLabel"];
+	dynamicOptionsType?: SelectSettings["dynamicOptionsType"];
+	folderOptionsExcludeFolderNote?: SelectSettings["folderOptionsExcludeFolderNote"];
+	folderOptionsPaths?: SelectSettings["folderOptionsPaths"];
+	tagOptionsTags?: SelectSettings["tagOptionsTags"];
+	tagOptionsIncludeNested?: SelectSettings["tagOptionsIncludeNested"];
+	inlineJsOptionsCode?: SelectSettings["inlineJsOptionsCode"];
+	fileJsOptionsPath?: SelectSettings["fileJsOptionsPath"];
+	dynamicEmptyLabel?: SelectSettings["dynamicEmptyLabel"];
 }): Promise<SelectOption[]> => {
 	/**
 	 * TODO

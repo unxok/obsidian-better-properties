@@ -9,6 +9,8 @@ import {
 	ValueComponent,
 } from "obsidian";
 import { Icon } from "~/lib/types/icons";
+import { AbstractSearchSuggest, Suggestion } from "../InputSuggest";
+import BetterProperties from "~/main";
 
 export abstract class ComboboxComponent<Option> extends ValueComponent<string> {
 	options: Option[] = [];
@@ -259,3 +261,158 @@ export class SearchableMenu extends Menu {
 		this.dom.remove();
 	}
 }
+
+export class ComboboxComponentNew<T> extends ValueComponent<string> {
+	searchSuggest: SearchSuggest<T>;
+	controlEl: HTMLDivElement;
+	clickableEl: HTMLDivElement;
+	value: string = "";
+	onChangeCallback: (value: string) => void = () => {};
+
+	constructor(public plugin: BetterProperties, parentEl: HTMLElement) {
+		super();
+		this.controlEl = parentEl.createDiv({
+			cls: "better-properties-combobox-control",
+		});
+		this.clickableEl = this.controlEl.createDiv({
+			cls: "better-properties-combobox-clickable",
+			attr: {
+				tabindex: 0,
+			},
+		});
+		this.searchSuggest = new SearchSuggest(plugin, this.clickableEl);
+	}
+
+	getValue(): string {
+		return this.value;
+	}
+
+	setValue(value: string): this {
+		this.value = value;
+		return this;
+	}
+
+	messageEl: HTMLElement | undefined;
+
+	public getOptions(cb: (query: string) => T[] | Promise<T[]>): this {
+		this.searchSuggest.getSuggestions = async (q) => {
+			this.messageEl?.remove();
+			const suggestions = cb(q);
+			if (suggestions instanceof Promise) {
+				this.searchSuggest.open();
+				this.messageEl =
+					this.searchSuggest.suggestions.addMessage("Loading...");
+			}
+			return await suggestions;
+		};
+		return this;
+
+		this.searchSuggest.getSuggestions = (q) => {
+			this.messageEl?.remove();
+			this.searchSuggest.open();
+			const suggestions = cb(q);
+			if (suggestions instanceof Promise) {
+				this.searchSuggest.isFetching = true;
+				this.messageEl =
+					this.searchSuggest.suggestions.addMessage("Loading...");
+				(async () => {
+					const awaited = await suggestions;
+					this.searchSuggest.isFetching = false;
+					this.messageEl?.remove();
+					if (!this.searchSuggest.isOpen) return;
+					this.searchSuggest.showSuggestions(awaited);
+				})();
+				return [];
+			}
+			return suggestions;
+		};
+		return this;
+	}
+
+	public parseSuggestion(cb: (value: T) => Suggestion): this {
+		this.searchSuggest.parseSuggestion = (value) => cb(value);
+		return this;
+	}
+
+	public getStringFromOption(option: T): string {
+		option;
+		throw new Error("Method not implemented");
+	}
+
+	public onSelect(cb: (value: T) => void): this {
+		this.searchSuggest.onSelect((value) => {
+			cb(value);
+			this.setValue(this.getStringFromOption(value));
+			this.onChanged();
+		});
+		return this;
+	}
+
+	public onChange(cb: (value: string) => void): this {
+		this.onChangeCallback = cb;
+		return this;
+	}
+
+	public onChanged(): void {
+		this.onChangeCallback(this.getValue());
+	}
+
+	public onCreate(cb: (query: string, evt: MouseEvent) => void): this {
+		this.searchSuggest.onCreate(cb);
+		return this;
+	}
+}
+
+class SearchSuggest<T> extends AbstractSearchSuggest<T> {
+	messageEl: HTMLElement | undefined;
+	isFetching: boolean = false;
+	createEl: HTMLElement | undefined;
+	onCreateCallback: ((query: string, evt: MouseEvent) => void) | undefined;
+	onRenderSuggestionCallback: (value: T, el: HTMLElement) => void = () => {};
+
+	parseSuggestion(suggestion: T): Suggestion {
+		suggestion;
+		throw new Error("Method not implemented");
+	}
+
+	getSuggestions(query: string): T[] | Promise<T[]> {
+		query;
+		throw new Error("Method not implemented");
+	}
+
+	onCreate(cb: (query: string, evt: MouseEvent) => void): void {
+		this.onCreateCallback = cb;
+	}
+
+	override showSuggestions(values: T[]): void {
+		super.showSuggestions(values);
+		this.messageEl?.remove();
+		this.createEl?.remove();
+		const query = this.getValue();
+		if (this.isFetching || !query) return;
+		const { onCreateCallback } = this;
+		if (onCreateCallback) {
+			this.createEl = this.addFooterItem(
+				"lucide-plus",
+				`Create item "${query}"`,
+				(e) => onCreateCallback(query, e)
+			);
+		}
+		if (!values.length) {
+			this.suggestions.setSuggestions([]);
+			this.messageEl = this.suggestions.addMessage(`No results for "${query}"`);
+		}
+	}
+
+	onRenderSuggestion(cb: (value: T, el: HTMLElement) => void): this {
+		this.onRenderSuggestionCallback = cb;
+		return this;
+	}
+
+	override renderSuggestion(value: T, el: HTMLElement): void {
+		super.renderSuggestion(value, el);
+		this.onRenderSuggestionCallback(value, el);
+	}
+}
+
+//////////////////////////////////////////////////////////

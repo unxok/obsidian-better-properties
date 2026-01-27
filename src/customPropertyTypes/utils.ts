@@ -158,10 +158,13 @@ export const updatePropertyTypeSettings = <T extends CustomTypeKey>({
 	plugin: BetterProperties;
 	property: string;
 	type: T;
-	cb: (settings: PropertySettings[T]) => PropertySettings[T];
+	cb: (
+		settings: NonNullable<PropertySettings[T]>
+	) => NonNullable<PropertySettings[T]>;
 }): void => {
+	// TODO make TS happy without type casting
 	const settings: PropertySettings = getPropertySettings({ plugin, property });
-	settings[type] = cb(settings[type]);
+	settings[type] = cb(settings[type] as NonNullable<PropertySettings[T]>);
 	setPropertySettings({ plugin, property, settings });
 };
 

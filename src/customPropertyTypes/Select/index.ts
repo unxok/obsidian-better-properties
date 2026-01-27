@@ -20,10 +20,9 @@ export const selectPropertyType: CustomPropertyType = {
 
 export const selectSettingsSchema = v.optional(
 	v.object({
-		useDefaultStyle: v.optional(v.boolean(), false),
+		useDefaultStyle: v.optional(v.boolean()),
 		optionsType: v.optional(
-			v.union([v.literal("manual"), v.literal("dynamic")]),
-			"manual"
+			v.union([v.literal("manual"), v.literal("dynamic")])
 		),
 		manualAllowCreate: v.optional(v.boolean()),
 		manualOptions: v.optional(

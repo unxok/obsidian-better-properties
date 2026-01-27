@@ -63,7 +63,7 @@ export type RenderCustomTypeWidget<Value> = (args: {
 
 export type PropertyTypeSchema = v.OptionalSchema<
 	v.ObjectSchema<
-		Record<string, v.OptionalSchema<v.GenericSchema, unknown>>,
+		Record<string, v.OptionalSchema<v.GenericSchema, undefined>>,
 		undefined
 	>,
 	undefined

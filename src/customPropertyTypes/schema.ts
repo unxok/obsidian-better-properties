@@ -26,15 +26,15 @@ type SettingsBase = v.ObjectSchema<
 export const propertySettingsSchema = v.object({
 	general: v.optional(
 		v.object({
-			icon: v.optional(v.string(), ""),
-			hidden: v.optional(v.boolean(), false),
+			icon: v.optional(v.string()),
+			hidden: v.optional(v.boolean()),
 			defaultValue: v.optional(v.string()),
 			// onloadScript: z.string(),
 			alias: v.optional(v.string()),
 			suggestions: v.optional(v.array(v.string())),
 			collapsed: v.optional(v.boolean()),
 		})
-	),
+	) satisfies PropertyTypeSchema,
 	array: arraySettingsSchema,
 	select: selectSettingsSchema,
 	multiselect: multiSelectSettingsSchema,

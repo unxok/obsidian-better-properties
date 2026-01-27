@@ -24,8 +24,7 @@ export const multiSelectPropertyType: CustomPropertyType = {
 export const multiSelectSettingsSchema = v.optional(
 	v.object({
 		optionsType: v.optional(
-			v.union([v.literal("manual"), v.literal("dynamic")]),
-			"manual"
+			v.union([v.literal("manual"), v.literal("dynamic")])
 		),
 		manualAllowCreate: v.optional(v.boolean()),
 		manualOptions: v.optional(
