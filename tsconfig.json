@@ -25,6 +25,5 @@
 		"types": ["obsidian-typings", "./src/libs/types"],
 		"resolveJsonModule": true,
 		"moduleResolution": "nodenext"
-		// "esModuleInterop": true
 	}
 }

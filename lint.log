@@ -1,0 +1,403 @@
+
+C:\Users\ander\better-properties\src\Base\fixBasesFilters.ts
+  47:14  error  Unsafe assignment of an `any` value                  @typescript-eslint/no-unsafe-assignment
+  75:16  error  Unsafe member access .constructor on an `any` value  @typescript-eslint/no-unsafe-member-access
+  89:12  error  'console' is not defined                             no-undef
+
+C:\Users\ander\better-properties\src\MetadataEditor\index.ts
+  15:5   error  Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator  @typescript-eslint/no-floating-promises
+  29:18  error  Do not access Object.prototype method 'hasOwnProperty' from target object                                                                                           no-prototype-builtins
+
+C:\Users\ander\better-properties\src\MetadataEditor\patchMetadataEditor\index.ts
+   89:22  error    'createDiv' is not defined                                              no-undef
+  110:16  error    Unsafe array destructuring of a tuple element with an `any` value       @typescript-eslint/no-unsafe-assignment
+  215:6   warning  'initialX' is assigned a value but never used                           @typescript-eslint/no-unused-vars
+  219:52  error    Promise returned in function argument where a void return was expected  @typescript-eslint/no-misused-promises
+  227:31  error    'createDiv' is not defined                                              no-undef
+  228:21  error    'createDiv' is not defined                                              no-undef
+  241:3   error    'window' is not defined                                                 no-undef
+  242:4   error    'document' is not defined                                               no-undef
+  276:3   error    'document' is not defined                                               no-undef
+  286:3   error    'document' is not defined                                               no-undef
+  290:3   error    'document' is not defined                                               no-undef
+
+C:\Users\ander\better-properties\src\MetadataEditor\patchMetadataEditor\patchMetadataEditorProperty.ts
+  29:2   error  Expected an assignment or function call and instead saw an expression  @typescript-eslint/no-unused-expressions
+  30:34  error  'createDiv' is not defined                                             no-undef
+  31:31  error  'createDiv' is not defined                                             no-undef
+  35:29  error  'createDiv' is not defined                                             no-undef
+  36:39  error  'createEl' is not defined                                              no-undef
+  38:27  error  'createDiv' is not defined                                             no-undef
+  46:2   error  Expected an assignment or function call and instead saw an expression  @typescript-eslint/no-unused-expressions
+
+C:\Users\ander\better-properties\src\MetadataEditor\propertyEditorMenu\delete.ts
+  23:15  error  Promise returned in function argument where a void return was expected  @typescript-eslint/no-misused-promises
+  30:20  error  Promise returned in function argument where a void return was expected  @typescript-eslint/no-misused-promises
+  42:20  error  Promise returned in function argument where a void return was expected  @typescript-eslint/no-misused-promises
+
+C:\Users\ander\better-properties\src\MetadataEditor\propertyEditorMenu\icon.ts
+  40:20  error  Promise returned in function argument where a void return was expected  @typescript-eslint/no-misused-promises
+  45:20  error  Promise returned in function argument where a void return was expected  @typescript-eslint/no-misused-promises
+
+C:\Users\ander\better-properties\src\MetadataEditor\propertyEditorMenu\index.ts
+  144:5  error  'console' is not defined                                                                                                                                            no-undef
+  144:5  error  Unexpected console statement. Only these console methods are allowed: warn, error, debug                                                                            no-console
+  145:5  error  Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator  @typescript-eslint/no-floating-promises
+
+C:\Users\ander\better-properties\src\MetadataEditor\propertyEditorMenu\rename.ts
+  21:4   error  'createFragment' is not defined                                         no-undef
+  61:23  error  Promise returned in function argument where a void return was expected  @typescript-eslint/no-misused-promises
+
+C:\Users\ander\better-properties\src\MetadataTypeManager\patchMetadataTypeManager.ts
+  11:11  error  Unsafe assignment of an `any` value              @typescript-eslint/no-unsafe-assignment
+  11:11  error  Unexpected aliasing of 'this' to local variable  @typescript-eslint/no-this-alias
+  11:17  error  'MetadataTypeManager' is not defined             no-undef
+  21:11  error  Unsafe assignment of an `any` value              @typescript-eslint/no-unsafe-assignment
+  21:11  error  Unexpected aliasing of 'this' to local variable  @typescript-eslint/no-this-alias
+  21:17  error  'MetadataTypeManager' is not defined             no-undef
+
+C:\Users\ander\better-properties\src\Plugin\commands.ts
+  10:9  error  Use sentence case for UI text  obsidianmd/ui/sentence-case
+
+C:\Users\ander\better-properties\src\Plugin\plugin.ts
+    6:2   warning  'PopoverSuggest' is defined but never used                                                                                                                          @typescript-eslint/no-unused-vars
+    7:2   warning  'App' is defined but never used                                                                                                                                     @typescript-eslint/no-unused-vars
+    8:2   warning  'setIcon' is defined but never used                                                                                                                                 @typescript-eslint/no-unused-vars
+    9:2   warning  'SearchComponent' is defined but never used                                                                                                                         @typescript-eslint/no-unused-vars
+   10:2   warning  'Menu' is defined but never used                                                                                                                                    @typescript-eslint/no-unused-vars
+   38:2   warning  'InputSuggest' is defined but never used                                                                                                                            @typescript-eslint/no-unused-vars
+   42:10  warning  'around' is defined but never used                                                                                                                                  @typescript-eslint/no-unused-vars
+   42:18  warning  'dedupe' is defined but never used                                                                                                                                  @typescript-eslint/no-unused-vars
+   43:10  warning  'monkeyAroundKey' is defined but never used                                                                                                                         @typescript-eslint/no-unused-vars
+   56:3   error    Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator  @typescript-eslint/no-floating-promises
+   96:33  error    'window' is not defined                                                                                                                                             no-undef
+  103:6   error    'console' is not defined                                                                                                                                            no-undef
+  103:6   error    Unexpected console statement. Only these console methods are allowed: warn, error, debug                                                                            no-console
+  109:39  error    Use sentence case for UI text                                                                                                                                       obsidianmd/ui/sentence-case
+  115:4   error    Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator  @typescript-eslint/no-floating-promises
+  115:4   error    Expected an assignment or function call and instead saw an expression                                                                                               @typescript-eslint/no-unused-expressions
+  124:4   error    Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator  @typescript-eslint/no-floating-promises
+  129:3   error    Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator  @typescript-eslint/no-floating-promises
+  131:23  error    'document' is not defined                                                                                                                                           no-undef
+  136:4   error    'document' is not defined                                                                                                                                           no-undef
+  145:5   error    Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator  @typescript-eslint/no-floating-promises
+  163:9   error    Unsafe assignment of an `any` value                                                                                                                                 @typescript-eslint/no-unsafe-assignment
+  182:3   error    'console' is not defined                                                                                                                                            no-undef
+  183:3   error    'console' is not defined                                                                                                                                            no-undef
+  217:7   warning  'SampleSearchSuggest' is defined but never used                                                                                                                     @typescript-eslint/no-unused-vars
+
+C:\Users\ander\better-properties\src\Plugin\settings.ts
+  124:3  error  Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator  @typescript-eslint/no-floating-promises
+
+C:\Users\ander\better-properties\src\bpjs\api.ts
+   25:3   error  Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator  @typescript-eslint/no-floating-promises
+   80:33  error  'createSpan' is not defined                                                                                                                                         no-undef
+   82:18  error  Creating and attaching "style" elements is not allowed. For loading CSS, use a "styles.css" file instead, which Obsidian loads for you                              obsidianmd/no-forbidden-elements
+  100:3   error  Unsafe return of a value of type `any`                                                                                                                              @typescript-eslint/no-unsafe-return
+  100:10  error  A `require()` style import is forbidden                                                                                                                             @typescript-eslint/no-require-imports
+  100:10  error  'require' is not defined                                                                                                                                            no-undef
+  252:4   error  eval can be harmful                                                                                                                                                 no-eval
+  295:20  error  Unsafe object destructuring of a property with an `any` value                                                                                                       @typescript-eslint/no-unsafe-assignment
+  296:10  error  Unsafe assignment of an `any` value                                                                                                                                 @typescript-eslint/no-unsafe-assignment
+  296:15  error  eval can be harmful                                                                                                                                                 no-eval
+  300:4   error  Unsafe return of a value of type `any`                                                                                                                              @typescript-eslint/no-unsafe-return
+  300:17  error  Unsafe call of an `any` typed value                                                                                                                                 @typescript-eslint/no-unsafe-call
+  303:4   error  'console' is not defined                                                                                                                                            no-undef
+  308:3   error  Unsafe assignment of an `any` value                                                                                                                                 @typescript-eslint/no-unsafe-assignment
+  308:25  error  Unsafe call of an `any` typed value                                                                                                                                 @typescript-eslint/no-unsafe-call
+  308:31  error  Unsafe member access .toString on an `any` value                                                                                                                    @typescript-eslint/no-unsafe-member-access
+  330:4   error  Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator  @typescript-eslint/no-floating-promises
+  331:24  error  Unsafe argument of type `any` assigned to a parameter of type `Record<string, unknown>`                                                                             @typescript-eslint/no-unsafe-argument
+  332:5   error  Unsafe return of a value of type `any`                                                                                                                              @typescript-eslint/no-unsafe-return
+
+C:\Users\ander\better-properties\src\bpjs\createCodeBlockProcessor.ts
+  25:3  error  Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator  @typescript-eslint/no-floating-promises
+  31:2  error  'window' is not defined                                                                                                                                             no-undef
+  32:3  error  'window' is not defined                                                                                                                                             no-undef
+
+C:\Users\ander\better-properties\src\bpjs\createPostProcessor.ts
+  14:31  error  Promise returned in function argument where a void return was expected                                                                                              @typescript-eslint/no-misused-promises
+  26:18  error  'createSpan' is not defined                                                                                                                                         no-undef
+  34:3   error  Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator  @typescript-eslint/no-floating-promises
+
+C:\Users\ander\better-properties\src\bpjs\createViewPlugin.ts
+   1:1  error  '@codemirror/view' should be listed in the project's dependencies. Run 'npm i -S @codemirror/view' to add it                                                        import/no-extraneous-dependencies
+  10:1  error  '@codemirror/state' should be listed in the project's dependencies. Run 'npm i -S @codemirror/state' to add it                                                      import/no-extraneous-dependencies
+  39:3  error  Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator  @typescript-eslint/no-floating-promises
+
+C:\Users\ander\better-properties\src\changelog\index.ts
+  30:10  error  Use sentence case for UI text                                                                                                                                       obsidianmd/ui/sentence-case
+  44:3   error  Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator  @typescript-eslint/no-floating-promises
+
+C:\Users\ander\better-properties\src\classes\ComboboxComponent\index.ts
+   33:3   error  Expected an assignment or function call and instead saw an expression                                                                                               @typescript-eslint/no-unused-expressions
+   34:3   error  Expected an assignment or function call and instead saw an expression                                                                                               @typescript-eslint/no-unused-expressions
+  141:10  error  'createDiv' is not defined                                                                                                                                          no-undef
+  318:5   error  Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator  @typescript-eslint/no-floating-promises
+  338:3   error  Expected an assignment or function call and instead saw an expression                                                                                               @typescript-eslint/no-unused-expressions
+  374:3   error  Expected an assignment or function call and instead saw an expression                                                                                               @typescript-eslint/no-unused-expressions
+  379:3   error  Expected an assignment or function call and instead saw an expression                                                                                               @typescript-eslint/no-unused-expressions
+
+C:\Users\ander\better-properties\src\classes\ConfirmationModal\index.ts
+  40:24  error  'document' is not defined  no-undef
+
+C:\Users\ander\better-properties\src\classes\EmbeddableMarkdownEditor\index.ts
+   30:1   error  '@codemirror/state' should be listed in the project's dependencies. Run 'npm i -S @codemirror/state' to add it                                                      import/no-extraneous-dependencies
+   31:1   error  '@codemirror/view' should be listed in the project's dependencies. Run 'npm i -S @codemirror/view' to add it                                                        import/no-extraneous-dependencies
+   57:23  error  'document' is not defined                                                                                                                                           no-undef
+   65:8   error  Unsafe assignment of an `any` value                                                                                                                                 @typescript-eslint/no-unsafe-assignment
+   72:18  error  Unsafe member access .constructor on an `any` value                                                                                                                 @typescript-eslint/no-unsafe-member-access
+  121:3   error  Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator  @typescript-eslint/no-floating-promises
+  126:3   error  Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator  @typescript-eslint/no-floating-promises
+  204:56  error  Promise returned in function argument where a void return was expected                                                                                              @typescript-eslint/no-misused-promises
+  222:59  error  Promise returned in function argument where a void return was expected                                                                                              @typescript-eslint/no-misused-promises
+
+C:\Users\ander\better-properties\src\classes\InputSuggest\TagSuggest\index.ts
+  24:6  error  Expected an assignment or function call and instead saw an expression  @typescript-eslint/no-unused-expressions
+
+C:\Users\ander\better-properties\src\classes\InputSuggest\index.ts
+    4:2   warning  'App' is defined but never used                                         @typescript-eslint/no-unused-vars
+    5:2   warning  'Keymap' is defined but never used                                      @typescript-eslint/no-unused-vars
+  215:36  error    Promise returned in function argument where a void return was expected  @typescript-eslint/no-misused-promises
+
+C:\Users\ander\better-properties\src\classes\ListSetting\index.ts
+  109:22  error  Promise returned in function argument where a void return was expected  @typescript-eslint/no-misused-promises
+  145:48  error  Promise returned in function argument where a void return was expected  @typescript-eslint/no-misused-promises
+  163:33  error  'createDiv' is not defined                                              no-undef
+  205:37  error  Promise returned in function argument where a void return was expected  @typescript-eslint/no-misused-promises
+  206:35  error  Promise returned in function argument where a void return was expected  @typescript-eslint/no-misused-promises
+  207:35  error  Promise returned in function argument where a void return was expected  @typescript-eslint/no-misused-promises
+
+C:\Users\ander\better-properties\src\classes\MultiSelect\index.ts
+  10:13  error  'createDiv' is not defined                                                                                              no-undef
+  20:8   error  Unsafe assignment of an `any` value                                                                                     @typescript-eslint/no-unsafe-assignment
+  20:62  error  Unsafe member access .constructor on an `any` value                                                                     @typescript-eslint/no-unsafe-member-access
+  25:2   error  Interfaces cannot be constructed, only classes                                                                          @typescript-eslint/no-misused-new
+  68:71  error  Unexpected use of 'app'. Avoid using the global app object. Instead use the reference provided by your plugin instance  no-restricted-globals
+  68:71  error  `app` is deprecated. - Prefer not to use this value directly                                                            @typescript-eslint/no-deprecated
+  68:71  error  'app' is not defined                                                                                                    no-undef
+  71:63  error  Unexpected any. Specify a different type                                                                                @typescript-eslint/no-explicit-any
+
+C:\Users\ander\better-properties\src\classes\PropertyComponent\index.ts
+  105:9   error  'navigator' is not defined                                                                                                                                          no-undef
+  167:7   error  'console' is not defined                                                                                                                                            no-undef
+  167:7   error  Unexpected console statement. Only these console methods are allowed: warn, error, debug                                                                            no-console
+  174:10  error  'console' is not defined                                                                                                                                            no-undef
+  174:10  error  Unexpected console statement. Only these console methods are allowed: warn, error, debug                                                                            no-console
+  175:10  error  'console' is not defined                                                                                                                                            no-undef
+  175:10  error  Unexpected console statement. Only these console methods are allowed: warn, error, debug                                                                            no-console
+  176:10  error  Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator  @typescript-eslint/no-floating-promises
+  228:3   error  Expected an assignment or function call and instead saw an expression                                                                                               @typescript-eslint/no-unused-expressions
+  229:3   error  Expected an assignment or function call and instead saw an expression                                                                                               @typescript-eslint/no-unused-expressions
+  247:3   error  Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator  @typescript-eslint/no-floating-promises
+  276:25  error  This assertion is unnecessary since it does not change the type of the expression                                                                                   @typescript-eslint/no-unnecessary-type-assertion
+  306:4   error  Expected an assignment or function call and instead saw an expression                                                                                               @typescript-eslint/no-unused-expressions
+  362:26  error  Promise returned in function argument where a void return was expected                                                                                              @typescript-eslint/no-misused-promises
+  371:26  error  Promise returned in function argument where a void return was expected                                                                                              @typescript-eslint/no-misused-promises
+
+C:\Users\ander\better-properties\src\classes\VerticalTabModal\index.ts
+  171:3  error  Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator  @typescript-eslint/no-floating-promises
+
+C:\Users\ander\better-properties\src\customPropertyTypes\Array\renderWidget.ts
+  109:10  error  Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator  @typescript-eslint/no-floating-promises
+  310:34  error  Promise returned in function argument where a void return was expected                                                                                              @typescript-eslint/no-misused-promises
+
+C:\Users\ander\better-properties\src\customPropertyTypes\Created\renderSettings.ts
+  36:4   error  'createFragment' is not defined  no-undef
+  59:21  error  Use sentence case for UI text    obsidianmd/ui/sentence-case
+
+C:\Users\ander\better-properties\src\customPropertyTypes\Created\renderWidget.ts
+  25:8  error  Unsafe assignment of an error typed value                        @typescript-eslint/no-unsafe-assignment
+  43:3  error  'window' is not defined                                          no-undef
+  64:7  error  Unsafe member access .onFocus on a type that cannot be resolved  @typescript-eslint/no-unsafe-member-access
+  79:7  error  Unsafe member access .onFocus on a type that cannot be resolved  @typescript-eslint/no-unsafe-member-access
+  82:2  error  Unsafe return of a value of type error                           @typescript-eslint/no-unsafe-return
+
+C:\Users\ander\better-properties\src\customPropertyTypes\DateCustom\renderSettings.ts
+  50:4   error  'createFragment' is not defined  no-undef
+  79:21  error  Use sentence case for UI text    obsidianmd/ui/sentence-case
+
+C:\Users\ander\better-properties\src\customPropertyTypes\MultiSelect\renderWidget.ts
+   25:42  error  Unsafe return of a value of type `any[]`                                                                                                                            @typescript-eslint/no-unsafe-return
+   46:3   error  Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator  @typescript-eslint/no-floating-promises
+   57:4   error  Expected an assignment or function call and instead saw an expression                                                                                               @typescript-eslint/no-unused-expressions
+  178:8   error  Expected non-Promise value in a boolean conditional                                                                                                                 @typescript-eslint/no-misused-promises
+
+C:\Users\ander\better-properties\src\customPropertyTypes\MultiSelect\utils.ts
+   57:9   error  Unsafe assignment of an `any` value                                                       @typescript-eslint/no-unsafe-assignment
+   58:35  error  eval can be harmful                                                                       no-eval
+  106:3   error  eval can be harmful                                                                       no-eval
+  271:20  error  Promise returned in function argument where a void return was expected                    @typescript-eslint/no-misused-promises
+  314:20  error  Promise returned in function argument where a void return was expected                    @typescript-eslint/no-misused-promises
+  540:12  error  'navigator' is not defined                                                                no-undef
+  566:7   error  'console' is not defined                                                                  no-undef
+  566:7   error  Unexpected console statement. Only these console methods are allowed: warn, error, debug  no-console
+  571:6   error  'console' is not defined                                                                  no-undef
+  573:7   error  'createFragment' is not defined                                                           no-undef
+  631:12  error  'navigator' is not defined                                                                no-undef
+  657:7   error  'console' is not defined                                                                  no-undef
+  657:7   error  Unexpected console statement. Only these console methods are allowed: warn, error, debug  no-console
+  662:6   error  'console' is not defined                                                                  no-undef
+  664:7   error  'createFragment' is not defined                                                           no-undef
+
+C:\Users\ander\better-properties\src\customPropertyTypes\Object\renderWidget.ts
+  165:4   error  Unsafe return of a value of type `any`                                 @typescript-eslint/no-unsafe-return
+  165:42  error  Unsafe member access [this.parentCtx.index] on an `any` value          @typescript-eslint/no-unsafe-member-access
+  230:4   error  Expected an assignment or function call and instead saw an expression  @typescript-eslint/no-unused-expressions
+
+C:\Users\ander\better-properties\src\customPropertyTypes\Relation\registerListeners.ts
+   32:7   warning  'updateRelatedFiles' is assigned a value but never used                                                                                                             @typescript-eslint/no-unused-vars
+   44:8   error    Unsafe assignment of an `any` value                                                                                                                                 @typescript-eslint/no-unsafe-assignment
+   45:64  error    Unsafe member access [0] on an `any` value                                                                                                                          @typescript-eslint/no-unsafe-member-access
+   63:3   error    Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator  @typescript-eslint/no-floating-promises
+   64:68  error    Unsafe argument of type `any` assigned to a parameter of type `Record<string, any>`                                                                                 @typescript-eslint/no-unsafe-argument
+   73:5   error    Unsafe argument of type `any` assigned to a parameter of type `Record<string, unknown>`                                                                             @typescript-eslint/no-unsafe-argument
+   83:7   warning  'RelationSynManager' is defined but never used                                                                                                                      @typescript-eslint/no-unused-vars
+  109:12  error    Unsafe assignment of an `any` value                                                                                                                                 @typescript-eslint/no-unsafe-assignment
+  110:12  error    Unsafe assignment of type `any[]` to a variable of type `string[]`                                                                                                  @typescript-eslint/no-unsafe-assignment
+  136:63  error    Unsafe argument of type `any` assigned to a parameter of type `string`                                                                                              @typescript-eslint/no-unsafe-argument
+
+C:\Users\ander\better-properties\src\customPropertyTypes\Relation\renderSettings.ts
+  47:3  error  Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator  @typescript-eslint/no-floating-promises
+
+C:\Users\ander\better-properties\src\customPropertyTypes\Relation\renderWidget.ts
+   26:4   error  Unsafe return of a value of type `any[]`                                                                                                                            @typescript-eslint/no-unsafe-return
+   26:27  error  Unsafe return of a value of type `any`                                                                                                                              @typescript-eslint/no-unsafe-return
+   26:27  error  Unsafe call of an `any` typed value                                                                                                                                 @typescript-eslint/no-unsafe-call
+   26:33  error  Unsafe member access .toString on an `any` value                                                                                                                    @typescript-eslint/no-unsafe-member-access
+   60:6   error  This assertion is unnecessary since it does not change the type of the expression                                                                                   @typescript-eslint/no-unnecessary-type-assertion
+  180:5   error  Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator  @typescript-eslint/no-floating-promises
+
+C:\Users\ander\better-properties\src\customPropertyTypes\Select\renderWidget.ts
+    6:2   warning  'parseLinktext' is defined but never used                                                                                                                           @typescript-eslint/no-unused-vars
+    7:2   warning  'PopoverSuggest' is defined but never used                                                                                                                          @typescript-eslint/no-unused-vars
+   21:2   warning  'backgroundCssVar' is defined but never used                                                                                                                        @typescript-eslint/no-unused-vars
+   31:29  warning  'SelectOption' is defined but never used                                                                                                                            @typescript-eslint/no-unused-vars
+   32:10  warning  'InputSuggest' is defined but never used                                                                                                                            @typescript-eslint/no-unused-vars
+   32:24  warning  'Suggestion' is defined but never used                                                                                                                              @typescript-eslint/no-unused-vars
+   47:7   warning  'SelectTypeComponent' is defined but never used                                                                                                                     @typescript-eslint/no-unused-vars
+   76:3   error    Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator  @typescript-eslint/no-floating-promises
+  244:20  error    'createDiv' is not defined                                                                                                                                          no-undef
+  253:38  error    Promise returned in function argument where a void return was expected                                                                                              @typescript-eslint/no-misused-promises
+  369:7   error    Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator  @typescript-eslint/no-floating-promises
+  431:4   error    Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator  @typescript-eslint/no-floating-promises
+  449:3   error    'window' is not defined                                                                                                                                             no-undef
+  580:4   error    Expected an assignment or function call and instead saw an expression                                                                                               @typescript-eslint/no-unused-expressions
+  590:37  error    Promise returned in function argument where a void return was expected                                                                                              @typescript-eslint/no-misused-promises
+
+C:\Users\ander\better-properties\src\customPropertyTypes\Select\utils.ts
+   66:9   error  Unsafe assignment of an `any` value                                                       @typescript-eslint/no-unsafe-assignment
+   67:35  error  eval can be harmful                                                                       no-eval
+  115:3   error  eval can be harmful                                                                       no-eval
+  293:20  error  Promise returned in function argument where a void return was expected                    @typescript-eslint/no-misused-promises
+  336:20  error  Promise returned in function argument where a void return was expected                    @typescript-eslint/no-misused-promises
+  579:12  error  'navigator' is not defined                                                                no-undef
+  605:7   error  'console' is not defined                                                                  no-undef
+  605:7   error  Unexpected console statement. Only these console methods are allowed: warn, error, debug  no-console
+  610:6   error  'console' is not defined                                                                  no-undef
+  612:7   error  'createFragment' is not defined                                                           no-undef
+  670:12  error  'navigator' is not defined                                                                no-undef
+  696:7   error  'console' is not defined                                                                  no-undef
+  696:7   error  Unexpected console statement. Only these console methods are allowed: warn, error, debug  no-console
+  701:6   error  'console' is not defined                                                                  no-undef
+  703:7   error  'createFragment' is not defined                                                           no-undef
+
+C:\Users\ander\better-properties\src\customPropertyTypes\Title\renderWidget.ts
+  59:3   error  'window' is not defined                                                                                                                                             no-undef
+  64:40  error  Promise returned in function argument where a void return was expected                                                                                              @typescript-eslint/no-misused-promises
+  65:43  error  Promise returned in function argument where a void return was expected                                                                                              @typescript-eslint/no-misused-promises
+  74:8   error  Unsafe assignment of an error typed value                                                                                                                           @typescript-eslint/no-unsafe-assignment
+  78:18  error  Unsafe argument of type `any` assigned to a parameter of type `string`                                                                                              @typescript-eslint/no-unsafe-argument
+  78:18  error  Unsafe call of an `any` typed value                                                                                                                                 @typescript-eslint/no-unsafe-call
+  78:21  error  Unsafe member access .toString on an `any` value                                                                                                                    @typescript-eslint/no-unsafe-member-access
+  79:4   error  Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator  @typescript-eslint/no-floating-promises
+  85:2   error  Unsafe return of a value of type error                                                                                                                              @typescript-eslint/no-unsafe-return
+
+C:\Users\ander\better-properties\src\customPropertyTypes\register.ts
+   68:17  error  A method that is not declared with `this: void` may cause unintentional scoping of `this` when separated from its object.
+Consider using an arrow function or explicitly `.bind()`ing the method to avoid calling the method with an unintended `this` value. 
+If a function does not access `this`, it can be annotated with `this: void`  @typescript-eslint/unbound-method
+   68:23  error  A method that is not declared with `this: void` may cause unintentional scoping of `this` when separated from its object.
+Consider using an arrow function or explicitly `.bind()`ing the method to avoid calling the method with an unintended `this` value. 
+If a function does not access `this`, it can be annotated with `this: void`  @typescript-eslint/unbound-method
+   82:5   error  Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator                                                                                                                                                                          @typescript-eslint/no-floating-promises
+  140:8   error  'window' is not defined                                                                                                                                                                                                                                                                                                                     no-undef
+  153:9   error  Unsafe return of a value of type `any`                                                                                                                                                                                                                                                                                                      @typescript-eslint/no-unsafe-return
+  158:9   error  'console' is not defined                                                                                                                                                                                                                                                                                                                    no-undef
+  172:25  error  This assertion is unnecessary since it does not change the type of the expression                                                                                                                                                                                                                                                           @typescript-eslint/no-unnecessary-type-assertion
+  280:4   error  Expected an assignment or function call and instead saw an expression                                                                                                                                                                                                                                                                       @typescript-eslint/no-unused-expressions
+
+C:\Users\ander\better-properties\src\customPropertyTypes\settings.ts
+   63:20  error  Promise returned in function argument where a void return was expected                                                                                              @typescript-eslint/no-misused-promises
+   66:13  error  Promise returned in function argument where a void return was expected                                                                                              @typescript-eslint/no-misused-promises
+   85:20  error  Promise returned in function argument where a void return was expected                                                                                              @typescript-eslint/no-misused-promises
+  257:17  error  'value' may use Object's default stringification format ('[object Object]') when stringified                                                                        @typescript-eslint/no-base-to-string
+  295:6   error  Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator  @typescript-eslint/no-floating-promises
+  295:6   error  'navigator' is not defined                                                                                                                                          no-undef
+  334:45  error  Unsafe return of a value of type `any`                                                                                                                              @typescript-eslint/no-unsafe-return
+  367:20  error  Promise returned in function argument where a void return was expected                                                                                              @typescript-eslint/no-misused-promises
+  387:20  error  Promise returned in function argument where a void return was expected                                                                                              @typescript-eslint/no-misused-promises
+  410:6   error  Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator  @typescript-eslint/no-floating-promises
+  416:20  error  Promise returned in function argument where a void return was expected                                                                                              @typescript-eslint/no-misused-promises
+  425:20  error  Promise returned in function argument where a void return was expected                                                                                              @typescript-eslint/no-misused-promises
+
+C:\Users\ander\better-properties\src\customPropertyTypes\utils.ts
+   86:2  error  Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator  @typescript-eslint/no-floating-promises
+  106:2  error  Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator  @typescript-eslint/no-floating-promises
+
+C:\Users\ander\better-properties\src\i18next\index.ts
+   8:1   error  'window' is not defined  no-undef
+  12:16  error  'window' is not defined  no-undef
+
+C:\Users\ander\better-properties\src\i18next\obsidian.ts
+   844:28  error  Obsidian's configuration folder is not necessarily `.obsidian`, it can be configured by the user. Use `Vault#configDir` to get the current value  obsidianmd/hardcoded-config-path
+  1660:34  error  Obsidian's configuration folder is not necessarily `.obsidian`, it can be configured by the user. Use `Vault#configDir` to get the current value  obsidianmd/hardcoded-config-path
+  1773:33  error  Obsidian's configuration folder is not necessarily `.obsidian`, it can be configured by the user. Use `Vault#configDir` to get the current value  obsidianmd/hardcoded-config-path
+  1782:39  error  Obsidian's configuration folder is not necessarily `.obsidian`, it can be configured by the user. Use `Vault#configDir` to get the current value  obsidianmd/hardcoded-config-path
+  2688:23  error  'window' is not defined                                                                                                                           no-undef
+
+C:\Users\ander\better-properties\src\lib\constants\index.ts
+  4:41  error  Unnecessary escape character: \/  no-useless-escape
+
+C:\Users\ander\better-properties\src\lib\types\index.d.ts
+  42:2  error  Parsing error: 'private' modifier cannot appear on a type member
+
+C:\Users\ander\better-properties\src\lib\types\oneDotNine.d.ts
+  4:20  warning  'BasePropertyWidget' is defined but never used         @typescript-eslint/no-unused-vars
+  5:25  warning  'BaseMetadataTypeManager' is defined but never used    @typescript-eslint/no-unused-vars
+  6:18  warning  'BasePropertyInfo' is defined but never used           @typescript-eslint/no-unused-vars
+  7:27  warning  'BasePropertyRenderContext' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\ander\better-properties\src\lib\utils\index.ts
+   34:55  error  Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                    @typescript-eslint/no-explicit-any
+   68:7   error  'e' will use Object's default stringification format ('[object Object]') when stringified                                                                                                                                                                                                                                                   @typescript-eslint/no-base-to-string
+   85:7   error  'e' will use Object's default stringification format ('[object Object]') when stringified                                                                                                                                                                                                                                                   @typescript-eslint/no-base-to-string
+  297:2   error  Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator                                                                                                                                                                          @typescript-eslint/no-floating-promises
+  313:5   error  'createFragment' is not defined                                                                                                                                                                                                                                                                                                             no-undef
+  319:4   error  'console' is not defined                                                                                                                                                                                                                                                                                                                    no-undef
+  338:2   error  Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator                                                                                                                                                                          @typescript-eslint/no-floating-promises
+  339:2   error  Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator                                                                                                                                                                          @typescript-eslint/no-floating-promises
+  350:24  error  Unsafe spread of an `any` value in an array                                                                                                                                                                                                                                                                                                 @typescript-eslint/no-unsafe-assignment
+  369:5   error  'createFragment' is not defined                                                                                                                                                                                                                                                                                                             no-undef
+  375:4   error  'console' is not defined                                                                                                                                                                                                                                                                                                                    no-undef
+  393:2   error  Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator                                                                                                                                                                          @typescript-eslint/no-floating-promises
+  393:2   error  'navigator' is not defined                                                                                                                                                                                                                                                                                                                  no-undef
+  413:8   error  Unsafe assignment of an `any` value                                                                                                                                                                                                                                                                                                         @typescript-eslint/no-unsafe-assignment
+  431:28  error  A method that is not declared with `this: void` may cause unintentional scoping of `this` when separated from its object.
+Consider using an arrow function or explicitly `.bind()`ing the method to avoid calling the method with an unintended `this` value. 
+If a function does not access `this`, it can be annotated with `this: void`  @typescript-eslint/unbound-method
+  473:23  error  'createDiv' is not defined                                                                                                                                                                                                                                                                                                                  no-undef
+  515:5   error  'window' is not defined                                                                                                                                                                                                                                                                                                                     no-undef
+  516:5   error  'window' is not defined                                                                                                                                                                                                                                                                                                                     no-undef
+  555:4   error  'document' is not defined                                                                                                                                                                                                                                                                                                                   no-undef
+  556:4   error  'document' is not defined                                                                                                                                                                                                                                                                                                                   no-undef
+  557:4   error  'window' is not defined                                                                                                                                                                                                                                                                                                                     no-undef
+  562:3   error  'document' is not defined                                                                                                                                                                                                                                                                                                                   no-undef
+  563:3   error  'document' is not defined                                                                                                                                                                                                                                                                                                                   no-undef
+  623:22  error  Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                    @typescript-eslint/no-explicit-any
+  648:3   error  Unsafe assignment of an `any` value                                                                                                                                                                                                                                                                                                         @typescript-eslint/no-unsafe-assignment
+  688:2   error  'window' is not defined                                                                                                                                                                                                                                                                                                                     no-undef
+
+✖ 297 problems (271 errors, 26 warnings)
+  6 errors and 0 warnings potentially fixable with the `--fix` option.
+

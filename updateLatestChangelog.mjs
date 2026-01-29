@@ -1,4 +1,5 @@
 import { readFileSync, writeFileSync, rmSync } from "fs";
+import process from "process";
 
 const createContent = (changelogEntry) => {
 	return `// CAUTION: the build process is setup to write to this file\nexport const latest = ${changelogEntry};`;

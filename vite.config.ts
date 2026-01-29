@@ -2,24 +2,14 @@ import { UserConfig, defineConfig } from "vite";
 import path from "path";
 import builtins from "builtin-modules";
 // import { analyzer } from "vite-bundle-analyzer";
-import { viteStaticCopy } from "vite-plugin-static-copy";
 
 export default defineConfig(async ({ mode }) => {
 	const { resolve } = path;
 	const prod = mode === "production";
 
-	const vaultPluginDir = "vault/.obsidian/plugins/better-properties";
 	return {
 		plugins: [
 			// analyzer(),
-			viteStaticCopy({
-				targets: [
-					{
-						src: "manifest.json",
-						dest: vaultPluginDir,
-					},
-				],
-			}),
 		],
 		resolve: {
 			alias: {
@@ -44,8 +34,8 @@ export default defineConfig(async ({ mode }) => {
 					main: resolve(__dirname, "src/main.ts"),
 				},
 				output: {
-					entryFileNames: vaultPluginDir + "/main.js",
-					assetFileNames: vaultPluginDir + "/styles.css",
+					entryFileNames: "main.js",
+					assetFileNames: "styles.css",
 				},
 				external: [
 					"obsidian",

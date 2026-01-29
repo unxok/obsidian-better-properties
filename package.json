@@ -10,7 +10,8 @@
 		"build": "npm run changelog && vite build",
 		"version": "node version-bump.mjs && git add manifest.json versions.json",
 		"release": "git tag -a %npm_config_tag% -m '%npm_config_tag%' && git push origin %npm_config_tag%",
-		"test": "vitest"
+		"test": "vitest",
+		"lint": "npx eslint src/ >> lint.log"
 	},
 	"keywords": [],
 	"author": "Unxok",
@@ -19,16 +20,16 @@
 		"@codemirror/language": "6.10.3",
 		"@types/luxon": "3.4.2",
 		"@types/node": "22.7.4",
-		"@typescript-eslint/eslint-plugin": "5.29.0",
-		"@typescript-eslint/parser": "5.29.0",
 		"builtin-modules": "3.3.0",
 		"esbuild": "0.25.5",
+		"eslint": "^9.39.2",
+		"eslint-plugin-obsidianmd": "^0.1.9",
 		"luxon": "3.5.0",
 		"obsidian": "^1.10.3",
 		"obsidian-typings": "^4.63.0",
 		"tslib": "2.7.0",
 		"typescript": "5.8.3",
-		"vite": "6.3.6",
+		"vite": "6.4.1",
 		"vite-bundle-analyzer": "1.2.1",
 		"vite-plugin-static-copy": "^3.1.6",
 		"vitest": "^4.0.16"
@@ -36,6 +37,6 @@
 	"dependencies": {
 		"math-expression-evaluator": "2.0.7",
 		"monkey-around": "3.0.0",
-		"valibot": "1.1.0"
+		"valibot": "1.2.0"
 	}
 }
