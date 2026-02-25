@@ -14,5 +14,15 @@ export default defineConfig([
 			},
 		},
 	},
+	{
+		files: ["vite.config.ts"],
+		languageOptions: {
+			parser: tsparser,
+			parserOptions: {
+				project: "tsconfig.node.json",
+				sourceType: "module",
+			},
+		},
+	},
 	globalIgnores(["main.js"]),
 ]);

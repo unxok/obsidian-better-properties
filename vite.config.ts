@@ -1,6 +1,6 @@
 import { UserConfig, defineConfig } from "vite";
 import path from "path";
-import builtins from "builtin-modules";
+import { builtinModules } from "node:module";
 // import { analyzer } from "vite-bundle-analyzer";
 
 export default defineConfig(async ({ mode }) => {
@@ -51,7 +51,7 @@ export default defineConfig(async ({ mode }) => {
 					"@lezer/common",
 					"@lezer/highlight",
 					"@lezer/lr",
-					...builtins,
+					...builtinModules,
 				],
 			},
 		},
