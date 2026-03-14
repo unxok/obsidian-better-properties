@@ -2,6 +2,7 @@ import { UserConfig, defineConfig } from "vite";
 import path from "path";
 import { builtinModules } from "node:module";
 // import { analyzer } from "vite-bundle-analyzer";
+import copy from "rollup-plugin-copy";
 
 export default defineConfig(async ({ mode }) => {
 	const { resolve } = path;
@@ -10,17 +11,26 @@ export default defineConfig(async ({ mode }) => {
 	return {
 		plugins: [
 			// analyzer(),
+			copy({
+				hook: "writeBundle",
+				targets: [
+					{
+						src: "dist/*",
+						dest: "../better-properties-vault/.obsidian/plugins/better-properties/",
+					},
+				],
+			}),
 		],
 		resolve: {
 			alias: {
 				"~": path.resolve(__dirname, "./src"),
+				"#": path.resolve(__dirname, "./src2"),
 			},
 		},
 		build: {
 			lib: {
 				entry: resolve(__dirname, "src/main.ts"),
 				name: "main",
-				fileName: () => "main.js",
 				formats: ["cjs"],
 			},
 			minify: prod,
@@ -34,8 +44,8 @@ export default defineConfig(async ({ mode }) => {
 					main: resolve(__dirname, "src/main.ts"),
 				},
 				output: {
-					entryFileNames: "main.js",
-					assetFileNames: "styles.css",
+					entryFileNames: "dist/main.js",
+					assetFileNames: "dist/styles.css",
 				},
 				external: [
 					"obsidian",

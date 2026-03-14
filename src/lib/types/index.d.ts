@@ -1,8 +1,11 @@
 import {
 	Events,
+	EventRef,
+	PopoverSuggest,
 	Workspace as BaseWorkspace,
 	MetadataCache as BaseMetadataCache,
 	BasesViewFactory,
+	TFile,
 } from "obsidian";
 import {
 	MetadataTypeManager as BaseMetadataTypeManager,
@@ -39,12 +42,13 @@ declare module "obsidian" {
 
 	interface PropertyValueComponent {
 		containerEl: HTMLElement;
-		private focus(_: unknown): void;
+		focus(_: unknown): void;
 		onFocus(): void;
 	}
 
 	interface MetadataTypeManager extends BaseMetadataTypeManager {
 		on(name: "changed", cb: (property: string) => void): EventRef;
+		registeredTypeWidgets: Record<string, PropertyWidget>;
 	}
 
 	interface MetadataCache extends BaseMetadataCache {

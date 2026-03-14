@@ -5,9 +5,10 @@
 	"main": "main.js",
 	"scripts": {
 		"changelog": "node getChangelogEntry.mjs > tmp && node updateLatestChangelog.mjs",
-		"dev": "npm run changelog && vite build --watch --mode=development",
+		"dev": "npm run changelog && npm run copy-manifest-to-vault && vite build --watch --mode=development",
 		"tsc": "tsc",
-		"build": "npm run changelog && vite build",
+		"copy-manifest-to-vault": "cp manifest.json ../better-properties-vault/.obsidian/plugins/better-properties/manifest.json",
+		"build": "npm run changelog && vite build && cp manifest.json dist/",
 		"version": "node version-bump.mjs && git add manifest.json versions.json",
 		"release": "git tag -a %npm_config_tag% -m '%npm_config_tag%' && git push origin %npm_config_tag%",
 		"test": "vitest",
@@ -26,6 +27,7 @@
 		"luxon": "3.5.0",
 		"obsidian": "^1.10.3",
 		"obsidian-typings": "^4.63.0",
+		"rollup-plugin-copy": "^3.5.0",
 		"tslib": "2.7.0",
 		"typescript": "5.8.3",
 		"vite": "6.4.1",
@@ -36,6 +38,6 @@
 	"dependencies": {
 		"math-expression-evaluator": "2.0.7",
 		"monkey-around": "3.0.0",
-		"valibot": "1.2.0"
+		"valibot": "^1.2.0"
 	}
 }

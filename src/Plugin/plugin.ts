@@ -1,14 +1,4 @@
-import {
-	Modal,
-	ButtonComponent,
-	Plugin,
-	MarkdownView,
-	PopoverSuggest,
-	App,
-	setIcon,
-	SearchComponent,
-	Menu,
-} from "obsidian";
+import { Modal, ButtonComponent, Plugin, MarkdownView } from "obsidian";
 import {
 	BetterPropertiesSettings,
 	betterPropertiesSettingsSchema,
@@ -34,13 +24,7 @@ import { patchMetadataTypeManager } from "~/MetadataTypeManager/patchMetadataTyp
 import { handleChangelogView } from "~/changelog";
 import { registerCommands } from "./commands";
 import { fixBasesFilters } from "~/Base/fixBasesFilters";
-import {
-	InputSuggest,
-	AbstractSearchSuggest,
-	Suggestion,
-} from "~/classes/InputSuggest";
-import { around, dedupe } from "monkey-around";
-import { monkeyAroundKey } from "~/lib/constants";
+import { AbstractSearchSuggest, Suggestion } from "~/classes/InputSuggest";
 import { ComboboxComponentNew } from "~/classes/ComboboxComponent";
 
 export class BetterProperties extends Plugin {
@@ -100,7 +84,6 @@ export class BetterProperties extends Plugin {
 					return arr.filter((s) => s.toLowerCase().includes(lower));
 				})
 				.onSelect((value) => {
-					console.log("selected: ", value);
 					combobox.clickableEl.textContent = value;
 				})
 				.onCreate(() => {});
@@ -112,7 +95,7 @@ export class BetterProperties extends Plugin {
 
 	rebuildLeaves(): void {
 		this.app.workspace.iterateAllLeaves((leaf) => {
-			leaf.rebuildView && leaf.rebuildView();
+			void leaf.rebuildView();
 		});
 	}
 
@@ -121,7 +104,7 @@ export class BetterProperties extends Plugin {
 			if (!(leaf.view instanceof MarkdownView)) return;
 			const me = leaf.view.metadataEditor;
 			if (!me) return;
-			leaf.rebuildView();
+			void leaf.rebuildView();
 		});
 	}
 
