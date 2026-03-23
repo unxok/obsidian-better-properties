@@ -271,7 +271,7 @@ body {
 		& div.cm-scroller {
 			overflow: visible;
 
-			.ͼ1 & {
+			.cm-editor & {
 				font-family: var(--font-text);
 				line-height: var(--line-height-normal);
 			}
