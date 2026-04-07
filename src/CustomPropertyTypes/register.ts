@@ -28,6 +28,7 @@ import { timePropertyType } from "./Time";
 import { multiSelectPropertyType } from "./MultiSelect";
 import { numericPropertyType } from "./Numeric";
 import { arrayPropertyType } from "./Array";
+import { measurementPropertyType } from "./Measurement";
 import { Icon } from "~/lib/types/icons";
 // import { relationPropertyType } from "./Relation";
 
@@ -47,6 +48,7 @@ export const getCustomPropertyTypesArr = (): CustomPropertyType[] => [
 	sliderPropertyType,
 	timePropertyType,
 	numericPropertyType,
+	measurementPropertyType,
 ];
 
 export const getCustomPropertyTypesRecord = (): Record<

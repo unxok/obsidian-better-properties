@@ -689,6 +689,12 @@ div.metadata-content {
 	}
 }
 
+.better-properties-measurement-container {
+	display: flex;
+	gap: 4px;
+	align-items: center;
+}
+
 .metadata-property[data-better-properties-hide-key="true"]
 	> .metadata-property-key {
 	display: none;
@@ -769,4 +775,13 @@ div.better-properties-mod-hidden {
 	left: var(--better-properties-left);
 	top: var(--better-properties-top);
 	transform: var(--better-properties-transform);
+}
+
+.better-properties-measurement-number {
+	& input[type="number"] {
+		width: auto;
+		min-width: 3ch;
+		max-width: 15ch;
+		background-color: transparent;
+	}
 }

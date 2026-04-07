@@ -99,7 +99,6 @@ export class ListSetting<T> extends Setting {
 	renderItem(value: T): this {
 		const item = new Item(this, value);
 		this.onCreateItemCallback(value, item);
-		item.focusCallback();
 		return this;
 	}
 
