@@ -1,0 +1,22 @@
+.better-properties--combobox-control {
+	display: flex;
+	gap: var(--size-2-1);
+}
+/* .better-properties--combobox-clickable {} */
+
+.better-properties--suggestion-footer.suggestion {
+	border-top: var(--border-width) solid var(--background-modifier-border);
+	overflow-y: visible;
+
+	&:empty {
+		display: none;
+	}
+
+	.suggestion-item:hover {
+		background-color: var(--background-modifier-hover);
+
+		.combobox:has(&) > .suggestion > .suggestion-item.is-selected {
+			background-color: transparent;
+		}
+	}
+}

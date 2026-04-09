@@ -1,624 +1,95 @@
-body {
-	--better-properties-select-opactiy: 1;
-	--better-properties-select-saturation: 55%;
-	--better-properties-select-lightness: 30%;
-	--better-properties-select-bg: var(--better-properties-select-transparent);
-
-	&.theme-light {
-		--better-properties-select-saturation: 80%;
-		--better-properties-select-lightness: 80%;
-	}
-
-	--better-properties-select-red: hsl(
-		from rgb(var(--color-red-rgb)) h var(--better-properties-select-saturation)
-			var(--better-properties-select-lightness)
-	);
-	--better-properties-select-orange: hsl(
-		from rgb(var(--color-orange-rgb)) h
-			var(--better-properties-select-saturation)
-			var(--better-properties-select-lightness)
-	);
-	--better-properties-select-yellow: hsl(
-		from rgb(var(--color-yellow-rgb)) h
-			var(--better-properties-select-saturation)
-			var(--better-properties-select-lightness)
-	);
-	--better-properties-select-green: hsl(
-		from rgb(var(--color-green-rgb)) h
-			var(--better-properties-select-saturation)
-			var(--better-properties-select-lightness)
-	);
-	--better-properties-select-blue: hsl(
-		from rgb(var(--color-blue-rgb)) h var(--better-properties-select-saturation)
-			var(--better-properties-select-lightness)
-	);
-	--better-properties-select-cyan: hsl(
-		from rgb(var(--color-cyan-rgb)) h var(--better-properties-select-saturation)
-			var(--better-properties-select-lightness)
-	);
-	--better-properties-select-purple: hsl(
-		from rgb(var(--color-purple-rgb)) h
-			var(--better-properties-select-saturation)
-			var(--better-properties-select-lightness)
-	);
-	--better-properties-select-pink: hsl(
-		from rgb(var(--color-pink-rgb)) h var(--better-properties-select-saturation)
-			var(--better-properties-select-lightness)
-	);
-
-	--better-properties-select-transparent: transparent;
-	--better-properties-select-gray: hsl(
-		from gray h s var(--better-properties-select-lightness)
-	);
-	--better-properties-select-custom: linear-gradient(
-		90deg,
-		var(--better-properties-select-blue) 0%,
-		var(--better-properties-select-green) 50%,
-		var(--better-properties-select-red) 100%
-	);
-	--better-properties-select-watermelon: radial-gradient(
-		circle,
-		var(--better-properties-select-red) 0%,
-		/* var(--better-properties-select-green) 50%, */
-			var(--better-properties-select-green) 100%
-	);
-}
-
-.better-properties-select,
-.better-properties-select-option {
-	color: var(--metadata-input-text-color);
-	background: var(--better-properties-select-bg);
-	border-radius: var(--radius-s);
-	/* padding: var(--size-2-1) var(--size-2-2); */
-	padding: var(--size-2-1) var(--size-2-2);
-	width: fit-content;
-	flex: unset;
-}
-
-.metadata-property-value {
-	&[data-property-type="better-properties:select"] {
-		padding: var(--size-2-2);
-		display: flex;
-		justify-content: start;
-		align-items: center;
-		gap: var(--size-4-1);
-		padding: var(--input-padding);
-		width: 100%;
-		min-width: fit-content;
-		text-wrap: nowrap;
-		.metadata-property:has(&) {
-			--input-radius: unset;
-		}
-	}
-
-	&[data-property-type="better-properties:multiselect"] {
-		padding: var(--size-2-2);
-		display: flex;
-		justify-content: start;
-		align-items: center;
-		gap: var(--size-4-1);
-		padding: var(--input-padding);
-		width: 100%;
-		max-width: 100%;
-	}
-
-	&[data-property-type="better-properties:select"],
-	&[data-property-type="better-properties:multiselect"] {
-		& > .better-properties-combobox-control {
-			&[data-better-properties-is-empty] {
-				width: 100%;
-				height: 100%;
-				opacity: 0;
-
-				& > .better-properties-combobox-clickable {
-					width: 100%;
-					height: 100%;
-
-					& > div {
-						display: none;
-					}
-				}
-			}
-
-			& > .better-properties-combobox-clickable {
-				display: flex;
-				align-items: center;
-				gap: var(--size-2-1);
-				min-width: 0;
-				width: fit-content;
-				font-size: var(--metadata-input-font-size);
-				cursor: default;
-				border-radius: var(--radius-s);
-				--better-properties-close-display: none;
-				padding-inline-start: min(var(--size-2-3), var(--pill-padding-x));
-				background: var(--better-properties-select-bg);
-				color: var(--text-normal);
-
-				&
-					> .better-properties-clickable-remove.multi-select-pill-remove-button {
-					color: var(--text-normal);
-
-					&:hover {
-						color: var(--pill-color-remove-hover);
-					}
-				}
-
-				&:focus-within {
-					--better-properties-close-display: flex;
-					opacity: 1;
-				}
-
-				&:focus-within,
-				&:active,
-				&:hover {
-					outline: 3px solid var(--background-modifier-border-focus);
-				}
-
-				&.data-better-properties-combobox-mod-empty {
-					opacity: 0;
-					width: 100%;
-					height: 100%;
-				}
-			}
-		}
-	}
-
-	&[data-property-type="better-properties:toggle"] {
-		padding: var(--input-padding);
-		height: var(--input-height);
-	}
-
-	/* &[data-property-type="better-properties:time"] {
-	} */
-
-	&[data-property-type="better-properties:color"] {
-		padding: var(--input-padding);
-		height: var(--input-height);
-		width: 100%;
-
-		& > .better-properties-color-text-component-container {
-			gap: 0;
-			width: 100%;
-			& > input[type="text"] {
-				background-color: transparent;
-				text-overflow: ellipsis;
-				width: 100%;
-			}
-		}
-	}
-
-	&[data-property-type="better-properties:slider"] {
-		& > .better-properties-slider-container {
-			padding: var(--input-padding);
-			height: var(--input-height);
-			display: flex;
-			align-items: center;
-			font-size: var(--metadata-input-font-size);
-			gap: var(--size-2-3);
-
-			&[data-better-properties-slider-hide-limit="true"] {
-				& > .better-properties-slider-limit {
-					display: none;
-				}
-			}
-		}
-	}
-
-	&.better-properties-mod-created {
-		pointer-events: none;
-	}
-
-	&.better-properties-mod-title {
-		width: 100%;
-		& > input {
-			background-color: transparent;
-			width: 100%;
-		}
-	}
-
-	&[data-property-type="better-properties:array"] {
-		&
-			> .metadata-container
-			> .better-properties-property-object-properties
-			> .metadata-property
-			> .metadata-property-key {
-			--metadata-label-width: fit-content;
-
-			& > .metadata-property-key-input {
-				display: none;
-			}
-		}
-	}
-
-	&[data-property-type="better-properties:datecustom"] {
-		padding: var(--input-padding);
-		height: var(--input-height);
-		/* font-size: var(--metadata-input-font-size); */
-		display: flex;
-		align-items: center;
-
-		& > .metadata-input-longtext {
-			padding-inline-start: 0;
-		}
-
-		& > .better-properties-datecustom-button-container {
-			position: relative;
-
-			& > .better-properties-datecustom-button {
-				&:focus,
-				&:active {
-					outline: 3px solid var(--background-modifier-border-focus);
-				}
-			}
-
-			& > input[type="date"],
-			& > input[type="datetime-local"] {
-				opacity: 0;
-				position: absolute;
-				top: 50%;
-				left: 50%;
-				transform: translate(-50%, -50%);
-				pointer-events: none;
-			}
-		}
-
-		& > .better-properties-datecustom-format {
-			&[data-better-properties-is-empty="true"] {
-				color: var(--text-muted);
-			}
-		}
-	}
-
-	/* &[data-property-type="better-properties:relation"] {
-		height: var(--input-height);
-	} */
-
-	&[data-property-type="better-properties:rating"] {
-		padding: var(--input-padding);
-		height: var(--input-height);
-
-		& > .better-properties-rating-container {
-			display: flex;
-			justify-content: center;
-			align-items: center;
-
-			& > .clickable-icon {
-				opacity: 1;
-			}
-
-			& > .better-properties-rating-checkbox {
-				&:hover {
-					background-color: var(--interactive-hover);
-				}
-
-				&:focus,
-				&:active {
-					outline: 3px solid var(--background-modifier-border-focus);
-				}
-
-				&[aria-checked="true"] {
-					color: var(--text-accent);
-				}
-				&[aria-checked="false"] {
-					color: var(--text-faint);
-				}
-			}
-		}
-	}
-
-	&[data-property-type="better-properties:markdown"] {
-		padding: var(--input-padding);
-
-		&:has(.collapse-indicator.collapse-icon) {
-			padding: 0 16px; /* 10px is width of svg-icon and 5px is padding-inline-end of .collapse-indicator plus an extra 1px for space... unfortunately these are manually defined in default stylesheet */
-		}
-		width: 100%;
-		font-family: var(--font-text);
-		line-height: var(--line-height-normal);
-
-		& > .cm-s-obsidian.mod-cm6.node-insert-event.is-live-preview {
-			width: 100%;
-			font-size: var(--metadata-input-font-size);
-		}
-
-		& div.cm-scroller {
-			overflow: visible;
-
-			.ͼ1 & {
-				font-family: var(--font-text);
-				line-height: var(--line-height-normal);
-			}
-		}
-
-		& .cm-line:not(.HyperMD-codeblock),
-		& .cm-content,
-		& .cm-sizer {
-			max-width: none;
-			width: 100%;
-			display: inline-block;
-			line-height: var(--line-height-normal);
-		}
-
-		/* & .cm-line {
-			font-size: var(--metadata-input-font-size);
-		} */
-
-		& div[role="textbox"] {
-			text-wrap: wrap;
-			white-space: pre-line;
-			display: inline-flex;
-			flex-direction: column;
-		}
-	}
-}
-
-.metadata-property:has(
-		> .metadata-property-value
-			> &[data-property-type="better-properties:rating"]
-	) {
-	& > .metadata-property-value:focus-within {
-		background-color: var(--metadata-input-background);
-	}
-}
-
-.metadata-property:has(
-		> .metadata-property-key > [data-better-properties-is-collapsed]
-	) {
-	.metadata-property-value {
-		display: none;
-	}
-}
-
-.metadata-property:has(.better-properties-mod-object) {
+.better-properties--setting-item-name-with-icon {
 	display: flex;
-	flex-direction: column;
-	position: relative;
-	--better-properties-indent-size: var(--list-indent-editing);
-	--better-properties-indent-size-2x: calc(var(--list-indent-editing) * 2);
-	--better-properties-collapse-opacity: 0;
-
-	.metadata-property {
-		/* TODO I can't see a way to not hardcode this */
-		--input-border-width-focus: 2px;
-	}
-
-	> .metadata-property-value:focus-within {
-		background-color: var(--metadata-input-background);
-	}
-
-	&:has([data-better-properties-showindentguide="true"])::before {
-		content: "";
-		position: absolute;
-		left: calc(
-			var(--better-properties-indent-size) - 1px
-		); /* TODO idk why this needs to be offset by 1px */
-		top: var(--input-height);
-		width: var(--indentation-guide-width);
-		height: calc(100% - var(--input-height));
-		background-color: var(--indentation-guide-color);
-	}
-
-	.better-properties-property-value-inner.better-properties-mod-object.metadata-container {
-		display: flex;
-		flex-direction: column;
-		width: 100%;
-		margin-inline-start: var(--better-properties-indent-size-2x);
-		margin-block-end: 0px;
-
-		div.better-properties-property-object-add-property.metadata-add-button.text-icon-button {
-			width: fit-content;
-		}
-
-		/* TODO this still isn't quite matching the default... it's just not square */
-		div.clickable-icon.metadata-property-warning-icon {
-			--icon-size: var(--icon-s);
-			margin-inline-end: 0px;
-			margin-inline-start: 0px;
-
-			&:hover {
-				color: var(--text-warning);
-				background-color: rgba(var(--color-orange-rgb), 0.15);
-			}
-		}
-	}
-}
-
-div.setting-item.better-properties-list-setting {
-	flex-direction: column;
-	align-items: start;
-	--better-properties-item-width: 100%;
-
-	& > div.setting-item-control {
-		width: 100%;
-		flex-direction: column;
-		align-items: start;
-
-		& > .better-properties-list-setting-items-container {
-			width: var(--better-properties-item-width);
-			margin-inline-start: auto;
-
-			& input,
-			div.search-input-container {
-				/* width: 100%; */
-				flex-grow: 1;
-			}
-
-			& .setting-item[data-is-dragged="true"] {
-				opacity: 0.5;
-			}
-
-			& .setting-item[data-dragged-over]:not([data-is-dragged="true"]) {
-				position: relative;
-				&::after {
-					content: "";
-					position: absolute;
-					width: 100%;
-					height: 2px;
-					background-color: var(--interactive-accent);
-				}
-				&[data-dragged-over="top"]::after {
-					top: 0;
-				}
-				&[data-dragged-over="bottom"]::after {
-					bottom: 0;
-				}
-			}
-		}
-
-		& > .better-properties-list-setting-footer {
-			margin-inline-start: auto;
-			display: flex;
-			align-items: center;
-			gap: var(--size-4-2);
-		}
-	}
-}
-
-.vertical-tab-nav-item {
-	&.better-properties-mod-unsupported {
-		color: var(--text-muted);
-		text-decoration: line-through;
-	}
-
-	&.better-properties-mod-active {
-		position: relative;
-		--better-properties-active-text: "active";
-	}
-
-	&.better-properties-mod-active::after {
-		content: var(--better-properties-active-text);
-		display: inline-block;
-		margin-inline-start: var(--size-4-2);
-		font-size: var(--font-smallest);
-		border: 1px solid var(--background-modifier-border);
-		border-radius: var(--radius-s);
-		padding: var(--size-2-1);
-		background-color: var(--background-primary);
-	}
-}
-
-.better-properties-mod-w-full {
-	width: 100%;
-}
-
-.better-properties-validity {
-	&[data-is-valid="true"] {
-		color: var(--text-success);
-	}
-	&[data-is-valid="false"] {
-		color: var(--text-error);
-	}
-}
-
-.better-properties-dropown-property-value {
-	display: flex;
-	justify-content: center;
 	align-items: center;
-	gap: var(--size-2-2);
+	gap: var(--size-2-3);
+
+	& > .better-properties--setting-item-name-with-icon-icon {
+		display: inline-flex;
+		align-items: center;
+	}
+}
+.better-propertpes--property-type-setting:hover {
+	.better-properties--update-property-button {
+		display: flex;
+	}
 }
 
-.better-properties-mod-warning {
+.better-properties--update-property-button {
+	display: none;
+}
+
+.better-properties--property-type-settings-modal-desc {
 	display: flex;
-	align-items: start;
-	gap: 1ch;
-	color: var(--text-warning);
-}
+	flex-direction: column;
+	padding-block-end: var(--size-4-6);
 
-@keyframes delayed-accent-bg {
-	from {
-		background-color: transparent;
-	}
-
-	to {
-		background-color: hsl(var(--accent-h) var(--accent-s) var(--accent-l));
+	& > div {
+		display: flex;
+		flex-wrap: wrap;
+		gap: var(--size-2-2);
 	}
 }
+.better-properties--formula-widget-container {
+	display: flex;
+	padding: var(--input-padding);
 
-/* Same threshold as built-in style to make .metadata-properties flex-wrap   */
-@container (width < 250px) {
-	.metadata-container
-		> .metadata-content
-		> .metadata-properties
-		> .better-properties-label-width-resizer {
-		display: none;
-	}
-}
+	& > .value-list-container {
+		display: flex;
+		gap: var(--size-2-2);
+		flex-wrap: wrap;
 
-div.metadata-content {
-	&[data-better-properties-show-hidden="false"]
-		> div.metadata-properties
-		> div.metadata-property[data-better-properties-hidden="true"] {
-		display: none;
+		& > .value-list-element {
+			word-break: keep-all;
+			white-space: pre;
+		}
 	}
 
-	& > div.metadata-properties {
+	&.better-properties--mod-loading {
 		position: relative;
-		& > .better-properties-label-width-resizer {
+		&::after {
+			content: "";
 			position: absolute;
-			height: 100%;
-			width: 6px;
-			background-color: transparent;
+			width: 12px;
+			height: 12px;
 			top: 0;
-			left: -5px;
-			transform: translateX(var(--metadata-label-width));
-			cursor: col-resize;
-
-			&:hover::after,
-			&[data-is-dragging]::after {
-				animation-name: delayed-accent-bg;
-				animation-duration: 500ms;
-				animation-iteration-count: 1;
-				animation-fill-mode: forwards;
-			}
-
-			&::after {
-				position: absolute;
-				content: "";
-				height: 100%;
-				width: 1px;
-				left: 50%;
-				top: 50%;
-				transform: translate(-50%, -50%);
-			}
+			left: var(--input-padding);
+			/* right: 0; */
+			bottom: 0;
+			margin: auto;
+			border: 2px solid transparent;
+			border-top-color: var(--text-color);
+			border-radius: 50%;
+			animation: spin 1s ease infinite;
 		}
 	}
 }
-
-.better-properties-drag-overlay {
-	position: fixed;
-	inset: 0;
-	background-color: transparent;
+.better-properties--combobox-control {
+	display: flex;
+	gap: var(--size-2-1);
 }
+/* .better-properties--combobox-clickable {} */
 
-.better-properties-vertical-tab-modal-title {
-	font-size: var(--font-ui-medium);
-	text-overflow: ellipsis;
-	overflow-x: hidden;
-}
+.better-properties--suggestion-footer.suggestion {
+	border-top: var(--border-width) solid var(--background-modifier-border);
+	overflow-y: visible;
 
-.menu-item[data-is-better-properties] .menu-item-icon {
-	color: var(--text-accent);
-}
+	&:empty {
+		display: none;
+	}
 
-.better-properties-text-error {
-	color: var(--text-error);
-}
+	.suggestion-item:hover {
+		background-color: var(--background-modifier-hover);
 
-.better-properties-mod-error {
-	color: var(--text-error);
-
-	&:hover,
-	&.clickable-icon:hover {
-		color: var(--text-error);
-		opacity: 0.5;
+		.combobox:has(&) > .suggestion > .suggestion-item.is-selected {
+			background-color: transparent;
+		}
 	}
 }
-
-.better-properties-color-text-component-container {
+.better-properties--color-text-component-container {
 	display: flex;
 	align-items: center;
 	gap: var(--size-2-2);
-	& > .better-properties-color-text-component-colors-container {
+	& > .better-properties--color-text-component-colors-container {
 		position: relative;
 		& > input[type="color"] {
 			opacity: 0;
@@ -630,9 +101,13 @@ div.metadata-content {
 	}
 }
 
-.better-properties-swatch,
-.better-properties-swatch.better-properties-combobox-select {
-	background: var(--better-properties-bg, black);
+.better-properties--temp-color {
+	display: none;
+	color: var(--better-properties--bg, "purple");
+}
+
+.better-properties--swatch {
+	background: var(--better-properties--bg, black);
 	height: var(--swatch-width);
 	width: var(--swatch-width);
 	border-radius: var(--swatch-radius);
@@ -650,330 +125,199 @@ div.metadata-content {
 		outline: 3px solid var(--background-modifier-border-focus);
 	}
 
-	& > .better-properties-swatch-input {
+	& > .better-properties--swatch-input {
 		opacity: 0;
 		width: 0;
 		height: 0;
 		pointer-events: none;
 	}
 }
-
-.better-properties-select-container {
-	display: flex;
-	gap: var(--size-2-2);
-
-	&:has(.data-better-properties-combobox-mod-empty) {
-		width: 100%;
-		height: 100%;
-
-		& > div {
-			width: 100%;
-			height: 100%;
+.better-properties--reorder-setting-group-item {
+	&.better-properties--mod-hide-info {
+		& .setting-item-info {
+			display: none;
 		}
-	}
 
-	& > .better-properties-select-aux:empty {
-		display: none;
-	}
-}
-
-.better-properties-combobox-select {
-	display: flex;
-	align-items: center;
-	gap: var(--size-2-1);
-	min-width: 0;
-	width: fit-content;
-	font-size: var(--metadata-input-font-size);
-	cursor: default;
-	--better-properties-close-display: none;
-
-	&:focus-within {
-		--better-properties-close-display: flex;
-		opacity: 1;
-	}
-
-	&:focus-within,
-	&:active,
-	&:hover {
-		outline: 3px solid var(--background-modifier-border-focus);
-	}
-
-	&.data-better-properties-combobox-mod-empty {
-		opacity: 0;
-		width: 100%;
-		height: 100%;
-	}
-}
-
-.better-properties-combobox-search {
-	flex: auto;
-}
-
-.better-properties-searchable-menu.menu {
-	/* TODO can't get user-select:text to work anywhere in here */
-	user-select: text;
-	& .search-input-container {
-		--search-icon-color: var(--text-faint);
-		margin-bottom: var(--size-2-3);
-		padding-bottom: var(--size-4-1);
-		border-bottom: var(--border-width) solid var(--background-modifier-border);
-
-		& input[type="search"] {
-			border: 0;
-			box-shadow: none;
-			background-color: transparent;
-			user-select: text;
-		}
-	}
-
-	& .menu-group {
-		max-height: 50vh;
-		overflow-y: auto;
-	}
-
-	.menu-item.is-disabled[data-section="body"] {
-		display: none;
-	}
-}
-
-.better-properties-mod-loader > svg {
-	animation: spin 1s ease infinite;
-}
-
-.better-properties-multiselect-items-container {
-	display: flex;
-	align-items: center;
-	flex-wrap: wrap;
-	gap: var(--size-2-3);
-	width: 100%;
-	height: 100%;
-	max-width: 100%;
-}
-
-.better-properties-numeric-container {
-	width: 100%;
-	display: flex;
-	flex-wrap: wrap;
-	align-items: center;
-	gap: var(--size-2-3);
-	& .better-properties-numeric-result {
-		font-size: var(--metadata-input-font-size);
-	}
-
-	& input.metadata-input.metadata-input-number[type="text"] {
-		width: fit-content;
-	}
-}
-
-.metadata-property[data-better-properties-hide-key="true"]
-	> .metadata-property-key {
-	display: none;
-}
-
-.better-properties-bpjs {
-	&.better-properties-bpjs-code {
-		& .metadata-property {
-			width: fit-content;
-			display: inline-flex;
-			& > .metadata-property-value {
-				width: fit-content;
-				flex: 0 0 auto;
+		& .setting-item-control {
+			& > :first-child {
+				margin-inline-start: 0;
+			}
+			& > :last-child {
+				margin-inline-start: auto;
 			}
 		}
 	}
-}
 
-.better-properties-properties-property-collapse-indicator {
-	display: none;
-	justify-content: center;
-	align-items: center;
-	height: var(--input-height);
-	padding-inline-end: var(--size-2-2);
+	.setting-item-control {
+		justify-content: start;
 
-	svg.svg-icon {
-		color: var(--nav-collapse-icon-color);
-		transition: transform 100ms ease-in-out;
-	}
-
-	.metadata-property > .metadata-property-key:hover > & {
-		display: flex;
-	}
-
-	&[data-better-properties-is-collapsed] {
-		transform: rotate(calc(var(--direction) * 90deg));
-		display: flex;
-
-		svg.svg-icon {
-			color: var(--collapse-icon-color-collapsed);
-		}
-	}
-}
-
-.better-properties-array-sub-remove {
-	display: none;
-	justify-content: center;
-	align-items: center;
-	height: var(--input-height);
-	color: var(--text-error);
-	opacity: 0.5;
-
-	&:hover {
-		opacity: 1;
-	}
-
-	.metadata-property > .metadata-property-key:hover > & {
-		display: flex;
-	}
-}
-
-.better-properties-mod-hidden {
-	&,
-	&.metadata-property-key-input {
-		display: none;
-	}
-}
-
-div.better-properties-mod-hidden {
-	display: none;
-}
-
-.better-properties-draggable-item-clone {
-	width: var(--better-properties-width);
-	height: var(--better-properties-height);
-}
-
-.drag-reorder-ghost {
-	left: var(--better-properties-left);
-	top: var(--better-properties-top);
-	transform: var(--better-properties-transform);
-}
-
-.better-properties-select-close {
-	cursor: var(--cursor);
-	border-radius: var(--radius-s);
-	margin-top: 0.125rem;
-	align-items: center;
-	--icon-size: var(--icon-xs);
-	--icon-stroke: var(--icon-xs-stroke-width);
-	color: var(--pill-color-remove);
-	display: none; /* hidden by default */
-
-	&:hover {
-		/* color: var(--interactive-hover); */
-		color: var(--pill-color-remove-hover);
-	}
-
-	/* visible in Multi-Selects by default */
-	[data-property-type="better-properties:multiselect"] & {
-		display: flex;
-	}
-}
-
-.better-properties-style-settings--filled-rating
-	.better-properties-rating-checkbox[aria-checked="true"]
-	> svg {
-	fill: var(--text-accent);
-}
-
-.better-properties-select-close {
-	.better-properties-select-close-visibility-mod-multi-select-only & {
-		display: none;
-		[data-property-type="better-properties:multiselect"] & {
-			display: flex;
+		& :first-child {
+			margin-inline-start: auto;
 		}
 	}
 
-	.better-properties-select-close-visibility-mod-select-only & {
-		display: none;
-		[data-property-type="better-properties:select"] & {
-			display: flex;
+	.setting-group > .setting-items > & {
+		&.setting-item[data-better-properties--drag-indicator="top"] {
+			border-top: var(--border-width) solid
+				hsl(var(--accent-h) var(--accent-s) var(--accent-l));
+		}
+
+		&.setting-item[data-better-properties--drag-indicator="bottom"] {
+			border-bottom: var(--border-width) solid
+				hsl(var(--accent-h) var(--accent-s) var(--accent-l));
 		}
 	}
 
-	.better-properties-select-close-visibility-mod-never & {
-		display: none;
+	input[type="text"] {
+		max-width: 10rem;
+		width: 100%;
+		/* display: flex;
+		flex-grow: 1;
+		width: 0; */
 	}
 }
-
-.better-properties-property-object-properties
-	> .better-properties-set-type-button.menu-item.tappable.has-submenu {
-	display: none;
-
-	&:last-child {
-		--better-properties-color: var(--text-faint);
-		color: var(--better-properties-color);
-		display: flex;
-		width: fit-content;
-
-		&:hover {
-			--better-properties-color: inherit;
-		}
-
-		.menu-item-icon {
-			color: var(--better-properties-color);
-		}
-	}
-}
-
-.better-properties-suggestion-footer.suggestion {
-	&:not(:has(> div)) {
-		display: none;
-	}
-
-	height: fit-content;
-	overflow-y: visible;
-	padding-block-start: calc(var(--size-2-3) / 1);
-	border-top: 1px solid var(--background-modifier-border);
-
-	& > .suggestion-item:hover {
-		background-color: var(--background-modifier-hover);
-	}
-}
-
-.combobox.suggestion-container
-	> .suggestion:not(.better-properties-suggestion-footer)
-	> .suggestion-item
-	> .suggestion-content
-	> .suggestion-title {
-	align-items: center;
-	min-width: 0;
+.better-properties--select-widget-container {
+	display: flex;
+	padding: var(--input-padding);
+	/* flex-grow: 1; */
 	width: fit-content;
-	cursor: default;
-	border-radius: var(--radius-s);
-	padding-inline: min(var(--size-2-3), var(--pill-padding-x));
-	padding-block: var(--pill-padding-y);
-	background: var(--better-properties-select-bg, transparent);
-	color: var(--text-normal);
+	height: fit-content;
+	white-space: pre-wrap;
+	color: var(--metadata-input-text-color);
+	font-size: var(--metadata-input-font-size);
+
+	&:has(
+			> .better-properties--combobox-control
+				> .better-properties--combobox-clickable:empty
+		) {
+		padding: 0;
+	}
+
+	/* & > .better-properties--combobox-control {
+	} */
 }
 
-/******************** STYLE SETTINGS ********************/
+.better-properties--select-badge {
+	--better-properties--select-background: var(
+		--better-properties--select-color-default
+	);
+	--better-properties--select-text: var(--text-primary);
+	--better-properties--select-radius: var(--radius-s);
+	--better-properties--select-padding-x: var(--size-2-2);
+	--better-properties--select-padding-y: 0;
 
-/* @settings
+	background: var(--better-properties--select-background);
+	color: var(--better-properties--select-text);
+	border-radius: var(--better-properties--select-radius);
+	padding-inline: var(--better-properties--select-padding-x);
+	padding-block: var(--better-properties--select-padding-y);
 
-name: Better Properties
-id: better-properties
-settings:
-	-
-		id: better-properties-style-settings--filled-rating
-		title: Filled Rating icon
-		description: If enabled, the icon used in Rating properties will be filled with your vault's accent color
-		type: class-toggle
-	-
-		id: better-properties-style-settings--select-close-visibility
-		title: Select close button visibility
-		description: When to show the close button for Select properties
-		type: class-select
-		allowEmpty: false
-		default: better-properties-select-close-visibility-mod-multi-select-only
-		options:
-			-
-				label: Show in Multi-Selects only
-				value: better-properties-select-close-visibility-mod-multi-select-only
-			-
-				label: Show in Selects only
-				value: better-properties-select-close-visibility-mod-select-only
-			-
-				label: Never show
-				value: better-properties-select-close-visibility-mod-never
+	&:focus-within {
+		box-shadow: 0 0 0px 3px var(--background-modifier-border-focus);
+		outline: none;
 
-*/
+		&:has(> .better-properties--combobox-clickable:empty) {
+			box-shadow: none;
+		}
+	}
+
+	& > .clickable-icon {
+		padding-inline: 0;
+		margin-inline: 0;
+	}
+}
+
+body {
+	--better-properties--select-color-red: color-mix(
+		in srgb,
+		100% var(--color-red),
+		100% transparent
+	);
+	--better-properties--select-color-orange: color-mix(
+		in srgb,
+		100% var(--color-orange),
+		100% transparent
+	);
+	--better-properties--select-color-yellow: color-mix(
+		in srgb,
+		100% var(--color-yellow),
+		100% transparent
+	);
+	--better-properties--select-color-green: color-mix(
+		in srgb,
+		100% var(--color-green),
+		100% transparent
+	);
+	--better-properties--select-color-blue: color-mix(
+		in srgb,
+		100% var(--color-blue),
+		100% transparent
+	);
+	--better-properties--select-color-purple: color-mix(
+		in srgb,
+		100% var(--color-purple),
+		100% transparent
+	);
+	--better-properties--select-color-cyan: color-mix(
+		in srgb,
+		100% var(--color-cyan),
+		100% transparent
+	);
+	--better-properties--select-color-pink: color-mix(
+		in srgb,
+		100% var(--color-pink),
+		100% transparent
+	);
+	--better-properties--select-color-gray: color-mix(
+		in srgb,
+		100% var(--color-base-50),
+		100% transparent
+	);
+	--better-properties--select-color-default: var(
+		--better-properties--select-color-gray
+	);
+}
+.better-properties--toggle-widget-container {
+	display: flex;
+	padding: var(--input-padding);
+}
+.better-properties--mod-hidden {
+	display: none;
+}
+.better-properties--hidden-base {
+	position: absolute;
+	pointer-events: none;
+	visibility: hidden;
+}
+
+.modal.better-properties--bases-filter-editor-modal {
+	body:has(> .modal-container > &)
+		div.bases-toolbar-section.bases-groupby-container {
+		display: none;
+	}
+
+	.bases-toolbar-item {
+		&.bases-toolbar-views-menu,
+		/* &.bases-toolbar-properties-menu, */
+		&.bases-toolbar-new-item-menu {
+			display: none;
+		}
+	}
+
+	.modal-content {
+		display: flex;
+		flex-direction: column;
+		overflow: hidden;
+
+		& .better-properties--embeddable-base-editor-container.bases-embed {
+			padding: 0;
+			display: flex;
+			flex-direction: column;
+			overflow: hidden;
+			height: 100%;
+		}
+	}
+}
+.better-properties--property-link-container {
+	display: inline-flex;
+}

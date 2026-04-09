@@ -38,14 +38,14 @@ export default defineConfig(async ({ mode }) => {
 			cssCodeSplit: false,
 			emptyOutDir: false,
 			cssMinify: false,
-			outDir: "",
+			outDir: "dist",
 			rollupOptions: {
 				input: {
 					main: resolve(__dirname, "src/main.ts"),
 				},
 				output: {
-					entryFileNames: "dist/main.js",
-					assetFileNames: "dist/styles.css",
+					entryFileNames: "main.js",
+					assetFileNames: "styles.css",
 				},
 				external: [
 					"obsidian",

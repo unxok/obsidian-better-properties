@@ -1,8 +1,6 @@
 import { around, dedupe } from "monkey-around";
 import {
 	AbstractInputSuggest,
-	App,
-	Keymap,
 	Scope,
 	SearchComponent,
 	setIcon,
@@ -11,9 +9,9 @@ import { monkeyAroundKey } from "~/lib/constants";
 import BetterProperties from "~/main";
 
 export type Suggestion = {
-	title: string;
-	note?: string;
-	aux?: string;
+	title: string | DocumentFragment;
+	note?: string | DocumentFragment;
+	aux?: string | DocumentFragment;
 	icon?: string;
 };
 
@@ -108,13 +106,15 @@ export abstract class AbstractSearchSuggest<T> extends InputSuggest<T> {
 		this.suggestEl.insertAdjacentElement("afterbegin", this.search.containerEl);
 
 		this.footerContainerEl = this.suggestEl.createDiv({
-			cls: "suggestion better-properties-suggestion-footer",
+			cls: "suggestion better-properties--suggestion-footer",
 		});
 
 		this.recreateScope();
 	}
 
-	canClose: boolean = false;
+	onEnter(e: KeyboardEvent): void {
+		this.suggestions.useSelectedItem(e);
+	}
 
 	recreateScope(): void {
 		this.scope = new Scope(this.plugin.app.scope);
@@ -144,12 +144,10 @@ export abstract class AbstractSearchSuggest<T> extends InputSuggest<T> {
 		});
 
 		this.scope.register(null, "Enter", (e) => {
-			this.canClose = true;
-			this.suggestions.useSelectedItem(e);
+			this.onEnter(e);
 		});
 
 		this.scope.register(null, "Escape", () => {
-			this.canClose = true;
 			this.close();
 		});
 	}
@@ -170,8 +168,10 @@ export abstract class AbstractSearchSuggest<T> extends InputSuggest<T> {
 	}
 
 	override open() {
-		if (this.isOpen || !this.textInputEl.isActiveElement()) return;
+		// if (this.isOpen || !this.textInputEl.isActiveElement()) return;
+		if (this.isOpen) return;
 		super.open();
+
 		this.search.inputEl.focus();
 	}
 
@@ -180,26 +180,28 @@ export abstract class AbstractSearchSuggest<T> extends InputSuggest<T> {
 	): this {
 		super.onSelect((value, evt) => {
 			cb(value, evt);
-			this.canClose = true;
 			this.close();
 		});
 		return this;
 	}
 
 	override close() {
-		if (!this.canClose && this.search.inputEl.isActiveElement()) return;
-		this.canClose = false;
 		super.close();
 		this.search.setValue("");
-		this.search.onChanged();
 		this.removeClickableElPatch();
 	}
 
-	addFooterItem(
-		icon: string,
-		title: string,
-		onClick: (e: MouseEvent) => void | Promise<void>
-	): HTMLElement {
+	addFooterItem({
+		icon,
+		title,
+		aux,
+		onClick,
+	}: {
+		icon: string;
+		title: string;
+		aux?: string;
+		onClick: (e: MouseEvent) => void | Promise<void>;
+	}): HTMLElement {
 		const itemEl = this.footerContainerEl.createDiv({
 			cls: "suggestion-item mod-complex",
 		});
@@ -213,6 +215,12 @@ export abstract class AbstractSearchSuggest<T> extends InputSuggest<T> {
 			.createDiv({ cls: "suggestion-content" })
 			.createDiv({ cls: "suggestion-title", text: title });
 		itemEl.addEventListener("click", onClick);
+
+		if (aux) {
+			itemEl
+				.createDiv({ cls: "suggestion-aux" })
+				.createDiv({ cls: "suggestion-flair", text: aux });
+		}
 		return itemEl;
 	}
 }

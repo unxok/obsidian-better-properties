@@ -21,7 +21,7 @@ export type CustomPropertyType = {
 	icon: Icon;
 	name(): string;
 	validate(value: unknown): boolean;
-	renderWidget(args: {
+	renderWidget(props: {
 		plugin: BetterProperties;
 		el: HTMLElement;
 		value: unknown;
@@ -31,7 +31,7 @@ export type CustomPropertyType = {
 
 	registerListeners: (plugin: BetterProperties) => void;
 
-	renderSettings: (args: {
+	renderSettings: (props: {
 		plugin: BetterProperties;
 		modal: PropertySettingsModal;
 		property: string;

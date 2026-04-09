@@ -1,0 +1,34 @@
+.better-properties--formula-widget-container {
+	display: flex;
+	padding: var(--input-padding);
+
+	& > .value-list-container {
+		display: flex;
+		gap: var(--size-2-2);
+		flex-wrap: wrap;
+
+		& > .value-list-element {
+			word-break: keep-all;
+			white-space: pre;
+		}
+	}
+
+	&.better-properties--mod-loading {
+		position: relative;
+		&::after {
+			content: "";
+			position: absolute;
+			width: 12px;
+			height: 12px;
+			top: 0;
+			left: var(--input-padding);
+			/* right: 0; */
+			bottom: 0;
+			margin: auto;
+			border: 2px solid transparent;
+			border-top-color: var(--text-color);
+			border-radius: 50%;
+			animation: spin 1s ease infinite;
+		}
+	}
+}

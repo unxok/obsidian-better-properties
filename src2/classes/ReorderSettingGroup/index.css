@@ -1,0 +1,44 @@
+.better-properties--reorder-setting-group-item {
+	&.better-properties--mod-hide-info {
+		& .setting-item-info {
+			display: none;
+		}
+
+		& .setting-item-control {
+			& > :first-child {
+				margin-inline-start: 0;
+			}
+			& > :last-child {
+				margin-inline-start: auto;
+			}
+		}
+	}
+
+	.setting-item-control {
+		justify-content: start;
+
+		& :first-child {
+			margin-inline-start: auto;
+		}
+	}
+
+	.setting-group > .setting-items > & {
+		&.setting-item[data-better-properties--drag-indicator="top"] {
+			border-top: var(--border-width) solid
+				hsl(var(--accent-h) var(--accent-s) var(--accent-l));
+		}
+
+		&.setting-item[data-better-properties--drag-indicator="bottom"] {
+			border-bottom: var(--border-width) solid
+				hsl(var(--accent-h) var(--accent-s) var(--accent-l));
+		}
+	}
+
+	input[type="text"] {
+		max-width: 10rem;
+		width: 100%;
+		/* display: flex;
+		flex-grow: 1;
+		width: 0; */
+	}
+}

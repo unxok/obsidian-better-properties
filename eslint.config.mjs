@@ -7,6 +7,7 @@ export default defineConfig([
 	...obsidianmd.configs.recommended,
 	{
 		files: ["**/*.ts"],
+		ignores: ["vite.config.ts"],
 		languageOptions: {
 			parser: tsparser,
 			parserOptions: {
@@ -19,20 +20,29 @@ export default defineConfig([
 			},
 		},
 	},
-	{
-		files: ["vite.config.ts"],
-		languageOptions: {
-			parser: tsparser,
-			parserOptions: {
-				project: "tsconfig.node.json",
-				sourceType: "module",
-			},
-		},
-	},
+	// {
+	// 	files: ["vite.config.ts"],
+	// 	languageOptions: {
+	// 		parser: tsparser,
+	// 		parserOptions: {
+	// 			project: "tsconfig.node.json",
+	// 			sourceType: "module",
+	// 		},
+	// 	},
+	// },
 	globalIgnores(["main.js"]),
 	{
 		rules: {
-			allowObjectTypes: true,
+			"@typescript-eslint/no-empty-object-type": "off",
+			"import/no-extraneous-dependencies": "off",
+			"@typescript-eslint/no-this-alias": "off",
+			"@typescript-eslint/no-base-to-string": "off",
+			"@typescript-eslint/no-misused-promises": [
+				"error",
+				{
+					checksVoidReturn: false,
+				},
+			],
 		},
 	},
 ]);

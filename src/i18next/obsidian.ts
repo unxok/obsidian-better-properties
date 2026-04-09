@@ -2,11 +2,8 @@ import { NestedPaths } from "~/lib/utils";
 
 // This needs to be updated on every new update to Obsidian
 /**
- * 1. In obsidian dev console type: `JSON.stringify(window.i18next.store.data.en.default, null, 2)` and copy it
- * 2. Go to any browser webpage and type `document.write(<paste>)` replace `<paste>` with what you just copied
- * 3. In that same webpage, set the style of the body to have `white-space: pre`
- * 4. Copy the (now formatted) JSON data
- * 5. Paste to replace current definition of `Type`
+ * 1. In obsidian dev console type: `navigator.clipboard.writeText(JSON.stringify(window.i18next.store.data.en.default, null, 2))` and copy it
+ * 2. Paste to replace current definition of `Type`
  */
 
 export type ObsidianDefaultText = {
@@ -29,8 +26,8 @@ export type ObsidianDefaultText = {
 			"spellcheck-languages-mac-description": "The native spellchecker will automatically detect the language being used for you on macOS.";
 			"spellcheck-dict": "Spellcheck dictionary";
 			"spellcheck-dict-empty": "The spellcheck dictionary is empty.";
-			"option-show-inline-title": "Show inline title";
-			"option-show-inline-title-description": "Displays the filename as an editable title inline with the file contents.";
+			"option-show-inline-title": "Inline title";
+			"option-show-inline-title-description": "Display the filename as an editable title inline with the file contents.";
 			"option-readable-line-length": "Readable line length";
 			"option-readable-line-description": "Limit maximum line length. Less content fits onscreen, but long blocks of text are more readable.";
 			"option-strict-line-break": "Strict line breaks";
@@ -60,9 +57,9 @@ export type ObsidianDefaultText = {
 			"option-default-editing-mode-description": "The default editing mode a new tab will start with.";
 			"option-default-editing-mode-source": "Source mode";
 			"option-default-editing-mode-live-preview": "Live Preview";
-			"option-show-line-number": "Show line numbers";
+			"option-show-line-number": "Line numbers";
 			"option-show-line-number-description": "Show line numbers in the gutter.";
-			"option-indentation-guide": "Show indentation guides";
+			"option-indentation-guide": "Indentation guides";
 			"option-indentation-guide-description": "Show vertical relationship lines between list items.";
 			"option-use-tabs": "Indent using tabs";
 			"option-use-tabs-description": "Use tabs to indent by pressing the “Tab” key. Turn this off to indent using 4 spaces.";
@@ -90,39 +87,54 @@ export type ObsidianDefaultText = {
 		};
 		"file": {
 			"name": "Files and links";
-			"option-confirm-file-deletion": "Confirm file deletion";
-			"option-confirm-file-deletion-description": "Prompt before file deletion.";
+			"option-confirm-file-deletion": "Confirm before deleting files";
+			"option-confirm-file-deletion-description": "Avoid accidentally deleting files.";
+			"option-trash": "Trash";
 			"option-delete-destination": "Deleted files";
 			"option-delete-destination-description": "What happens to a file after you delete it.";
 			"option-choice-system-trash": "Move to system trash";
 			"option-choice-vault-trash": "Move to Obsidian trash (.trash folder)";
 			"option-choice-permanent-delete": "Permanently delete";
+			"option-delete-unlinked-attachments": "Delete attachments when deleting files";
+			"option-delete-unlinked-attachments-description": "Automatically remove attachments linked to the deleted file if they're not used elsewhere.";
+			"option-choice-always": "Always";
+			"option-choice-ask-every-time": "Ask each time";
+			"option-choice-never": "Never";
+			"option-default-open-action": "Default file to open";
+			"option-default-open-action-description": "Choose which file to open when the app starts.";
+			"option-choice-last-opened": "Last opened";
+			"option-choice-new-note": "New note";
+			"option-choice-specific-file": "Specific file";
+			"option-choice-daily-note": "Daily note";
+			"option-default-open-file-path": "File to open";
+			"option-default-open-file-path-description": "Select a specific file to open by default.";
 			"option-always-update-links": "Automatically update internal links";
 			"option-always-update-links-description": "Turn off to be prompted to update links after renaming a file.";
 			"option-new-note-location": "Default location for new notes";
-			"option-new-note-location-description": "Where newly created notes are placed. Plugin settings will override this.";
+			"option-new-note-location-description": "Where newly created notes are placed.";
 			"option-choice-vault-root": "Vault folder";
 			"option-choice-current-folder": "Same folder as current file";
 			"option-choice-specified-folder": "In the folder specified below";
 			"option-new-file-folder-path": "Folder to create new notes in";
-			"option-new-file-folder-path-description": "Newly created notes will appear under this folder. Plugin settings will override this.";
+			"option-new-file-folder-path-description": "Newly created notes will appear in this folder.";
 			"option-use-wiki-links": "Use [[Wikilinks]]";
 			"option-use-wiki-links-description": "Auto-generate Wikilinks for [[links]] and ![[images]] instead of Markdown links and images. Disable this option to generate Markdown links instead.";
-			"option-show-unsupported-files": "Detect all file extensions";
-			"option-show-unsupported-files-description": "Show files with any extension even if Obsidian can't open them natively, so that you can link to them and see them in File Explorer and Quick Switcher.";
+			"option-show-unsupported-files": "Show all file types";
+			"option-show-unsupported-files-description": "Show files with any extension even if Obsidian can't open them natively, so you can link to them and see them in File Explorer and Quick Switcher.";
+			"option-links": "Links";
 			"option-link-autocompleted-format": "New link format";
 			"option-link-autocompleted-format-description": "What links to insert when auto-generating internal links.";
 			"option-choice-shortest-linktext": "Shortest path when possible";
-			"option-choice-relative-path": "Relative path to file";
-			"option-choice-absolute-path": "Absolute path in vault";
+			"option-choice-relative-path": "Path from current file";
+			"option-choice-absolute-path": "Path from vault folder";
 			"option-new-attachment-location": "Default location for new attachments";
 			"option-new-attachment-location-description": "Where newly added attachments are placed.";
-			"option-new-attachment-location-default": "attachments";
+			"option-new-attachment-location-default": "Attachments";
 			"option-choice-subdirectory": "In subfolder under current folder";
 			"option-attachment-folder-path": "Attachment folder path";
 			"option-attachment-folder-path-description": "Place newly created attachment files, such as images created via drag-and-drop or audio recordings, in this folder.";
 			"option-attachment-subfolder-path": "Subfolder name";
-			"option-attachment-subfolder-path-description": "If your file is under “vault/folder”, and you set subfolder name to “attachments”, attachments will be saved to “vault/folder/attachments”.";
+			"option-attachment-subfolder-path-description": "If your file is in “vault/folder”, and you set subfolder name to “attachments”, attachments will be saved to “vault/folder/attachments”.";
 			"option-excluded-files": "Excluded files";
 			"option-excluded-files-desc": "Excluded files will be hidden in Search, Graph View, and Unlinked Mentions, less noticeable in Quick Switcher and link suggestions.";
 			"label-no-excluded-filters-applied": "No excluded filter is applied right now. Add one below.";
@@ -211,6 +223,12 @@ export type ObsidianDefaultText = {
 			"label-modal-configuration-desc": "Choose what items you want to be active in the ribbon. Drag and drop to change the order.";
 			"option-show-view-header": "Show tab title bar";
 			"option-show-view-header-desc": "Display the header at the top of every tab.";
+			"option-floating-navigation": "Floating navigation";
+			"option-floating-navigation-desc": "Navigation buttons float over the content instead of being anchored.";
+			"option-sliding-sidebar": "Sliding sidebars";
+			"option-sliding-sidebar-desc": "Sidebars slide to the side of the content instead of floating above.";
+			"option-auto-full-screen": "Full screen";
+			"option-auto-full-screen-desc": "Automatically hide interface elements while reading.";
 			"msg-updates-found": "Found {{count}} theme to update.";
 			"msg-updates-found_plural": "Found {{count}} themes to update.";
 			"button-check-for-updates": "Check for updates";
@@ -240,23 +258,35 @@ export type ObsidianDefaultText = {
 			"tooltip-hotkey-multiple-conflicts": "This hotkey conflicts with {{count}} other commands";
 			"label-blank-hotkey": "Blank";
 		};
-		"integrations": {
-			"name": "Integrations";
-			"keychain": "Keychain";
-			"action-add-private-key": "Add private key";
-			"action-edit-private-key": "Edit private key";
-			"action-show-private-key-value": "Show private key";
-			"action-hide-private-key-value": "Hide private key";
-			"label-private-key-id": "ID";
-			"label-private-key-value": "Private key";
-			"placeholder-private-key-id": "provider-name";
-			"placeholder-private-key-value": "sk-...";
-			"option-private-key-id-description": "Lowercase letters, numbers and dashes only.";
-			"option-private-key-value-description": "Enter your private key.";
-			"msg-error-update-private-key": "Failed to update private key.";
-			"msg-error-add-private-key": "Failed to add private key.";
-			"msg-error-private-key-id-exists": "A private key with this ID already exists.";
-			"keychain-empty-state": "No private keys have been added. Add a private key to use with integrations.";
+		"keychain": {
+			"name": "Keychain";
+			"secrets": "Secrets";
+			"action-add-secret": "Add secret";
+			"action-edit-secret": "Edit secret";
+			"action-show-secret-value": "Show secret";
+			"action-hide-secret-value": "Hide secret";
+			"label-secret-id": "ID";
+			"label-secret-value": "Secret";
+			"placeholder-secret-id": "secret-name";
+			"option-secret-id-description": "Lowercase letters, numbers and dashes only.";
+			"option-secret-value-description": "Enter your secret.";
+			"msg-never-accessed": "Never accessed";
+			"msg-error-update-secret": "Failed to update secret.";
+			"msg-error-add-secret": "Failed to add secret.";
+			"msg-error-secret-id-exists": "A secret with this ID already exists.";
+			"msg-error-secret-value-empty": "Secret value cannot be empty.";
+			"msg-error-secret-id-invalid": "Secret ID is invalid. Use only lowercase letters, numbers and dashes. 64 characters max.";
+			"keychain-empty-state": "No secrets have been added. Secrets are used to store information like API keys and passwords that plugins can use.";
+			"label-select-secret": "Select secret";
+			"placeholder-search-secret": "Find secret...";
+			"button-add-secret": "Add secret...";
+			"button-link": "Link...";
+			"msg-secrets-not-encrypted": "Secrets are stored without encryption because no secret store is available on this system.";
+			"msg-secrets-not-encrypted-short": "Secrets are not encrypted";
+			"button-dismiss-warning": "Don't show again";
+			"label-encryption-not-available": "Encryption not available";
+			"msg-encryption-provided-by-o-s": "Encryption is provided by your operating system's secret store. Without a secret store, your secrets will be stored without encryption.";
+			"msg-linux-secret-stores": "On Linux, supported secret stores include:";
 		};
 		"about": {
 			"name": "General";
@@ -266,9 +296,8 @@ export type ObsidianDefaultText = {
 			"label-activate-license": "Activate license";
 			"button-activate": "Activate";
 			"label-unknown-version": "Unknown";
-			"label-current-version": "Current version: ";
-			"label-install-version": "(Installer version: {{version}})";
-			"label-up-to-date": "Obsidian is up to date!";
+			"label-version": "Version {{version}}";
+			"label-install-version": "Installer version: {{version}}";
 			"label-read-changelog": "Read the changelog.";
 			"label-manual-update-required": "To support the latest features and to receive the latest security patches, Obsidian needs a major installer update. You need to manually download and reinstall Obsidian.";
 			"label-new-version-ready": "A new version is ready to be installed. ";
@@ -280,6 +309,11 @@ export type ObsidianDefaultText = {
 			"option-check-slow-startup": "Notify if startup takes longer than expected";
 			"option-check-slow-startup-description": "Diagnose issues with your app by seeing what is causing the app to load slowly.";
 			"button-check-startup": "Check now";
+			"option-cli": "Command line interface";
+			"option-cli-description": "Allow interactions with Obsidian from the command line.";
+			"option-register-path": "Set up CLI to work in the terminal";
+			"option-register-path-description": 'Register "obsidian" in PATH to enable accessing the "obsidian" command anywhere from your terminal.';
+			"button-register": "Register";
 			"option-get-help": "Help";
 			"option-get-help-description": "Learn how to use Obsidian and get help from the community.";
 			"button-open": "Open";
@@ -311,9 +345,6 @@ export type ObsidianDefaultText = {
 			"option-your-account": "Your account";
 			"option-your-account-desc": "You're currently signed in as {{name}} ({{email}}).";
 			"option-your-account-desc-no-login": "You're not logged in right now. An account is only needed for Obsidian Sync, Obsidian Publish, and early access versions.";
-			"label-insider": "Insider";
-			"label-supporter": "Supporter";
-			"label-vip": "VIP";
 			"button-upgrade-catalyst": "Upgrade";
 			"option-commercial-license": "Commercial license";
 			"option-commercial-license-desc": "Help keep Obsidian 100% user-supported.";
@@ -350,6 +381,8 @@ export type ObsidianDefaultText = {
 			"option-restricted-mode": "Restricted mode";
 			"option-restricted-mode-description": "Restricted mode is off. Turn on to disable community plugins.";
 			"button-turn-on": "Turn on and reload";
+			"option-automatic-update-check": "Automatically check for plugin updates";
+			"option-automatic-update-check-desc": "Periodically check for plugin updates.";
 			"option-browse-community-plugins": "Community plugins";
 			"option-browse-community-plugins-description": "Browse and install community plugins made by our amazing community.";
 			"button-browse": "Browse";
@@ -409,6 +442,7 @@ export type ObsidianDefaultText = {
 			"button-check-for-updates": "Check for updates";
 			"button-update-all-plugins": "Update all";
 			"label-current-plugins": "Current plugins";
+			"msg-checking-for-updates": "Checking for updates...";
 			"label-currently-installed": "You currently have {{count}} plugin installed.";
 			"label-currently-installed_plural": "You currently have {{count}} plugins installed.";
 			"msg-no-updates-found": "No plugin updates found.";
@@ -424,7 +458,7 @@ export type ObsidianDefaultText = {
 			"label-donate-modal-text2": "100% of your contribution will go to the plugin developer; Obsidian does not take a cut. The funding platform they choose might charge a fee.";
 			"label-donate-modal-text3": "Thanks for your generous support!";
 			"label-support-this-plugin": "Support this plugin:";
-			"label-search-summary": "Showing {{pluginCount}}:";
+			"label-search-summary": "Showing {{pluginCount}}";
 			"label-by-popularity": "Most downloaded";
 			"label-by-released": "Recently released";
 			"label-by-updated": "Recently updated";
@@ -468,8 +502,6 @@ export type ObsidianDefaultText = {
 			"option-added-options": "Added options";
 			"option-more-toolbar-options": "More toolbar options";
 			"option-attach": "Insert attachment";
-			"option-add-command": "Add global command";
-			"option-add-command-description": "Select any global command to add to the toolbar.";
 		};
 	};
 	"editor": {
@@ -506,6 +538,8 @@ export type ObsidianDefaultText = {
 			"edit-tag": "Edit tag";
 			"label-edit-block": "Edit this block";
 			"label-delete-footref-and-note": "Delete footnote and reference";
+			"reset-size": "Reset size";
+			"delete-image": "Delete image";
 		};
 		"heading-suggestion": {
 			"label-no-heading": "No heading";
@@ -515,12 +549,6 @@ export type ObsidianDefaultText = {
 			"title": "Export to PDF";
 			"caption": "Export “{{filename}}” to PDF with the settings below.";
 			"setting-page-size": "Page size";
-			"setting-page-size-a3": "A3";
-			"setting-page-size-a4": "A4";
-			"setting-page-size-a5": "A5";
-			"setting-page-size-legal": "Legal";
-			"setting-page-size-letter": "Letter";
-			"setting-page-size-tabloid": "Tabloid";
 			"setting-include-file-name": "Include file name as title";
 			"setting-landscape": "Landscape";
 			"setting-margin": "Margin";
@@ -550,7 +578,6 @@ export type ObsidianDefaultText = {
 		"msg-failed-to-open-href": "Cannot open location “{{href}}”";
 		"no-file": "No file";
 		"msg-file-changed": "“{{file}}” has been modified externally, merging changes automatically.";
-		"switch-vault": "Open another vault";
 		"manage-vaults": "Manage vaults...";
 		"help": "Help";
 		"settings": "Settings";
@@ -566,13 +593,11 @@ export type ObsidianDefaultText = {
 		"copied_generic": "Copied to your clipboard";
 		"copied": "{{item}} copied to your clipboard";
 		"copy_failed": "Unable to copy to your clipboard";
-		"copy-path": "Copy path";
-		"copy-relative-path": "Copy relative path";
 		"prompt-filter": "Filter...";
-		"url": "URL";
 		"msg-codeblock-render-error": "Encountered an error while rendering code block.";
 		"msg-open-file-through-uri": "Opened file “{{path}}”";
 		"msg-file-not-found-through-uri": "File “{{name}}” not found.";
+		"msg-invalid-uri-action": "Unrecognized URI action: {{action}}";
 		"delete-action-short-name": "Delete";
 		"msg-indexing": "Indexing vault...";
 		"msg-indexing-desc": "Some functionality may not be available until this is complete.";
@@ -632,6 +657,8 @@ export type ObsidianDefaultText = {
 			"tab-title": "Release Notes {{version}}";
 			"msg-missing-release-notes": "No release notes available for {{version}}.";
 			"msg-failed-to-load": "Could not load release notes for {{version}}.";
+			"msg-release-date": "Released on {{date}}";
+			"label-release": "What's new in {{version}}";
 		};
 		"menu": {
 			"edit-view": "Current view: editing";
@@ -642,6 +669,7 @@ export type ObsidianDefaultText = {
 			"switch-to-edit-view": "Click to edit";
 			"switch-to-read-view": "Click to read";
 			"mod-click-open-new-tab": "{{key}}+Click to open to the right";
+			"msg-markdown-copy-instructions": "Press {{key}}+C to copy source";
 			"find": "Find...";
 			"replace": "Replace...";
 			"edit": "Edit";
@@ -672,6 +700,11 @@ export type ObsidianDefaultText = {
 			"copy": "Copy";
 			"cut": "Cut";
 			"paste": "Paste";
+			"copy-path": "Copy path";
+			"copy-image": "Copy image";
+			"copy-obsidian-url": "as Obsidian URL";
+			"copy-full-path": "from system root";
+			"copy-vault-path": "from vault folder";
 			"paste-as-plain-text": "Paste as plain text";
 			"lookup-selection": "Look up “{{selection}}”";
 			"select-all": "Select all";
@@ -744,7 +777,7 @@ export type ObsidianDefaultText = {
 			"tooltip-own-vault": "This is a remote vault owned by you.";
 			"tooltip-shared-vault": "This is a remote vault shared with you.";
 			"mobile": {
-				"label-start-screen": "Your thoughts are yours.";
+				"label-start-screen": "Your thoughts are yours.";
 				"label-synced": "synced";
 				"label-not-synced": "not synced";
 				"label-none": "None";
@@ -754,13 +787,13 @@ export type ObsidianDefaultText = {
 				"option-use-existing": "Use my existing vault";
 				"label-sync-intro": "To access your notes on other devices you need to set up sync.";
 				"label-sync-intro-desc": "Because Obsidian stores your notes on your devices, you'll need to set up sync if you want to access your notes on another phone or computer.\nYou can set up sync now, or just start writing and set it up later.";
-				"option-setup-sync": "Setup Sync";
+				"option-setup-sync": "Set up sync";
 				"option-skip": "Continue without sync";
 				"option-skip-short": "Skip";
 				"label-vault-create": "Configure your new vault.";
 				"button-create": "Create vault";
 				"label-sync-setup": "Sync setup";
-				"label-sync-setup-desc": "Create a synced vault on your Obsidian account so that you can access your data from other devices.";
+				"label-sync-setup-desc": "Create a synced vault on your Obsidian account so you can access your data from other devices.";
 				"label-remote-vault-create": "Sync encryption";
 				"option-encryption-custom": "End-to-end encryption";
 				"option-encryption-custom-desc": "Offers the strongest security but requires you to safely store your encryption password";
@@ -769,7 +802,7 @@ export type ObsidianDefaultText = {
 				"label-sync-settings": "Sync Settings";
 				"label-sync-settings-desc": "Do you want to exclude any folders or files when syncing to this device?";
 				"button-start": "Start syncing";
-				"label-sign-in-or-sign-up": "Create an Obsidian account or sign in";
+				"label-sign-in-or-sign-up": "Create an Obsidian account or sign in";
 				"option-sign-up": "Sign up";
 				"option-sign-in": "Sign in";
 				"button-resend-email": "Re-send email";
@@ -781,6 +814,12 @@ export type ObsidianDefaultText = {
 				"button-forgot-password": "Forgot password";
 				"label-vault-name": "Vault name";
 				"label-vault-location": "Vault location";
+				"label-device-storage": "Device storage";
+				"label-device-storage-desc": "Allows Obsidian data to be accessed by other apps.";
+				"label-requires-additional-permissions": "Requires additional permissions.";
+				"label-app-storage": "App storage";
+				"label-app-storage-desc1": "Your data will not be accessible to other apps.";
+				"label-app-storage-desc2": "Android will delete your data if you uninstall Obsidian.";
 				"label-vault-location-desc": "Your new vault will be placed in {{vaultLocation}}";
 				"label-region-selection": "Region";
 				"label-region-selection-help": "Choose a server region near you to make syncing faster.";
@@ -790,7 +829,7 @@ export type ObsidianDefaultText = {
 				"opt-region-selection-automatic": "Automatic";
 				"label-remote-vault-selection": "Choose a vault";
 				"label-remote-vault-selection-desc": "Your account **{{email}}** has existing vaults you can connect to.";
-				"label-sign-in": "Sign in to your Obsidian account";
+				"label-sign-in": "Sign in to your Obsidian account";
 				"label-forgot-password": "Forgot password";
 				"button-reset-password": "Reset password";
 				"msg-password-reset": "We have sent an email to {{email}} to reset your password.";
@@ -809,8 +848,6 @@ export type ObsidianDefaultText = {
 				"opt-learn-other-sync": "Other sync methods";
 				"opt-use-supported": "Use supported sync methods";
 				"label-sync-restore": "Where is your vault located?";
-				"label-obsidian-sync": "Obsidian Sync";
-				"label-icloud": "iCloud";
 				"label-other": "Other";
 				"label-other-sync": "Third-party sync";
 				"label-local-folder": "On this device";
@@ -825,7 +862,6 @@ export type ObsidianDefaultText = {
 				"label-signup": "Enter your name and password";
 				"email-verification": "Connect to Obsidian Sync";
 				"email-verification-desc": "You should receive an email shortly to **{{email}}** with instructions to connect to Obsidian Sync.";
-				"icloud-missing": "iCloud";
 				"icloud-missing-desc": "Your iCloud vault was not detected. This could be due to any of the following reasons:";
 				"icloud-missing-reason1": "Your vault is on a different iCloud account than the one you are currently signed into on this device.";
 				"icloud-missing-reason2": "Your vault is not stored on the top-level Obsidian folder of your iCloud Drive.";
@@ -890,12 +926,9 @@ export type ObsidianDefaultText = {
 				"action-rate": "Rate the app";
 				"action-dismiss": "Dismiss";
 			};
-			"debug": {
-				"name": "Debug mode";
-				"desc": "Experiencing a technical problem?";
-				"close-vault": "Close vault";
-				"disable-plugins": "Disable plugins";
-				"disable-theme": "Disable theme and snippets";
+			"icloud-startup": {
+				"msg-reload-needed": "Configuration files updated from iCloud, reload required";
+				"action-reload": "Reload";
 			};
 		};
 		"help-screen": {
@@ -927,11 +960,14 @@ export type ObsidianDefaultText = {
 		"split-down": "Split down";
 		"toggle-stacked-tabs": "Toggle stacked tabs";
 		"toggle-readable-line-length": "Toggle readable line length";
+		"toggle-line-numbers": "Toggle line numbers";
 		"navigate-back": "Navigate back";
 		"navigate-forward": "Navigate forward";
-		"use-dark-mode": "Use dark mode";
-		"use-light-mode": "Use light mode";
-		"change-theme": "Change theme";
+		"toggle-light-dark-mode": "Toggle light/dark mode";
+		"change-theme": "Change theme...";
+		"change-vault": "Change vault...";
+		"open-vault": "Open vault...";
+		"manage-vaults": "Manage vaults";
 		"search-current-file": "Search current file";
 		"search-replace-current-file": "Search & replace in current file";
 		"add-property": "Add file property";
@@ -945,6 +981,7 @@ export type ObsidianDefaultText = {
 		"toggle-source-mode": "Toggle Live Preview/Source mode";
 		"delete-current-file": "Delete current file";
 		"new-tab": "New tab";
+		"new-window": "New window";
 		"show-trash": "Show trash";
 		"close-all-tabs": "Close all tabs";
 		"close-active-tab": "Close current tab";
@@ -985,8 +1022,9 @@ export type ObsidianDefaultText = {
 		"insert-table": "Insert table";
 		"insert-footnote": "Insert footnote";
 		"edit-file-title": "Rename file";
-		"copy-path": "Copy file path";
-		"copy-url": "Copy Obsidian URL";
+		"copy-path": "Copy current file path from vault folder";
+		"copy-full-path": "Copy current file path from system root";
+		"copy-url": "Copy Obsidian URL for current file";
 		"export-pdf": "Export to PDF...";
 		"reload": "Reload app without saving";
 		"undo-close-tab": "Undo close tab";
@@ -1023,10 +1061,9 @@ export type ObsidianDefaultText = {
 		"label-delete-folder-warning": "If you continue, all files inside this folder will be deleted.";
 		"label-delete-folder": "Delete folder";
 		"button-delete": "Delete";
-		"button-delete-do-not-ask-again": "Delete and don't ask again";
 		"label-do-not-ask-again": "Don't ask again";
-		"label-existing-backlink": "There is currently {{count}} link pointing to this note.";
-		"label-existing-backlink_plural": "There are currently {{count}} links pointing to this note.";
+		"label-existing-backlink": "There is currently {{count}} link pointing to this file.";
+		"label-existing-backlink_plural": "There are currently {{count}} links pointing to this file.";
 		"label-delete-file": "Delete file";
 		"label-download-attachments": "Download attachments";
 		"label-no-attachments": "There are no external attachments in this note.";
@@ -1036,14 +1073,18 @@ export type ObsidianDefaultText = {
 		"msg-files-updated_plural": "Updated {{count}} files.";
 		"msg-files-reverted": "Reverted changes to {{count}} file.";
 		"msg-files-reverted_plural": "Reverted changes to {{count}} files.";
+		"msg-offline": "No internet connection";
+		"msg-loading": "Loading...";
 		"button-manage": "Manage";
 		"button-view": "View";
 		"button-confirm": "Confirm";
 		"button-cancel": "Cancel";
+		"button-skip": "Skip";
 		"button-download": "Download";
 		"button-done": "Done";
 		"button-save": "Save";
 		"button-stop": "Stop";
+		"button-change": "Change";
 		"button-continue": "Continue";
 		"button-choose": "Choose";
 		"button-retry": "Retry";
@@ -1053,6 +1094,8 @@ export type ObsidianDefaultText = {
 		"label-rename-file": "Note title";
 		"label-rename-file-generic": "File name";
 		"label-new-name": "New name";
+		"label-error": "Error";
+		"label-selected": "Selected";
 		"msg-rename-success": "Successfully renamed file.";
 		"msg-merge-failed": "Failed to merge notes: {{message}}";
 		"msg-file-or-folder-not-found": "The file or folder “{{path}}” does not exist.";
@@ -1061,10 +1104,16 @@ export type ObsidianDefaultText = {
 		"msg-block-id-invalid": "Block ID can only contain alphanumeric characters or dash";
 		"label-rename-heading": "Rename heading";
 		"label-rename-blockid": "Rename block ID";
+		"orphan-attachments-title": "Delete file attachments?";
+		"orphan-attachments-desc": "This attachment is no longer used in any notes. Would you like to delete it?";
+		"orphan-attachments-desc_plural": "These {{count}} attachments are no longer used in any notes. Would you like to delete them?";
+		"tooltip-file-tree": "File tree";
+		"tooltip-gallery": "Gallery";
 	};
 	"menu-items": {
 		"new-file": "New Note";
 		"new-file-to-the-right": "New Note to the Right";
+		"new-tab": "New Tab";
 		"new-window": "New Window";
 		"open-switcher": "Open Quickly...";
 		"open-vault": "Open Vault...";
@@ -1084,6 +1133,8 @@ export type ObsidianDefaultText = {
 		"insert-math-block": "Math Block";
 		"insert-table": "Table";
 		"insert-footnote": "Footnote";
+		"inline-title": "Inline title";
+		"line-numbers": "Line numbers";
 		"toggle-bullet-list": "Bullet List";
 		"toggle-numbered-list": "Numbered List";
 		"toggle-checklist": "Task List";
@@ -1104,6 +1155,7 @@ export type ObsidianDefaultText = {
 		"reading-view": "Reading View";
 		"show-debug-info": "Show Debug Info";
 		"open-sandbox": "Open Sandbox Vault";
+		"move-to-new-window": "Move To New Window";
 		"navigate-back": "Navigate Back";
 		"navigate-forward": "Navigate Forward";
 		"toggle-left-sidebar": "Left Sidebar";
@@ -1165,7 +1217,6 @@ export type ObsidianDefaultText = {
 			"msg-bad-dotfile": "File name must not start with a dot.";
 			"tooltip-modified-time": "Last modified at {{time}}";
 			"tooltip-created-time": "Created at {{time}}";
-			"tooltip-folders-files-count": "{{fileCount}}, {{folderCount}}";
 			"label-untitled-file": "Untitled";
 			"label-untitled-folder": "Untitled";
 			"msg-set-attachment-folder": "Attachments will be saved to “{{path}}” from now on.";
@@ -1372,7 +1423,10 @@ export type ObsidianDefaultText = {
 			"tab-title": "File properties for {{displayText}}";
 			"action-show": "Show all properties";
 			"action-show-local": "Show file properties";
-			"opt-unassign-type": "Unassign type";
+			"opt-delete-properties": "Delete property";
+			"opt-delete-properties_plural": "Delete properties";
+			"opt-automatic": "Automatic";
+			"opt-automatic-with-type": "Automatic ({{type}})";
 			"label-no-properties": "No properties found.";
 			"label-invalid-properties": "Invalid properties.";
 			"label-sort-by-name-a-to-z": "Property name (A to Z)";
@@ -1433,7 +1487,6 @@ export type ObsidianDefaultText = {
 			"msg-no-search-query": "No search query to bookmark.";
 			"option-path": "Path";
 			"option-query": "Query";
-			"option-u-r-l": "URL";
 			"option-title": "Title";
 			"option-group": "Bookmark group";
 			"placeholder-bookmark-group": "Bookmarks";
@@ -1467,7 +1520,7 @@ export type ObsidianDefaultText = {
 			"msg-failed-to-install-theme": "Failed to install theme “{{name}}”.";
 			"msg-successfully-installed-theme": "Successfully installed theme “{{name}}”.";
 			"msg-installing-theme": "Installing theme “{{name}}”...";
-			"label-search-summary": "Showing {{themeCount}}:";
+			"label-search-summary": "Showing {{themeCount}}";
 			"label-update-available": "Update available";
 		};
 		"command-palette": {
@@ -1478,10 +1531,8 @@ export type ObsidianDefaultText = {
 			"instruction-use": "to use";
 			"instruction-dismiss": "to dismiss";
 			"label-no-commands": "No commands found.";
-			"prompt-type-command": "Select a command...";
+			"prompt-type-command": "Select a command to add...";
 			"label-pinned-commands": "Pinned commands";
-			"option-add-new-pin": "New pinned command";
-			"option-add-new-pin-description": "Pinned commands will appear at the top of all commands when no search query is present.";
 		};
 		"markdown-format-importer": {
 			"name": "Format converter";
@@ -1530,6 +1581,11 @@ export type ObsidianDefaultText = {
 			"msg-no-previous": "There's no daily note before this one.";
 			"msg-no-next": "There's no daily note after this one.";
 			"option-date-format": "Date format";
+			"option-date-format-desc": "Choose how daily note are named in your vault.";
+			"option-custom-date-format": "Custom format";
+			"option-custom": "Custom";
+			"msg-invalid-date-format": "Invalid date format";
+			"msg-missing-folder": "Daily note folder not found.";
 			"label-refer-to-syntax": "For more syntax, refer to ";
 			"label-syntax-link": "format reference";
 			"label-syntax-live-preview": "Your current syntax looks like this: ";
@@ -1537,14 +1593,13 @@ export type ObsidianDefaultText = {
 			"option-new-file-location-description": "New daily notes will be placed here.";
 			"option-template": "Template file location";
 			"option-template-description": "Choose the file to use as a template.";
-			"option-open-on-start": "Open daily note on startup";
-			"option-open-on-start-description": "Open your daily note automatically whenever you open this vault.";
 		};
 		"unique-note-creator": {
 			"name": "Unique note creator";
 			"desc": "Create notes with unique timestamp prefixes, for workflows like zettelkasten or slip box.";
 			"short-name": "Unique";
 			"action-create-note": "Create new unique note";
+			"label-quick-action": "New unique note";
 			"action-add-link": "Add unique internal link";
 			"option-new-file-location": "New file location";
 			"option-new-file-location-description": "The folder path to create the new unique note in.";
@@ -1777,7 +1832,6 @@ export type ObsidianDefaultText = {
 			"label-configure-custom-domain": "Configure custom domain";
 			"option-custom-url-name": "Custom URL";
 			"option-custom-url-desc": "Enter the URL of your custom site, do not include “www.”";
-			"option-custom-url-placeholder": "yourdomain.com";
 			"option-custom-url-redirect": "Redirect to your custom domain";
 			"option-custom-url-redirect-desc": "Redirect visitors on publish.obsidian.md/id to your custom domain.";
 			"button-update-custom-domain": "Update domain setting";
@@ -2059,7 +2113,6 @@ export type ObsidianDefaultText = {
 			"msg-migrate-pre-confirmation-part2": "Important: we strongly recommend creating a backup of your vault before proceeding to prevent any potential data loss.";
 			"msg-migrate-pre-confirmation-part3": "After completing the upgrade, you will need to reconnect all your devices to the updated remote vault.";
 			"msg-migrate-confirmation": "Migrating your vault may take some time. You will need to keep Obsidian active on this device to re-upload all your notes and attachments. It is best to do this on your primary device.";
-			"msg-migrate-confirmation-size": "You have {{size}} of data. Migrating your vault may take some time. You will need to keep Obsidian active on this device to re-upload all your notes and attachments. It is best to do this on your primary device.";
 			"msg-proceed-prompt": "Do you want to proceed?";
 			"msg-vault-migration-started": "Vault migration in progress.";
 			"msg-vault-migration-completed": "Vault migration complete.";
@@ -2146,7 +2199,6 @@ export type ObsidianDefaultText = {
 			"action-select-all": "Select all";
 			"action-save-to-vault": "Save to vault";
 			"action-save-image": "Save image to vault";
-			"action-copy-image": "Copy image";
 			"action-copy-image-link": "Copy image link";
 			"action-backward": "Backward";
 			"action-forward": "Forward";
@@ -2326,17 +2378,20 @@ export type ObsidianDefaultText = {
 			"desc": "Create custom views that let you edit, sort, and filter files using their properties.";
 			"action-new-base": "New base";
 			"action-add-property": 'Add "{{name}}" property';
+			"action-add-summary": 'Add "{{name}}" summary';
 			"action-add-formula": "Add formula";
 			"action-hide-all": "Hide all";
 			"action-toggle-visibility": "Toggle visibility";
 			"action-delete-formula": "Delete formula";
+			"action-set-default-view": "Default view";
 			"action-duplicate-view": "Duplicate view";
 			"action-delete-view": "Delete view";
+			"action-delete-summary": "Delete summary";
 			"action-export-c-s-v": "Export CSV...";
 			"command-create-new": "Create new base";
 			"command-insert-new": "Insert new base";
 			"command-copy-table": "Copy table to clipboard";
-			"command-change-view": "Change view";
+			"command-change-view": "Switch view...";
 			"command-add-view": "Add view";
 			"command-add-item": "Add item";
 			"button-add-view": "Add view";
@@ -2344,6 +2399,8 @@ export type ObsidianDefaultText = {
 			"button-add-filter-group": "Add filter group";
 			"button-show-all": "Show all";
 			"button-show-all-count": "Show all ({{count}})";
+			"button-add-summary": "Add summary";
+			"button-hide-summary": "Hide summary";
 			"label-all-views": "All views";
 			"label-current-view": "This view";
 			"placeholder-search-property": "Find or create...";
@@ -2352,7 +2409,6 @@ export type ObsidianDefaultText = {
 			"label-hide-property": "Hide property";
 			"label-show-property": "Show property";
 			"label-edit-property": "Edit property";
-			"placeholder-formula": "x + y";
 			"title-edit-property": "Edit {{name}}";
 			"label-configure-view": "Configure view";
 			"label-view-layout": "Layout";
@@ -2362,11 +2418,15 @@ export type ObsidianDefaultText = {
 			"label-default-view": "View";
 			"label-view-type-table": "Table";
 			"label-display-name": "Display name";
+			"label-summary-name": "Summary name";
 			"label-formula": "Formula";
+			"label-views": "Views";
 			"label-sort": "Sort";
 			"label-filter": "Filter";
+			"label-search": "Search";
 			"label-properties": "Properties";
 			"label-new-item": "New";
+			"label-search-results": "Showing {{count}}";
 			"label-new-item-template-file": "New item template file";
 			"label-new-item-folder": "New item folder";
 			"label-any-of-the-following": "Any of the following are true";
@@ -2392,6 +2452,8 @@ export type ObsidianDefaultText = {
 			"label-file-prop-embeds": "file embeds";
 			"label-file-prop-tags": "file tags";
 			"label-add-sort": "Add sort";
+			"label-group-by": "Group by";
+			"label-sort-by": "Sort by";
 			"label-limit": "Limit number of results";
 			"label-sort-a-z": "A → Z";
 			"label-sort-z-a": "Z → A";
@@ -2400,6 +2462,8 @@ export type ObsidianDefaultText = {
 			"label-sort01": "0 → 1";
 			"label-sort10": "1 → 0";
 			"msg-invalid-view-name": "View name cannot contain: ";
+			"msg-duplicate-view-name": "View name already exists.";
+			"msg-empty-view-name": "View name cannot be empty.";
 			"msg-filter-simple-unavailable": "This filter cannot be represented by the simple filter builder.";
 			"msg-filter-cannot-parse": "Filter cannot be parsed. Basic filter builder cannot be used.";
 			"msg-error-invalid-properties-section": "Invalid properties configuration.";
@@ -2407,7 +2471,7 @@ export type ObsidianDefaultText = {
 			"msg-error-register-view": 'Unable to add new Bases view "{{ viewId }}". A view with this ID already exists.';
 			"msg-error-unable-to-parse": "Unable to parse your base file:";
 			"msg-error-view-not-found": 'View "{{ view }}" not found';
-			"msg-error-unknown-view-type": "Base configured with an unknown view type: {{ viewtype }}";
+			"msg-error-unknown-view-type": "Unknown view type: {{ viewtype }}";
 			"msg-error-view-type": "Views must be an array";
 			"msg-error-display-values": "Display values must be strings. Value for property {{ key }} is not.";
 			"msg-error-must-be-a-type": '"{{ key }}" must be a {{ type }}';
@@ -2432,6 +2496,16 @@ export type ObsidianDefaultText = {
 			"tooltip-filter-advanced-mode": "Advanced filter";
 			"tooltip-filter-simple-mode": "Simple filter";
 			"tooltip-remove-filter": "Remove filter";
+			"label-group-key-none": "None";
+			"list": {
+				"name": "List";
+				"label-markers": "Markers";
+				"label-indent-properties": "Indent properties";
+				"label-property-separator": "Property separator";
+				"option-bullet": "Bullet";
+				"option-number": "Number";
+				"option-none": "None";
+			};
 			"cards": {
 				"name": "Cards";
 				"label-card-size": "Card size";
@@ -2454,6 +2528,10 @@ export type ObsidianDefaultText = {
 				"option-medium": "Medium";
 				"option-tall": "Tall";
 				"option-extra-tall": "Extra tall";
+				"action-select-summary": "Summarize...";
+				"action-group-by": "Group by this property";
+				"action-clear-selection": "Clear values";
+				"label-summary": "Summary";
 			};
 		};
 	};
@@ -2473,6 +2551,7 @@ export type ObsidianDefaultText = {
 			"label-global-if": "Returns the `trueResult` if `condition` is true, or is a truthy value, or `falseResult` otherwise.";
 			"label-global-min": "Returns the smallest of all the provided numbers.";
 			"label-global-max": "Returns the largest of all the provided numbers.";
+			"label-global-random": "Returns a random number between 0 and 1.";
 			"label-global-list": "Wrap the provided `element` in a list, creating a list with a single element. If the `element` is a list, return it unmodified.";
 			"label-global-link": "Parses a string `path` and returns a Link object that renders as a link to the path given.";
 			"label-global-number": "Attempt to return the provided value as a number.";
@@ -2480,8 +2559,12 @@ export type ObsidianDefaultText = {
 			"label-global-image": "Returns an image object which will render the image in the view.";
 			"label-global-icon": "Returns a string that represents the icon name to be rendered using Lucide. The icon name must match a supported Lucide icon.";
 			"label-global-file": "Attempt to locate a file for a given path or link.";
+			"label-global-html": "Converts a string into a code snippet that renders as HTML.";
+			"label-global-escape-html": "Escapes special characters in a string to make it safe for inclusion in HTML.";
+			"label-global-markdown": "Converts a string into a code snippet that renders as Markdown.";
 			"label-value-to-string": "Returns the string representation of any value.";
 			"label-value-is-truthy": "Return the value coerced into a boolean.";
+			"label-value-is-type": "Returns true if the value is of the provided type.";
 			"label-null-is-empty": "Returns true.";
 			"label-string-starts-with": "Returns true if this string starts with `query`.";
 			"label-string-ends-with": "Returns true if this string ends with `query`.";
@@ -2503,6 +2586,12 @@ export type ObsidianDefaultText = {
 			"label-number-to-fixed": "Returns a string with the number in fixed-point notation.";
 			"label-number-is-empty": "Returns true if the number is not present.";
 			"label-list-is-empty": "Returns true if the list has no elements.";
+			"label-list-earliest-latest": "Returns the earliest/latest date value in the list.";
+			"label-list-median": "Returns the median of the number values in the list.";
+			"label-list-mean": "Returns the mean of the number values in the list.";
+			"label-list-min-max": "Returns the minimum/maximum of the number values in the list.";
+			"label-list-sum": "Returns the sum of the number values in the list.";
+			"label-list-std-dev": "Returns the standard deviation of the number values in the list.";
 			"label-list-join": "Joins all list elements into a single string.";
 			"label-list-reverse": "Reverses the list in place.";
 			"label-list-flat": "Flattens nested list into a single list.";
@@ -2514,6 +2603,7 @@ export type ObsidianDefaultText = {
 			"label-list-sort": "Sorts list elements from smallest to largest.";
 			"label-list-map": "Transform each element of this list by calling a conversion function, which uses the variables `index` and `value`, and returns the new value to be placed in the list.";
 			"label-list-filter": "Filter the elements of this list by calling a filter function, which uses the variables `index` and `value`, and returns a boolean value for whether the element should be kept.";
+			"label-list-reduce": "Reduce the elements of this list by calling a reduce function, which uses the variables `value` and `acc`, and returns a value which will become `acc` when calling the function for the following element of the list.";
 			"label-object-is-empty": "Returns true if the object has no own properties.";
 			"label-object-keys": "Returns a list containing the keys of the object.";
 			"label-object-values": "Returns a list containing the values of the object.";
@@ -2597,6 +2687,7 @@ export type ObsidianDefaultText = {
 			"instruction-dismiss": "to dismiss";
 		};
 		"option-property-type": "Property type";
+		"option-sort": "Sort";
 		"msg-empty-property-name": "Property name cannot be empty.";
 		"msg-duplicate-property-name": "Property already exists";
 		"msg-invalid-tag": "Invalid tag name";

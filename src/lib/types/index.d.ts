@@ -51,28 +51,28 @@ declare module "obsidian" {
 		registeredTypeWidgets: Record<string, PropertyWidget>;
 	}
 
-	interface MetadataCache extends BaseMetadataCache {
-		on(
-			name: "better-properties:relation-changed",
-			cb: (data: {
-				file: TFile;
-				property: string;
-				oldValue: string[];
-				value: string[];
-				relatedProperty: string;
-			}) => void
-		): EventRef;
-		trigger(
-			name: "better-properties:relation-changed",
-			data: {
-				file: TFile;
-				property: string;
-				oldValue: string[];
-				value: string[];
-				relatedProperty: string;
-			}
-		);
-	}
+	// interface MetadataCache extends BaseMetadataCache {
+	// 	on(
+	// 		name: "better-properties:relation-changed",
+	// 		cb: (data: {
+	// 			file: TFile;
+	// 			property: string;
+	// 			oldValue: string[];
+	// 			value: string[];
+	// 			relatedProperty: string;
+	// 		}) => void
+	// 	): EventRef;
+	// 	trigger(
+	// 		name: "better-properties:relation-changed",
+	// 		data: {
+	// 			file: TFile;
+	// 			property: string;
+	// 			oldValue: string[];
+	// 			value: string[];
+	// 			relatedProperty: string;
+	// 		}
+	// 	);
+	// }
 
 	interface Menu {
 		scrollEl: HTMLDivElement;

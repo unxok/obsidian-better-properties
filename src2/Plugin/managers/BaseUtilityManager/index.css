@@ -1,0 +1,34 @@
+.better-properties--hidden-base {
+	position: absolute;
+	pointer-events: none;
+	visibility: hidden;
+}
+
+.modal.better-properties--bases-filter-editor-modal {
+	body:has(> .modal-container > &)
+		div.bases-toolbar-section.bases-groupby-container {
+		display: none;
+	}
+
+	.bases-toolbar-item {
+		&.bases-toolbar-views-menu,
+		/* &.bases-toolbar-properties-menu, */
+		&.bases-toolbar-new-item-menu {
+			display: none;
+		}
+	}
+
+	.modal-content {
+		display: flex;
+		flex-direction: column;
+		overflow: hidden;
+
+		& .better-properties--embeddable-base-editor-container.bases-embed {
+			padding: 0;
+			display: flex;
+			flex-direction: column;
+			overflow: hidden;
+			height: 100%;
+		}
+	}
+}

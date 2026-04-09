@@ -1,0 +1,4 @@
+.better-properties--toggle-widget-container {
+	display: flex;
+	padding: var(--input-padding);
+}

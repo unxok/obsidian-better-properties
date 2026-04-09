@@ -1,0 +1,5 @@
+.setting-group.better-properties--toggleable-settings-group
+	> .setting-items[disabled="true"][data-better-properties--disabled="true"] {
+	pointer-events: none;
+	opacity: 0.5;
+}

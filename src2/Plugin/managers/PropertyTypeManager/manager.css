@@ -1,0 +1,21 @@
+.better-propertpes--property-type-setting:hover {
+	.better-properties--update-property-button {
+		display: flex;
+	}
+}
+
+.better-properties--update-property-button {
+	display: none;
+}
+
+.better-properties--property-type-settings-modal-desc {
+	display: flex;
+	flex-direction: column;
+	padding-block-end: var(--size-4-6);
+
+	& > div {
+		display: flex;
+		flex-wrap: wrap;
+		gap: var(--size-2-2);
+	}
+}

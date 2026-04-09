@@ -1,0 +1,10 @@
+.better-properties--setting-item-name-with-icon {
+	display: flex;
+	align-items: center;
+	gap: var(--size-2-3);
+
+	& > .better-properties--setting-item-name-with-icon-icon {
+		display: inline-flex;
+		align-items: center;
+	}
+}

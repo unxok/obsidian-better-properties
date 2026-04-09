@@ -1,5 +1,5 @@
 // import { BetterProperties } from "./Plugin/plugin";
 import { BetterProperties } from "#/Plugin";
-import "./index.css";
+// import "./index.css";
 
 export default BetterProperties;

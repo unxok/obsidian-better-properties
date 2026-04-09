@@ -1,0 +1,92 @@
+{
+	"common": {
+		"nothingToSeeHere": "Nothing to see here!",
+		"typeHasNoSettings": "This type has no settings available",
+		"valuePlaceholder": "value",
+		"optionalLabelPlaceholder": "label (optional)",
+		"sort": {
+			"valueAlphabetical": "Value (A - Z)",
+			"valueReverseAlphabetical": "Value (Z - A)",
+			"labelAlphabetical": "Label (A - Z)",
+			"labelReverseAlphabetical": "Label (Z - A)",
+			"nameAlphabetical": "Name (A - Z)",
+			"nameReverseAlphabetical": "Name (Z - A)",
+			"pathAlphabetical": "Path (A - Z)",
+			"pathReverseAlphabetical": "Path (Z - A)",
+			"typeAlphabetical": "Type (A - Z)",
+			"typeReverseAlphabetical": "Type (Z - A)"
+		},
+		"openFile": "Open \"{{fileName}}\"",
+		"dontAskAgain": "Don't ask again",
+		"areYouSure": "Are you sure?",
+		"icon": "Icon",
+		"import": "Import",
+		"export": "Export",
+		"reset": "Reset",
+		"more": "More",
+		"openDocumentation": "Open documentation - {{href}}",
+		"openSettings": "Open settings",
+		"documentation": "Documentation",
+		"invalid": "Invalid",
+		"valid": "Valid",
+		"copiedToClipboard": "Copied to clipboard",
+		"this": "this"
+	},
+	"datetime": {
+		"date": "Date",
+		"dateAndTime": "Date & time",
+		"year": "Year",
+		"month": "Month",
+		"day": "Day",
+		"hour": "Hour",
+		"minute": "Minute",
+		"second": "Second"
+	},
+	"actionsSettingGroup": {
+		"exportDesc": "Export these settings as JSON data and copy them to the clipboard.",
+		"importDesc": "Import JSON data to overwrite the current settings.",
+		"importModal": {
+			"title": "Import settings",
+			"parsingError": "Parsing error, check console for more details"
+		},
+		"resetDesc": "Reset these settings to the default.",
+		"resetModal": {
+			"title": "Confirm reset",
+			"desc": "This will permanently reset these settings back to the default."
+		}
+	},
+	"pluginSettings": {
+		"defaultPropertyTypeSettingsSettingsGroupTitle": "Default property type settings"
+	},
+	"select": {
+		"settings": {
+			"manualHeading": "Manual options",
+			"manualSortTooltip": "Sort options",
+			"manualCreateTooltip": "Create new option",
+			"manualRemoveAllTooltip": "Remove all options",
+			"manualRemoveAllModalTitle": "Remove all options confirmation",
+			"manualRemoveAllModalDesc": "This will permanently remove all currently configured options.",
+			"manualSortValueAZ": "By value (A - Z)",
+			"manualSortValueZA": "By value (Z - A)",
+			"manualSortLabelAZ": "By label (A - Z)",
+			"manualSortLabelZA": "By label (Z - A)",
+			"manualValuePlaceholder": "Value",
+			"manualLabelPlaceholder": "Label (optional)",
+			"manualRemoveTooltip": "Remove option",
+			"manualCustomColorModalTitle": "Custom background",
+			"manualCustomColorModalDesc": "Select or enter any valid CSS background."
+		}
+	},
+	"colors": {
+		"red": "Red",
+		"orange": "Orange",
+		"yellow": "Yellow",
+		"green": "Green",
+		"blue": "Blue",
+		"purple": "Purple",
+		"pink": "Pink",
+		"cyan": "Cyan",
+		"gray": "Gray",
+		"custom": "Custom"
+	}
+}

@@ -1,37 +1,61 @@
-import { PropertyTypeManager } from "#/PropertyTypeManager";
-import { Component, Modal, Notice, Plugin } from "obsidian";
+import { PropertyTypeManager } from "#/Plugin/managers/PropertyTypeManager";
+import {
+	App,
+	Component,
+	Menu,
+	MenuItem,
+	Plugin,
+	PluginManifest,
+} from "obsidian";
 import {
 	BetterPropertiesSettings,
 	betterPropertiesSettingsSchema,
 	BetterPropertiesSettingsTab,
 } from "./settings";
 import * as v from "valibot";
-import { BP } from "#/lib/constants";
+import { InvalidPluginSettingsModal } from "./invalidPluginSettingsModal";
+import "./index.css";
+import { BaseUtilityManager } from "./managers/BaseUtilityManager";
+import { PropertyLinkManager } from "./managers/PropertyLinkManager";
+import { around, dedupe } from "monkey-around";
+import { monkeyAroundKey } from "~/lib/constants";
+import { FormulaSyncManager } from "./managers/FormulaSyncManager";
 
 export class BetterProperties extends Plugin {
+	propertyTypeManager: PropertyTypeManager;
+	propertyLinkManager: PropertyLinkManager;
+	baseUtilityManager: BaseUtilityManager;
+	propertiesEditorManager: PropertiesEditorManager;
+	basesViewsManager: BasesViewsManager;
+	formulaSyncManager: FormulaSyncManager;
+	constructor(app: App, manifest: PluginManifest) {
+		super(app, manifest);
+
+		// the order of these managers being loaded matters, so use caution when re-ordering
+		this.addChild((this.propertyTypeManager = new PropertyTypeManager(this)));
+		this.addChild((this.propertyLinkManager = new PropertyLinkManager(this)));
+		this.addChild((this.baseUtilityManager = new BaseUtilityManager(this)));
+		this.addChild(
+			(this.propertiesEditorManager = new PropertiesEditorManager(this))
+		);
+		this.addChild((this.basesViewsManager = new BasesViewsManager()));
+		this.addChild((this.formulaSyncManager = new FormulaSyncManager(this)));
+	}
+
 	async onload(): Promise<void> {
 		await this.loadSettings();
-		this.initComponents();
 		this.addSettingTab(new BetterPropertiesSettingsTab(this));
 
-		console.log("bp loaded3");
+		// REMOVE FOR PROD BUILD
+		this.rebuildLeaves();
 	}
 
 	onunload(): void {}
 
-	propertyTypeManager?: PropertyTypeManager;
-	metadataEditorManager?: MetadataEditorManager;
-	basesViewsManager?: BasesViewsManager;
-	relationSyncManager?: RelationSyncManager;
-
-	/**
-	 * Initialize and attach sub component classes
-	 */
-	initComponents() {
-		this.addChild((this.propertyTypeManager = new PropertyTypeManager(this)));
-		this.addChild((this.metadataEditorManager = new MetadataEditorManager()));
-		this.addChild((this.basesViewsManager = new BasesViewsManager()));
-		this.addChild((this.relationSyncManager = new RelationSyncManager()));
+	rebuildLeaves(): void {
+		this.app.workspace.iterateAllLeaves(async (leaf) => {
+			await leaf.rebuildView();
+		});
 	}
 
 	/**
@@ -56,7 +80,6 @@ export class BetterProperties extends Plugin {
 		}
 
 		this.settings = parsed.output;
-		new Notice(`${BP}: settings loaded successfully`);
 	}
 
 	/**
@@ -79,10 +102,7 @@ export class BetterProperties extends Plugin {
 	 *
 	 * Provide a callback which returns the new value for the settings
 	 */
-	updateSettings<
-		T extends keyof BetterPropertiesSettings,
-		K extends BetterPropertiesSettings[T]
-	>(
+	updateSettings(
 		callback: (settings: BetterPropertiesSettings) => BetterPropertiesSettings
 	): // _: undefined
 	Promise<void>;
@@ -117,59 +137,85 @@ export class BetterProperties extends Plugin {
 	async onExternalSettingsChange(): Promise<void> {
 		await this.loadSettings();
 	}
+
+	onFileEvent(cb: () => void | Promise<void>): void {
+		const { vault, metadataCache } = this.app;
+		const eventRefs = [
+			vault.on("create", cb),
+			vault.on("delete", cb),
+			vault.on("modify", cb),
+			vault.on("rename", cb),
+			metadataCache.on("changed", cb),
+		];
+		eventRefs.forEach((ref) => this.registerEvent(ref));
+	}
 }
 
-class MetadataEditorManager extends Component {}
-class BasesViewsManager extends Component {}
-class RelationSyncManager extends Component {}
-
-class InvalidPluginSettingsModal extends Modal {
-	constructor(
-		public plugin: BetterProperties,
-		public flattenedIssues: v.FlatErrors<undefined>
-	) {
-		super(plugin.app);
+class PropertiesEditorManager extends Component {
+	constructor(public plugin: BetterProperties) {
+		super();
 	}
 
-	async onOpen(): Promise<void> {
-		const { contentEl, flattenedIssues, renderIssueType } = this;
-		this.setTitle(`${BP}: Invalid plugin settings`);
-		contentEl.createEl("p", {
-			text: `${BP} ran into the following issues when reading its settings:`,
-		});
-
-		Object.values(flattenedIssues).forEach(renderIssueType);
-
-		contentEl.createEl("p", {
-			text: "Please correct this immediately. Otherwise, your settings will be overwritten.",
-			cls: "mod-warning",
-		});
+	onload(): void {
+		this.patchMenu();
 	}
 
-	renderIssueType = (
-		issueType: (typeof this.flattenedIssues)[keyof typeof this.flattenedIssues]
-	): void => {
-		const listEl = this.contentEl.createEl("ul");
-		if (!issueType) return;
-		if (Array.isArray(issueType)) {
-			issueType.forEach((text) => {
-				listEl.createEl("li", { text });
-			});
-			return;
+	onunload(): void {}
+
+	patchMenu(): void {
+		const manager = this;
+
+		const uninstaller = around(Menu.prototype, {
+			showAtMouseEvent(old) {
+				return dedupe(monkeyAroundKey, old, function (e) {
+					// @ts-expect-error
+					const that = this as Menu;
+
+					const exit = () => {
+						return old.call(that, e);
+					};
+					const { currentTarget } = e;
+					const isMetadataPropertyIcon =
+						currentTarget instanceof HTMLElement &&
+						currentTarget.tagName.toLowerCase() === "span" &&
+						currentTarget.classList.contains("metadata-property-icon");
+
+					if (!isMetadataPropertyIcon) return exit();
+
+					const container = currentTarget.closest(
+						"div.metadata-property[data-property-key]"
+					)!;
+					const property = container.getAttribute("data-property-key") ?? "";
+
+					manager.modifyPropertyEditorMenu(that, property);
+
+					return exit();
+				});
+			},
+		});
+
+		this.register(uninstaller);
+	}
+
+	modifyPropertyEditorMenu(menu: Menu, property: string): void {
+		const changeTypeItem = menu.items[0];
+		if (changeTypeItem instanceof MenuItem) {
+			changeTypeItem.setSection("action.changeType");
 		}
-		Object.entries(issueType).forEach(([key, value]) => {
-			listEl.createEl("li", {}, (listEl) => {
-				listEl.createEl("b", { text: key });
-			});
-			if (!value) return;
-			if (typeof value === "string") {
-				listEl.createEl("li", { text: value });
-				return;
-			}
-			const subListEl = listEl.createEl("ul");
-			value.forEach((text) => {
-				subListEl.createEl("li", { text });
-			});
+
+		const section = "action.z_better-properties";
+		menu.addItem((item) => {
+			item
+				.setSection(section)
+				.setIcon("lucide-settings")
+				.setTitle("Settings")
+				.onClick(() => {
+					this.plugin.propertyTypeManager.openPropertySettingsModal(property);
+				});
 		});
-	};
+
+		menu.addSections([section]);
+		menu.sections = menu.sections.toSorted((a, b) => a.localeCompare(b));
+	}
 }
+class BasesViewsManager extends Component {}
