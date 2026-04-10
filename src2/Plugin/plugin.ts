@@ -6,6 +6,8 @@ import {
 	MenuItem,
 	Plugin,
 	PluginManifest,
+	setIcon,
+	SuggestModal,
 } from "obsidian";
 import {
 	BetterPropertiesSettings,
@@ -20,6 +22,7 @@ import { PropertyLinkManager } from "./managers/PropertyLinkManager";
 import { around, dedupe } from "monkey-around";
 import { monkeyAroundKey } from "~/lib/constants";
 import { FormulaSyncManager } from "./managers/FormulaSyncManager";
+import { MetadataTypeManagerPropertiesRecord } from "obsidian-typings";
 
 export class BetterProperties extends Plugin {
 	propertyTypeManager: PropertyTypeManager;
@@ -43,8 +46,14 @@ export class BetterProperties extends Plugin {
 	}
 
 	async onload(): Promise<void> {
+		document
+			.querySelectorAll(".better-properties--hidden-base")
+			.forEach((el) => {
+				el.remove();
+			});
 		await this.loadSettings();
 		this.addSettingTab(new BetterPropertiesSettingsTab(this));
+		this.addCommands();
 
 		// REMOVE FOR PROD BUILD
 		this.rebuildLeaves();
@@ -149,6 +158,79 @@ export class BetterProperties extends Plugin {
 		];
 		eventRefs.forEach((ref) => this.registerEvent(ref));
 	}
+
+	addCommands(): void {
+		this.addCommand({
+			id: "open-property-settings",
+			name: "Open property settings",
+			callback: () => {
+				new PropertySuggestModal(this.app)
+					.onSelect(({ name }) => {
+						this.propertyTypeManager.openPropertySettingsModal(name);
+					})
+					.open();
+			},
+		});
+		this.addCommand({
+			id: "rename-property",
+			name: "Rename property",
+			callback: () => {
+				this.propertyTypeManager.openRenamePropertyModal();
+			},
+		});
+	}
+}
+
+class PropertySuggestModal extends SuggestModal<
+	MetadataTypeManagerPropertiesRecord[string]
+> {
+	getSuggestions(
+		query: string
+	):
+		| MetadataTypeManagerPropertiesRecord[string][]
+		| Promise<MetadataTypeManagerPropertiesRecord[string][]> {
+		const properties = Object.values(this.app.metadataTypeManager.properties);
+		if (!query) return properties;
+		const lower = query.toLowerCase();
+		return properties.filter((p) => p.name.toLowerCase().includes(lower));
+	}
+
+	renderSuggestion(
+		value: MetadataTypeManagerPropertiesRecord[string],
+		el: HTMLElement
+	): void {
+		el.classList.add("mod-complex");
+		el.createDiv({ cls: "suggestion-content" }).createDiv({
+			cls: "suggestion-title",
+			text: value.name,
+		});
+		const icon =
+			this.app.metadataTypeManager.registeredTypeWidgets[value.widget]?.icon ??
+			"lucide-file-question";
+		setIcon(
+			el
+				.createDiv({ cls: "suggestion-aux" })
+				.createDiv({ cls: "suggestion-flair" }),
+			icon
+		);
+	}
+
+	onSelectCallback: (
+		item: MetadataTypeManagerPropertiesRecord[string]
+	) => void = () => {};
+	onSelect(
+		cb: (item: MetadataTypeManagerPropertiesRecord[string]) => void
+	): this {
+		this.onSelectCallback = cb;
+		return this;
+	}
+
+	onChooseSuggestion(
+		item: MetadataTypeManagerPropertiesRecord[string],
+		_evt: MouseEvent | KeyboardEvent
+	): void {
+		this.onSelectCallback(item);
+	}
 }
 
 class PropertiesEditorManager extends Component {
@@ -204,15 +286,27 @@ class PropertiesEditorManager extends Component {
 		}
 
 		const section = "action.z_better-properties";
-		menu.addItem((item) => {
-			item
-				.setSection(section)
-				.setIcon("lucide-settings")
-				.setTitle("Settings")
-				.onClick(() => {
-					this.plugin.propertyTypeManager.openPropertySettingsModal(property);
-				});
-		});
+		menu
+			.addItem((item) => {
+				item
+					.setSection(section)
+					.setIcon("lucide-settings")
+					.setTitle("Settings")
+					.onClick(() => {
+						this.plugin.propertyTypeManager.openPropertySettingsModal(property);
+					});
+			})
+			.addItem((item) => {
+				item
+					.setSection(section)
+					.setIcon("lucide-edit-2")
+					.setTitle("Rename")
+					.onClick(() => {
+						const { name } =
+							this.plugin.app.metadataTypeManager.getPropertyInfo(property);
+						this.plugin.propertyTypeManager.openRenamePropertyModal(name);
+					});
+			});
 
 		menu.addSections([section]);
 		menu.sections = menu.sections.toSorted((a, b) => a.localeCompare(b));
