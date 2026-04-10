@@ -27,23 +27,24 @@ export default (({ plugin, containerEl, propertyName }) => {
 			settings.formula
 		);
 
-		const previewEl = containerEl.createDiv({
-			cls: "better-properties--formula-setting-preview",
-		});
+		// const previewEl = containerEl.createDiv({
+		// 	cls: "better-properties--formula-setting-preview",
+		// });
 
 		textComponent.onChange(async (v) => {
 			await updateSettings((prev) => ({ ...prev, formula: v }));
-			const [data] = await plugin.baseUtilityManager.evaluateFormulas({
-				formulas: [v],
-				containingFile:
-					plugin.app.vault.getFileByPath(
-						plugin.app.workspace.getRecentFiles({ maxCount: 1 })[0]
-					) ?? undefined,
-			});
-
-			previewEl.empty();
-			data?.renderTo(previewEl, plugin.app.renderContext);
 			await plugin.formulaSyncManager.updateCachedFilesFormulas();
+			// const [data] = await plugin.baseUtilityManager.evaluateFormulas({
+			// 	formulas: [v],
+			// 	containingFile:
+			// 		plugin.app.vault.getFileByPath(
+			// 			plugin.app.workspace.getRecentFiles({ maxCount: 1 })[0]
+			// 		) ?? undefined,
+			// });
+
+			// previewEl.empty();
+			// data?.renderTo(previewEl, plugin.app.renderContext);
+			// await plugin.formulaSyncManager.updateCachedFilesFormulas();
 		});
 	});
 }) satisfies CustomPropertyType["renderSettings"];
