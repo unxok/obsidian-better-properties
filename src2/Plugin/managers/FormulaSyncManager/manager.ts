@@ -12,39 +12,39 @@ export class FormulaSyncManager extends Component {
 		this.plugin.app.workspace.onLayoutReady(() => {
 			this.buildCache();
 			void this.updateCachedFilesFormulas();
+
+			const refs: EventRef[] = [
+				this.plugin.app.vault.on("delete", (file) => {
+					if (!(file instanceof TFile)) return;
+					if (!this.cache.has(file.path)) return;
+					this.cache.delete(file.path);
+				}),
+				this.plugin.app.vault.on("create", (file) => {
+					if (!(file instanceof TFile)) return;
+					if (file.extension.toLocaleLowerCase() !== "md") return;
+					if (!this.getFileFormulaProperties(file.path).length) return;
+					this.cache.add(file.path);
+				}),
+				this.plugin.app.vault.on("rename", (file, oldPath) => {
+					if (!this.cache.has(oldPath)) return;
+					this.cache.delete(oldPath);
+					this.cache.add(file.path);
+				}),
+				this.plugin.app.metadataCache.on("changed", async (file) => {
+					if (!(file instanceof TFile)) return;
+					if (file.extension.toLocaleLowerCase() !== "md") return;
+					if (!this.getFileFormulaProperties(file.path).length) return;
+					this.cache.add(file.path);
+				}),
+				// the events above always fire before this,
+				// so the cache should always be up to date before calling updateCachedFilesFormulas
+				this.plugin.app.metadataCache.on("resolved", async () => {
+					await this.updateCachedFilesFormulas();
+				}),
+			];
+
+			refs.forEach((ref) => this.registerEvent(ref));
 		});
-
-		const refs: EventRef[] = [
-			this.plugin.app.vault.on("delete", (file) => {
-				if (!(file instanceof TFile)) return;
-				if (!this.cache.has(file.path)) return;
-				this.cache.delete(file.path);
-			}),
-			this.plugin.app.vault.on("create", (file) => {
-				if (!(file instanceof TFile)) return;
-				if (file.extension.toLocaleLowerCase() !== "md") return;
-				if (!this.getFileFormulaProperties(file.path).length) return;
-				this.cache.add(file.path);
-			}),
-			this.plugin.app.vault.on("modify", (file) => {
-				if (!(file instanceof TFile)) return;
-				if (file.extension.toLocaleLowerCase() !== "md") return;
-				if (!this.getFileFormulaProperties(file.path).length) return;
-				this.cache.add(file.path);
-			}),
-			this.plugin.app.vault.on("rename", (file, oldPath) => {
-				if (!this.cache.has(oldPath)) return;
-				this.cache.delete(oldPath);
-				this.cache.add(file.path);
-			}),
-			// the vault file events always fire before this,
-			// so the cache should always be up to date before calling updateCachedFilesFormulas
-			this.plugin.app.metadataCache.on("resolved", async () => {
-				await this.updateCachedFilesFormulas();
-			}),
-		];
-
-		refs.forEach((ref) => this.registerEvent(ref));
 	}
 
 	/**
@@ -144,13 +144,7 @@ export class FormulaSyncManager extends Component {
 	 */
 	normalizeFormulaValue(
 		value: BasesFormulaValue
-	):
-		| undefined
-		| boolean
-		| number
-		| string
-		| Record<string, unknown>
-		| unknown[] {
+	): null | boolean | number | string | Record<string, unknown> | unknown[] {
 		if (value.constructor.type === "List") {
 			// TODO why doesn't TS narrow the type correctly?
 			return (value as BasesFormulaValueList).data.map((v) =>
@@ -165,6 +159,7 @@ export class FormulaSyncManager extends Component {
 			return value.toString();
 		}
 
-		return value.data;
+		// nullish coalesce to null because if you set a property to undefined in FileManager.processFrontmatter() it will remove the property
+		return value.data ?? null;
 	}
 }
