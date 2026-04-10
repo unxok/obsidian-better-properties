@@ -1,4 +1,4 @@
-import { SettingGroup } from "obsidian";
+import { SettingGroup, TFile } from "obsidian";
 import { CustomPropertyType } from "../../types";
 import typeKey from "./type";
 import { PropertySettings } from "../../schema";
@@ -60,29 +60,51 @@ export default (({ plugin, containerEl, propertyName, modal }) => {
 		});
 	}
 
+	const baseSettingGroup = new SettingGroup(containerEl);
+
 	if (settings.optionsType === "inline-base") {
-		const baseSettingGroup = new SettingGroup(containerEl);
-		baseSettingGroup
-			.addSetting((s) => {
-				s.setName("Base config")
-					.setDesc("The configuration for the inline base.")
-					.addButton((button) => {
-						button.setButtonText("Edit").onClick(async () => {
-							await plugin.baseUtilityManager.openBaseEditorModal({
-								query: settings.inlineBase,
-								onClose: async ({ embedComponent }) => {
-									const query =
-										embedComponent.controller.query?.toString() ?? "";
-									await updateSettings((prev) => ({
-										...prev,
-										inlineBase: query,
-									}));
-									reRenderModal();
-								},
-							});
+		baseSettingGroup.addSetting((s) => {
+			s.setName("Base config")
+				.setDesc("The configuration for the inline base.")
+				.addButton((button) => {
+					button.setButtonText("Edit").onClick(async () => {
+						await plugin.baseUtilityManager.openBaseEditorModal({
+							query: settings.inlineBase,
+							onClose: async ({ embedComponent }) => {
+								const query = embedComponent.controller.query?.toString() ?? "";
+								await updateSettings((prev) => ({
+									...prev,
+									inlineBase: query,
+								}));
+								reRenderModal();
+							},
 						});
 					});
-			})
+				});
+		});
+	}
+
+	if (settings.optionsType === "base-file") {
+		baseSettingGroup.addSetting((s) => {
+			s.setName("Base file")
+				.setDesc("The base file to use.")
+				.addSearch((search) => {
+					search.setValue(settings.baseFile).onChange(async (v) => {
+						await updateSettings((prev) => ({ ...prev, baseFile: v }));
+					});
+					new BasePathSuggest(plugin.app, search.inputEl).onSelect((f) => {
+						search.setValue(f.path);
+						search.onChanged();
+					});
+				});
+		});
+	}
+
+	if (
+		settings.optionsType === "inline-base" ||
+		settings.optionsType === "base-file"
+	) {
+		baseSettingGroup
 			.addSetting((s) => {
 				s.setName("Label column name")
 					.setDesc(
@@ -156,6 +178,24 @@ class ColumnSuggest extends InputSuggest<string> {
 	parseSuggestion(value: string): Suggestion {
 		return {
 			title: value,
+		};
+	}
+}
+
+class BasePathSuggest extends InputSuggest<TFile> {
+	getSuggestions(query: string): TFile[] {
+		const files = this.app.vault
+			.getFiles()
+			.filter((f) => f.extension.toLowerCase() === "base");
+		if (!query) return files;
+		const lower = query.toLowerCase();
+		return files.filter((f) => f.path.toLowerCase().includes(lower));
+	}
+
+	parseSuggestion(value: TFile): Suggestion {
+		return {
+			title: value.basename,
+			note: value.path,
 		};
 	}
 }
