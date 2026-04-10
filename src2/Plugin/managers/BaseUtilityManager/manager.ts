@@ -18,7 +18,6 @@ import { BetterProperties } from "#/Plugin";
 import { getValueByKeys, parseObjectPathString, waitUntil } from "#/lib/utils";
 import { syncTryCatch } from "~/lib/utils";
 import { text } from "#/i18n";
-import formulaType from "#/Plugin/managers/PropertyTypeManager/customPropertyTypes/Formula/type";
 
 type BasesEmbedComponent = ReturnType<
 	EmbedRegistry["embedByExtension"]["base"]
@@ -67,6 +66,11 @@ export class BaseUtilityManager extends Component {
 		}
 
 		this.createBasesFormula = (formula) => new BasesFormula(formula);
+
+		// const formula = new BasesFormula("number()");
+		// const formulaInstancePrototype = formula.formula;
+
+		// const uninstallFormulaInstancePatch = () => {};
 
 		const controllerPrototype = Object.getPrototypeOf(
 			controller
@@ -225,13 +229,14 @@ export class BaseUtilityManager extends Component {
 		formulas,
 		containingFile,
 	}: {
-		formulas: string[];
+		formulas: (string | BasesFormula)[];
 		containingFile?: TFile;
 	}) {
 		const uuid = crypto.randomUUID();
 		const queryJson = {
 			formulas: formulas.reduce((acc, formula, index) => {
-				acc[uuid + index.toString()] = formula;
+				const formulaStr = typeof formula === "string" ? formula : formula.text;
+				acc[uuid + index.toString()] = formulaStr;
 				return acc;
 			}, {} as Record<string, string>),
 		};
