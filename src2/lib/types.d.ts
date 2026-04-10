@@ -1,9 +1,7 @@
 import { App, TFile, Modal, RenderContext } from "obsidian";
 import {
-	BasesContext,
 	BasesController as BasesControllerBase,
 	BasesLocal,
-	BasesMockContext,
 	BasesQuery,
 	EmbedComponent,
 	EmbedContext,
@@ -46,15 +44,16 @@ type BasesFormulaValue =
 	| BasesFormulaValueBoolean
 	| BasesFormulaValueNull
 	| BasesFormulaValueLink
-	| BasesFormulaValueFile;
+	| BasesFormulaValueFile
+	| BasesFormulaValueError;
 
 // TODO finish typing this
-interface BasesFormulaValueBase<Type extends string, Data> {
+interface BasesFormulaValueBase {
 	constructor: {
-		type: Type;
+		type: string;
 	};
 
-	data: Data;
+	data: unknown;
 
 	equals(BasesFormulaValueBase): unknown;
 	keys(): unknown;
@@ -64,37 +63,156 @@ interface BasesFormulaValueBase<Type extends string, Data> {
 }
 
 // TODO finish typing this
-interface BasesFormulaValueList
-	extends BasesFormulaValueBase<"List", BasesFormulaValue[]> {}
+interface BasesFormulaValueList extends BasesFormulaValueBase {
+	constructor: {
+		type: "List";
+	};
+
+	data: BasesFormulaValue[];
+}
 
 // TODO finish typing this
-interface BasesFormulaValueObject
-	extends BasesFormulaValueBase<"Object", Record<string, unknown>> {}
+interface BasesFormulaValueObject extends BasesFormulaValueBase {
+	constructor: {
+		type: "Object";
+	};
+
+	data: Record<string, unknown>;
+}
 
 // TODO finish typing this
-interface BasesFormulaValueString
-	extends BasesFormulaValueBase<"String", string> {}
+interface BasesFormulaValueString extends BasesFormulaValueBase {
+	constructor: {
+		type: "String";
+	};
+
+	data: string;
+}
 
 // TODO finish typing this
-interface BasesFormulaValueNumber
-	extends BasesFormulaValueBase<"Number", number> {}
+interface BasesFormulaValueNumber extends BasesFormulaValueBase {
+	constructor: {
+		type: "Number";
+	};
+
+	data: number;
+}
 
 // TODO finish typing this
-interface BasesFormulaValueBoolean
-	extends BasesFormulaValueBase<"Boolean", boolean> {}
+interface BasesFormulaValueBoolean extends BasesFormulaValueBase {
+	constructor: {
+		type: "Boolean";
+	};
+
+	data: boolean;
+}
 
 // TODO finish typing this
-interface BasesFormulaValueNull
-	extends BasesFormulaValueBase<"Null", undefined> {}
+interface BasesFormulaValueNull extends BasesFormulaValueBase {
+	constructor: {
+		type: "Null";
+	};
+
+	data: undefined;
+}
 
 // TODO finish typing this
-interface BasesFormulaValueLink extends BasesFormulaValueBase<"Link", string> {
+interface BasesFormulaValueLink extends BasesFormulaValueBase {
+	constructor: {
+		type: "Link";
+	};
+
+	data: string;
 	display: BasesFormulaValueString;
 }
 
-interface BasesFormulaValueFile
-	extends BasesFormulaValueBase<"File", undefined> {
+interface BasesFormulaValueFile extends BasesFormulaValueBase {
+	constructor: {
+		type: "File";
+	};
+
+	data: undefined;
 	file: TFile;
+}
+
+interface BasesFormulaValueError extends BasesFormulaValueBase {
+	constructor: {
+		type: "Error";
+	};
+
+	data: undefined;
+	message: string;
+}
+
+type BasesFormulaPart =
+	| BasesFormulaPartArithmetic
+	| BasesFormulaPartComparison
+	| BasesFormulaPartNot
+	| BasesFormulaPartFormula
+	| BasesFormulaPartPrimitive
+	| BasesFormulaPartIdent
+	| BasesFormulaPartObjectAccess
+	| BasesFormulaPartArray
+	| BasesFormulaPartInvalid;
+
+interface BasesFormulaPartBase {
+	type: string;
+	getValue(): unknown;
+}
+
+interface BasesFormulaPartFormula extends BasesFormulaPartBase {
+	type: "function";
+	name: string;
+	subject: BasesFormulaPart | null;
+	args: BasesFormulaPart[];
+	getValue(ctx: BasesLocal): BasesFormulaValue;
+}
+
+interface BasesFormulaPartArithmetic extends BasesFormulaPartBase {
+	type: "arithmetic";
+	operator: "+" | "-" | "*" | "/" | "%";
+	left: BasesFormulaPart;
+	right: BasesFormulaPart;
+}
+
+interface BasesFormulaPartComparison extends BasesFormulaPartBase {
+	type: "comparison";
+	operator: "==" | "!=" | ">" | "<" | ">=" | "<=" | "&&" | "||";
+	left: BasesFormulaPart;
+	right: BasesFormulaPart;
+}
+
+interface BasesFormulaPartNot extends BasesFormulaPartBase {
+	type: "not";
+	expr: BasesFormulaPart;
+}
+
+interface BasesFormulaPartPrimitive extends BasesFormulaPartBase {
+	type: "primitive";
+	value: boolean | string | number | null | undefined;
+	getValue(): BasesFormulaValue;
+}
+
+interface BasesFormulaPartIdent extends BasesFormulaPartBase {
+	type: "ident";
+	id: "this" | ({} & string);
+}
+
+interface BasesFormulaPartObjectAccess extends BasesFormulaPartBase {
+	type: "object_access";
+	object: BasesFormulaPart;
+	index: string;
+}
+
+interface BasesFormulaPartArray extends BasesFormulaPartBase {
+	type: "array";
+	elements: BasesFormulaPart[];
+}
+
+interface BasesFormulaPartInvalid extends BasesFormulaPartBase {
+	type: "invalid";
+	parseError: string;
+	value: string;
 }
 
 // TODO open PR to obsidian-typings
@@ -108,10 +226,7 @@ declare module "obsidian-typings" {
 	}
 
 	interface BasesFormula {
-		formula: {
-			type: string;
-			value: string;
-		};
+		formula: BasesFormulaPart;
 		text: string;
 		getValue(ctx: BasesLocal): BasesFormulaValue;
 	}
