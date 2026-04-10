@@ -34,6 +34,7 @@ import "./manager.css";
 import formula from "./customPropertyTypes/Formula";
 import select from "./customPropertyTypes/Select";
 import toggle from "./customPropertyTypes/Toggle";
+import { ConfirmationModal } from "~/classes/ConfirmationModal";
 
 /**
  * Responsible for property-type-related features such as:
@@ -259,6 +260,9 @@ export class PropertyTypeManager extends Component {
 		// );
 	}
 
+	/**
+	 * Open the settings modal for a given property
+	 */
 	openPropertySettingsModal(propertyName: string) {
 		const { app } = this.plugin;
 		const modal = new Modal(app);
@@ -332,6 +336,9 @@ export class PropertyTypeManager extends Component {
 		modal.open();
 	}
 
+	/**
+	 * Renders a Settings for a given property type
+	 */
 	renderPropertyTypeSetting({
 		setting,
 		propertyName,
@@ -544,5 +551,148 @@ export class PropertyTypeManager extends Component {
 		});
 
 		this.register(uninstall);
+	}
+
+	openRenamePropertyModal(property?: string): void {
+		const modal = new ConfirmationModal(this.plugin.app);
+
+		modal.setTitle("Rename property");
+		modal.contentEl.createEl("p", {
+			text: "The following changes will be made:",
+		});
+		modal.contentEl.createEl("ul", {}, (ul) => {
+			ul.createEl("li", {
+				text: "All notes containing the old name in their properties are updated to use the new name instead.",
+			});
+			ul.createEl("li", {
+				text: "The assigned type of the new name is updated to match the old name's type, and then the old name's type is reset.",
+			});
+			ul.createEl("li", {
+				text: "The property settings saved for the old name will be transferred to the new name",
+			});
+		});
+		modal.contentEl.createEl("p", {
+			text: "This will not update any formulas, filters, or other references to the old name.",
+		});
+		modal.contentEl.createEl("p", {
+			text: "If the new name is already used in the properties of your notes and/or has property settings set, it will be overwritten with the data from the old name.",
+			cls: "mod-warning",
+		});
+		modal.contentEl.createEl("p", {
+			text: "This change is permanent and cannot be undone.",
+			cls: "mod-warning",
+		});
+
+		let oldName = property ?? "";
+		let newName = "";
+		let setDisabled = (_isDisabled: boolean) => {};
+		let updateDisabled = () => {
+			setDisabled(
+				oldName.toLowerCase() === newName.toLowerCase() || !oldName || !newName
+			);
+		};
+
+		new Setting(modal.contentEl)
+			.setName("Old property name")
+			.setDesc("The current name of the property to be renamed.")
+			.addText((textComponent) => {
+				textComponent.setValue(oldName).onChange((v) => {
+					oldName = v;
+					updateDisabled();
+				});
+			});
+
+		new Setting(modal.contentEl)
+			.setName("New property name")
+			.setDesc("The new name to rename the property to.")
+			.addText((textComponent) => {
+				textComponent.onChange((v) => {
+					newName = v;
+					updateDisabled();
+				});
+			});
+
+		modal.addFooterButton((button) => {
+			button.setButtonText("Cancel").onClick(() => {
+				modal.close();
+			});
+		});
+		modal.addFooterButton((button) => {
+			setDisabled = (b) => {
+				button.setDisabled(b);
+			};
+			button
+				.setButtonText("Rename")
+				.setWarning()
+				.setDisabled(true)
+				.onClick(async () => {
+					await this.renameProperty(oldName, newName);
+					modal.close();
+				});
+		});
+
+		modal.open();
+	}
+
+	/**
+	 * Rename a property such that:
+	 * - All notes containing the old name are updated to use the new name
+	 * - The type of the new name is updated to match the old name
+	 * - The property settings are transferred from the old name to the new name
+	 *
+	 * Formulas and other references to the old name will NOT be updated
+	 */
+	async renameProperty(oldName: string, newName: string): Promise<void> {
+		const { plugin } = this;
+		const { metadataTypeManager, metadataCache, vault, fileManager } =
+			plugin.app;
+
+		await plugin.updateSettings((prev) => {
+			const oldSettings = prev.propertySettings[oldName];
+			if (!oldSettings) return prev;
+
+			prev.propertySettings[newName] = { ...oldSettings };
+			delete prev.propertySettings[oldName];
+			return prev;
+		});
+
+		const assignedWidget = metadataTypeManager.getAssignedWidget(oldName);
+		if (assignedWidget) {
+			await metadataTypeManager.setType(newName, assignedWidget);
+			await metadataTypeManager.unsetType(oldName);
+		}
+
+		const files = vault.getMarkdownFiles();
+		files.forEach(async (file) => {
+			const { frontmatter } = metadataCache.getFileCache(file) ?? {};
+			if (!frontmatter) return;
+			if (!(oldName in frontmatter)) return;
+
+			await fileManager.processFrontMatter(file, (fm) => {
+				const typedFm = fm as Record<string, unknown>;
+				const lowerOldName = oldName.toLowerCase();
+
+				const reconstructed: Record<string, unknown> = {};
+
+				// Reconstruct the object to replace the old name and maintain the correct order
+				Object.entries(typedFm).forEach(([key, value]) => {
+					if (key.toLowerCase() !== lowerOldName) {
+						reconstructed[key] = value;
+						return;
+					}
+					reconstructed[newName] = typedFm[oldName];
+				});
+
+				// Remove all data from fm
+				Object.keys(typedFm).forEach((key) => {
+					delete typedFm[key];
+				});
+
+				// Reconstruct fm with the updated name
+				Object.keys(reconstructed).forEach((key) => {
+					typedFm[key] = reconstructed[key];
+				});
+			});
+		});
 	}
 }
