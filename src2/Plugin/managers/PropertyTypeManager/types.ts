@@ -24,7 +24,6 @@ export type CustomPropertyType = {
 	name: () => string;
 	validate: (value: unknown) => boolean;
 	docsLink: string;
-	registerListeners: (props: { plugin: BetterProperties }) => void;
 	renderSettings: (props: {
 		plugin: BetterProperties;
 		containerEl: HTMLElement;

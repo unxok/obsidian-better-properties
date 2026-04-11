@@ -102,8 +102,6 @@ export class PropertyTypeManager extends Component {
 				};
 			},
 		};
-
-		info.registerListeners({ plugin });
 	}
 
 	/**

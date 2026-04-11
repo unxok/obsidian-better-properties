@@ -1,5 +1,4 @@
 import renderWidget from "./renderWidget";
-import registerListeners from "./registerListeners";
 import renderSettings from "./renderSettings";
 import settingsSchema from "./settingsSchema";
 import { CustomPropertyType } from "../../types";
@@ -17,6 +16,5 @@ export default {
 	validate: () => true,
 	docsLink: "https://example.com",
 	renderWidget,
-	registerListeners,
 	renderSettings,
 } satisfies CustomPropertyType;
