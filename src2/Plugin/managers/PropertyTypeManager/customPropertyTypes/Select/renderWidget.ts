@@ -48,7 +48,7 @@ export default (({ plugin, containerEl, data, context }) => {
 		}
 		const containingFile =
 			plugin.app.vault.getFileByPath(context.sourcePath) ?? undefined;
-		const { results } = await plugin.baseUtilityManager.evaluateBase({
+		const embedComponent = await plugin.baseUtilityManager.evaluateBase({
 			query,
 			containingFile,
 		});
@@ -57,7 +57,7 @@ export default (({ plugin, containerEl, data, context }) => {
 			appearanceSettings: { colors },
 		} = plugin.getSettings();
 
-		return results
+		const options = embedComponent.controller.results
 			.values()
 			.toArray()
 			.map((f) => {
@@ -75,6 +75,9 @@ export default (({ plugin, containerEl, data, context }) => {
 					background,
 				};
 			});
+
+		embedComponent.unload();
+		return options;
 	};
 
 	const cmp = new SelectCombobox(

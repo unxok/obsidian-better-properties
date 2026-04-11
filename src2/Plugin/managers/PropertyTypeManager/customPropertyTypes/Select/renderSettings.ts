@@ -169,10 +169,12 @@ class ColumnSuggest extends InputSuggest<string> {
 			query = file ? await this.plugin.app.vault.cachedRead(file) : "";
 		}
 
-		const controller = await this.plugin.baseUtilityManager.evaluateBase({
+		const embedComponent = await this.plugin.baseUtilityManager.evaluateBase({
 			query,
 		});
-		return controller.view.config.order;
+		const { order } = embedComponent.controller.view.config;
+		embedComponent.unload();
+		return order;
 	}
 
 	parseSuggestion(value: string): Suggestion {
