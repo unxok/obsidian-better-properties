@@ -1,18 +1,13 @@
-import {
-	Component,
-	Constructor,
-	Setting,
-	stringifyYaml,
-	TFile,
-} from "obsidian";
+import { App, Component, Setting, TFile } from "obsidian";
 import { ConfirmationModal } from "~/classes/ConfirmationModal";
 import { around, dedupe } from "monkey-around";
 import { customPropertyTypePrefix, monkeyAroundKey } from "~/lib/constants";
 import "./index.css";
 import {
-	BasesFormula as IBasesFormula,
+	type BasesContext,
+	BasesFilter,
+	type BasesFormula,
 	EmbedRegistry,
-	BasesFormula,
 } from "obsidian-typings";
 import { BetterProperties } from "#/Plugin";
 import { getValueByKeys, parseObjectPathString, waitUntil } from "#/lib/utils";
@@ -28,44 +23,81 @@ export class BaseUtilityManager extends Component {
 		super();
 	}
 
-	onload(): void {
+	afterLoad: () => void = () => {};
+
+	async onload(): Promise<void> {
 		this.applyVaultPatches();
-
+		await this.patchBasesController();
+		// TODO if no notes exist in the vault, wait until one is first created before applying patch
 		this.plugin.app.workspace.onLayoutReady(async () => {
-			// TODO
-			// might not need to be on layout ready
-			// if no notes exist in the vault, wait until one is first created before applying patch
-			void this.patchBaseResultsValue();
+			await this.patchBaseResultsValue();
 		});
-
-		void this.patchBasesController();
+		this.afterLoad();
 	}
 
 	onunload(): void {}
 
-	createBasesFormula: (formula: string) => IBasesFormula = () => {
+	evaluateFormula({
+		formula,
+		containingFile,
+	}: {
+		formula: string | BasesFormula;
+		containingFile?: TFile;
+	}) {
+		const formulaInstance =
+			typeof formula === "string" ? this.createBasesFormula(formula) : formula;
+		const context = this.createBasesContext(
+			containingFile ?? this.getFakeFile()
+		);
+		return formulaInstance.getValue(context.local);
+	}
+
+	createBasesFormula: (formula: string) => BasesFormula = () => {
+		throw new Error("Method not implemented");
+	};
+
+	createBasesContext: (file: TFile) => BasesContext = () => {
 		throw new Error("Method not implemented");
 	};
 
 	async patchBasesController(): Promise<void> {
 		const { plugin } = this;
-		const controller = await this.evaluateBase({
+		const embedComponent = await this.evaluateBase({
 			query: 'formulas:\n  fn: ""',
 		});
 
-		const formulaPrototype = Object.getPrototypeOf(
-			controller.ctx.formulas["fn"]
-		) as IBasesFormula;
-		const basesFormulaConstructor =
-			formulaPrototype.constructor as Constructor<IBasesFormula>;
+		const { controller } = embedComponent;
 
-		class BasesFormula extends basesFormulaConstructor {
-			constructor(formula: string) {
-				super(formula);
-			}
+		interface IBasesFormula {
+			new (formula: string): BasesFormula;
 		}
 
-		this.createBasesFormula = (formula) => new BasesFormula(formula);
+		const formulaPrototype = Object.getPrototypeOf(
+			controller.ctx.formulas["fn"]
+		) as BasesFormula;
+
+		const basesFormulaConstructor =
+			formulaPrototype.constructor as IBasesFormula;
+		this.createBasesFormula = (formula) => new basesFormulaConstructor(formula);
+
+		interface IBasesContext {
+			new (
+				app: App,
+				filter: BasesFilter | null,
+				formulas: Record<string, BasesFormula>,
+				file: TFile
+			): BasesContext;
+		}
+
+		const contextPrototype = Object.getPrototypeOf(
+			controller.ctx
+		) as BasesContext;
+		const basesContextConstructor =
+			contextPrototype.constructor as IBasesContext;
+		this.createBasesContext = (file) =>
+			new basesContextConstructor(plugin.app, null, {}, file);
+
+		// console.log("controller", controller);
 
 		// const formula = new BasesFormula("number()");
 		// const formulaInstancePrototype = formula.formula;
@@ -123,7 +155,7 @@ export class BaseUtilityManager extends Component {
 						...Object.fromEntries(
 							globalFormulasEntries.map(([name, { formula }]) => [
 								name,
-								new BasesFormula(formula),
+								manager.createBasesFormula(formula),
 							])
 						),
 					};
@@ -167,15 +199,18 @@ export class BaseUtilityManager extends Component {
 
 		this.register(uninstallControllerPatch);
 		this.register(uninstallQueryPatch);
+		embedComponent.unload();
 	}
 
 	/**
 	 * Patches a Base's results map's value prototype to correctly get the value of Object/Array sub-properties when using object key access notation.
 	 */
 	async patchBaseResultsValue(): Promise<void> {
-		const controller = await this.evaluateBase({
+		const embedComponent = await this.evaluateBase({
 			query: ``,
 		});
+
+		const { controller } = embedComponent;
 
 		if (!controller.results.size) {
 			throw new Error(
@@ -220,82 +255,7 @@ export class BaseUtilityManager extends Component {
 		});
 
 		this.register(uninstall);
-	}
-
-	/**
-	 * Evaluates an array of Bases formulas
-	 */
-	async evaluateFormulas({
-		formulas,
-		containingFile,
-	}: {
-		formulas: (string | BasesFormula)[];
-		containingFile?: TFile;
-	}) {
-		const uuid = crypto.randomUUID();
-		const queryJson = {
-			formulas: formulas.reduce((acc, formula, index) => {
-				const formulaStr = typeof formula === "string" ? formula : formula.text;
-				acc[uuid + index.toString()] = formulaStr;
-				return acc;
-			}, {} as Record<string, string>),
-		};
-		const query = stringifyYaml(queryJson);
-		const controller = await this.evaluateBase({
-			query,
-			containingFile,
-		});
-
-		// console.log("controller", controller);
-
-		const formulaInstances = controller.ctx.formulas;
-		Object.keys(this.plugin.getSettings().globalFormulas).forEach((key) => {
-			delete formulaInstances[key];
-		});
-
-		const results = Object.values(formulaInstances).map((formula) => {
-			// if (formula.formula.type === "invalid") {
-			// 	return { error: "Invalid formula" };
-			// }
-
-			// const data = formula.getValue(controller.ctx.local);
-			// return { data };
-
-			return formula.getValue(controller.ctx.local);
-		});
-
-		return results;
-	}
-
-	/**
-	 * TODO moot??
-	 * Normalizes a value that was generated by a base.
-	 *
-	 * Bases transform arrays to always be made up of objects with a "data" property containing the items value. This function "unwraps" every array item to normalize the value back to it's raw value.
-	 */
-	normalizeValue(data: unknown): unknown {
-		if (!data || typeof data !== "object") {
-			return data;
-		}
-
-		// Base arrays always contain objects with a "data" key containing the value of the item
-		if (Array.isArray(data)) {
-			const arr = data as { data: unknown }[];
-			return arr.map((v) => {
-				if (typeof v !== "object") {
-					throw new Error("Array item is not an object");
-				}
-				if (!("data" in v)) {
-					throw new Error('Array item does not have a "data" property');
-				}
-				return this.normalizeValue(v.data);
-			});
-		}
-
-		return Object.entries(data).reduce((acc, [key, value]) => {
-			acc[key] = this.normalizeValue(value);
-			return acc;
-		}, {} as Record<string, unknown>);
+		embedComponent.unload();
 	}
 
 	async evaluateBase({
@@ -326,7 +286,7 @@ export class BaseUtilityManager extends Component {
 		});
 
 		containerEl.remove();
-		return embedComponent.controller;
+		return embedComponent;
 	}
 
 	async openBaseEditorModal({
@@ -433,10 +393,11 @@ export class BaseUtilityManager extends Component {
 			""
 		);
 
-		if (containingFile) {
-			embedComponent.containingFile = containingFile;
-			embedComponent.controller.currentFile = containingFile;
-		}
+		// if (containingFile) {
+		embedComponent.containingFile = containingFile ?? this.getFakeFile();
+		embedComponent.controller.currentFile =
+			containingFile ?? this.getFakeFile();
+		// }
 
 		embedComponent.loadFile();
 
