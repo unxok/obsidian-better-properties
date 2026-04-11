@@ -2,6 +2,7 @@
 	position: absolute;
 	pointer-events: none;
 	visibility: hidden;
+	opacity: 0;
 }
 
 .modal.better-properties--bases-filter-editor-modal {
