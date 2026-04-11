@@ -23,6 +23,9 @@ export class BaseUtilityManager extends Component {
 		super();
 	}
 
+	/**
+	 * Runs after `onload()` has finished
+	 */
 	afterLoad: () => void = () => {};
 
 	async onload(): Promise<void> {
@@ -37,6 +40,9 @@ export class BaseUtilityManager extends Component {
 
 	onunload(): void {}
 
+	/**
+	 * Evaluates a Base formula
+	 */
 	evaluateFormula({
 		formula,
 		containingFile,
@@ -52,14 +58,23 @@ export class BaseUtilityManager extends Component {
 		return formulaInstance.getValue(context.local);
 	}
 
+	/**
+	 * Creates a Base formula
+	 */
 	createBasesFormula: (formula: string) => BasesFormula = () => {
 		throw new Error("Method not implemented");
 	};
 
+	/**
+	 * Creates a Base context
+	 */
 	createBasesContext: (file: TFile) => BasesContext = () => {
 		throw new Error("Method not implemented");
 	};
 
+	/**
+	 * Patches BasesController to provide support for global formulas. Also sets up `createBasesFormula()` and `createBasesContext()`
+	 */
 	async patchBasesController(): Promise<void> {
 		const { plugin } = this;
 		const embedComponent = await this.evaluateBase({
@@ -270,6 +285,9 @@ export class BaseUtilityManager extends Component {
 		embedComponent.unload();
 	}
 
+	/**
+	 * Creates a Base and waits for its results to finish querying
+	 */
 	async evaluateBase({
 		query,
 		containingFile,
@@ -382,6 +400,9 @@ export class BaseUtilityManager extends Component {
 		return modal;
 	}
 
+	/**
+	 * Creates a Base by initializing a Base embed component with a fake file
+	 */
 	createEmbeddableBaseEditor({
 		query = "",
 		containerEl,
@@ -429,6 +450,9 @@ export class BaseUtilityManager extends Component {
 	fakeFileName: string = crypto.randomUUID();
 	fakeFileContent: string = "";
 
+	/**
+	 * Creates the fake file used in `createEmbeddableBaseEditor()`
+	 */
 	getFakeFile(): TFile {
 		const { fakeFileName } = this;
 		return {
@@ -453,6 +477,9 @@ export class BaseUtilityManager extends Component {
 		};
 	}
 
+	/**
+	 * Patches Vault to prevent the fake file from being created/modified and allows the vault to be able to read the contents of the fake file despite it not being real
+	 */
 	applyVaultPatches() {
 		const { plugin } = this;
 		const fakeFile = this.getFakeFile();
