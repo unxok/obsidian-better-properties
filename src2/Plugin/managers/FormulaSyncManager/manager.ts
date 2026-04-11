@@ -113,12 +113,9 @@ export class FormulaSyncManager extends Component {
 				const containingFile = vault.getFileByPath(path);
 				if (!containingFile) return;
 
-				const formulas = properties.map((p) => p.formula);
-
-				const results = await plugin.baseUtilityManager.evaluateFormulas({
-					formulas,
-					containingFile,
-				});
+				const results = properties.map(({ formula }) =>
+					plugin.baseUtilityManager.evaluateFormula({ formula, containingFile })
+				);
 
 				const isChanged = results.some((result, i) => {
 					const normalized = this.normalizeFormulaValue(result);
