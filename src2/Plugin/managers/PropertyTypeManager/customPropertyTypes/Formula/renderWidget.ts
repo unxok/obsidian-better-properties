@@ -33,11 +33,17 @@ export default (({ plugin, containerEl, data, context }) => {
 		text: isSimple ? value?.toString() : "",
 	});
 
-	const iconEl = widgetEl.createDiv({ cls: "clickable-icon" });
+	const iconEl = widgetEl.createDiv({
+		cls: "clickable-icon",
+		attr: {
+			tabindex: "0",
+		},
+	});
 	setIcon(iconEl, "lucide-edit-2");
 	setTooltip(iconEl, "Edit formula");
 	iconEl.classList.add("better-properties--mod-loading");
-	iconEl.addEventListener("click", () => {
+
+	const onClickIcon = () => {
 		renderedFormulaContainerEl.remove();
 		iconEl.remove();
 
@@ -83,6 +89,15 @@ export default (({ plugin, containerEl, data, context }) => {
 		range.selectNodeContents(editorEl);
 		selection?.removeAllRanges();
 		selection?.addRange(range);
+	};
+
+	iconEl.addEventListener("click", () => {
+		onClickIcon();
+	});
+	iconEl.addEventListener("keydown", (e) => {
+		if (e.key !== "Enter" && e.key !== " ") return;
+		e.preventDefault();
+		onClickIcon();
 	});
 
 	setTooltip(widgetEl, getSettings().formula);
@@ -122,7 +137,7 @@ export default (({ plugin, containerEl, data, context }) => {
 
 	return {
 		focus() {
-			widgetEl.focus();
+			iconEl.focus();
 		},
 	};
 }) satisfies CustomPropertyType["renderWidget"];

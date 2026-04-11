@@ -56,8 +56,14 @@
 		opacity: 0;
 		position: absolute;
 		/* app.css unfortunately hardcodes the padding of `.metadata-property-value .clickable-icon` to 4px rather than a css var, so the spacing here could be off if the theme adjusts it */
-		top: 4px;
+		top: 3.5px;
 		right: 4px;
+
+		&:focus-within {
+			box-shadow: 0 0 0px 3px var(--background-modifier-border-focus);
+			outline: none;
+			opacity: 1;
+		}
 
 		&.better-properties--mod-loading {
 			opacity: 1;
