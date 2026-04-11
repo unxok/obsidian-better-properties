@@ -2,13 +2,16 @@ import { ReorderSettingGroup } from "#/classes/ReorderSettingGroup";
 import { BetterProperties } from "#/Plugin";
 import { ConfirmationModal } from "~/classes/ConfirmationModal";
 import { renderManualOptionSetting } from "./renderManualOptionSetting";
-import { Settings } from "./types";
+import { StandardSelectSettings } from "./types";
 import { Menu } from "obsidian";
 import { getRandomColor } from "./getRandomColor";
 import { arrayMove } from "~/lib/utils";
 import { text } from "#/i18n";
 import { obsidianText } from "~/i18next/obsidian";
 
+/**
+ * Renders settings for a Select with `optionType` set to `"manual"`
+ */
 export const renderManualSettings = ({
 	plugin,
 	containerEl,
@@ -18,8 +21,10 @@ export const renderManualSettings = ({
 }: {
 	plugin: BetterProperties;
 	containerEl: HTMLElement;
-	settings: Settings;
-	updateSettings: (cb: (s: Settings) => Settings) => Promise<void>;
+	settings: StandardSelectSettings;
+	updateSettings: (
+		cb: (s: StandardSelectSettings) => StandardSelectSettings
+	) => Promise<void>;
 	reRenderModal: () => void;
 }) => {
 	const manualOptionsSettingGroup = new ReorderSettingGroup(

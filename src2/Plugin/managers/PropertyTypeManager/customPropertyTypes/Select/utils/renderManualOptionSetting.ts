@@ -1,11 +1,14 @@
 import { BetterProperties } from "#/Plugin";
 import { BetterPropertiesSettings } from "#/Plugin/settings";
 import { Modal, Setting, SettingGroup } from "obsidian";
-import { Option, Settings } from "./types";
+import { SelectOption, StandardSelectSettings } from "./types";
 import { ComboboxComponent } from "#/classes/ComboboxComponent";
 import { ColorTextComponent } from "#/classes/ColorTextComponent";
 import { text } from "#/i18n";
 
+/**
+ * Renders an individual manually-defined Select option
+ */
 export const renderManualOptionSetting = ({
 	plugin,
 	settings,
@@ -16,10 +19,12 @@ export const renderManualOptionSetting = ({
 	manualOptionsSettingGroup,
 }: {
 	plugin: BetterProperties;
-	settings: Settings;
-	updateSettings: (cb: (s: Settings) => Settings) => Promise<void>;
+	settings: StandardSelectSettings;
+	updateSettings: (
+		cb: (s: StandardSelectSettings) => StandardSelectSettings
+	) => Promise<void>;
 	reRenderModal: () => void;
-	option: Option;
+	option: SelectOption;
 	index: number;
 	manualOptionsSettingGroup: SettingGroup;
 }) => {

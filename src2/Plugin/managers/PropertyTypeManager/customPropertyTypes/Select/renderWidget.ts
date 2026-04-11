@@ -3,9 +3,9 @@ import { PropertySettings } from "../../schema";
 import { CustomPropertyType } from "../../types";
 import typeKey from "./type";
 import { BetterProperties } from "#/Plugin";
-import { Keymap, Notice, setIcon, setTooltip } from "obsidian";
+import { Keymap, setIcon, setTooltip } from "obsidian";
 import { getRandomColor } from "./utils";
-import { hashString, tryCatch } from "#/lib/utils";
+import { getBaseOptions } from "./utils/getBaseOptions";
 
 type Settings = PropertySettings["types"][typeof typeKey];
 type Option = Settings["manualOptions"][number];
@@ -26,60 +26,6 @@ export default (({ plugin, containerEl, data, context }) => {
 		cls: "better-properties--select-widget-container",
 	});
 
-	const getBaseOptions = async (settings: Settings): Promise<Option[]> => {
-		const getQuery = async () => {
-			if (settings.optionsType === "inline-base") {
-				return settings.inlineBase;
-			}
-
-			const file = plugin.app.vault.getFileByPath(settings.baseFile);
-			if (!file) {
-				throw new Error(
-					`Failed to get options for property "${context.key}": File not found at path "${settings.baseFile}"`
-				);
-			}
-			return await plugin.app.vault.cachedRead(file);
-		};
-
-		const { success, data: query, error } = await tryCatch(getQuery());
-		if (!success) {
-			new Notice(error);
-			return [];
-		}
-		const containingFile =
-			plugin.app.vault.getFileByPath(context.sourcePath) ?? undefined;
-		const embedComponent = await plugin.baseUtilityManager.evaluateBase({
-			query,
-			containingFile,
-		});
-
-		const {
-			appearanceSettings: { colors },
-		} = plugin.getSettings();
-
-		const options = embedComponent.controller.results
-			.values()
-			.toArray()
-			.map((f) => {
-				const label = settings.baseLabelColumn
-					? f.getValue(settings.baseLabelColumn)?.toString()
-					: f.file.getShortName();
-
-				const background = settings.baseBackgroundColumn
-					? f.getValue(settings.baseBackgroundColumn)?.toString()
-					: colors[hashString(f.file.path) % colors.length].background;
-
-				return {
-					value: `[[${f.file.path}]]`,
-					label,
-					background,
-				};
-			});
-
-		embedComponent.unload();
-		return options;
-	};
-
 	const cmp = new SelectCombobox(
 		plugin,
 		widgetContainerEl,
@@ -95,7 +41,7 @@ export default (({ plugin, containerEl, data, context }) => {
 			const opts: Option[] =
 				settings.optionsType === "manual"
 					? settings.manualOptions
-					: await getBaseOptions(settings);
+					: await getBaseOptions({ plugin, context, settings });
 
 			if (!query) return opts;
 			const lower = query.toLowerCase();

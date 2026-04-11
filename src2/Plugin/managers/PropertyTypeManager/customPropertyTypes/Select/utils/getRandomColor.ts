@@ -1,12 +1,15 @@
 import { BetterProperties } from "#/Plugin";
-import { Option } from "./types";
+import { SelectOption } from "./types";
 
+/**
+ * Gets a random color by preferring to use colors not in use by existing options nor the most recent color
+ */
 export const getRandomColor = ({
 	plugin,
 	options,
 }: {
 	plugin: BetterProperties;
-	options: Option[];
+	options: SelectOption[];
 }) => {
 	const {
 		appearanceSettings: { colors },
