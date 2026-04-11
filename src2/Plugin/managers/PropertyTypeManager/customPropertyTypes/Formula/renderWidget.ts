@@ -87,7 +87,7 @@ export default (({ plugin, containerEl, data, context }) => {
 
 	setTooltip(widgetEl, getSettings().formula);
 
-	const renderFormula = async (formula: string) => {
+	const renderFormula = (formula: string) => {
 		const formulaInstance =
 			plugin.baseUtilityManager.createBasesFormula(formula);
 
@@ -107,30 +107,18 @@ export default (({ plugin, containerEl, data, context }) => {
 			return;
 		}
 
-		const [data] = await plugin.baseUtilityManager.evaluateFormulas({
-			formulas: [formula],
+		const data = plugin.baseUtilityManager.evaluateFormula({
+			formula,
 			containingFile:
 				plugin.app.vault.getFileByPath(context.sourcePath) ?? undefined,
 		});
 
-		// if (error) {
-		// 	setIcon(widgetEl.createSpan(), "lucide-x-circle");
-		// 	widgetEl.appendText(error);
-		// 	return;
-		// }
-
 		renderedFormulaContainerEl.empty();
 		data?.renderTo(renderedFormulaContainerEl, plugin.app.renderContext);
 		iconEl.classList.remove("better-properties--mod-loading");
-
-		// console.log("data", data);
-		// const str = data?.toString();
-		// if (value === str) return;
-
-		// context.onChange(str);
 	};
 
-	void renderFormula(getSettings().formula);
+	renderFormula(getSettings().formula);
 
 	return {
 		focus() {
