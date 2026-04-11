@@ -94,8 +94,20 @@ export class BaseUtilityManager extends Component {
 		) as BasesContext;
 		const basesContextConstructor =
 			contextPrototype.constructor as IBasesContext;
-		this.createBasesContext = (file) =>
-			new basesContextConstructor(plugin.app, null, {}, file);
+		this.createBasesContext = (file) => {
+			const globalFormulas = Object.entries(
+				plugin.getSettings().globalFormulas
+			).reduce((acc, [name, { formula }]) => {
+				acc[name] = this.createBasesFormula(formula);
+				return acc;
+			}, {} as Record<string, BasesFormula>);
+			return new basesContextConstructor(
+				plugin.app,
+				null,
+				globalFormulas,
+				file
+			);
+		};
 
 		// console.log("controller", controller);
 

@@ -30,10 +30,13 @@
 	}
 }
 .better-properties--formula-widget-container {
+	position: relative;
 	display: flex;
 	padding: var(--input-padding);
+	width: 100%;
+	height: 100%;
 
-	& > .value-list-container {
+	/* & > .value-list-container {
 		display: flex;
 		gap: var(--size-2-2);
 		flex-wrap: wrap;
@@ -42,25 +45,65 @@
 			word-break: keep-all;
 			white-space: pre;
 		}
+	} */
+
+	&:hover > .clickable-icon,
+	& > .clickable-icon:hover {
+		opacity: 1;
 	}
 
-	&.better-properties--mod-loading {
-		position: relative;
-		&::after {
-			content: "";
-			position: absolute;
-			width: 12px;
-			height: 12px;
-			top: 0;
-			left: var(--input-padding);
-			/* right: 0; */
-			bottom: 0;
-			margin: auto;
-			border: 2px solid transparent;
-			border-top-color: var(--text-color);
-			border-radius: 50%;
-			animation: spin 1s ease infinite;
+	& > .clickable-icon {
+		opacity: 0;
+		position: absolute;
+		/* app.css unfortunately hardcodes the padding of `.metadata-property-value .clickable-icon` to 4px rather than a css var, so the spacing here could be off if the theme adjusts it */
+		top: 4px;
+		right: 4px;
+
+		&.better-properties--mod-loading {
+			opacity: 1;
+
+			& > svg {
+				opacity: 0;
+			}
+
+			&::after {
+				content: "";
+				position: absolute;
+				width: var(--icon-size);
+				height: var(--icon-size);
+				top: 0;
+				left: 0;
+				right: 0;
+				bottom: 0;
+				margin: auto;
+				border: 2px solid transparent;
+				border-top-color: var(--text-color);
+				border-radius: 50%;
+				animation: spin 1s ease infinite;
+			}
 		}
+	}
+
+	& > .better-properties--formula-editor {
+		tab-size: 4;
+		/* min-height: calc(var(--input-height) * 3); */
+		/* min-height: var(--input-height); */
+		-webkit-user-modify: read-write-plaintext-only;
+		caret-color: var(--caret-color);
+		white-space: break-spaces;
+		word-break: break-word;
+		overflow-wrap: anywhere;
+		flex-shrink: 1;
+		-webkit-user-select: text;
+		user-select: text;
+		overflow: auto;
+
+		margin: 0;
+		flex-grow: 2;
+		display: block;
+		box-sizing: border-box;
+		/* padding: 4px 0; */
+		outline: none;
 	}
 }
 .better-properties--combobox-control {
@@ -288,6 +331,7 @@ body {
 	position: absolute;
 	pointer-events: none;
 	visibility: hidden;
+	opacity: 0;
 }
 
 .modal.better-properties--bases-filter-editor-modal {
