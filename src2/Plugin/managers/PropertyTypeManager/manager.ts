@@ -51,6 +51,10 @@ export class PropertyTypeManager extends Component {
 		this.registerCustomPropertyTypes();
 		this.sortPropertyTypes();
 		this.patchFileManagerProcessFrontMatter();
+
+		if (this.plugin.app.workspace.layoutReady) {
+			this.plugin.rebuildLeaves();
+		}
 	}
 
 	onunload(): void {
