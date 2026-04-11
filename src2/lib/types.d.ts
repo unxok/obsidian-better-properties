@@ -1,6 +1,8 @@
 import { App, TFile, Modal, RenderContext } from "obsidian";
 import {
+	BasesContext,
 	BasesController as BasesControllerBase,
+	BasesFilter,
 	BasesLocal,
 	BasesQuery,
 	EmbedComponent,
@@ -16,6 +18,7 @@ interface BasesController extends Omit<BasesControllerBase, "results"> {
 		updateVirtualDisplay(): void;
 	};
 	updateSearchQuery(query: BasesQuery): void;
+	buildBasesContext(filter: BasesFilter | null): BasesContext;
 }
 
 interface EmbedBaseComponent extends EmbedComponent {
@@ -225,10 +228,12 @@ declare module "obsidian-typings" {
 		) => EmbedBaseComponent;
 	}
 
-	interface BasesFormula {
+	class BasesFormula {
+		constructor(formula: string);
+
 		formula: BasesFormulaPart;
 		text: string;
-		getValue(ctx: BasesLocal): BasesFormulaValue;
+		getValue(localContext: BasesLocal | null): BasesFormulaValue;
 	}
 
 	interface BasesPropertyMenu {
@@ -239,13 +244,27 @@ declare module "obsidian-typings" {
 		toString(): string;
 	}
 
-	interface BasesContext {
+	class BasesContext {
+		constructor(
+			app: App,
+			filter: BasesFilter | null,
+			formulas: Record<string, BasesFormula>,
+			file: TFile
+		);
+
+		// new (app: App,
+		// 	filter: BasesFilter | null,
+		// 	formulas: Record<string, BasesFormula>,
+		// 	file: TFile): BasesContext;
+
 		formulas: Record<string, BasesFormula>;
-		local: BasesLocal;
+		local: BasesLocal | null;
 		regenerateLocal(): BasesLocal;
 	}
 
-	interface BasesLocal {
+	class BasesLocal {
+		constructor(ctx: BasesContext, file: TFile);
+
 		app: App;
 		file: TFile;
 		frontmatter: Record<string, unknown>;
