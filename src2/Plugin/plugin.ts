@@ -29,20 +29,17 @@ export class BetterProperties extends Plugin {
 	propertyLinkManager: PropertyLinkManager;
 	baseUtilityManager: BaseUtilityManager;
 	propertiesEditorManager: PropertiesEditorManager;
-	basesViewsManager: BasesViewsManager;
+	// basesViewsManager: BasesViewsManager;
 	formulaSyncManager: FormulaSyncManager;
 	constructor(app: App, manifest: PluginManifest) {
 		super(app, manifest);
 
-		// the order of these managers being loaded matters, so use caution when re-ordering
-		this.addChild((this.propertyTypeManager = new PropertyTypeManager(this)));
-		this.addChild((this.propertyLinkManager = new PropertyLinkManager(this)));
-		this.addChild((this.baseUtilityManager = new BaseUtilityManager(this)));
-		this.addChild(
-			(this.propertiesEditorManager = new PropertiesEditorManager(this))
-		);
-		this.addChild((this.basesViewsManager = new BasesViewsManager()));
-		this.addChild((this.formulaSyncManager = new FormulaSyncManager(this)));
+		this.baseUtilityManager = new BaseUtilityManager(this);
+		this.propertyTypeManager = new PropertyTypeManager(this);
+		this.propertyLinkManager = new PropertyLinkManager(this);
+		this.propertiesEditorManager = new PropertiesEditorManager(this);
+		// this.basesViewsManager = new BasesViewsManager();
+		this.formulaSyncManager = new FormulaSyncManager(this);
 	}
 
 	async onload(): Promise<void> {
@@ -55,15 +52,23 @@ export class BetterProperties extends Plugin {
 		this.addSettingTab(new BetterPropertiesSettingsTab(this));
 		this.addCommands();
 
+		this.addChild(this.propertiesEditorManager);
+		this.addChild(this.propertyLinkManager);
+		this.baseUtilityManager.afterLoad = () => {
+			this.addChild(this.propertyTypeManager);
+			this.addChild(this.formulaSyncManager);
+		};
+		this.addChild(this.baseUtilityManager);
+
 		// REMOVE FOR PROD BUILD
-		this.rebuildLeaves();
+		// this.rebuildLeaves();
 	}
 
 	onunload(): void {}
 
 	rebuildLeaves(): void {
-		this.app.workspace.iterateAllLeaves(async (leaf) => {
-			await leaf.rebuildView();
+		this.app.workspace.iterateAllLeaves((leaf) => {
+			void leaf.rebuildView();
 		});
 	}
 
@@ -312,4 +317,3 @@ class PropertiesEditorManager extends Component {
 		menu.sections = menu.sections.toSorted((a, b) => a.localeCompare(b));
 	}
 }
-class BasesViewsManager extends Component {}
