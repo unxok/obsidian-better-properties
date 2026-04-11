@@ -17,11 +17,10 @@ export default (({ plugin, containerEl, propertyName }) => {
 		);
 	};
 
+	// to prevent TS warning
+	void updateSettings;
+
 	new SettingGroup(containerEl).addSetting((s) => {
-		s.setName("Test").addText((cmp) => {
-			cmp.setValue(settings.test).onChange(async (v) => {
-				await updateSettings((prev) => ({ ...prev, test: v }));
-			});
-		});
+		s.setName("There are no settings available for this type");
 	});
 }) satisfies CustomPropertyType["renderSettings"];
