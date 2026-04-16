@@ -12,4 +12,5 @@ export type StandardSelectSettings = Pick<
 	| "baseFile"
 	| "baseLabelColumn"
 	| "baseBackgroundColumn"
+	| "formula"
 >;

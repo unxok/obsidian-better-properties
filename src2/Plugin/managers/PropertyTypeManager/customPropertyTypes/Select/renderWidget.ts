@@ -6,6 +6,7 @@ import { BetterProperties } from "#/Plugin";
 import { Keymap, setIcon, setTooltip } from "obsidian";
 import { getRandomColor } from "./utils";
 import { getBaseOptions } from "./utils/getBaseOptions";
+import { getFormulaOptions } from "./utils/getFormulaOptions";
 
 type Settings = PropertySettings["types"][typeof typeKey];
 type Option = Settings["manualOptions"][number];
@@ -41,7 +42,12 @@ export default (({ plugin, containerEl, data, context }) => {
 			const opts: Option[] =
 				settings.optionsType === "manual"
 					? settings.manualOptions
-					: await getBaseOptions({ plugin, context, settings });
+					: settings.optionsType === "base-file" ||
+					  settings.optionsType === "inline-base"
+					? await getBaseOptions({ plugin, context, settings })
+					: settings.optionsType === "formula"
+					? getFormulaOptions({ plugin, context, settings })
+					: [];
 
 			if (!query) return opts;
 			const lower = query.toLowerCase();
@@ -57,10 +63,17 @@ export default (({ plugin, containerEl, data, context }) => {
 		if (xEl) {
 			xEl.remove();
 		}
+
 		cmp.clickableEl.empty();
+
+		if (opt.value === "" && !opt.label) {
+			return;
+		}
+
 		cmp.clickableEl.textContent = opt.label ?? opt.value;
 		xEl = cmp.controlEl.createDiv({ cls: "clickable-icon" });
 		setIcon(xEl, "lucide-x");
+
 		xEl.addEventListener("click", (e) => {
 			e.preventDefault();
 			cmp.empty(e);
@@ -76,6 +89,11 @@ export default (({ plugin, containerEl, data, context }) => {
 		}
 
 		const linktext = opt.value.slice(2, -2);
+
+		if (!opt.label) {
+			cmp.clickableEl.textContent = linktext;
+		}
+
 		linkEl = cmp.controlEl.createDiv({
 			cls: "clickable-icon",
 		});
@@ -89,27 +107,6 @@ export default (({ plugin, containerEl, data, context }) => {
 			);
 		});
 		cmp.controlEl.insertAdjacentElement("afterbegin", linkEl);
-
-		// cmp.clickableEl.empty();
-		// cmp.clickableEl.createDiv(
-		// 	{
-		// 		text: linktext,
-		// 		cls: "metadata-link-inner internal-link",
-		// 		attr: {
-		// 			"data-href": linktext,
-		// 			"draggable": "true",
-		// 		},
-		// 	},
-		// 	(div) => {
-		// 		div.addEventListener("click", async (e) => {
-		// 			await plugin.app.workspace.openLinkText(
-		// 				linktext,
-		// 				context.sourcePath,
-		// 				Keymap.isModEvent(e)
-		// 			);
-		// 		});
-		// 	}
-		// );
 	};
 
 	cmp.onSelect((opt) => {
@@ -173,7 +170,7 @@ class SelectCombobox extends ComboboxComponent<Option> {
 			if (setEmptyEl) setEmptyEl.remove();
 
 			setEmptyEl = this.searchSuggest.addFooterItem({
-				icon: "lucide-trash",
+				icon: "lucide-x",
 				title: "Set value to empty",
 				aux: "Alt + Enter",
 				onClick: (e) => {

@@ -10,6 +10,7 @@ export const standardSelectSettingsSchemaEntries = {
 			v.literal("manual"),
 			v.literal("inline-base"),
 			v.literal("base-file"),
+			v.literal("formula"),
 		]),
 		"manual"
 	),
@@ -28,4 +29,5 @@ export const standardSelectSettingsSchemaEntries = {
 	baseFile: v.optional(v.string(), ""),
 	baseLabelColumn: v.optional(v.string(), ""),
 	baseBackgroundColumn: v.optional(v.string(), ""),
+	formula: v.optional(v.string(), ""),
 } satisfies PropertyTypeSettingsSchema["wrapped"]["entries"];
