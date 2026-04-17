@@ -1,7 +1,13 @@
 import { BetterProperties } from "#/Plugin";
-import { Component, EventRef, TFile } from "obsidian";
+import {
+	Component,
+	EventRef,
+	ListValue,
+	PrimitiveValue,
+	TFile,
+	Value,
+} from "obsidian";
 import typeKey from "#/Plugin/managers/PropertyTypeManager/customPropertyTypes/Formula/type";
-import { BasesFormulaValue, BasesFormulaValueList } from "#/lib/types";
 
 export class FormulaSyncManager extends Component {
 	constructor(public plugin: BetterProperties) {
@@ -140,23 +146,17 @@ export class FormulaSyncManager extends Component {
 	 * Converts the data structure used for values returned from formulas to their primitive values (more or less)
 	 */
 	normalizeFormulaValue(
-		value: BasesFormulaValue
+		value: Value
 	): null | boolean | number | string | Record<string, unknown> | unknown[] {
-		if (value.constructor.type === "List") {
-			// TODO why doesn't TS narrow the type correctly?
-			return (value as BasesFormulaValueList).data.map((v) =>
-				this.normalizeFormulaValue(v)
-			);
+		if (value instanceof ListValue) {
+			return value.data.map((v) => this.normalizeFormulaValue(v));
 		}
 
-		if (
-			value.constructor.type === "Link" ||
-			value.constructor.type === "File"
-		) {
-			return value.toString();
+		if (value instanceof PrimitiveValue) {
+			return value.data as boolean | number | string;
 		}
 
 		// nullish coalesce to null because if you set a property to undefined in FileManager.processFrontmatter() it will remove the property
-		return value.data ?? null;
+		return value?.toString() ?? null;
 	}
 }

@@ -1,9 +1,16 @@
-import { App, TFile, Modal, RenderContext } from "obsidian";
+import {
+	App,
+	TFile,
+	Modal,
+	RenderContext,
+	FormulaContext,
+	BasesEntry,
+	Value,
+} from "obsidian";
 import {
 	BasesContext,
 	BasesController as BasesControllerBase,
 	BasesFilter,
-	BasesLocal,
 	BasesQuery,
 	EmbedComponent,
 	EmbedContext,
@@ -25,7 +32,7 @@ interface EmbedBaseComponent extends EmbedComponent {
 	controller: BasesController;
 	containingFile: TFile | null;
 	containerEl: HTMLElement;
-	loadFile(): void;
+	loadFile(): Promise<void>;
 }
 
 // interface BasesFormulaValue {
@@ -39,16 +46,18 @@ interface EmbedBaseComponent extends EmbedComponent {
 // 	renderTo(containerEl: HTMLElement, renderContext: RenderContext): void;
 // }
 
-type BasesFormulaValue =
-	| BasesFormulaValueList
-	| BasesFormulaValueObject
-	| BasesFormulaValueString
-	| BasesFormulaValueNumber
-	| BasesFormulaValueBoolean
-	| BasesFormulaValueNull
-	| BasesFormulaValueLink
-	| BasesFormulaValueFile
-	| BasesFormulaValueError;
+// type BasesFormulaValue =
+// 	| BasesFormulaValueList
+// 	| BasesFormulaValueObject
+// 	| BasesFormulaValueString
+// 	| BasesFormulaValueNumber
+// 	| BasesFormulaValueBoolean
+// 	| BasesFormulaValueNull
+// 	| BasesFormulaValueLink
+// 	| BasesFormulaValueFile
+// 	| BasesFormulaValueError;
+
+// type BasesFormulaValue = Value;
 
 // TODO finish typing this
 interface BasesFormulaValueBase {
@@ -71,7 +80,7 @@ interface BasesFormulaValueList extends BasesFormulaValueBase {
 		type: "List";
 	};
 
-	data: BasesFormulaValue[];
+	data: Value[];
 }
 
 // TODO finish typing this
@@ -168,7 +177,7 @@ interface BasesFormulaPartFormula extends BasesFormulaPartBase {
 	name: string;
 	subject: BasesFormulaPart | null;
 	args: BasesFormulaPart[];
-	getValue(ctx: BasesLocal): BasesFormulaValue;
+	getValue(ctx: FormulaContext): Value;
 }
 
 interface BasesFormulaPartArithmetic extends BasesFormulaPartBase {
@@ -193,7 +202,7 @@ interface BasesFormulaPartNot extends BasesFormulaPartBase {
 interface BasesFormulaPartPrimitive extends BasesFormulaPartBase {
 	type: "primitive";
 	value: boolean | string | number | null | undefined;
-	getValue(): BasesFormulaValue;
+	getValue(): Value;
 }
 
 interface BasesFormulaPartIdent extends BasesFormulaPartBase {
@@ -233,7 +242,7 @@ declare module "obsidian-typings" {
 
 		formula: BasesFormulaPart;
 		text: string;
-		getValue(localContext: BasesLocal | null): BasesFormulaValue;
+		getValue(localContext: FormulaContext | null): Value;
 	}
 
 	interface BasesPropertyMenu {
@@ -242,6 +251,7 @@ declare module "obsidian-typings" {
 
 	interface BasesQuery {
 		toString(): string;
+		filters: BasesFilter | null;
 	}
 
 	class BasesContext {
@@ -258,21 +268,26 @@ declare module "obsidian-typings" {
 		// 	file: TFile): BasesContext;
 
 		formulas: Record<string, BasesFormula>;
-		local: BasesLocal | null;
-		regenerateLocal(): BasesLocal;
+		local: FormulaContext | null;
+		regenerateLocal(): FormulaContext;
 	}
 
-	class BasesLocal {
-		constructor(ctx: BasesContext, file: TFile);
-
-		app: App;
-		file: TFile;
-		frontmatter: Record<string, unknown>;
-		note: BasesControllerResultsValueNote;
-
-		getRawProperty(property: string): unknown;
-		getValue(identifier: string): unknown;
-		ctx: BasesContext;
+	// TODO open PR to obsidian-typings. Currently have to manually enter this in package
+	interface PromisedQueue {
+		queue: {
+			promise: {
+				promise: Promise<unknown>;
+				resolve: () => unknown;
+				reject: () => unknown;
+			};
+			runnable: {
+				running: boolean;
+				cancelled: boolean;
+				onStart: () => unknown;
+				onStop: () => unknown;
+				onCancel: () => unknown;
+			};
+		};
 	}
 }
 
@@ -285,10 +300,35 @@ declare module "obsidian" {
 		listEl: HTMLElement;
 		searchContainerEl: HTMLElement | undefined;
 	}
+
+	interface ListValue {
+		data: Value[];
+	}
+
+	interface RegExpValue {
+		regexp: string;
+	}
+
+	interface PrimitiveValue<T> {
+		data: T;
+	}
+
+	interface BasesEntry extends FormulaContext {
+		// new (ctx: BasesContext, file: TFile): BasesEntry;
+
+		app: App;
+		file: TFile;
+		frontmatter: Record<string, unknown>;
+		note: BasesControllerResultsValueNote;
+
+		getRawProperty(property: string): unknown;
+		getValue(identifier: string): unknown;
+		ctx: BasesContext;
+	}
 }
 
 // TODO open PR to obsidian-typings
-export type BasesControllerResults = Map<TFile, BasesLocal>;
+export type BasesControllerResults = Map<TFile, BasesEntry>;
 
 export interface BasesControllerResultsValueNote {
 	data: Record<string, unknown>;
@@ -314,25 +354,5 @@ declare module "obsidian" {
 	interface SettingTab {
 		// TODO open PR to obsidian-typings. Currently have to manually enter this in package
 		setting: Modal;
-	}
-}
-
-declare module "obsidian-typings" {
-	// TODO open PR to obsidian-typings. Currently have to manually enter this in package
-	interface PromisedQueue {
-		queue: {
-			promise: {
-				promise: Promise<unknown>;
-				resolve: () => unknown;
-				reject: () => unknown;
-			};
-			runnable: {
-				running: boolean;
-				cancelled: boolean;
-				onStart: () => unknown;
-				onStop: () => unknown;
-				onCancel: () => unknown;
-			};
-		};
 	}
 }

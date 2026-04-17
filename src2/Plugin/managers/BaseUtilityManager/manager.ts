@@ -1,4 +1,11 @@
-import { App, Component, Setting, TFile } from "obsidian";
+import {
+	App,
+	Component,
+	Setting,
+	TFile,
+	FormulaContext,
+	BasesEntry,
+} from "obsidian";
 import { ConfirmationModal } from "~/classes/ConfirmationModal";
 import { around, dedupe } from "monkey-around";
 import { customPropertyTypePrefix, monkeyAroundKey } from "~/lib/constants";
@@ -30,11 +37,9 @@ export class BaseUtilityManager extends Component {
 
 	async onload(): Promise<void> {
 		this.applyVaultPatches();
+
 		await this.patchBasesController();
-		// TODO if no notes exist in the vault, wait until one is first created before applying patch
-		this.plugin.app.workspace.onLayoutReady(async () => {
-			await this.patchBaseResultsValue();
-		});
+		this.patchBaseResultsValue();
 		this.afterLoad();
 	}
 
@@ -52,6 +57,7 @@ export class BaseUtilityManager extends Component {
 	}) {
 		const formulaInstance =
 			typeof formula === "string" ? this.createBasesFormula(formula) : formula;
+
 		const context = this.createBasesContext(
 			containingFile ?? this.getFakeFile()
 		);
@@ -77,12 +83,23 @@ export class BaseUtilityManager extends Component {
 	 */
 	async patchBasesController(): Promise<void> {
 		const { plugin } = this;
-		const embedComponent = await this.evaluateBase({
-			query: 'formulas:\n  fn: ""',
+		// const embedComponent = await this.evaluateBase({
+		// 	query: 'formulas:\n  fn: ""',
+		// });
+
+		const containerEl = this.plugin.app.workspace.containerEl.createDiv({
+			cls: "better-properties--hidden-base",
+			attr: {
+				"aria-hidden": "true",
+			},
+		});
+
+		const embedComponent = await this.createEmbeddableBaseEditor({
+			query: `formulas:\n  fn: ""`,
+			containerEl,
 		});
 
 		const { controller } = embedComponent;
-
 		interface IBasesFormula {
 			new (formula: string): BasesFormula;
 		}
@@ -107,6 +124,7 @@ export class BaseUtilityManager extends Component {
 		const contextPrototype = Object.getPrototypeOf(
 			controller.ctx
 		) as BasesContext;
+
 		const basesContextConstructor =
 			contextPrototype.constructor as IBasesContext;
 		this.createBasesContext = (file) => {
@@ -227,32 +245,36 @@ export class BaseUtilityManager extends Component {
 		this.register(uninstallControllerPatch);
 		this.register(uninstallQueryPatch);
 		embedComponent.unload();
+		containerEl.remove();
 	}
 
 	/**
 	 * Patches a Base's results map's value prototype to correctly get the value of Object/Array sub-properties when using object key access notation.
 	 */
-	async patchBaseResultsValue(): Promise<void> {
-		const embedComponent = await this.evaluateBase({
-			query: ``,
-		});
-
-		const { controller } = embedComponent;
-
-		if (!controller.results.size) {
-			throw new Error(
-				"Error: one note must exist in the vault before using this method"
-			);
+	patchBaseResultsValue(): void {
+		class ConstructableBasesEntry extends BasesEntry {
+			constructor(ctx: FormulaContext, file: TFile) {
+				// @ts-expect-error Obsidian doesn't provide a type for the constructor
+				super(ctx, file);
+			}
 		}
 
-		const local = controller.results.values().toArray()[0];
-		const localContextPrototype = Object.getPrototypeOf(local) as typeof local;
+		const entryInstance = new ConstructableBasesEntry(
+			{
+				app: this.plugin.app,
+			},
+			this.getFakeFile()
+		) as BasesEntry;
 
-		const uninstall = around(localContextPrototype, {
+		const proto = Object.getPrototypeOf(
+			Object.getPrototypeOf(entryInstance) as ConstructableBasesEntry
+		) as BasesEntry;
+
+		const uninstall = around(proto, {
 			getRawProperty: (old) =>
 				dedupe(monkeyAroundKey, old, function (property) {
 					// @ts-expect-error
-					const that = this as typeof local;
+					const that = this as BasesEntry;
 
 					const oldReturn = () => old.call(that, property);
 
@@ -282,7 +304,6 @@ export class BaseUtilityManager extends Component {
 		});
 
 		this.register(uninstall);
-		embedComponent.unload();
 	}
 
 	/**
@@ -302,7 +323,7 @@ export class BaseUtilityManager extends Component {
 			},
 		});
 
-		const embedComponent = this.createEmbeddableBaseEditor({
+		const embedComponent = await this.createEmbeddableBaseEditor({
 			query,
 			containerEl,
 			containingFile,
@@ -361,7 +382,7 @@ export class BaseUtilityManager extends Component {
 					})
 				);
 
-			embedComponent = this.createEmbeddableBaseEditor({
+			embedComponent = await this.createEmbeddableBaseEditor({
 				query: query,
 				containerEl: modal.contentEl,
 			});
@@ -374,7 +395,7 @@ export class BaseUtilityManager extends Component {
 					const query = embedComponent?.controller.query?.toString() || "";
 					embedComponent?.unload();
 					embedComponent?.containerEl?.remove();
-					embedComponent = this.createEmbeddableBaseEditor({
+					embedComponent = await this.createEmbeddableBaseEditor({
 						query,
 						containerEl: modal.contentEl,
 						containingFile: file,
@@ -403,7 +424,7 @@ export class BaseUtilityManager extends Component {
 	/**
 	 * Creates a Base by initializing a Base embed component with a fake file
 	 */
-	createEmbeddableBaseEditor({
+	async createEmbeddableBaseEditor({
 		query = "",
 		containerEl,
 		containingFile,
@@ -411,7 +432,7 @@ export class BaseUtilityManager extends Component {
 		query: string;
 		containerEl: HTMLElement;
 		containingFile?: TFile;
-	}): BasesEmbedComponent {
+	}): Promise<BasesEmbedComponent> {
 		this.fakeFileContent = query;
 
 		const componentContainerEl = containerEl.createDiv({
@@ -432,13 +453,11 @@ export class BaseUtilityManager extends Component {
 			containingFile ?? this.getFakeFile();
 		// }
 
-		embedComponent.loadFile();
+		await embedComponent.loadFile();
 
 		componentContainerEl
 			.querySelector("div.bases-view")
 			?.addEventListener("scroll", () => {
-				// TODO open PR to obsidian-typings
-
 				embedComponent?.controller.view.updateVirtualDisplay();
 			});
 
