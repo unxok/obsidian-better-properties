@@ -35,6 +35,7 @@ import formula from "./customPropertyTypes/Formula";
 import select from "./customPropertyTypes/Select";
 import toggle from "./customPropertyTypes/Toggle";
 import { ConfirmationModal } from "~/classes/ConfirmationModal";
+import { obsidianText } from "~/i18next/obsidian";
 
 /**
  * Responsible for property-type-related features such as:
@@ -279,7 +280,9 @@ export class PropertyTypeManager extends Component {
 			app.metadataTypeManager.getAssignedWidget(propertyName);
 
 		const unnamedSettingsGroup = new SettingGroup(contentEl).addSetting((s) => {
-			s.setName("General settings")
+			s.setName(
+				t("propertyTypeManager.openPropertySettingsModal.generalSettingsName")
+			)
 
 				// TODO this felt like unnecessary clutter... might add back later
 				// .addExtraButton((button) => {
@@ -290,7 +293,7 @@ export class PropertyTypeManager extends Component {
 				// 			openLink("TODO");
 				// 		});
 				// })
-				.addExtraButton((button) => {
+				.addButton((button) => {
 					button
 						.setIcon("lucide-settings")
 						.setTooltip(t("common.openSettings"));
@@ -308,7 +311,7 @@ export class PropertyTypeManager extends Component {
 		}
 
 		const otherTypesSettingsGroup = new SettingGroup(contentEl).setHeading(
-			"Other types"
+			t("propertyTypeManager.openPropertySettingsModal.otherTypesGroupName")
 		);
 
 		Object.keys(this.customPropertyTypes).forEach((type) => {
@@ -320,7 +323,11 @@ export class PropertyTypeManager extends Component {
 					);
 					button
 						.setIcon("lucide-check")
-						.setTooltip("Update property to this type")
+						.setTooltip(
+							t(
+								"propertyTypeManager.openPropertySettingsModal.updateToTypeTooltip"
+							)
+						)
 						.onClick(async () => {
 							await app.metadataTypeManager.setType(propertyName, type);
 							modal.close();
@@ -412,13 +419,11 @@ export class PropertyTypeManager extends Component {
 
 			const matchedInfo = this.customPropertyTypes[typedType];
 			if (!matchedInfo) {
-				new Setting(modal.contentEl).setName(
-					`No settings found for type "${typedType}"`
-				);
+				throw new Error(`No settings schema found for type "${typedType}"`);
 				return;
 			}
 
-			modal.setTitle("Property type settings");
+			modal.setTitle(t("propertyTypeManager.propertyTypeSettingsModalTitle"));
 			modal.contentEl.createEl(
 				"div",
 				{ cls: "better-properties--property-type-settings-modal-desc" },
@@ -558,30 +563,36 @@ export class PropertyTypeManager extends Component {
 	openRenamePropertyModal(property?: string): void {
 		const modal = new ConfirmationModal(this.plugin.app);
 
-		modal.setTitle("Rename property");
+		modal.setTitle(t("propertyTypeManager.openRenamePropertyModal.title"));
 		modal.contentEl.createEl("p", {
-			text: "The following changes will be made:",
+			text: t("propertyTypeManager.openRenamePropertyModal.changesListDesc"),
 		});
 		modal.contentEl.createEl("ul", {}, (ul) => {
 			ul.createEl("li", {
-				text: "All notes containing the old name in their properties are updated to use the new name instead.",
+				text: t(
+					"propertyTypeManager.openRenamePropertyModal.changesListItemOne"
+				),
 			});
 			ul.createEl("li", {
-				text: "The assigned type of the new name is updated to match the old name's type, and then the old name's type is reset.",
+				text: t(
+					"propertyTypeManager.openRenamePropertyModal.changesListItemTwo"
+				),
 			});
 			ul.createEl("li", {
-				text: "The property settings saved for the old name will be transferred to the new name",
+				text: t(
+					"propertyTypeManager.openRenamePropertyModal.changesListItemThree"
+				),
 			});
 		});
 		modal.contentEl.createEl("p", {
-			text: "This will not update any formulas, filters, or other references to the old name.",
+			text: t("propertyTypeManager.openRenamePropertyModal.willNotChangeDesc"),
 		});
 		modal.contentEl.createEl("p", {
-			text: "If the new name is already used in the properties of your notes and/or has property settings set, it will be overwritten with the data from the old name.",
+			text: t("propertyTypeManager.openRenamePropertyModal.overwriteDesc"),
 			cls: "mod-warning",
 		});
 		modal.contentEl.createEl("p", {
-			text: "This change is permanent and cannot be undone.",
+			text: t("propertyTypeManager.openRenamePropertyModal.permanentDesc"),
 			cls: "mod-warning",
 		});
 
@@ -595,8 +606,8 @@ export class PropertyTypeManager extends Component {
 		};
 
 		new Setting(modal.contentEl)
-			.setName("Old property name")
-			.setDesc("The current name of the property to be renamed.")
+			.setName(t("propertyTypeManager.openRenamePropertyModal.oldPropertyName"))
+			.setDesc(t("propertyTypeManager.openRenamePropertyModal.oldPropertyDesc"))
 			.addText((textComponent) => {
 				textComponent.setValue(oldName).onChange((v) => {
 					oldName = v;
@@ -605,8 +616,8 @@ export class PropertyTypeManager extends Component {
 			});
 
 		new Setting(modal.contentEl)
-			.setName("New property name")
-			.setDesc("The new name to rename the property to.")
+			.setName(t("propertyTypeManager.openRenamePropertyModal.newPropertyName"))
+			.setDesc(t("propertyTypeManager.openRenamePropertyModal.newPropertyDesc"))
 			.addText((textComponent) => {
 				textComponent.onChange((v) => {
 					newName = v;
@@ -615,16 +626,18 @@ export class PropertyTypeManager extends Component {
 			});
 
 		modal.addFooterButton((button) => {
-			button.setButtonText("Cancel").onClick(() => {
-				modal.close();
-			});
+			button
+				.setButtonText(obsidianText("dialogue.button-cancel"))
+				.onClick(() => {
+					modal.close();
+				});
 		});
 		modal.addFooterButton((button) => {
 			setDisabled = (b) => {
 				button.setDisabled(b);
 			};
 			button
-				.setButtonText("Rename")
+				.setButtonText(obsidianText("interface.menu.rename"))
 				.setWarning()
 				.setDisabled(true)
 				.onClick(async () => {

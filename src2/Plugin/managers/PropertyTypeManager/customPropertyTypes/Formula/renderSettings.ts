@@ -1,6 +1,7 @@
 import { SettingGroup, TextAreaComponent } from "obsidian";
 import typeKey from "./type";
 import { CustomPropertyType } from "../../types";
+import { t } from "#/i18n";
 
 export default (({ plugin, containerEl, propertyName }) => {
 	const settings = plugin.propertyTypeManager.getPropertyTypeSettings(
@@ -18,7 +19,9 @@ export default (({ plugin, containerEl, propertyName }) => {
 	};
 
 	new SettingGroup(containerEl).addSetting((s) => {
-		s.setName("Formula");
+		s.setName(t("formula.settings.formulaName")).setDesc(
+			t("formula.settings.formulaDesc")
+		);
 
 		const containerEl = s.controlEl.createDiv({
 			cls: "better-properties--formula-setting-container",

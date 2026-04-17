@@ -55,11 +55,48 @@
 			"desc": "This will permanently reset these settings back to the default."
 		}
 	},
-	"pluginSettings": {
-		"defaultPropertyTypeSettingsSettingsGroupTitle": "Default property type settings"
+	"settings": {
+		"appearanceName": "Appearance and style",
+		"appearanceDesc": "Adjust the appearance of various different property types and other features.",
+		"propertyLinkSyntaxName": "Property link syntax",
+		"propertyLinkSyntaxDesc": "The text to use to detect a property link when followed by a hashtag (#) within a wikilink.",
+		"propertyTypesGroupName": "Property types",
+		"globalFormulasGroupName": "Global formulas",
+		"globalFormulasCreateNewTooltip": "Create new global formula",
+		"globalFormulasRemoveTooltip": "Remove formula",
+		"formulaEditorModal": {
+			"title": "Edit formula",
+			"itemNameName": "Name",
+			"itemNameDesc": "The name of the formula. Use this name in bases to reference this formula.",
+			"itemDescName": "Description",
+			"itemDescDesc": "A description of the formula.",
+			"itemFormulaName": "Formula",
+			"itemFormulaDesc": "Syntax reference"
+		},
+		"appearanceSettingsModal": {
+			"groupName": "Colors",
+			"resetModalTitle": "Colors reset confirmation",
+			"resetModalDesc": "This will permanently reset the colors back to their default.",
+			"addNewTooltip": "Add new color",
+			"itemNamePlaceholder": "Name"
+		}
+	},
+	"formula": {
+		"settings": {
+			"formulaName": "Formula",
+			"formulaDesc": "The formula used to calculate the value of this property. The formula will re-run and update the property's value if needed on vault startup and whenever a file is created, changed, or deleted."
+		}
 	},
 	"select": {
 		"settings": {
+			"optionsTypeName": "Options type",
+			"optionsTypeDesc": "How the available options should be determined.",
+			"optionsTypeLabels": {
+				"manual": "Manually defined",
+				"base-file": "From a .base file",
+				"inline-base": "From an inline base",
+				"formula": "From a formula"
+			},
 			"manualHeading": "Manual options",
 			"manualSortTooltip": "Sort options",
 			"manualCreateTooltip": "Create new option",
@@ -74,7 +111,17 @@
 			"manualLabelPlaceholder": "Label (optional)",
 			"manualRemoveTooltip": "Remove option",
 			"manualCustomColorModalTitle": "Custom background",
-			"manualCustomColorModalDesc": "Select or enter any valid CSS background."
+			"manualCustomColorModalDesc": "Select or enter any valid CSS background.",
+			"formulaName": "Formula",
+			"formulaDesc": "The formula should return a list of strings or a list of lists which may have up to three strings corresponding to the value, label, and background of the option.",
+			"baseConfigName": "Base config",
+			"baseConfigDesc": "The configuration for the inline base.",
+			"baseFileName": "Base file",
+			"baseFileDesc": "The base file to use.",
+			"baseLabelColName": "Label column name",
+			"baseLabelColDesc": "The column name in the base to use to get the displayed label for each option. If not set, the file's short name is used.",
+			"baseBackgroundColName": "Background column name",
+			"baseBackgroundColDesc": "The column name in the base to use to get the background for each option. If not set, the file's path is used to pick a random color."
 		}
 	},
 	"colors": {
@@ -93,6 +140,34 @@
 		"baseEditor": {
 			"thisFileSettingName": "Current file",
 			"thisFileSettingDesc": "The file to use as the current file for the base editor. For testing purposes only."
+		}
+	},
+	"InvalidPluginSettingsModal": {
+		"title": "Better Properties: Invalid plugin settings",
+		"desc": "The plugin ran into the following issues when reading its settings:",
+		"instruction": "Please correct this immediately. Otherwise, your settings will be overwritten."
+	},
+	"propertyTypeManager": {
+		"openPropertySettingsModal": {
+			"title": "Property settings",
+			"generalSettingsName": "General settings",
+			"otherTypesGroupName": "Other types",
+			"updateToTypeTooltip": "Update property to this type"
+		},
+		"propertyTypeSettingsModalTitle": "Property type settings",
+		"openRenamePropertyModal": {
+			"title": "Rename property",
+			"changesListDesc": "The following changes will be made:",
+			"changesListItemOne": "All notes containing the old name in their properties are updated to use the new name instead.",
+			"changesListItemTwo": "The assigned type of the new name is updated to match the old name's type, and then the old name's type is reset.",
+			"changesListItemThree": "The property settings saved for the old name will be transferred to the new name.",
+			"willNotChangeDesc": "This will not update any formulas, filters, or other references to the old name.",
+			"overwriteDesc": "If the new name is already used in the properties of your notes and/or has property settings set, it will be overwritten with the data from the old name.",
+			"permanentDesc": "This change is permanent and cannot be undone.",
+			"oldPropertyName": "Old property name",
+			"oldPropertyDesc": "The current name of the property to be renamed.",
+			"newPropertyName": "New property name",
+			"newPropertyDesc": "The new name to rename the property to."
 		}
 	}
 }

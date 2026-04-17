@@ -3,6 +3,7 @@ import { SettingGroup } from "obsidian";
 import { renderBaseSettings } from "./renderBaseSettings";
 import { renderManualSettings } from "./renderManualSettings";
 import { StandardSelectSettings } from "./types";
+import { t } from "#/i18n";
 
 /**
  * Renders the standard settings for a Select (which are used by Multi-Select as well)
@@ -26,15 +27,15 @@ export const renderStandardSelectSettings = ({
 
 	new SettingGroup(containerEl).addSetting((setting) => {
 		setting
-			.setName("Options type")
-			.setDesc("How the available options should be determined.")
+			.setName(t("select.settings.optionsTypeName"))
+			.setDesc(t("select.settings.optionsTypeDesc"))
 			.addDropdown((dropdown) => {
 				dropdown
 					.addOptions({
-						"manual": "Manually defined",
-						"base-file": "From a .base file",
-						"inline-base": "From an inline base",
-						"formula": "From a formula",
+						"manual": t("select.settings.optionsTypeLabels.manual"),
+						"base-file": t("select.settings.optionsTypeLabels.base-file"),
+						"inline-base": t("select.settings.optionsTypeLabels.inline-base"),
+						"formula": t("select.settings.optionsTypeLabels.formula"),
 					} satisfies Record<StandardSelectSettings["optionsType"], string>)
 					.setValue(settings.optionsType)
 					.onChange(async (v) => {
@@ -73,10 +74,8 @@ export const renderStandardSelectSettings = ({
 	if (settings.optionsType === "formula") {
 		const settings = getSettings();
 		new SettingGroup(containerEl).addSetting((s) => {
-			s.setName("Formula")
-				.setDesc(
-					"The formula should return a list of strings or a list of lists which may have up to three strings corresponding to the value, label, and background of the option."
-				)
+			s.setName(t("select.settings.formulaName"))
+				.setDesc(t("select.settings.formulaDesc"))
 				.addTextArea((textComponent) => {
 					textComponent
 						.setPlaceholder(

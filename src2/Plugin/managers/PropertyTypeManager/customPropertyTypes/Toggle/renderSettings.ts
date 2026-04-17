@@ -1,6 +1,7 @@
 import { SettingGroup } from "obsidian";
 import typeKey from "./type";
 import { CustomPropertyType } from "../../types";
+import { t } from "#/i18n";
 
 export default (({ plugin, containerEl, propertyName }) => {
 	const settings = plugin.propertyTypeManager.getPropertyTypeSettings(
@@ -21,6 +22,6 @@ export default (({ plugin, containerEl, propertyName }) => {
 	void updateSettings;
 
 	new SettingGroup(containerEl).addSetting((s) => {
-		s.setName("There are no settings available for this type");
+		s.setName(t("common.typeHasNoSettings"));
 	});
 }) satisfies CustomPropertyType["renderSettings"];

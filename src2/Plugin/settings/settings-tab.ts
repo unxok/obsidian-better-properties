@@ -10,6 +10,7 @@ import { t } from "#/i18n";
 import * as v from "valibot";
 import { ConfirmationModal } from "~/classes/ConfirmationModal";
 import { ColorTextComponent } from "#/classes/ColorTextComponent";
+import { obsidianText } from "~/i18next/obsidian";
 
 /**
  * The class for rendering the plugin settings tab in the obsidian settings modal
@@ -26,10 +27,8 @@ export class BetterPropertiesSettingsTab extends PluginSettingTab {
 
 		new SettingGroup(containerEl)
 			.addSetting((s) => {
-				s.setName("Appearance and style")
-					.setDesc(
-						"Adjust the appearance of various different property types and other features"
-					)
+				s.setName(t("settings.appearanceName"))
+					.setDesc(t("settings.appearanceDesc"))
 					.addButton((button) => {
 						button.setIcon("lucide-settings").onClick(() => {
 							new AppearanceSettingsModal(this).open();
@@ -38,10 +37,8 @@ export class BetterPropertiesSettingsTab extends PluginSettingTab {
 			})
 			.addSetting((setting) => {
 				setting
-					.setName("Property link syntax")
-					.setDesc(
-						"The text to use to detect a property link when followed by a hashtag (#) within a wikilink."
-					)
+					.setName(t("settings.propertyLinkSyntaxName"))
+					.setDesc(t("settings.propertyLinkSyntaxDesc"))
 					.addText((text) => {
 						text.setValue(settings.propertyLinkSyntax).onChange(async (v) => {
 							await plugin.updateSettings((s) => ({
@@ -54,9 +51,7 @@ export class BetterPropertiesSettingsTab extends PluginSettingTab {
 
 		const defaultPropertyTypeSettingGroup = new SettingGroup(
 			containerEl
-		).setHeading(
-			t("pluginSettings.defaultPropertyTypeSettingsSettingsGroupTitle")
-		);
+		).setHeading(t("settings.propertyTypesGroupName"));
 
 		Object.keys(this.plugin.propertyTypeManager.customPropertyTypes).forEach(
 			(type) => {
@@ -71,11 +66,11 @@ export class BetterPropertiesSettingsTab extends PluginSettingTab {
 		);
 
 		const globalFormulasSettingGroup = new ReorderSettingGroup(containerEl)
-			.setHeading("Global formulas")
+			.setHeading(t("settings.globalFormulasGroupName"))
 			.addExtraButton((button) => {
 				button
 					.setIcon("lucide-plus-circle")
-					.setTooltip("Create new global formula")
+					.setTooltip(t("settings.globalFormulasCreateNewTooltip"))
 					.onClick(() => {
 						new FormulaEditorModal(this).open();
 					});
@@ -103,14 +98,17 @@ export class BetterPropertiesSettingsTab extends PluginSettingTab {
 							});
 						})
 						.addExtraButton((button) => {
-							button.setIcon("lucide-x").onClick(async () => {
-								await plugin.updateSettings((prev) => {
-									const copy = { ...prev };
-									delete copy.globalFormulas[name];
-									return copy;
+							button
+								.setIcon("lucide-x")
+								.setTooltip(t("settings.globalFormulasRemoveTooltip"))
+								.onClick(async () => {
+									await plugin.updateSettings((prev) => {
+										const copy = { ...prev };
+										delete copy.globalFormulas[name];
+										return copy;
+									});
+									this.display();
 								});
-								this.display();
-							});
 						});
 				});
 			}
@@ -177,13 +175,11 @@ class FormulaEditorModal extends ConfirmationModal {
 	}
 
 	onOpen(): void | Promise<void> {
-		this.setTitle("Edit formula");
+		this.setTitle(t("settings.formulaEditorModal.title"));
 		new SettingGroup(this.contentEl)
 			.addSetting((s) => {
-				s.setName("Name")
-					.setDesc(
-						"The name of the formula. Use this name in bases to reference this formula."
-					)
+				s.setName(t("settings.formulaEditorModal.itemNameName"))
+					.setDesc(t("settings.formulaEditorModal.itemNameDesc"))
 					.addText((textComponent) => {
 						textComponent.setValue(this.name).onChange((v) => {
 							this.name = v;
@@ -191,8 +187,8 @@ class FormulaEditorModal extends ConfirmationModal {
 					});
 			})
 			.addSetting((s) => {
-				s.setName("Description")
-					.setDesc("A description of the formula.")
+				s.setName(t("settings.formulaEditorModal.itemDescName"))
+					.setDesc(t("settings.formulaEditorModal.itemDescDesc"))
 					.addText((textComponent) => {
 						textComponent.setValue(this.description).onChange((v) => {
 							this.description = v;
@@ -200,11 +196,11 @@ class FormulaEditorModal extends ConfirmationModal {
 					});
 			})
 			.addSetting((s) => {
-				s.setName("Formula")
+				s.setName(t("settings.formulaEditorModal.itemFormulaName"))
 					.setDesc(
 						window.createFragment((el) => {
 							el.createEl("a", {
-								text: "Syntax reference",
+								text: t("settings.formulaEditorModal.itemFormulaDesc"),
 								href: "https://obsidian.md/help/formulas",
 							});
 						})
@@ -246,27 +242,31 @@ class AppearanceSettingsModal extends Modal {
 		const { plugin } = this.settingsTab;
 
 		const group = new ReorderSettingGroup(this.contentEl)
-			.setHeading("Colors")
+			.setHeading(t("settings.appearanceSettingsModal.groupName"))
 			.addExtraButton((button) => {
 				button
 					.setIcon("lucide-rotate-ccw")
-					.setTooltip("Reset")
+					.setTooltip(t("common.reset"))
 					.onClick(async () => {
 						const modal = new ConfirmationModal(plugin.app);
 						modal.onOpen = () => {
-							modal.setTitle("Colors reset confirmation");
+							modal.setTitle(
+								t("settings.appearanceSettingsModal.resetModalTitle")
+							);
 							modal.contentEl.createEl("p", {
-								text: "This will permanently reset the colors back to their default.",
+								text: t("settings.appearanceSettingsModal.resetModalDesc"),
 							});
 							modal
 								.addFooterButton((button) => {
-									button.setButtonText("Cancel").onClick(() => {
-										modal.close();
-									});
+									button
+										.setButtonText(obsidianText("dialogue.button-cancel"))
+										.onClick(() => {
+											modal.close();
+										});
 								})
 								.addFooterButton((button) => {
 									button
-										.setButtonText("Reset")
+										.setButtonText(t("common.reset"))
 										.setWarning()
 										.onClick(async () => {
 											await plugin.updateSettings((prev) => {
@@ -288,7 +288,7 @@ class AppearanceSettingsModal extends Modal {
 			.addExtraButton((button) => {
 				button
 					.setIcon("lucide-plus-circle")
-					.setTooltip("Add new color")
+					.setTooltip(t("settings.appearanceSettingsModal.addNewTooltip"))
 					.onClick(async () => {
 						await plugin.updateSettings((prev) => ({
 							...prev,
@@ -319,7 +319,9 @@ class AppearanceSettingsModal extends Modal {
 				s.settingEl.addClass("better-properties--mod-hide-info");
 				s.addText((textComponent) => {
 					textComponent
-						.setPlaceholder("Name")
+						.setPlaceholder(
+							t("settings.appearanceSettingsModal.itemNamePlaceholder")
+						)
 						.setValue(color.name)
 						.onChange(async (v) => {
 							await plugin.updateSettings((prev) => {
@@ -348,7 +350,7 @@ class AppearanceSettingsModal extends Modal {
 
 				s.addExtraButton((button) => {
 					button
-						.setTooltip("Remove")
+						.setTooltip(obsidianText("interface.menu.remove"))
 						.setIcon("lucide-x")
 						.onClick(async () => {
 							await plugin.updateSettings((prev) => {

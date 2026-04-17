@@ -1,7 +1,7 @@
-import { BP } from "#/lib/constants";
 import { Modal } from "obsidian";
 import { BetterProperties } from "./plugin";
 import * as v from "valibot";
+import { t } from "#/i18n";
 
 export class InvalidPluginSettingsModal extends Modal {
 	constructor(
@@ -13,15 +13,15 @@ export class InvalidPluginSettingsModal extends Modal {
 
 	async onOpen(): Promise<void> {
 		const { contentEl, flattenedIssues, renderIssueType } = this;
-		this.setTitle(`${BP}: Invalid plugin settings`);
+		this.setTitle(t("InvalidPluginSettingsModal.title"));
 		contentEl.createEl("p", {
-			text: `${BP} ran into the following issues when reading its settings:`,
+			text: t("InvalidPluginSettingsModal.desc"),
 		});
 
 		Object.values(flattenedIssues).forEach(renderIssueType);
 
 		contentEl.createEl("p", {
-			text: "Please correct this immediately. Otherwise, your settings will be overwritten.",
+			text: t("InvalidPluginSettingsModal.instruction"),
 			cls: "mod-warning",
 		});
 	}

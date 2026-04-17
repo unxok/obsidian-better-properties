@@ -2,6 +2,8 @@ import { BetterProperties } from "#/Plugin";
 import { SettingGroup, TFile } from "obsidian";
 import { InputSuggest, Suggestion } from "~/classes/InputSuggest";
 import { StandardSelectSettings } from "./types";
+import { t } from "#/i18n";
+import { obsidianText } from "~/i18next/obsidian";
 
 /**
  * Renders settings for a Select with `optionType` set to `"inline-base"` or `"base-file"`
@@ -26,30 +28,33 @@ export const renderBaseSettings = ({
 
 	if (settings.optionsType === "inline-base") {
 		baseSettingGroup.addSetting((s) => {
-			s.setName("Base config")
-				.setDesc("The configuration for the inline base.")
+			s.setName(t("select.settings.baseConfigName"))
+				.setDesc(t("select.settings.baseConfigDesc"))
 				.addButton((button) => {
-					button.setButtonText("Edit").onClick(async () => {
-						await plugin.baseUtilityManager.openBaseEditorModal({
-							query: settings.inlineBase,
-							onClose: async ({ embedComponent }) => {
-								const query = embedComponent.controller.query?.toString() ?? "";
-								await updateSettings((prev) => ({
-									...prev,
-									inlineBase: query,
-								}));
-								reRenderModal();
-							},
+					button
+						.setButtonText(obsidianText("interface.menu.edit"))
+						.onClick(async () => {
+							await plugin.baseUtilityManager.openBaseEditorModal({
+								query: settings.inlineBase,
+								onClose: async ({ embedComponent }) => {
+									const query =
+										embedComponent.controller.query?.toString() ?? "";
+									await updateSettings((prev) => ({
+										...prev,
+										inlineBase: query,
+									}));
+									reRenderModal();
+								},
+							});
 						});
-					});
 				});
 		});
 	}
 
 	if (settings.optionsType === "base-file") {
 		baseSettingGroup.addSetting((s) => {
-			s.setName("Base file")
-				.setDesc("The base file to use.")
+			s.setName(t("select.settings.baseFileName"))
+				.setDesc(t("select.settings.baseFileDesc"))
 				.addSearch((search) => {
 					search.setValue(settings.baseFile).onChange(async (v) => {
 						await updateSettings((prev) => ({ ...prev, baseFile: v }));
@@ -64,10 +69,8 @@ export const renderBaseSettings = ({
 
 	baseSettingGroup
 		.addSetting((s) => {
-			s.setName("Label column name")
-				.setDesc(
-					"The column name in the base to use to get the displayed label for each option. If not set, the file's short name is used."
-				)
+			s.setName(t("select.settings.baseLabelColName"))
+				.setDesc(t("select.settings.baseLabelColDesc"))
 				.addSearch((search) => {
 					search.setValue(settings.baseLabelColumn).onChange(async (v) => {
 						await updateSettings((prev) => ({ ...prev, baseLabelColumn: v }));
@@ -82,10 +85,8 @@ export const renderBaseSettings = ({
 				});
 		})
 		.addSetting((s) => {
-			s.setName("Background column name")
-				.setDesc(
-					"The column name in the base to use to get the background for each option. If not set, the file's path is used to pick a random color."
-				)
+			s.setName(t("select.settings.baseBackgroundColName"))
+				.setDesc(t("select.settings.baseBackgroundColDesc"))
 				.addSearch((search) => {
 					search.setValue(settings.baseBackgroundColumn).onChange(async (v) => {
 						await updateSettings((prev) => ({
