@@ -4,7 +4,7 @@ import { Modal, Setting, SettingGroup } from "obsidian";
 import { SelectOption, StandardSelectSettings } from "./types";
 import { ComboboxComponent } from "#/classes/ComboboxComponent";
 import { ColorTextComponent } from "#/classes/ColorTextComponent";
-import { text } from "#/i18n";
+import { t } from "#/i18n";
 
 /**
  * Renders an individual manually-defined Select option
@@ -32,7 +32,7 @@ export const renderManualOptionSetting = ({
 		s.settingEl.classList.add("better-properties--mod-hide-info");
 		s.addText((textComponent) => {
 			textComponent
-				.setPlaceholder(text("common.valuePlaceholder"))
+				.setPlaceholder(t("common.valuePlaceholder"))
 				.setValue(option.value)
 				.onChange(async (v) => {
 					await updateSettings((prev) => {
@@ -46,7 +46,7 @@ export const renderManualOptionSetting = ({
 				});
 		}).addText((textComponent) => {
 			textComponent
-				.setPlaceholder(text("select.settings.manualLabelPlaceholder"))
+				.setPlaceholder(t("select.settings.manualLabelPlaceholder"))
 				.setValue(option.label ?? "")
 				.onChange(async (v) => {
 					await updateSettings((prev) => {
@@ -136,15 +136,15 @@ export const renderManualOptionSetting = ({
 
 		combobox.searchSuggest.addFooterItem({
 			icon: "lucide-paintbrush",
-			title: text("select.settings.manualCustomColorModalTitle"),
+			title: t("select.settings.manualCustomColorModalTitle"),
 			// TODO aux: "Alt + Enter",
 			onClick: () => {
 				const colorModal = new Modal(plugin.app);
 
 				colorModal.onOpen = () => {
 					new Setting(colorModal.contentEl)
-						.setName(text("select.settings.manualCustomColorModalTitle"))
-						.setDesc(text("select.settings.manualCustomColorModalDesc"))
+						.setName(t("select.settings.manualCustomColorModalTitle"))
+						.setDesc(t("select.settings.manualCustomColorModalDesc"))
 						.then((s) => {
 							new ColorTextComponent(s.controlEl)
 								.setValue(matchedColor.background)
@@ -173,7 +173,7 @@ export const renderManualOptionSetting = ({
 			button.extraSettingsEl.classList.add("better-properties--close");
 			button
 				.setIcon("lucide-x")
-				.setTooltip(text("select.settings.manualRemoveTooltip"))
+				.setTooltip(t("select.settings.manualRemoveTooltip"))
 				.onClick(async () => {
 					await updateSettings((prev) => {
 						const copy = { ...prev };

@@ -6,7 +6,7 @@ import { arrayMove } from "~/lib/utils";
 import { CustomPropertyTypeKey } from "../managers/PropertyTypeManager/schema";
 import { BetterProperties } from "../plugin";
 import { betterPropertiesSettingsSchema } from "./schema";
-import { text } from "#/i18n";
+import { t } from "#/i18n";
 import * as v from "valibot";
 import { ConfirmationModal } from "~/classes/ConfirmationModal";
 import { ColorTextComponent } from "#/classes/ColorTextComponent";
@@ -55,7 +55,7 @@ export class BetterPropertiesSettingsTab extends PluginSettingTab {
 		const defaultPropertyTypeSettingGroup = new SettingGroup(
 			containerEl
 		).setHeading(
-			text("pluginSettings.defaultPropertyTypeSettingsSettingsGroupTitle")
+			t("pluginSettings.defaultPropertyTypeSettingsSettingsGroupTitle")
 		);
 
 		Object.keys(this.plugin.propertyTypeManager.customPropertyTypes).forEach(
@@ -123,7 +123,7 @@ export class BetterPropertiesSettingsTab extends PluginSettingTab {
 			onExport: async () => {
 				const str = JSON.stringify(plugin.getSettings(), null, 2);
 				const { error } = await tryCatch(navigator.clipboard.writeText(str));
-				new Notice(error ?? text("common.copiedToClipboard"));
+				new Notice(error ?? t("common.copiedToClipboard"));
 			},
 			validateImport: (data) => {
 				const parsedJson = syncTryCatch(() => JSON.parse(data) as {});
@@ -137,7 +137,7 @@ export class BetterPropertiesSettingsTab extends PluginSettingTab {
 					return {
 						success: false,
 						data: undefined,
-						error: text("actionsSettingGroup.importModal.parsingError"),
+						error: t("actionsSettingGroup.importModal.parsingError"),
 					} satisfies TryCatchResult<
 						v.InferOutput<typeof betterPropertiesSettingsSchema>
 					>;

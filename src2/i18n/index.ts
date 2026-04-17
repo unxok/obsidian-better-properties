@@ -18,7 +18,7 @@ export type NestedPaths<T, Prefix extends string = ""> = {
 		: `${Prefix}${K}`;
 }[keyof T & string];
 
-export const text = <T extends NestedPaths<EN>>(
+export const t = <T extends NestedPaths<EN>>(
 	key: T,
 	variables?: Record<string, string>
 ): string => {

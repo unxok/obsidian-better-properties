@@ -23,7 +23,7 @@ import {
 import { BetterProperties } from "#/Plugin";
 import { getValueByKeys, parseObjectPathString, waitUntil } from "#/lib/utils";
 import { syncTryCatch } from "~/lib/utils";
-import { text } from "#/i18n";
+import { t } from "#/i18n";
 
 type BasesEmbedComponent = ReturnType<
 	EmbedRegistry["embedByExtension"]["base"]
@@ -372,8 +372,8 @@ export class BaseUtilityManager extends Component {
 			let embedComponent: BasesEmbedComponent;
 
 			const thisFileSetting = new Setting(modal.contentEl)
-				.setName(text("baseUtilityManager.baseEditor.thisFileSettingName"))
-				.setDesc(text("baseUtilityManager.baseEditor.thisFileSettingDesc"));
+				.setName(t("baseUtilityManager.baseEditor.thisFileSettingName"))
+				.setDesc(t("baseUtilityManager.baseEditor.thisFileSettingDesc"));
 
 			embedComponent = await this.createEmbeddableBaseEditor({
 				query: query,

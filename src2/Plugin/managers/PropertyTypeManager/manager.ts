@@ -28,7 +28,7 @@ import {
 	setSettingIcon,
 	triggerPropertyTypeChange,
 } from "#/lib/obsidian";
-import { text } from "#/i18n";
+import { t } from "#/i18n";
 import "./manager.css";
 
 import formula from "./customPropertyTypes/Formula";
@@ -293,7 +293,7 @@ export class PropertyTypeManager extends Component {
 				.addExtraButton((button) => {
 					button
 						.setIcon("lucide-settings")
-						.setTooltip(text("common.openSettings"));
+						.setTooltip(t("common.openSettings"));
 				});
 		});
 
@@ -374,7 +374,7 @@ export class PropertyTypeManager extends Component {
 		setting.addButton((button) => {
 			button
 				.setIcon("lucide-settings")
-				.setTooltip(text("common.openSettings"))
+				.setTooltip(t("common.openSettings"))
 				.onClick(() => {
 					this.openPropertyTypeSettingsModal({
 						propertyName,
@@ -453,7 +453,7 @@ export class PropertyTypeManager extends Component {
 					);
 					const str = JSON.stringify(settings, null, 2);
 					const { error } = await tryCatch(navigator.clipboard.writeText(str));
-					new Notice(error ?? text("common.copiedToClipboard"));
+					new Notice(error ?? t("common.copiedToClipboard"));
 				},
 				onImport: async (data) => {
 					const parsed = v.parse(schema, data);

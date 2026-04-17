@@ -9,7 +9,7 @@ import {
 import "./obsidian.css";
 import { BetterProperties } from "#/Plugin";
 import { TryCatchResult } from "./utils";
-import { text } from "#/i18n";
+import { t } from "#/i18n";
 import { ConfirmationModal } from "~/classes/ConfirmationModal";
 import { obsidianText } from "~/i18next/obsidian";
 
@@ -59,20 +59,18 @@ export const createActionsSettingsGroup = <T>({
 }) => {
 	new SettingGroup(containerEl)
 		.addSetting((s) => {
-			s.setName(text("common.documentation")).addButton((button) => {
+			s.setName(t("common.documentation")).addButton((button) => {
 				button
 					.setIcon("lucide-book-open")
-					.setTooltip(
-						text("common.openDocumentation", { href: documenationLink })
-					)
+					.setTooltip(t("common.openDocumentation", { href: documenationLink }))
 					.onClick(() => {
 						openLink(documenationLink);
 					});
 			});
 		})
 		.addSetting((s) => {
-			s.setName(text("common.export"))
-				.setDesc(text("actionsSettingGroup.exportDesc"))
+			s.setName(t("common.export"))
+				.setDesc(t("actionsSettingGroup.exportDesc"))
 				.addButton((button) => {
 					button.setIcon("lucide-arrow-up-to-line").onClick(async () => {
 						await onExport();
@@ -80,8 +78,8 @@ export const createActionsSettingsGroup = <T>({
 				});
 		})
 		.addSetting((s) => {
-			s.setName(text("common.import"))
-				.setDesc(text("actionsSettingGroup.importDesc"))
+			s.setName(t("common.import"))
+				.setDesc(t("actionsSettingGroup.importDesc"))
 				.addButton((button) => {
 					button.setIcon("lucide-arrow-down-to-line").onClick(async () => {
 						const importModal = new ImportModal<T>(plugin.app);
@@ -92,8 +90,8 @@ export const createActionsSettingsGroup = <T>({
 				});
 		})
 		.addSetting((s) => {
-			s.setName(text("common.reset"))
-				.setDesc(text("actionsSettingGroup.resetDesc"))
+			s.setName(t("common.reset"))
+				.setDesc(t("actionsSettingGroup.resetDesc"))
 				.addButton((button) => {
 					button
 						.setIcon("lucide-rotate-ccw")
@@ -102,10 +100,10 @@ export const createActionsSettingsGroup = <T>({
 							const confirmationmodal = new ConfirmationModal(plugin.app);
 							confirmationmodal.onOpen = () => {
 								confirmationmodal.setTitle(
-									text("actionsSettingGroup.resetModal.title")
+									t("actionsSettingGroup.resetModal.title")
 								);
 								confirmationmodal.contentEl.createDiv({
-									text: text("actionsSettingGroup.resetModal.desc"),
+									text: t("actionsSettingGroup.resetModal.desc"),
 								});
 								confirmationmodal
 									.addFooterButton((button) => {
@@ -117,7 +115,7 @@ export const createActionsSettingsGroup = <T>({
 									})
 									.addFooterButton((button) => {
 										button
-											.setButtonText(text("common.reset"))
+											.setButtonText(t("common.reset"))
 											.setWarning()
 											.onClick(async () => {
 												await onReset();
@@ -147,7 +145,7 @@ class ImportModal<T> extends ConfirmationModal {
 	onImport: (data: T) => Promise<void> = async () => {};
 
 	onOpen(): void | Promise<void> {
-		this.setTitle(text("actionsSettingGroup.importModal.title"));
+		this.setTitle(t("actionsSettingGroup.importModal.title"));
 
 		const textArea = new TextAreaComponent(this.contentEl.createEl("p"));
 		textArea.inputEl.setAttribute("cols", "40");
@@ -157,7 +155,7 @@ class ImportModal<T> extends ConfirmationModal {
 		const updateValidityEl = (errorMsg?: string | DocumentFragment) => {
 			validityEl.empty();
 			validityEl.createDiv({
-				text: errorMsg ? text("common.invalid") : text("common.valid"),
+				text: errorMsg ? t("common.invalid") : t("common.valid"),
 				cls: errorMsg ? "mod-warning" : "mod-success",
 			});
 			if (errorMsg) {
@@ -167,7 +165,7 @@ class ImportModal<T> extends ConfirmationModal {
 		};
 
 		this.addFooterButton((button) => {
-			button.setButtonText(text("common.import")).setDisabled(true);
+			button.setButtonText(t("common.import")).setDisabled(true);
 
 			textArea.onChange((value) => {
 				const parsed = this.validate(value);

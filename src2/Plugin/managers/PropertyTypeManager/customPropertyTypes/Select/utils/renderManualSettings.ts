@@ -6,7 +6,7 @@ import { StandardSelectSettings } from "./types";
 import { Menu } from "obsidian";
 import { getRandomColor } from "./getRandomColor";
 import { arrayMove } from "~/lib/utils";
-import { text } from "#/i18n";
+import { t } from "#/i18n";
 import { obsidianText } from "~/i18next/obsidian";
 
 /**
@@ -29,7 +29,7 @@ export const renderManualSettings = ({
 }) => {
 	const manualOptionsSettingGroup = new ReorderSettingGroup(
 		containerEl
-	).setHeading(text("select.settings.manualHeading"));
+	).setHeading(t("select.settings.manualHeading"));
 
 	settings.manualOptions.forEach((option, index) => {
 		renderManualOptionSetting({
@@ -47,13 +47,13 @@ export const renderManualSettings = ({
 		.addExtraButton((button) => {
 			button
 				.setIcon("lucide-trash")
-				.setTooltip(text("select.settings.manualRemoveAllTooltip"))
+				.setTooltip(t("select.settings.manualRemoveAllTooltip"))
 				.onClick(() => {
 					const subModal = new ConfirmationModal(plugin.app);
 
-					subModal.setTitle(text("select.settings.manualRemoveAllModalTitle"));
+					subModal.setTitle(t("select.settings.manualRemoveAllModalTitle"));
 					subModal.contentEl.createEl("p", {
-						text: text("select.settings.manualRemoveAllModalDesc"),
+						text: t("select.settings.manualRemoveAllModalDesc"),
 					});
 					subModal
 						.addFooterButton((button) => {
@@ -83,14 +83,14 @@ export const renderManualSettings = ({
 		.addExtraButton((button) => {
 			button
 				.setIcon("lucide-arrow-down-az")
-				.setTooltip(text("select.settings.manualSortTooltip"));
+				.setTooltip(t("select.settings.manualSortTooltip"));
 
 			button.extraSettingsEl.addEventListener("click", (e) => {
 				const menu = new Menu()
 					.setNoIcon()
 					.addItem((item) => {
 						item
-							.setTitle(text("select.settings.manualSortValueAZ"))
+							.setTitle(t("select.settings.manualSortValueAZ"))
 							.onClick(async () => {
 								await updateSettings((prev) => ({
 									...prev,
@@ -103,7 +103,7 @@ export const renderManualSettings = ({
 					})
 					.addItem((item) => {
 						item
-							.setTitle(text("select.settings.manualSortValueZA"))
+							.setTitle(t("select.settings.manualSortValueZA"))
 							.onClick(async () => {
 								await updateSettings((prev) => ({
 									...prev,
@@ -116,7 +116,7 @@ export const renderManualSettings = ({
 					})
 					.addItem((item) => {
 						item
-							.setTitle(text("select.settings.manualSortLabelAZ"))
+							.setTitle(t("select.settings.manualSortLabelAZ"))
 							.onClick(async () => {
 								await updateSettings((prev) => ({
 									...prev,
@@ -129,7 +129,7 @@ export const renderManualSettings = ({
 					})
 					.addItem((item) => {
 						item
-							.setTitle(text("select.settings.manualSortLabelZA"))
+							.setTitle(t("select.settings.manualSortLabelZA"))
 							.onClick(async () => {
 								await updateSettings((prev) => ({
 									...prev,
@@ -147,7 +147,7 @@ export const renderManualSettings = ({
 		.addExtraButton((button) =>
 			button
 				.setIcon("lucide-plus-circle")
-				.setTooltip(text("select.settings.manualCreateTooltip"))
+				.setTooltip(t("select.settings.manualCreateTooltip"))
 				.onClick(async () => {
 					await updateSettings((prev) => ({
 						...prev,
