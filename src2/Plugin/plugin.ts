@@ -59,9 +59,6 @@ export class BetterProperties extends Plugin {
 			this.addChild(this.formulaSyncManager);
 		};
 		this.addChild(this.baseUtilityManager);
-
-		// REMOVE FOR PROD BUILD
-		// this.rebuildLeaves();
 	}
 
 	onunload(): void {}
