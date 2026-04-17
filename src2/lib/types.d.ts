@@ -301,6 +301,12 @@ declare module "obsidian" {
 		searchContainerEl: HTMLElement | undefined;
 	}
 
+	interface Value {
+		constructor: {
+			type: string;
+		};
+	}
+
 	interface ListValue {
 		data: Value[];
 	}

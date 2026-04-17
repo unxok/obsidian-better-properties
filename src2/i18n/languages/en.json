@@ -88,5 +88,11 @@
 		"cyan": "Cyan",
 		"gray": "Gray",
 		"custom": "Custom"
+	},
+	"baseUtilityManager": {
+		"baseEditor": {
+			"thisFileSettingName": "Current file",
+			"thisFileSettingDesc": "The file to use as the current file for the base editor. For testing purposes only."
+		}
 	}
 }

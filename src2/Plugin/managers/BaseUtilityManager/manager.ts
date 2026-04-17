@@ -372,19 +372,8 @@ export class BaseUtilityManager extends Component {
 			let embedComponent: BasesEmbedComponent;
 
 			const thisFileSetting = new Setting(modal.contentEl)
-				.setName(
-					window.createFragment((el) => {
-						el.appendText("File to use as ");
-						el.createEl("code", { text: text("common.this") });
-					})
-				)
-				.setDesc(
-					window.createFragment((el) => {
-						el.appendText("The file to use as ");
-						el.createEl("code", { text: text("common.this") });
-						el.appendText(" in the base editor. For testing purposes only.");
-					})
-				);
+				.setName(text("baseUtilityManager.baseEditor.thisFileSettingName"))
+				.setDesc(text("baseUtilityManager.baseEditor.thisFileSettingDesc"));
 
 			embedComponent = await this.createEmbeddableBaseEditor({
 				query: query,
