@@ -313,6 +313,10 @@ declare module "obsidian" {
 		data: T;
 	}
 
+	interface ObjectValue {
+		data: Record<string, unknown>;
+	}
+
 	interface BasesEntry extends FormulaContext {
 		// new (ctx: BasesContext, file: TFile): BasesEntry;
 

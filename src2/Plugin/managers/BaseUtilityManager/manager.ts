@@ -8,6 +8,7 @@ import {
 	Value,
 	ListValue,
 	PrimitiveValue,
+	ObjectValue,
 } from "obsidian";
 import { ConfirmationModal } from "~/classes/ConfirmationModal";
 import { around, dedupe } from "monkey-around";
@@ -568,7 +569,7 @@ export class BaseUtilityManager extends Component {
 			return value.data.map((v) => this.normalizeFormulaValue(v));
 		}
 
-		if (value instanceof PrimitiveValue) {
+		if (value instanceof PrimitiveValue || value instanceof ObjectValue) {
 			return value.data as boolean | number | string;
 		}
 
