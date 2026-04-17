@@ -1,12 +1,5 @@
 import { BetterProperties } from "#/Plugin";
-import {
-	Component,
-	EventRef,
-	ListValue,
-	PrimitiveValue,
-	TFile,
-	Value,
-} from "obsidian";
+import { Component, EventRef, TFile } from "obsidian";
 import typeKey from "#/Plugin/managers/PropertyTypeManager/customPropertyTypes/Formula/type";
 
 export class FormulaSyncManager extends Component {
@@ -124,7 +117,8 @@ export class FormulaSyncManager extends Component {
 				);
 
 				const isChanged = results.some((result, i) => {
-					const normalized = this.normalizeFormulaValue(result);
+					const normalized =
+						plugin.baseUtilityManager.normalizeFormulaValue(result);
 					return (
 						JSON.stringify(normalized) !== JSON.stringify(properties[i].value)
 					);
@@ -133,30 +127,13 @@ export class FormulaSyncManager extends Component {
 
 				await fileManager.processFrontMatter(containingFile, (fm) => {
 					[...results.values()].forEach((result, i) => {
-						const normalized = this.normalizeFormulaValue(result);
+						const normalized =
+							plugin.baseUtilityManager.normalizeFormulaValue(result);
 						const { property } = properties[i];
 						(fm as Record<string, unknown>)[property] = normalized;
 					});
 				});
 			})
 		);
-	}
-
-	/**
-	 * Converts the data structure used for values returned from formulas to their primitive values (more or less)
-	 */
-	normalizeFormulaValue(
-		value: Value
-	): null | boolean | number | string | Record<string, unknown> | unknown[] {
-		if (value instanceof ListValue) {
-			return value.data.map((v) => this.normalizeFormulaValue(v));
-		}
-
-		if (value instanceof PrimitiveValue) {
-			return value.data as boolean | number | string;
-		}
-
-		// nullish coalesce to null because if you set a property to undefined in FileManager.processFrontmatter() it will remove the property
-		return value?.toString() ?? null;
 	}
 }

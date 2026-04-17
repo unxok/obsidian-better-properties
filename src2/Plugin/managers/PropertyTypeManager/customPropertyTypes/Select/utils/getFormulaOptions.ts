@@ -23,7 +23,7 @@ export const getFormulaOptions = ({
 		containingFile,
 	});
 
-	const normalized = plugin.formulaSyncManager.normalizeFormulaValue(options);
+	const normalized = plugin.baseUtilityManager.normalizeFormulaValue(options);
 	if (!Array.isArray(normalized)) {
 		const msg = `Could not get options from formula for Select property "${
 			context.key

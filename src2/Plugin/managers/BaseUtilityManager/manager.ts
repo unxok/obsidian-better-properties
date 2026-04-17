@@ -5,6 +5,9 @@ import {
 	TFile,
 	FormulaContext,
 	BasesEntry,
+	Value,
+	ListValue,
+	PrimitiveValue,
 } from "obsidian";
 import { ConfirmationModal } from "~/classes/ConfirmationModal";
 import { around, dedupe } from "monkey-around";
@@ -553,5 +556,23 @@ export class BaseUtilityManager extends Component {
 		});
 
 		this.register(uninstall);
+	}
+
+	/**
+	 * Converts the data structure used for values returned from formulas to their primitive values (more or less)
+	 */
+	normalizeFormulaValue(
+		value: Value
+	): null | boolean | number | string | Record<string, unknown> | unknown[] {
+		if (value instanceof ListValue) {
+			return value.data.map((v) => this.normalizeFormulaValue(v));
+		}
+
+		if (value instanceof PrimitiveValue) {
+			return value.data as boolean | number | string;
+		}
+
+		// nullish coalesce to null because if you set a property to undefined in FileManager.processFrontmatter() it will remove the property
+		return value?.toString() ?? null;
 	}
 }
