@@ -2,18 +2,26 @@ import {
 	Component,
 	EditorSuggest,
 	Instruction,
+	MarkdownView,
 	parseLinktext,
 	setIcon,
 	TFile,
+	Workspace,
 } from "obsidian";
 import { BetterProperties } from "#/Plugin";
-import { PropertyLinkRenderer } from "./renderer";
-import { createPropertyLinkRendererPlugin } from "./view-plugin";
+import { initPropertyLinkRender, PropertyLinkRenderer } from "./renderer";
+// import { createPropertyLinkRendererPlugin } from "./view-plugin";
 import { around, dedupe } from "monkey-around";
 import { monkeyAroundKey } from "~/lib/constants";
-import { createPropertyLinkRendererPostProcessor } from "./post-processor";
-import { getValueByKeys, parseObjectPathString } from "#/lib/utils";
+// import { createPropertyLinkRendererPostProcessor } from "./post-processor";
+import {
+	findNestedKey,
+	getValueByKeys,
+	parseObjectPathString,
+	setValueByKeys,
+} from "#/lib/utils";
 import { obsidianText } from "~/i18next/obsidian";
+import { EmbedMarkdownComponent } from "obsidian-typings";
 
 export class PropertyLinkManager extends Component {
 	constructor(public plugin: BetterProperties) {
@@ -28,14 +36,130 @@ export class PropertyLinkManager extends Component {
 			});
 		});
 
-		plugin.registerEditorExtension([createPropertyLinkRendererPlugin(plugin)]);
-		plugin.registerMarkdownPostProcessor(
-			createPropertyLinkRendererPostProcessor(plugin)
-		);
+		// plugin.registerEditorExtension([createPropertyLinkRendererPlugin(plugin)]);
+		// plugin.registerMarkdownPostProcessor(
+		// 	createPropertyLinkRendererPostProcessor(plugin)
+		// );
 		this.patchEditorSuggest();
+		this.patchEmbedRegistry();
+		this.patchWorkspace();
 	}
 
 	onunload(): void {}
+
+	patchWorkspace(): void {
+		const manager = this;
+
+		const uninstaller = around(this.plugin.app.workspace, {
+			openLinkText: (old) =>
+				dedupe(
+					monkeyAroundKey,
+					old,
+					function (linktext, sourcePath, newLeaf, openViewState) {
+						// @ts-expect-error
+						const that = this as Workspace;
+
+						const oldReturn = () =>
+							old.call(that, linktext, sourcePath, newLeaf, openViewState);
+
+						const containingFile =
+							manager.plugin.app.vault.getFileByPath(sourcePath);
+						if (!containingFile) return oldReturn();
+
+						const parsed = manager.parsePropertyLink(linktext, containingFile);
+						if (!parsed) return oldReturn();
+
+						return oldReturn().then(() => {
+							const view = manager.plugin.app.workspace.getActiveFileView();
+							if (!view || !(view instanceof MarkdownView)) return;
+
+							const properties = view.metadataEditor.serialize();
+							const keys = parseObjectPathString(parsed.property);
+							const found = findNestedKey({
+								obj: properties,
+								keys,
+								insensitive: true,
+							});
+
+							if (found) {
+								view.metadataEditor.focusProperty(found);
+								return;
+							}
+
+							setValueByKeys({
+								obj: properties,
+								keys,
+								value: null,
+								insensitive: true,
+							});
+
+							view.metadataEditor.synchronize(properties);
+							view.metadataEditor.focusProperty(keys[0]);
+						});
+					}
+				),
+		});
+
+		this.register(uninstaller);
+	}
+
+	patchEmbedRegistry(): void {
+		const manager = this;
+
+		const uninstaller = around(this.plugin.app.embedRegistry.embedByExtension, {
+			md: (old) =>
+				dedupe(monkeyAroundKey, old, (context, file, subpath) => {
+					const oldReturn = () => old(context, file, subpath);
+
+					if (!subpath || !context.sourcePath) {
+						return oldReturn();
+					}
+
+					const containingFile = manager.plugin.app.vault.getFileByPath(
+						context.sourcePath
+					);
+					if (!containingFile) return oldReturn();
+
+					const parsed = manager.parsePropertyLink(
+						file.path + subpath,
+						containingFile
+					);
+					if (!parsed) return oldReturn();
+
+					context.containerEl.classList.add(
+						"better-properties-property-link-embed"
+					);
+
+					class CustomComponent
+						extends Component
+						implements EmbedMarkdownComponent
+					{
+						constructor(
+							public parsed: NonNullable<
+								ReturnType<typeof manager.parsePropertyLink>
+							>
+						) {
+							super();
+						}
+
+						loadFile() {
+							initPropertyLinkRender({
+								component: this,
+								containerEl: context.containerEl,
+								file: this.parsed.file,
+								hideKey: true,
+								plugin: manager.plugin,
+								property: this.parsed.property,
+							});
+						}
+					}
+
+					return new CustomComponent(parsed);
+				}),
+		});
+
+		this.register(uninstaller);
+	}
 
 	patchEditorSuggest(): void {
 		const { plugin } = this;
@@ -85,7 +209,9 @@ export class PropertyLinkManager extends Component {
 						)
 					) {
 						that.setInstructions([
-							...instructions,
+							...instructions.filter(
+								(c) => c.command !== `Type ${propertyLinkSyntax}`
+							),
 							{
 								command: `Type ${propertyLinkSyntax}`,
 								purpose: "to link property",

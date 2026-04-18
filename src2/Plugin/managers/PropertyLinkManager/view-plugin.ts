@@ -155,6 +155,13 @@ export const createPropertyLinkRendererPlugin = (plugin: BetterProperties) => {
 								return;
 							}
 
+							const prev = node.node.prevSibling;
+							const next = node.node.nextSibling;
+
+							if (!prev || !next) {
+								throw new Error("Previous and Next sibling must be defined");
+							}
+
 							let widget = Decoration.replace({
 								widget: new PropertyLinkRendererWidget(
 									parsed.property,
@@ -162,7 +169,7 @@ export const createPropertyLinkRendererPlugin = (plugin: BetterProperties) => {
 									parsed.file,
 									view
 								),
-							}).range(node.from, node.to);
+							}).range(prev.from, next.to);
 							widgets.push(widget);
 						},
 					});

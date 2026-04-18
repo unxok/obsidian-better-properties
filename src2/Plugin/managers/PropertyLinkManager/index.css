@@ -1,3 +1,7 @@
 .better-properties--property-link-container {
 	display: inline-flex;
 }
+
+.better-properties-property-link-embed.internal-embed {
+	display: inline-block;
+}
