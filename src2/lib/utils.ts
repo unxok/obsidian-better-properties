@@ -210,6 +210,45 @@ export const setValueByKeys = ({
 	}
 };
 
+/**
+ * Sets a nested value in an object using an array of keys
+ */
+export const findNestedKey = ({
+	obj,
+	keys,
+	insensitive,
+}: {
+	obj: Record<string | number, unknown>;
+	keys: (string | number)[];
+	insensitive?: boolean;
+}) => {
+	let currentObj: Record<string, unknown> = obj;
+
+	for (let i = 0; i < keys.length; i++) {
+		const initialkey = keys[i].toString();
+		const lowerInitialKey = initialkey.toLowerCase();
+		const key = insensitive
+			? Object.keys(currentObj).find(
+					(k) => k.toLowerCase() === lowerInitialKey
+			  ) ?? initialkey
+			: initialkey;
+
+		// on last key, so return it
+		if (i === keys.length - 1) {
+			return key;
+		}
+
+		// next value is object, so set to current and continue
+		if (currentObj[key] && typeof currentObj[key] === "object") {
+			currentObj = currentObj[key] as Record<string, unknown>;
+			continue;
+		}
+
+		// next value not an object, so final key cannot be found
+		return undefined;
+	}
+};
+
 export type TryCatchResult<T> =
 	| {
 			success: true;

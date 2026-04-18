@@ -1,5 +1,10 @@
 import { describe, expect, test } from "vitest";
-import { getValueByKeys, parseObjectPathString, setValueByKeys } from "./utils";
+import {
+	findNestedKey,
+	getValueByKeys,
+	parseObjectPathString,
+	setValueByKeys,
+} from "./utils";
 
 describe("parseObjectPathString", () => {
 	describe("Bracket notation", () => {
@@ -267,5 +272,81 @@ describe("setValueByKeys", () => {
 			insensitive: true,
 		});
 		expect(obj.foo.bar[1][0].baz).toBe(false);
+	});
+});
+
+describe("findNestedKey", () => {
+	const objectsSample = {
+		foo: {
+			bar: {
+				fizz: "buzz",
+			},
+		},
+	};
+
+	const arraysSample = {
+		foo: [["fizz", 5]],
+	};
+
+	const mixedSample = {
+		foo: {
+			bar: [
+				[
+					{
+						baz: true,
+					},
+				],
+				[
+					{
+						baz: true,
+					},
+				],
+			],
+		},
+	};
+
+	test("objects", () => {
+		const obj = { ...objectsSample };
+		const found = findNestedKey({
+			obj,
+			keys: ["foo", "bar", "fizz"],
+		});
+		expect(found).toBe("fizz");
+	});
+	test("arrays", () => {
+		const obj = { ...arraysSample };
+		const found = findNestedKey({
+			obj,
+			keys: ["foo", "0", 1],
+		});
+		expect(found).toBe("1");
+	});
+	test("mix of objects and arrays", () => {
+		const obj = { ...mixedSample };
+		const found = findNestedKey({
+			obj,
+			keys: ["foo", "bar", 1, "0", "baz"],
+		});
+		expect(found).toBe("baz");
+	});
+
+	test("insensitive", () => {
+		const obj = { ...mixedSample };
+		const found = findNestedKey({
+			obj,
+			keys: ["FOO", "bAr", 1, "0", "baZ"],
+			insensitive: true,
+		});
+		expect(found).toBe("baz");
+	});
+
+	test("key not present", () => {
+		const obj = { ...mixedSample };
+		const found = findNestedKey({
+			obj,
+			keys: ["FOO", "bAr", 1, "0", "baZ", "buzz"],
+			insensitive: true,
+		});
+		expect(found).toBe(undefined);
 	});
 });
