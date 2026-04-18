@@ -64,6 +64,7 @@ export class PropertyLinkRenderer {
 				cls: "metadata-property-value",
 				attr: {
 					"data-better-properties--hide-key": hideKey,
+					"data-property-type": widget.type,
 				},
 			}),
 			value,
