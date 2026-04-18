@@ -139,14 +139,14 @@ export default (({ plugin, containerEl, data, context }) => {
 	};
 }) satisfies CustomPropertyType["renderWidget"];
 
-class SelectCombobox extends ComboboxComponent<Option> {
+class SelectCombobox extends ComboboxComponent<Option, string> {
 	constructor(
 		plugin: BetterProperties,
 		public parentEl: HTMLElement,
 		public getSettings: () => Settings,
 		public updateSettings: (cb: (s: Settings) => Settings) => Promise<void>
 	) {
-		super(plugin, parentEl);
+		super(plugin, parentEl, "");
 
 		this.controlEl.classList.add("better-properties--select-badge");
 
@@ -233,7 +233,7 @@ class SelectCombobox extends ComboboxComponent<Option> {
 			};
 		});
 
-		this.getStringFromOption = (opt) => opt.value;
+		this.getValueFromOption = (opt) => opt.value;
 	}
 
 	empty(e: MouseEvent | KeyboardEvent): void {

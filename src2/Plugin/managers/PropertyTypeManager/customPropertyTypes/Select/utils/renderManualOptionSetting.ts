@@ -63,7 +63,11 @@ export const renderManualOptionSetting = ({
 		type Color =
 			BetterPropertiesSettings["appearanceSettings"]["colors"][number];
 
-		const combobox = new ComboboxComponent<Color>(plugin, s.controlEl)
+		const combobox = new ComboboxComponent<Color, string>(
+			plugin,
+			s.controlEl,
+			""
+		)
 			.getOptions((q) => {
 				const {
 					appearanceSettings: { colors },
@@ -100,7 +104,7 @@ export const renderManualOptionSetting = ({
 			});
 		};
 
-		combobox.getStringFromOption = (opt) => {
+		combobox.getValueFromOption = (opt) => {
 			return opt.background;
 		};
 

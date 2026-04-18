@@ -3,14 +3,17 @@ import { ValueComponent } from "obsidian";
 import { Suggestion, AbstractSearchSuggest } from "~/classes/InputSuggest";
 import "./index.css";
 
-export class ComboboxComponent<T> extends ValueComponent<string> {
-	searchSuggest: SearchSuggest<T>;
+export class ComboboxComponent<Option, Value> extends ValueComponent<Value> {
+	searchSuggest: SearchSuggest<Option>;
 	controlEl: HTMLDivElement;
 	clickableEl: HTMLDivElement;
-	value: string = "";
-	onChangeCallback: (value: string) => void = () => {};
+	onChangeCallback: (value: Value) => void = () => {};
 
-	constructor(public plugin: BetterProperties, parentEl: HTMLElement) {
+	constructor(
+		public plugin: BetterProperties,
+		parentEl: HTMLElement,
+		public value: Value
+	) {
 		super();
 		this.controlEl = parentEl.createDiv({
 			cls: "better-properties--combobox-control",
@@ -46,47 +49,48 @@ export class ComboboxComponent<T> extends ValueComponent<string> {
 		};
 	}
 
-	getValue(): string {
+	getValue(): Value {
 		return this.value;
 	}
 
-	setValue(value: string): this {
+	setValue(value: Value): this {
 		this.value = value;
 		return this;
 	}
 
 	messageEl: HTMLElement | undefined;
 
-	public getOptionsCallback: (query: string) => T[] | Promise<T[]> = () => {
-		throw new Error("Method not implemented");
-	};
+	public getOptionsCallback: (query: string) => Option[] | Promise<Option[]> =
+		() => {
+			throw new Error("Method not implemented");
+		};
 
-	public getOptions(cb: (query: string) => T[] | Promise<T[]>): this {
+	public getOptions(cb: (query: string) => Option[] | Promise<Option[]>): this {
 		this.getOptionsCallback = cb;
 		return this;
 	}
 
-	public parseSuggestion(cb: (value: T) => Suggestion): this {
+	public parseSuggestion(cb: (value: Option) => Suggestion): this {
 		this.searchSuggest.parseSuggestion = (value) => cb(value);
 		return this;
 	}
 
-	public getStringFromOption(option: T): string {
+	public getValueFromOption(option: Option): Value {
 		// so TS doesn't warn for unused var
 		void option;
 		throw new Error("Method not implemented");
 	}
 
-	public onSelect(cb: (value: T) => void): this {
+	public onSelect(cb: (value: Option) => void): this {
 		this.searchSuggest.onSelect((value) => {
 			cb(value);
-			this.setValue(this.getStringFromOption(value));
+			this.setValue(this.getValueFromOption(value));
 			this.onChanged();
 		});
 		return this;
 	}
 
-	public onChange(cb: (value: string) => void): this {
+	public onChange(cb: (value: Value) => void): this {
 		this.onChangeCallback = cb;
 		return this;
 	}
