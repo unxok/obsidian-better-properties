@@ -289,6 +289,10 @@ declare module "obsidian-typings" {
 			};
 		};
 	}
+
+	interface MetadataEditor {
+		focusProperty(property: string): void;
+	}
 }
 
 declare module "obsidian" {

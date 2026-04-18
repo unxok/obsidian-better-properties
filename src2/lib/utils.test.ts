@@ -273,6 +273,19 @@ describe("setValueByKeys", () => {
 		});
 		expect(obj.foo.bar[1][0].baz).toBe(false);
 	});
+
+	test("single key", () => {
+		const obj = {
+			foo: "bar",
+		};
+		setValueByKeys({
+			obj,
+			keys: ["Foo"],
+			value: "buzz",
+			insensitive: true,
+		});
+		expect(obj.foo).toBe("buzz");
+	});
 });
 
 describe("findNestedKey", () => {
