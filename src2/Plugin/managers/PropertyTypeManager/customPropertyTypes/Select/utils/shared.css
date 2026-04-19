@@ -1,4 +1,7 @@
 .better-properties--select-badge {
+	display: flex;
+	gap: var(--size-2-1);
+
 	--better-properties--select-background: var(
 		--better-properties--select-color-default
 	);

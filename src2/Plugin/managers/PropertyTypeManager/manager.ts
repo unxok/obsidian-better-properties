@@ -30,12 +30,13 @@ import {
 } from "#/lib/obsidian";
 import { t } from "#/i18n";
 import "./manager.css";
-
-import formula from "./customPropertyTypes/Formula";
-import select from "./customPropertyTypes/Select";
-import toggle from "./customPropertyTypes/Toggle";
 import { ConfirmationModal } from "~/classes/ConfirmationModal";
 import { obsidianText } from "~/i18next/obsidian";
+
+import formula from "./customPropertyTypes/Formula";
+import multiselect from "./customPropertyTypes/Multi-Select";
+import select from "./customPropertyTypes/Select";
+import toggle from "./customPropertyTypes/Toggle";
 
 /**
  * Responsible for property-type-related features such as:
@@ -110,6 +111,7 @@ export class PropertyTypeManager extends Component {
 	 */
 	customPropertyTypes = {
 		"better-properties:formula": formula,
+		"better-properties:multiselect": multiselect,
 		"better-properties:select": select,
 		"better-properties:toggle": toggle,
 	} satisfies Record<CustomPropertyTypeKey, CustomPropertyType>;

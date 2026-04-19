@@ -1,0 +1,25 @@
+.better-properties--multiselect-widget-container {
+	display: flex;
+	padding: var(--input-padding);
+	/* flex-grow: 1; */
+	width: fit-content;
+	height: fit-content;
+	white-space: pre-wrap;
+	color: var(--metadata-input-text-color);
+	font-size: var(--metadata-input-font-size);
+
+	&:has(
+			> .better-properties--combobox-control
+				> .better-properties--combobox-clickable:empty
+		) {
+		padding: 0;
+	}
+
+	&
+		> .better-properties--combobox-control
+		> .better-properties--combobox-clickable {
+		display: flex;
+		gap: var(--size-2-3);
+		flex-wrap: wrap;
+	}
+}

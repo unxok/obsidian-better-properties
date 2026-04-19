@@ -6,6 +6,7 @@ import {
 import { customPropertyTypePrefix } from "~/lib/constants";
 
 import formula from "./customPropertyTypes/Formula/settingsSchema";
+import multiselect from "./customPropertyTypes/Multi-Select/settingsSchema";
 import select from "./customPropertyTypes/Select/settingsSchema";
 import toggle from "./customPropertyTypes/Toggle/settingsSchema";
 
@@ -14,6 +15,7 @@ import toggle from "./customPropertyTypes/Toggle/settingsSchema";
  */
 const customPropertyTypeSettingsSchemas = {
 	"better-properties:formula": formula,
+	"better-properties:multiselect": multiselect,
 	"better-properties:select": select,
 	"better-properties:toggle": toggle,
 	"test": vOptionalObjectWithDefault({}),
