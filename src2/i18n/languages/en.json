@@ -122,7 +122,8 @@
 			"baseLabelColDesc": "The column name in the base to use to get the displayed label for each option. If not set, the file's short name is used.",
 			"baseBackgroundColName": "Background column name",
 			"baseBackgroundColDesc": "The column name in the base to use to get the background for each option. If not set, the file's path is used to pick a random color."
-		}
+		},
+		"setEmptyLabel": "Empty"
 	},
 	"colors": {
 		"red": "Red",
