@@ -1,6 +1,10 @@
 import { BetterProperties } from "#/Plugin";
 import { Component, EventRef, TFile } from "obsidian";
 import typeKey from "#/Plugin/managers/PropertyTypeManager/customPropertyTypes/Formula/type";
+import { InlineFormulaRenderer } from "./renderer";
+import { createInlineFormulaRendererPlugin } from "./view-plugin";
+import "./index.css";
+import { createInlineFormulaRendererPostProcessor } from "./post-processor";
 
 export class FormulaSyncManager extends Component {
 	constructor(public plugin: BetterProperties) {
@@ -8,28 +12,35 @@ export class FormulaSyncManager extends Component {
 	}
 
 	onload(): void {
-		this.plugin.app.workspace.onLayoutReady(() => {
+		const { plugin } = this;
+
+		plugin.registerEditorExtension([createInlineFormulaRendererPlugin(plugin)]);
+		plugin.registerMarkdownPostProcessor(
+			createInlineFormulaRendererPostProcessor(plugin)
+		);
+
+		plugin.app.workspace.onLayoutReady(() => {
 			this.buildCache();
 			void this.updateCachedFilesFormulas();
 
 			const refs: EventRef[] = [
-				this.plugin.app.vault.on("delete", (file) => {
+				plugin.app.vault.on("delete", (file) => {
 					if (!(file instanceof TFile)) return;
 					if (!this.cache.has(file.path)) return;
 					this.cache.delete(file.path);
 				}),
-				this.plugin.app.vault.on("create", (file) => {
+				plugin.app.vault.on("create", (file) => {
 					if (!(file instanceof TFile)) return;
 					if (file.extension.toLocaleLowerCase() !== "md") return;
 					if (!this.getFileFormulaProperties(file.path).length) return;
 					this.cache.add(file.path);
 				}),
-				this.plugin.app.vault.on("rename", (file, oldPath) => {
+				plugin.app.vault.on("rename", (file, oldPath) => {
 					if (!this.cache.has(oldPath)) return;
 					this.cache.delete(oldPath);
 					this.cache.add(file.path);
 				}),
-				this.plugin.app.metadataCache.on("changed", async (file) => {
+				plugin.app.metadataCache.on("changed", async (file) => {
 					if (!(file instanceof TFile)) return;
 					if (file.extension.toLocaleLowerCase() !== "md") return;
 					if (!this.getFileFormulaProperties(file.path).length) return;
@@ -37,12 +48,27 @@ export class FormulaSyncManager extends Component {
 				}),
 				// the events above always fire before this,
 				// so the cache should always be up to date before calling updateCachedFilesFormulas
-				this.plugin.app.metadataCache.on("resolved", async () => {
+				plugin.app.metadataCache.on("resolved", async () => {
+					this.refreshRenderers();
 					await this.updateCachedFilesFormulas();
 				}),
 			];
 
 			refs.forEach((ref) => this.registerEvent(ref));
+		});
+	}
+
+	/**
+	 * Active inline formula renderers
+	 */
+	renderers: Set<InlineFormulaRenderer> = new Set();
+
+	/**
+	 * Re-renders each inline formula renderer
+	 */
+	refreshRenderers(): void {
+		this.renderers.forEach((renderer) => {
+			renderer.render();
 		});
 	}
 
@@ -125,14 +151,20 @@ export class FormulaSyncManager extends Component {
 				});
 				if (!isChanged) return;
 
-				await fileManager.processFrontMatter(containingFile, (fm) => {
-					[...results.values()].forEach((result, i) => {
-						const normalized =
-							plugin.baseUtilityManager.normalizeFormulaValue(result);
-						const { property } = properties[i];
-						(fm as Record<string, unknown>)[property] = normalized;
-					});
-				});
+				await fileManager.processFrontMatter(
+					containingFile,
+					(fm) => {
+						[...results.values()].forEach((result, i) => {
+							const normalized =
+								plugin.baseUtilityManager.normalizeFormulaValue(result);
+							const { property } = properties[i];
+							(fm as Record<string, unknown>)[property] = normalized;
+						});
+					}
+					// TODO this seems to break things
+					// this is to prevent infinite loops for formulas that reference this.file.mtime... but is this bad practice?
+					// { mtime: containingFile.stat.mtime }
+				);
 			})
 		);
 	}
