@@ -67,6 +67,6 @@ export class InlineFormulaRenderer {
 		});
 
 		formulaContainerEl.empty();
-		output.renderTo(formulaContainerEl, { hoverPopover: null });
+		output.renderTo(formulaContainerEl, plugin.app.renderContext);
 	}
 }
