@@ -10,10 +10,8 @@ import {
 } from "obsidian";
 import { BetterProperties } from "#/Plugin";
 import { initPropertyLinkRender, PropertyLinkRenderer } from "./renderer";
-// import { createPropertyLinkRendererPlugin } from "./view-plugin";
 import { around, dedupe } from "monkey-around";
 import { monkeyAroundKey } from "~/lib/constants";
-// import { createPropertyLinkRendererPostProcessor } from "./post-processor";
 import {
 	findNestedKey,
 	getValueByKeys,
@@ -36,10 +34,6 @@ export class PropertyLinkManager extends Component {
 			});
 		});
 
-		// plugin.registerEditorExtension([createPropertyLinkRendererPlugin(plugin)]);
-		// plugin.registerMarkdownPostProcessor(
-		// 	createPropertyLinkRendererPostProcessor(plugin)
-		// );
 		this.patchEditorSuggest();
 		this.patchEmbedRegistry();
 		this.patchWorkspace();
