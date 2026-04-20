@@ -7,6 +7,7 @@ import { Keymap, setIcon, setTooltip } from "obsidian";
 import { getRandomColor } from "./utils";
 import { getBaseOptions } from "./utils/getBaseOptions";
 import { getFormulaOptions } from "./utils/getFormulaOptions";
+import { t } from "#/i18n";
 
 type Settings = PropertySettings["types"][typeof typeKey];
 type Option = Settings["manualOptions"][number];
@@ -171,13 +172,9 @@ class SelectCombobox extends ComboboxComponent<Option, string> {
 
 			setEmptyEl = this.searchSuggest.addFooterItem({
 				icon: "lucide-x",
-				title: "Set value to empty",
+				title: t("select.setEmptyLabel"),
 				aux: "Alt + Enter",
 				onClick: (e) => {
-					// this.searchSuggest.canClose = true;
-					// this.searchSuggest.close();
-					// this.setValue("");
-					// this.onChanged();
 					this.empty(e);
 				},
 			});
