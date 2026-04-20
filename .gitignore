@@ -24,3 +24,5 @@ data.json
 # all .env files
 .env
 .env.*
+
+dist
