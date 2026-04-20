@@ -402,3 +402,6 @@ body {
 .better-properties-property-link-embed.internal-embed {
 	display: inline-block;
 }
+.inline-formula-container {
+	display: inline-block;
+}

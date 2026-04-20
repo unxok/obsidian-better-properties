@@ -12,7 +12,7 @@ void settingsSchema;
  * settings - {@link settingsSchema}
  */
 export default {
-	icon: "lucide-list-collapse",
+	icon: "lucide-list-checks",
 	name: () => "Multi-Select",
 	validate: (value) => Array.isArray(value),
 	docsLink: "https://example.com",
