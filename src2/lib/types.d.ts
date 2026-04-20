@@ -223,8 +223,9 @@ interface BasesFormulaPartArray extends BasesFormulaPartBase {
 
 interface BasesFormulaPartInvalid extends BasesFormulaPartBase {
 	type: "invalid";
-	parseError: string;
+	parseError: string | undefined;
 	value: string;
+	getErrorMessage(): string;
 }
 
 // TODO open PR to obsidian-typings
