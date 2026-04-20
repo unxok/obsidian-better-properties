@@ -117,7 +117,7 @@ export default (({ plugin, containerEl, data, context }) => {
 			);
 			errorEl.createDiv({
 				cls: "bases-formula-error-message",
-				text: formulaInstance.formula.parseError,
+				text: formulaInstance.formula.getErrorMessage(),
 			});
 			return;
 		}
