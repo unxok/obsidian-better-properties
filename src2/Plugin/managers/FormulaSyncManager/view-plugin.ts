@@ -11,7 +11,6 @@ import { EditorSelection, Range } from "@codemirror/state";
 import { editorInfoField, editorLivePreviewField, TFile } from "obsidian";
 import { BetterProperties } from "#/Plugin";
 import { initInlineFormulaRenderer } from "./renderer";
-import { Text } from "@codemirror/state";
 
 /**
  * Creates the CM6 plugin for rendering property links
