@@ -11,6 +11,7 @@ import { EditorSelection, Range } from "@codemirror/state";
 import { editorInfoField, editorLivePreviewField, TFile } from "obsidian";
 import { BetterProperties } from "#/Plugin";
 import { initInlineFormulaRenderer } from "./renderer";
+import { Text } from "@codemirror/state";
 
 /**
  * Creates the CM6 plugin for rendering property links
@@ -60,6 +61,8 @@ export const createInlineFormulaRendererPlugin = (plugin: BetterProperties) => {
 							if (!text.startsWith(inlineFormulaSyntax)) return;
 
 							const formula = text.slice(inlineFormulaSyntax.length);
+							if (!formula) return;
+
 							const prev = node.node.prevSibling;
 							const next = node.node.nextSibling;
 
