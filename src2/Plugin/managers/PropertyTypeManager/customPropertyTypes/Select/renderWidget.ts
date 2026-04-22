@@ -56,13 +56,13 @@ export default (({ plugin, containerEl, data, context }) => {
 		});
 
 	let linkEl: HTMLElement | undefined = undefined;
-	let xEl: HTMLElement | undefined = undefined;
+	let closeEl: HTMLElement | undefined = undefined;
 	const updateClickableEl = (opt: Option) => {
 		if (linkEl) {
 			linkEl.remove();
 		}
-		if (xEl) {
-			xEl.remove();
+		if (closeEl) {
+			closeEl.remove();
 		}
 
 		cmp.clickableEl.empty();
@@ -72,13 +72,15 @@ export default (({ plugin, containerEl, data, context }) => {
 		}
 
 		cmp.clickableEl.textContent = opt.label ?? opt.value;
-		xEl = cmp.controlEl.createDiv({ cls: "clickable-icon" });
-		setIcon(xEl, "lucide-x");
+		closeEl = cmp.controlEl.createDiv({
+			cls: "clickable-icon better-properties--select-close",
+		});
+		setIcon(closeEl, "lucide-x");
 
-		xEl.addEventListener("click", (e) => {
+		closeEl.addEventListener("click", (e) => {
 			e.preventDefault();
 			cmp.empty(e);
-			xEl?.remove();
+			closeEl?.remove();
 		});
 
 		cmp.controlEl.setCssProps({

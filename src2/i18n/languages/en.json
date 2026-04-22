@@ -81,11 +81,15 @@
 			"itemFormulaDesc": "Syntax reference"
 		},
 		"appearanceSettingsModal": {
-			"groupName": "Colors",
-			"resetModalTitle": "Colors reset confirmation",
-			"resetModalDesc": "This will permanently reset the colors back to their default.",
-			"addNewTooltip": "Add new color",
-			"itemNamePlaceholder": "Name"
+			"showSelectCloseName": "Show close button for Selects",
+			"showSelectCloseDesc": "Whether to show the close button (denoted by an \"x\" icon) for Select properties.",
+			"showMultiSelectCloseName": "Show close button for Multi-Selects",
+			"showMultiSelectCloseDesc": "Whether to show the close button (denoted by an \"x\" icon) for Multi-Select properties.",
+			"colorsGroupName": "Colors",
+			"colorsResetModalTitle": "Colors reset confirmation",
+			"colorsResetModalDesc": "This will permanently reset the colors back to their default.",
+			"colorsAddNewTooltip": "Add new color",
+			"colorsItemNamePlaceholder": "Name"
 		}
 	},
 	"formula": {

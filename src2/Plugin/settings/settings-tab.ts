@@ -282,15 +282,69 @@ class AppearanceSettingsModal extends Modal {
 	}
 
 	onOpen(): void {
-		const reRenderModal = () => {
-			this.contentEl.empty();
-			this.onOpen();
-		};
+		const { plugin } = this.settingsTab;
 
+		const settings = plugin.getSettings();
+
+		new SettingGroup(this.contentEl)
+			.addSetting((setting) => {
+				setting
+					.setName(t("settings.appearanceSettingsModal.showSelectCloseName"))
+					.setDesc(t("settings.appearanceSettingsModal.showSelectCloseDesc"))
+					.addToggle((toggle) => {
+						toggle
+							.setValue(settings.appearanceSettings.showSelectClose)
+							.onChange(async (b) => {
+								await plugin.updateSettings((s) => ({
+									...s,
+									appearanceSettings: {
+										...s.appearanceSettings,
+										showSelectClose: b,
+									},
+								}));
+							});
+					});
+			})
+			.addSetting((setting) => {
+				setting
+					.setName(
+						t("settings.appearanceSettingsModal.showMultiSelectCloseName")
+					)
+					.setDesc(
+						t("settings.appearanceSettingsModal.showMultiSelectCloseDesc")
+					)
+					.addToggle((toggle) => {
+						toggle
+							.setValue(settings.appearanceSettings.showMultiSelectClose)
+							.onChange(async (b) => {
+								await plugin.updateSettings((s) => ({
+									...s,
+									appearanceSettings: {
+										...s.appearanceSettings,
+										showMultiSelectClose: b,
+									},
+								}));
+							});
+					});
+			});
+
+		this.renderColorsSettingsGroup();
+	}
+
+	onClose(): void {
+		this.settingsTab.display();
+	}
+
+	reRenderModal(): void {
+		this.contentEl.empty();
+		this.onOpen();
+	}
+
+	renderColorsSettingsGroup(): void {
 		const { plugin } = this.settingsTab;
 
 		const group = new ReorderSettingGroup(this.contentEl)
-			.setHeading(t("settings.appearanceSettingsModal.groupName"))
+			.setHeading(t("settings.appearanceSettingsModal.colorsGroupName"))
 			.addExtraButton((button) => {
 				button
 					.setIcon("lucide-rotate-ccw")
@@ -299,10 +353,12 @@ class AppearanceSettingsModal extends Modal {
 						const modal = new ConfirmationModal(plugin.app);
 						modal.onOpen = () => {
 							modal.setTitle(
-								t("settings.appearanceSettingsModal.resetModalTitle")
+								t("settings.appearanceSettingsModal.colorsResetModalTitle")
 							);
 							modal.contentEl.createEl("p", {
-								text: t("settings.appearanceSettingsModal.resetModalDesc"),
+								text: t(
+									"settings.appearanceSettingsModal.colorsResetModalDesc"
+								),
 							});
 							modal
 								.addFooterButton((button) => {
@@ -326,7 +382,7 @@ class AppearanceSettingsModal extends Modal {
 												return prev;
 											});
 											modal.close();
-											reRenderModal();
+											this.reRenderModal();
 										});
 								});
 						};
@@ -336,7 +392,7 @@ class AppearanceSettingsModal extends Modal {
 			.addExtraButton((button) => {
 				button
 					.setIcon("lucide-plus-circle")
-					.setTooltip(t("settings.appearanceSettingsModal.addNewTooltip"))
+					.setTooltip(t("settings.appearanceSettingsModal.colorsAddNewTooltip"))
 					.onClick(async () => {
 						await plugin.updateSettings((prev) => ({
 							...prev,
@@ -348,7 +404,7 @@ class AppearanceSettingsModal extends Modal {
 								],
 							},
 						}));
-						reRenderModal();
+						this.reRenderModal();
 					});
 			})
 			.onReorder(async (from, to) => {
@@ -359,16 +415,16 @@ class AppearanceSettingsModal extends Modal {
 						colors: arrayMove(prev.appearanceSettings.colors, from, to),
 					},
 				}));
-				reRenderModal();
+				this.reRenderModal();
 			});
 
 		plugin.getSettings().appearanceSettings.colors.forEach((color, index) => {
 			group.addSetting((s) => {
-				s.settingEl.addClass("better-properties--mod-hide-info");
+				s.setNoInfo();
 				s.addText((textComponent) => {
 					textComponent
 						.setPlaceholder(
-							t("settings.appearanceSettingsModal.itemNamePlaceholder")
+							t("settings.appearanceSettingsModal.colorsItemNamePlaceholder")
 						)
 						.setValue(color.name)
 						.onChange(async (v) => {
@@ -410,14 +466,10 @@ class AppearanceSettingsModal extends Modal {
 									appearanceSettings: { ...prev.appearanceSettings, colors },
 								};
 							});
-							reRenderModal();
+							this.reRenderModal();
 						});
 				});
 			});
 		});
-	}
-
-	onClose(): void {
-		this.settingsTab.display();
 	}
 }

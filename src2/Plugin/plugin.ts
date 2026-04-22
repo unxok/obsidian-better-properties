@@ -1,14 +1,5 @@
 import { PropertyTypeManager } from "#/Plugin/managers/PropertyTypeManager";
-import {
-	App,
-	Component,
-	Menu,
-	MenuItem,
-	Plugin,
-	PluginManifest,
-	setIcon,
-	SuggestModal,
-} from "obsidian";
+import { App, Plugin, PluginManifest, setIcon, SuggestModal } from "obsidian";
 import {
 	BetterPropertiesSettings,
 	betterPropertiesSettingsSchema,
@@ -19,10 +10,9 @@ import { InvalidPluginSettingsModal } from "./invalidPluginSettingsModal";
 import "./index.css";
 import { BaseUtilityManager } from "./managers/BaseUtilityManager";
 import { PropertyLinkManager } from "./managers/PropertyLinkManager";
-import { around, dedupe } from "monkey-around";
-import { monkeyAroundKey } from "~/lib/constants";
 import { FormulaSyncManager } from "./managers/FormulaSyncManager";
 import { MetadataTypeManagerPropertiesRecord } from "obsidian-typings";
+import { PropertiesEditorManager } from "./managers/PropertiesEditorManager";
 
 export class BetterProperties extends Plugin {
 	propertyTypeManager: PropertyTypeManager;
@@ -34,10 +24,10 @@ export class BetterProperties extends Plugin {
 	constructor(app: App, manifest: PluginManifest) {
 		super(app, manifest);
 
+		this.propertiesEditorManager = new PropertiesEditorManager(this);
 		this.baseUtilityManager = new BaseUtilityManager(this);
 		this.propertyTypeManager = new PropertyTypeManager(this);
 		this.propertyLinkManager = new PropertyLinkManager(this);
-		this.propertiesEditorManager = new PropertiesEditorManager(this);
 		// this.basesViewsManager = new BasesViewsManager();
 		this.formulaSyncManager = new FormulaSyncManager(this);
 	}
@@ -49,6 +39,7 @@ export class BetterProperties extends Plugin {
 				el.remove();
 			});
 		await this.loadSettings();
+		this.handleAppearanceSettingsChange();
 		this.addSettingTab(new BetterPropertiesSettingsTab(this));
 		this.addCommands();
 
@@ -105,6 +96,7 @@ export class BetterProperties extends Plugin {
 	 */
 	async setSettings(settings: BetterPropertiesSettings): Promise<void> {
 		this.settings = settings;
+		this.handleAppearanceSettingsChange();
 		await this.saveData(this.settings);
 	}
 
@@ -181,6 +173,18 @@ export class BetterProperties extends Plugin {
 			},
 		});
 	}
+
+	handleAppearanceSettingsChange(): void {
+		const { appearanceSettings } = this.getSettings();
+
+		document.body.classList[
+			appearanceSettings.showSelectClose ? "add" : "remove"
+		]("better-properties--show-select-close");
+
+		document.body.classList[
+			appearanceSettings.showMultiSelectClose ? "add" : "remove"
+		]("better-properties--show-multiselect-close");
+	}
 }
 
 class PropertySuggestModal extends SuggestModal<
@@ -232,85 +236,5 @@ class PropertySuggestModal extends SuggestModal<
 		_evt: MouseEvent | KeyboardEvent
 	): void {
 		this.onSelectCallback(item);
-	}
-}
-
-class PropertiesEditorManager extends Component {
-	constructor(public plugin: BetterProperties) {
-		super();
-	}
-
-	onload(): void {
-		this.patchMenu();
-	}
-
-	onunload(): void {}
-
-	patchMenu(): void {
-		const manager = this;
-
-		const uninstaller = around(Menu.prototype, {
-			showAtMouseEvent(old) {
-				return dedupe(monkeyAroundKey, old, function (e) {
-					// @ts-expect-error
-					const that = this as Menu;
-
-					const exit = () => {
-						return old.call(that, e);
-					};
-					const { currentTarget } = e;
-					const isMetadataPropertyIcon =
-						currentTarget instanceof HTMLElement &&
-						currentTarget.tagName.toLowerCase() === "span" &&
-						currentTarget.classList.contains("metadata-property-icon");
-
-					if (!isMetadataPropertyIcon) return exit();
-
-					const container = currentTarget.closest(
-						"div.metadata-property[data-property-key]"
-					)!;
-					const property = container.getAttribute("data-property-key") ?? "";
-
-					manager.modifyPropertyEditorMenu(that, property);
-
-					return exit();
-				});
-			},
-		});
-
-		this.register(uninstaller);
-	}
-
-	modifyPropertyEditorMenu(menu: Menu, property: string): void {
-		const changeTypeItem = menu.items[0];
-		if (changeTypeItem instanceof MenuItem) {
-			changeTypeItem.setSection("action.changeType");
-		}
-
-		const section = "action.z_better-properties";
-		menu
-			.addItem((item) => {
-				item
-					.setSection(section)
-					.setIcon("lucide-settings")
-					.setTitle("Settings")
-					.onClick(() => {
-						this.plugin.propertyTypeManager.openPropertySettingsModal(property);
-					});
-			})
-			.addItem((item) => {
-				item
-					.setSection(section)
-					.setIcon("lucide-edit-2")
-					.setTitle("Rename")
-					.onClick(() => {
-						const { name } =
-							this.plugin.app.metadataTypeManager.getPropertyInfo(property);
-						this.plugin.propertyTypeManager.openRenamePropertyModal(name);
-					});
-			});
-
-		menu.addSections([section]);
-		menu.sections = menu.sections.toSorted((a, b) => a.localeCompare(b));
 	}
 }

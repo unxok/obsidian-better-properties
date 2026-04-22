@@ -23,3 +23,11 @@
 		flex-wrap: wrap;
 	}
 }
+
+.better-properties--multiselect-close {
+	display: none;
+
+	.better-properties--show-multiselect-close & {
+		display: flex;
+	}
+}

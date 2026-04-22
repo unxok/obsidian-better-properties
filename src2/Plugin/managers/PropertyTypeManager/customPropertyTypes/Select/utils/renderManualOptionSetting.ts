@@ -29,7 +29,7 @@ export const renderManualOptionSetting = ({
 	manualOptionsSettingGroup: SettingGroup;
 }) => {
 	manualOptionsSettingGroup.addSetting((s) => {
-		s.settingEl.classList.add("better-properties--mod-hide-info");
+		s.setNoInfo();
 		s.addText((textComponent) => {
 			textComponent
 				.setPlaceholder(t("common.valuePlaceholder"))

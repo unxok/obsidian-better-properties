@@ -89,13 +89,15 @@ export default (({ plugin, containerEl, data, context }) => {
 			text: opt.label ?? opt.value,
 		});
 
-		const xEl = badgeEl.createDiv({ cls: "clickable-icon" });
-		setIcon(xEl, "lucide-x");
+		const closeEl = badgeEl.createDiv({
+			cls: "clickable-icon better-properties--multiselect-close",
+		});
+		setIcon(closeEl, "lucide-x");
 
-		xEl.addEventListener("click", (e) => {
+		closeEl.addEventListener("click", (e) => {
 			e.preventDefault();
 			badgeEl.remove();
-			xEl?.remove();
+			closeEl?.remove();
 			const newValue = cmp.getValue().filter((v) => v !== opt.value);
 			cmp.setValue(newValue);
 			cmp.onChanged();

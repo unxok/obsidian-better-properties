@@ -11,7 +11,7 @@ import {
  * @warning Be very careful when changing this as it may invalidate users' existing settings data
  */
 export const betterPropertiesSettingsSchema = vOptionalObjectWithDefault({
-	propertyLinkSyntax: v.optional(v.string(), "@"),
+	propertyLinkSyntax: v.optional(v.string(), "~"),
 	inlineFormulaSyntax: v.optional(v.string(), "="),
 	hidePropertyLabelResizer: v.optional(v.boolean(), false),
 	notePropertyLabelWidth: v.optional(v.string(), ""),
@@ -21,6 +21,8 @@ export const betterPropertiesSettingsSchema = vOptionalObjectWithDefault({
 		{}
 	),
 	appearanceSettings: vOptionalObjectWithDefault({
+		showSelectClose: v.optional(v.boolean(), false),
+		showMultiSelectClose: v.optional(v.boolean(), true),
 		colors: v.optional(
 			v.array(v.object({ name: v.string(), background: v.string() })),
 			[
@@ -67,7 +69,6 @@ export const betterPropertiesSettingsSchema = vOptionalObjectWithDefault({
 				},
 			]
 		),
-		showSelectX: v.optional(v.boolean(), false),
 	}),
 	globalFormulas: v.optional(
 		v.record(

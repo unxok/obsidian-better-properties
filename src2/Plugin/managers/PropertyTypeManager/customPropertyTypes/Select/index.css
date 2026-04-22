@@ -18,3 +18,11 @@
 	/* & > .better-properties--combobox-control {
 	} */
 }
+
+.better-properties--select-close {
+	display: none;
+
+	.better-properties--show-select-close & {
+		display: flex;
+	}
+}

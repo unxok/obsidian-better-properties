@@ -320,3 +320,21 @@ export const hashString = (str: string): number => {
 
 	return Math.abs(hash);
 };
+
+/**
+ * Returns a number or the min or max if it's out of bounds.
+ *
+ * Is inclusive with min and max by default.
+ */
+export const clampNumber = (
+	num: number,
+	min: number,
+	max: number,
+	nonInclusive?: boolean
+) => {
+	const underMin = nonInclusive ? num < min : num <= min;
+	if (underMin) return min;
+	const overMax = nonInclusive ? num > max : num >= max;
+	if (overMax) return max;
+	return num;
+};
