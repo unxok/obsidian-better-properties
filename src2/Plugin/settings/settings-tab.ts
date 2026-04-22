@@ -65,6 +65,54 @@ export class BetterPropertiesSettingsTab extends PluginSettingTab {
 			}
 		);
 
+		new SettingGroup(containerEl)
+			.setHeading(t("settings.propertyLabelResizerGroupName"))
+			.addSetting((setting) => {
+				setting
+					.setName(t("settings.notePropertyLabelWidthName"))
+					.setDesc(t("settings.notePropertyLabelWidthDesc"))
+					.addText((text) => {
+						text
+							.setValue(settings.notePropertyLabelWidth)
+							.onChange(async (v) => {
+								await plugin.updateSettings((s) => ({
+									...s,
+									notePropertyLabelWidth: v,
+								}));
+							});
+					});
+			})
+			.addSetting((setting) => {
+				setting
+					.setName(t("settings.propertiesViewPropertyLabelWidthName"))
+					.setDesc(t("settings.propertiesViewPropertyLabelWidthDesc"))
+					.addText((text) => {
+						text
+							.setValue(settings.propertiesViewPropertyLabelWidth)
+							.onChange(async (v) => {
+								await plugin.updateSettings((s) => ({
+									...s,
+									propertiesViewPropertyLabelWidth: v,
+								}));
+							});
+					});
+			})
+			.addSetting((setting) => {
+				setting
+					.setName(t("settings.hidePropertyLabelResizerName"))
+					.setDesc(t("settings.hidePropertyLabelResizerDesc"))
+					.addToggle((toggle) => {
+						toggle
+							.setValue(settings.hidePropertyLabelResizer)
+							.onChange(async (b) => {
+								await plugin.updateSettings((s) => ({
+									...s,
+									hidePropertyLabelResizer: b,
+								}));
+							});
+					});
+			});
+
 		const globalFormulasSettingGroup = new ReorderSettingGroup(containerEl)
 			.setHeading(t("settings.globalFormulasGroupName"))
 			.addExtraButton((button) => {

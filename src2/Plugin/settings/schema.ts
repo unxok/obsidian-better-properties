@@ -13,6 +13,9 @@ import {
 export const betterPropertiesSettingsSchema = vOptionalObjectWithDefault({
 	propertyLinkSyntax: v.optional(v.string(), "@"),
 	inlineFormulaSyntax: v.optional(v.string(), "="),
+	hidePropertyLabelResizer: v.optional(v.boolean(), false),
+	notePropertyLabelWidth: v.optional(v.string(), ""),
+	propertiesViewPropertyLabelWidth: v.optional(v.string(), ""),
 	propertySettings: v.optional(
 		v.record(v.string(), propertySettingsSchema),
 		{}

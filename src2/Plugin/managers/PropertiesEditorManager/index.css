@@ -1,0 +1,42 @@
+.better-properties--metadata-editor-resizer {
+	height: 100%;
+	background-color: transparent;
+	position: absolute;
+	inset-inline-start: var(--metadata-label-width);
+	cursor: col-resize;
+
+	width: var(--divider-width);
+	border-width: var(--divider-width);
+	border-style: solid;
+	background-color: transparent;
+	border-color: transparent;
+	transition: background-color 200ms ease-in-out, border-color 200ms ease-in-out,
+		opacity 200ms ease-in-out;
+
+	&:hover,
+	&.better-properties--is-dragging {
+		background-color: var(--divider-color-hover);
+		border-color: var(--divider-color-hover);
+	}
+}
+
+.metadata-container {
+	& > .metadata-content > .metadata-properties {
+		position: relative;
+	}
+
+	.markdown-source-view &,
+	.markdown-reading-view & {
+		--metadata-label-width: var(
+			--better-properties--note-metadata-label-width,
+			unset
+		);
+	}
+
+	.view-content > & {
+		--metadata-label-width: var(
+			--better-properties--properties-view-metadata-label-width,
+			unset
+		);
+	}
+}
